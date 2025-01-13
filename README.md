@@ -1,6 +1,6 @@
 Bienvenido al repositorio de Shizuka-Al si
 le agrada el repositorio apoyarme con
-una*iGracias!
+una ⭐ iGracias!
 Grupo Oficial.
 https://chat.whatsapp.com/LuKEZeEXVX
 lJwxBuK8QoIr
