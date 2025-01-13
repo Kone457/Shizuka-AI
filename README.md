@@ -7,5 +7,4 @@ https://chat.whatsapp.com/LuKEZeEXVX
 lJwxBuK8QoIr
 
 Canal Oficial
-https://whatsapp.com/channel/0029Vax
-Yr2J5fM5anA5ws42z
+https://whatsapp.com/channel/0029VaxYr2J5fM5anA5ws42z
