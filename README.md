@@ -3,7 +3,7 @@ le agrada el repositorio apoyarme con
 una ⭐ iGracias!
 
 Grupo Oficial.
-https://chat.whatsapp.com/LuKEZeEXVXlJwxBuK8Qolr
+https://chat.whatsapp.com/J7m9GnjzfaW5sFbCas77UW
 
 Canal Oficial
-https://whatsapp.com/channel/0029VaxYr2J5fM5anA5ws42z
+https://whatsapp.com/channel/0029VazwOzEGZNCoDThYDJ3C
