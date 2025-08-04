@@ -1,6 +1,6 @@
 const handler = async (m, { conn, usedPrefix }) => {
   // Obtiene todos los plugins activos
-  const plugins = Object.values(global.plugins).filter(p => !p.disabled)
+  const plugins = Object.values(global.plugins || {}).filter(p => !p?.disabled)
 
   // Mapeo de categorías y sus emojis/etiquetas
   const categoryMap = {
@@ -18,12 +18,14 @@ const handler = async (m, { conn, usedPrefix }) => {
   // Agrupa comandos por categoría
   const categoryCommands = {}
   for (let plugin of plugins) {
-    const tags = Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags]
-    const helps = Array.isArray(plugin.help) ? plugin.help : [plugin.help]
+    const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : [])
+    const helps = Array.isArray(plugin.help) ? plugin.help : (plugin.help ? [plugin.help] : [])
     for (let tag of tags) {
       if (!categoryMap[tag]) continue
       if (!categoryCommands[tag]) categoryCommands[tag] = new Set()
-      helps.forEach(h => categoryCommands[tag].add(h.trim()))
+      helps.forEach(h => {
+        if (typeof h === 'string') categoryCommands[tag].add(h.trim())
+      })
     }
   }
 
