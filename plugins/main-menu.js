@@ -43,7 +43,7 @@ const handler = async (m, { conn, usedPrefix }) => {
     }
     menu += '│\n'
   }
-  menu += '╰─────────────────\n\n _*Bot creado por Carlos*_'
+  menu += '╰─────────────────\n\n> _*Bot creado por Carlos*_'
 
   // Envía el mensaje con imagen y menú
   await conn.sendMessage(m.chat, {
