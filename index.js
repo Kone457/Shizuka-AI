@@ -42,7 +42,7 @@ const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
 let { say } = cfonts
 console.log(chalk.bold.redBright(`\n✰ 𝙄𝙣𝙞𝙘𝙞𝙖𝙣𝙙𝙤 𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄 ✰\n`))
 
-say('𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄', {
+say('Shizuka-AI', {
 font: 'block',
 align: 'center',
 colors: ['magentaBright']
