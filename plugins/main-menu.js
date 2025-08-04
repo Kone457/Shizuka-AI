@@ -5,15 +5,16 @@ const handler = async (m, { conn, usedPrefix }) => {
   // Mapeo de categorías y sus emojis/etiquetas
   const categoryMap = {
     
-    info:       '📋 INFORMACIÓN',
-    buscadores: '🔍 BUSCADORES',
-    descargas: '🚀 DESCARGAS',
-    group:      '👥 GRUPOS',
-    fun:        '🎉 DIVERSIÓN',
-    text:       '✨ EFECTOS DE TEXTO',
-    tools:      '🔧 HERRAMIENTAS',
-    sticker:    '🧧 STICKER',
-    owner:      '👑 OWNER'
+    info:       '📋 𝐼𝑁𝐹𝑂𝑅𝑀𝐴𝐶𝐼𝑂𝑁',
+    buscadores: '🔍 𝐵𝑈𝑆𝐶𝐴𝐷𝑂𝑅𝐸𝑆',
+    descargas: '🚀 𝐷𝐸𝑆𝐶𝐴𝑅𝐺𝐴𝑆',
+    group:      '👥 𝐺𝑅𝑈𝑃𝑂𝑆',
+    anime:      '🏵️  𝐴𝑁𝐼𝑀𝐸'
+    fun:        '🎉 𝐷𝐼𝑉𝐸𝑅𝑆𝐼𝑂𝑁',
+    text:       '✨ 𝐹𝐸𝐶𝑇𝑂𝑆 𝐷𝐸 𝑇𝐸𝑋𝑇𝑂',
+    tools:      '🔧 𝐻𝐸𝑅𝑅𝐴𝑀𝐼𝐸𝑁𝑇𝐴𝑆',
+    sticker:    '🧧 𝑆𝑇𝐼𝐶𝐾𝐸𝑅',
+    owner:      '👑 𝑂𝑊𝑁𝐸𝑅'
   }
 
   // Agrupa comandos por categoría
@@ -41,7 +42,7 @@ const handler = async (m, { conn, usedPrefix }) => {
     }
     menu += '│\n'
   }
-  menu += '╰─────────────────\n\n> _*Bot creado por Carlos*_'
+  menu += '╰─────────────────\n\n _*Bot creado por Carlos*_'
 
   // Envía el mensaje con imagen y menú
   await conn.sendMessage(m.chat, {
