@@ -6,7 +6,7 @@ const handler = async (m, { conn, usedPrefix }) => {
   const categoryMap = {
     main:       '📋 INFORMACIÓN',
     buscadores: '🔍 BUSCADORES',
-    downloader: '🚀 DESCARGAS',
+    descargas: '🚀 DESCARGAS',
     group:      '👥 GRUPOS',
     fun:        '🎉 DIVERSIÓN',
     text:       '✨ EFECTOS DE TEXTO',
