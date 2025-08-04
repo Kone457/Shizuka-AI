@@ -9,7 +9,7 @@ const handler = async (m, { conn, usedPrefix }) => {
     buscadores: '🔍 𝐵𝑈𝑆𝐶𝐴𝐷𝑂𝑅𝐸𝑆',
     descargas: '🚀 𝐷𝐸𝑆𝐶𝐴𝑅𝐺𝐴𝑆',
     group:      '👥 𝐺𝑅𝑈𝑃𝑂𝑆',
-    anime:      '🏵️  𝐴𝑁𝐼𝑀𝐸'
+    anime:      '🏵️  𝐴𝑁𝐼𝑀𝐸',
     fun:        '🎉 𝐷𝐼𝑉𝐸𝑅𝑆𝐼𝑂𝑁',
     text:       '✨ 𝐹𝐸𝐶𝑇𝑂𝑆 𝐷𝐸 𝑇𝐸𝑋𝑇𝑂',
     tools:      '🔧 𝐻𝐸𝑅𝑅𝐴𝑀𝐼𝐸𝑁𝑇𝐴𝑆',
