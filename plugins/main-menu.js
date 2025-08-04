@@ -4,7 +4,8 @@ const handler = async (m, { conn, usedPrefix }) => {
 
   // Mapeo de categorías y sus emojis/etiquetas
   const categoryMap = {
-    main:       '📋 INFORMACIÓN',
+    
+    info:       '📋 INFORMACIÓN',
     buscadores: '🔍 BUSCADORES',
     descargas: '🚀 DESCARGAS',
     group:      '👥 GRUPOS',
