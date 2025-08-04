@@ -28,7 +28,7 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
 
   // Construye el menú dinámico
-  let menu = '╭─『 Zenitsu Bot 』\n│\n'
+  let menu = '╭─『 𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄 』\n│\n'
   for (let [tag, label] of Object.entries(categoryMap)) {
     const cmds = categoryCommands[tag]
     if (!cmds || cmds.size === 0) continue
