@@ -29,7 +29,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   try {
     // 1) Buscar link de YouTube para mostrar usando API Dorratz
-    const searchRes = await fetch(`https://api.dorratz.com/v3/yt-search?query=${encodeURIComponent(text)}`);
+    const searchRes = await fetch(`https://api.dorratz.com/spotifysearch?query=${encodeURIComponent(text)}`);
     const searchJson = await searchRes.json();
 
     let videoUrl = "https://youtube.com"; // fallback por si no hay resultado
@@ -39,7 +39,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     }
 
     // 2) Usar la API original con el texto de búsqueda para descargar info y audio
-    const downloadRes = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
+    const downloadRes = await fetch(`https://api.dorratz.com/spotifydl?url=${encodeURIComponent(text)}`);
     const downloadJson = await downloadRes.json();
 
     if (!downloadJson.status || !downloadJson.result?.downloadUrl) {
