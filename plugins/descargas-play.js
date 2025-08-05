@@ -43,7 +43,8 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     const downloadJson = await downloadRes.json();
 
     if (!downloadJson.status || !downloadJson.result?.downloadUrl) {
-      return conn.reply(m.chat, `Espera @user que esto se rompió \n ❌ *No pude descargar el audio para:* "${text}"`, m);
+      return conn.reply(m.chat, `
+ ❌ *No pude descargar el audio para:* "${text}"`, m);
     }
 
     const { title, artist, duration, cover } = downloadJson.result.metadata;
