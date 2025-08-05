@@ -496,4 +496,13 @@ if (statSync(`./${jadi}/${directorio}`).isDirectory()) {
 const DSBPreKeys = readdirSync(`./${jadi}/${directorio}`).filter(fileInDir => {
 return fileInDir.startsWith('pre-key-')
 })
-SBprekey = [...SBpre
+SBprekey = [...SBprekey, ...DSBPreKeys]
+DSBPreKeys.forEach(fileInDir => {
+unlinkSync(`./${jadi}/${directorio}/${fileInDir}`)
+})
+}
+})
+} catch (e) {
+console.error('Error in purgeSessionSB:', e)
+}
+}
