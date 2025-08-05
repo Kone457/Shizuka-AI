@@ -4,7 +4,7 @@ let handler = async (m, { conn, text, command }) => {
   
   chat.welcome = false
 
-  await conn.reply(id, `🌸 Shizuka suspira profundo y se despide con una reverencia…\n「Gracias por permitirme ser parte de su historia.」\n¡Hasta pronto, mis queridos! (≧◡≦)ゞ`) 
+  await conn.reply(id, `🌸 Shizuka suspira profundo y se despide con una reverencia…\n「Gracias por permitirme ser parte de su historia.」\n¡Hasta pronto, mis queridos! `) 
   await conn.groupLeave(id)
 
   try {  
