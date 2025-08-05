@@ -21,7 +21,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
         previewType: 0,
         mediaUrl: "https://youtube.com",
         sourceUrl: "https://youtube.com",
-        thumbnailUrl: "https://qu.ax/GoxWU.jpg",
+        thumbnailUrl: "https://qu.ax/QuwNu.jpg",
         renderLargerThumbnail: true
       }
     }
