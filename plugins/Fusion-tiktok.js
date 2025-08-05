@@ -16,7 +16,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         }
       }
     }, { quoted: m });
-    return;
   }
 
   try {
@@ -24,7 +23,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const searchJson = await searchRes.json();
     const videos = searchJson?.result?.videos;
 
-    if (!videos || !videos.length) {
+    if (!videos?.length) {
       return m.reply(`❌ No se encontraron TikToks para: ${text}`);
     }
 
@@ -34,14 +33,13 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const dlRes = await fetch(`https://delirius-apiofc.vercel.app/download/tiktok?url=${encodeURIComponent(tiktokLink)}`);
     const dlJson = await dlRes.json();
 
-    if (!dlJson?.status || !dlJson?.data?.meta?.media[0]?.org) {
+    const mediaUrl = dlJson?.data?.meta?.media?.[0]?.org;
+    if (!dlJson?.status || !mediaUrl) {
       return m.reply(`⚠️ No se pudo descargar el TikTok. Intenta con otro término.`);
     }
 
-    const videoUrl = dlJson.data.meta.media[0].org;
-    const videoTitle = selected.title || dlJson.data.title;
     const caption = `
-🎬 *${videoTitle}*
+🎬 *${selected.title || dlJson.data.title}*
 👤 Autor: ${dlJson.data.author?.nickname || 'Desconocido'}
 📅 Publicado: ${dlJson.data.published || 'Sin fecha'}
 💬 Comentarios: ${dlJson.data.comment}
@@ -58,13 +56,13 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
           title: 'TikTok Video',
           body: 'Descarga completada',
           thumbnailUrl: thumbnailCard,
-          sourceUrl: 𝓟𝓸𝔀𝓮𝓻 𝓫𝔂 𝓒𝓪𝓻𝓵𝓸𝓼 
+          sourceUrl: 'https://vreden.my.id' // reemplaza texto decorativo inválido
         }
       }
     }, { quoted: m });
 
     await conn.sendMessage(m.chat, {
-      video: { url: videoUrl },
+      video: { url: mediaUrl },
       mimetype: 'video/mp4',
       fileName: `tiktok_${selected.video_id}.mp4`
     }, { quoted: m });
