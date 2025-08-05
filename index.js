@@ -127,9 +127,24 @@ const filterStrings = [
 "RGVjcnlwdGVkIG1lc3NhZ2U=" // "Decrypted message" 
 ]
 
-console.info = () => { }
-console.debug = () => { }
-['log', 'warn', 'error'].forEach(methodName => redefineConsoleMethod(methodName, filterStrings))
+// 🛡️ Define primero
+function redefineConsoleMethod(method, filterStrings = []) {
+  const original = console[method];
+  console[method] = (...args) => {
+    const message = args.join(' ');
+    const shouldFilter = filterStrings.some(str => message.includes(str));
+    if (!shouldFilter) original(...args);
+  };
+}
+
+// 💬 Silencia info y debug
+console.info = () => {};
+console.debug = () => {};
+
+// 🎯 Reasigna con filtro
+['log', 'warn', 'error'].forEach(method =>
+  redefineConsoleMethod(method, filterStrings)
+);
 
 const connectionOptions = {
 logger: pino({ level: 'silent' }),
