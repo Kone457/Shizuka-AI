@@ -227,10 +227,11 @@ console.error(e)
 
 let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
 
-const isROwner = [conn.decodeJid(global.conn.user.id), ...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
+const detectwhat = m.sender.includes('@lid') ? '@lid' : '@s.whatsapp.net';
+const isROwner = [...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, '') + detectwhat).includes(m.sender)
 const isOwner = isROwner || m.fromMe
-const isMods = isROwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
-const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || _user.premium == true
+const isMods = isROwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + detectwhat).includes(m.sender)
+const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + detectwhat).includes(m.sender) || _user.premium == true
 
 if (m.isBaileys) return
 if (opts['nyimak'])  return
@@ -253,13 +254,22 @@ m.exp += Math.ceil(Math.random() * 10)
 
 let usedPrefix
 
-const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
-const participants = (m.isGroup ? groupMetadata.participants : []) || []
-const user = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) === m.sender) : {}) || {}
-const bot = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) == this.user.jid) : {}) || {}
-const isRAdmin = user?.admin == 'superadmin' || false
-const isAdmin = isRAdmin || user?.admin == 'admin' || false
-const isBotAdmin = bot?.admin || false
+async function getLidFromJid(id, conn) {
+if (id.endsWith('@lid')) return id
+const res = await conn.onWhatsApp(id).catch(() => [])
+return res[0]?.lid || id
+}
+const senderLid = await getLidFromJid(m.sender, conn)
+const botLid = await getLidFromJid(conn.user.jid, conn)
+const senderJid = m.sender
+const botJid = conn.user.jid
+const groupMetadata = m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}
+const participants = m.isGroup ? (groupMetadata.participants || []) : []
+const user = participants.find(p => p.id === senderLid || p.id === senderJid) || {}
+const bot = participants.find(p => p.id === botLid || p.id === botJid) || {}
+const isRAdmin = user?.admin === "superadmin"
+const isAdmin = isRAdmin || user?.admin === "admin"
+const isBotAdmin = !!bot?.admin
 
 const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), './plugins')
 for (let name in global.plugins) {
@@ -350,18 +360,18 @@ if (m.chat in global.db.data.chats || m.sender in global.db.data.users) {
 let chat = global.db.data.chats[m.chat]
 let user = global.db.data.users[m.sender]
 if (!['grupo-unbanchat.js'].includes(name) && chat && chat.isBanned && !isROwner) return
-if (name != 'grupo-unbanchat.js' && name != 'owner-exec.js' && name != 'owner-exec2.js' && name != 'grupo-delete.js' && chat?.isBanned && !isROwner) return 
-if (user.antispam > 2) return
+if (name != 'grupo-unbanchat.js' && name != 'owner-exec.js' && name != 'owner-exec2.js' && name != 'grupo-delete.js' && chat?.isBanned && !isROwner) return
 if (m.text && user.banned && !isROwner) {
-m.reply(`《✦》Estas baneado/a, no puedes usar comandos en este bot!\n\n${user.bannedReason ? `✰ *Motivo:* ${user.bannedReason}` : '✰ *Motivo:* Sin Especificar'}\n\n> ✧ Si este Bot es cuenta oficial y tiene evidencia que respalde que este mensaje es un error, puedes exponer tu caso con un moderador.`)
-user.antispam++
+m.reply(`⛔ ¡Acceso Denegado, alma errante!  
+Shizuka ha percibido una anomalía en tu energía...  
+No estás autorizado/a para usar comandos en este santuario.
+
+${user.bannedReason ? `✶ Motivo: *${user.bannedReason}*` : '✶ Motivo: *Silencio sin razón aparente...*'}
+
+┊❖ Si este bot es oficial y hay pruebas celestiales de que esto es un error,  
+┊↳ ✦ Puedes elevar tu caso ante un moderador del reino.`)
 return
 }
-
-if (user.antispam2 && isROwner) return
-let time = global.db.data.users[m.sender].spam + 1000
-if (new Date - global.db.data.users[m.sender].spam < 1000) return console.log(`[ SPAM ]`) 
-global.db.data.users[m.sender].spam = new Date * 1
 
 if (m.chat in global.db.data.chats || m.sender in global.db.data.users) {
 let chat = global.db.data.chats[m.chat]
@@ -423,7 +433,13 @@ conn.reply(m.chat, `❮✦❯ Se agotaron tus ${moneda}`, m)
 continue
 }
 if (plugin.level > _user.level) {
-conn.reply(m.chat, `❮✦❯ Se requiere el nivel: *${plugin.level}*\n\n• Tu nivel actual es: *${_user.level}*\n\n• Usa este comando para subir de nivel:\n*${usedPrefix}levelup*`, m)
+conn.reply(m.chat, `❮✦❯ Acceso Restringido por el manto del sistema...
+
+┊• Nivel requerido: *${plugin.level}*  
+┊• Tu esencia actual vibra en el nivel: *${_user.level}*  
+
+𓆩✦𓆪 Para trascender y desbloquear este poder, ejecuta el ritual:  
+*${usedPrefix}levelup*`, m)
 continue
 }
 let extra = {
@@ -470,7 +486,10 @@ await plugin.after.call(this, m, extra)
 console.error(e)
 }}
 if (m.coin)
-conn.reply(m.chat, `❮✦❯ Utilizaste ${+m.coin} ${moneda}`, m)
+conn.reply(m.chat, `Transacción realizada con el eco de tus decisiones...
+
+• Has invertido: +${m.coin} ${moneda}  
+• La energía ha sido transferida al cauce del destino.`, m)
 }
 break
 }}
@@ -541,8 +560,7 @@ let edadaleatoria = ['10', '28', '20', '40', '18', '21', '15', '11', '9', '17', 
 let user2 = m.pushName || 'Anónimo'
 let verifyaleatorio = ['registrar', 'reg', 'verificar', 'verify', 'register'].getRandom()
 
-const msg = {
-rowner: `☠️ *𝕯𝖊𝖓𝖎𝖊𝖉 𝖉𝖊 𝕮𝖗𝖊𝖆𝖉𝖔𝖗* ☠️\n» 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}* 𝖘𝖔𝖑𝖔 𝖕𝖚𝖊𝖉𝖊 𝖘𝖊𝖗 𝖚𝖘𝖆𝖉𝖔 𝖕𝖔𝖗 𝖊𝖑 𝖉𝖎𝖔𝖘 𝖉𝖊𝖑 𝖇𝖔𝖙`,
+const msg = {rowner: `☠️ *𝕯𝖊𝖓𝖎𝖊𝖉 𝖉𝖊 𝕮𝖗𝖊𝖆𝖉𝖔𝖗* ☠️\n» 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}* 𝖘𝖔𝖑𝖔 𝖕𝖚𝖊𝖉𝖊 𝖘𝖊𝖗 𝖚𝖘𝖆𝖉𝖔 𝖕𝖔𝖗 𝖊𝖑 𝖉𝖎𝖔𝖘 𝖉𝖊𝖑 𝖇𝖔𝖙`,
   
   owner: `🕷️ *𝕯𝖊𝖛 𝕺𝖓𝖑𝖞* 🕷️\n» 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}* 𝖗𝖊𝖖𝖚𝖎𝖊𝖗𝖊 𝖕𝖗𝖎𝖛𝖎𝖑𝖊𝖌𝖎𝖔𝖘 𝖉𝖊 𝖉𝖊𝖘𝖆𝖗𝖗𝖔𝖑𝖑𝖆𝖉𝖔𝖗`,
   
@@ -562,10 +580,18 @@ rowner: `☠️ *𝕯𝖊𝖓𝖎𝖊𝖉 𝖉𝖊 𝕮𝖗𝖊𝖆𝖉𝖔𝖗*
   
   restrict: `🔒 *𝕱𝖊𝖆𝖙𝖚𝖗𝖊 𝕷𝖔𝖈𝖐𝖊𝖉* 🔒\n» 𝖊𝖘𝖙𝖆 𝖈𝖆𝖗𝖆𝖈𝖙𝖊𝖗í𝖘𝖙𝖎𝖈𝖆 𝖊𝖘𝖙á 𝖉𝖊𝖘𝖆𝖈𝖙𝖎𝖛𝖆𝖉𝖆 𝖊𝖓 𝖊𝖑 𝖘𝖎𝖘𝖙𝖊𝖒𝖆`
 
+
 }[type];
 if (msg) return m.reply(msg).then(_ => m.react('✖️'))}
 
 let file = global.__filename(import.meta.url, true)
 watchFile(file, async () => {
 unwatchFile(file)
-console.log(chalk.magenta("Se actualizo 'handler.js'"))})
+console.log(chalk.magenta("Se actualizo 'handler.js'"))
+
+if (global.conns && global.conns.length > 0 ) {
+const users = [...new Set([...global.conns.filter((conn) => conn.user && conn.ws.socket && conn.ws.socket.readyState !== ws.CLOSED).map((conn) => conn)])]
+for (const userr of users) {
+userr.subreloadHandler(false)
+}}})
+  
