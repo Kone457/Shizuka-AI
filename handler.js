@@ -545,16 +545,25 @@ let user2 = m.pushName || 'Anónimo'
 let verifyaleatorio = ['registrar', 'reg', 'verificar', 'verify', 'register'].getRandom()
 
 const msg = {
-rowner: `『✦』El comando *${comando}* solo puede ser usado por los creadores del bot.`, 
-owner: `『✦』El comando *${comando}* solo puede ser usado por los desarrolladores del bot.`, 
-mods: `『✦』El comando *${comando}* solo puede ser usado por los moderadores del bot.`, 
-premium: `『✦』El comando *${comando}* solo puede ser usado por los usuarios premium.`, 
-group: `『✦』El comando *${comando}* solo puede ser usado en grupos.`,
-private: `『✦』El comando *${comando}* solo puede ser usado al chat privado del bot.`,
-admin: `『✦』El comando *${comando}* solo puede ser usado por los administradores del grupo.`, 
-botAdmin: `『✦』Para ejecutar el comando *${comando}* debo ser administrador del grupo.`,
-unreg: `『✦』El comando *${comando}* solo puede ser usado por los usuarios registrado, registrate usando:\n> » #${verifyaleatorio} ${user2}.${edadaleatoria}`,
-restrict: `『✦』Esta caracteristica está desactivada.`
+rowner: `☠️ *𝕯𝖊𝖓𝖎𝖊𝖉 𝖉𝖊 𝕮𝖗𝖊𝖆𝖉𝖔𝖗* ☠️\n» 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}* 𝖘𝖔𝖑𝖔 𝖕𝖚𝖊𝖉𝖊 𝖘𝖊𝖗 𝖚𝖘𝖆𝖉𝖔 𝖕𝖔𝖗 𝖊𝖑 𝖉𝖎𝖔𝖘 𝖉𝖊𝖑 𝖇𝖔𝖙`,
+  
+  owner: `🕷️ *𝕯𝖊𝖛 𝕺𝖓𝖑𝖞* 🕷️\n» 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}* 𝖗𝖊𝖖𝖚𝖎𝖊𝖗𝖊 𝖕𝖗𝖎𝖛𝖎𝖑𝖊𝖌𝖎𝖔𝖘 𝖉𝖊 𝖉𝖊𝖘𝖆𝖗𝖗𝖔𝖑𝖑𝖆𝖉𝖔𝖗`,
+  
+  mods: `⚡ *𝕸𝖔𝖉 𝕷𝖔𝖈𝖐* ⚡\n» 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}* 𝖊𝖘 𝖘𝖔𝖑𝖔 𝖕𝖆𝖗𝖆 𝖒𝖔𝖉𝖊𝖗𝖆𝖉𝖔𝖗𝖊𝖘 𝖉𝖊𝖑 𝖘𝖎𝖘𝖙𝖊𝖒𝖆`,
+  
+  premium: `💎 *𝕻𝖗𝖊𝖒𝖎𝖚𝖒 𝕷𝖔𝖈𝖐* 💎\n» 𝖊𝖘𝖙𝖊 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 𝖊𝖘 𝖚𝖓 𝖇𝖊𝖓𝖊𝖋𝖎𝖈𝖎𝖔 𝖊𝖝𝖈𝖑𝖚𝖘𝖎𝖛𝖔 𝖕𝖆𝖗𝖆 𝖚𝖘𝖚𝖆𝖗𝖎𝖔𝖘 𝖕𝖗𝖊𝖒𝖎𝖚𝖒`,
+  
+  group: `👥 *𝕲𝖗𝖔𝖚𝖕 𝕺𝖓𝖑𝖞* 👥\n» 𝖊𝖘𝖙𝖊 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 𝖘𝖔𝖑𝖔 𝖋𝖚𝖓𝖈𝖎𝖔𝖓𝖆 𝖊𝖓 𝖌𝖗𝖚𝖕𝖔𝖘 𝖉𝖊𝖑 𝖇𝖔𝖙`,
+  
+  private: `🤖 *𝕯𝖒 𝕺𝖓𝖑𝖞* 🤖\n» 𝖉𝖊𝖇𝖊𝖘 𝖊𝖓𝖛𝖎𝖆𝖗 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}* 𝖆𝖑 𝖈𝖍𝖆𝖙 𝖕𝖗𝖎𝖛𝖆𝖉𝖔 𝖉𝖊𝖑 𝖇𝖔𝖙`,
+  
+  admin: `👑 *𝕬𝖉𝖒𝖎𝖓 𝕺𝖓𝖑𝖞* 👑\n» 𝖘𝖔𝖑𝖔 𝖑𝖔𝖘 𝖆𝖉𝖒𝖎𝖓𝖎𝖘𝖙𝖗𝖆𝖉𝖔𝖗𝖊𝖘 𝖕𝖚𝖊𝖉𝖊𝖓 𝖚𝖘𝖆𝖗 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}*`,
+  
+  botAdmin: `🤖 *𝕭𝖔𝖙 𝕬𝖉𝖒𝖎𝖓 𝕽𝖊𝖖𝖚𝖎𝖗𝖊𝖉* 🤖\n» 𝖕𝖆𝖗𝖆 𝖚𝖘𝖆𝖗 *${comando}*, 𝖉𝖊𝖇𝖔 𝖘𝖊𝖗 𝖆𝖉𝖒𝖎𝖓𝖎𝖘𝖙𝖗𝖆𝖉𝖔𝖗 𝖉𝖊𝖑 𝖌𝖗𝖚𝖕𝖔`,
+  
+  unreg: `📝 *𝕽𝖊𝖌𝖎𝖘𝖙𝖗𝖔 𝕽𝖊𝖖𝖚𝖊𝖗𝖎𝖉𝖔* 📝\n» 𝖉𝖊𝖇𝖊𝖘 𝖗𝖊𝖌𝖎𝖘𝖙𝖗𝖆𝖗𝖙𝖊 𝖕𝖆𝖗𝖆 𝖚𝖘𝖆𝖗 𝖊𝖑 𝖈𝖔𝖒𝖆𝖓𝖉𝖔 *${comando}*\n\n✧ 𝖚𝖘𝖆: #${verifyaleatorio} ${user2}.${edadaleatoria}`,
+  
+  restrict: `🔒 *𝕱𝖊𝖆𝖙𝖚𝖗𝖊 𝕷𝖔𝖈𝖐𝖊𝖉* 🔒\n» 𝖊𝖘𝖙𝖆 𝖈𝖆𝖗𝖆𝖈𝖙𝖊𝖗í𝖘𝖙𝖎𝖈𝖆 𝖊𝖘𝖙á 𝖉𝖊𝖘𝖆𝖈𝖙𝖎𝖛𝖆𝖉𝖆 𝖊𝖓 𝖊𝖑 𝖘𝖎𝖘𝖙𝖊𝖒𝖆`
 }[type];
 if (msg) return m.reply(msg).then(_ => m.react('✖️'))}
 
