@@ -58,7 +58,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
           title: 'TikTok Video',
           body: 'Descarga completada',
           thumbnailUrl: thumbnailCard,
-          sourceUrl: 𝓟𝓸𝔀𝓮𝓻 𝓫𝔂 𝓒𝓪𝓻𝓵𝓸𝓼 
+          sourceUrl: '𝓟𝓸𝔀𝓮𝓻 𝓫𝔂 𝓒𝓪𝓻𝓵𝓸𝓼 '
         }
       }
     }, { quoted: m });
