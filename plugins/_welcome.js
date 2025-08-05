@@ -21,7 +21,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   // Configuración inicial
   let ppBienvenida = await conn.profilePictureUrl(m.messageStubParameters[0], 'image').catch(_ => 'https://qu.ax/rnsuj.jpg') // Imagen de bienvenida (predeterminada o perfil)
-  let ppDespedida = 'https://qu.ax/OTGDz.jpg' // Imagen personalizada para despedida (enlace alternativo)
+  let ppDespedida = 'https://qu.ax/cLXXz.jpg' // Imagen personalizada para despedida (enlace alternativo)
   
   let imgBienvenida = await (await fetch(ppBienvenida)).buffer()
   let imgDespedida = await (await fetch(ppDespedida)).buffer() // Buffer de la imagen de despedida
