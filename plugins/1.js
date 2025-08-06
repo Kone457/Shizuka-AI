@@ -1,18 +1,7 @@
-const handler = async (m, { conn, args }) => {
+const handler = async (m, { conn }) => {
   const autor = m.sender;
   const mencionado = m.mentionedJid?.[0];
-
-  // 📱 Detectar número en args
-  let numeroDetectado = null;
-  if (!mencionado && args[0]) {
-    const numeroLimpio = args[0].replace(/\D/g, ''); // Elimina todo excepto dígitos
-    if (numeroLimpio.length >= 8) {
-      numeroDetectado = `${numeroLimpio}@s.whatsapp.net`;
-    }
-  }
-
-  // 🎯 Determinar objetivo
-  const objetivo = mencionado || numeroDetectado || autor;
+  const objetivo = mencionado || autor;
   const nombre = `@${objetivo.split('@')[0]}`;
 
   // 🎬 Lista de GIFs
