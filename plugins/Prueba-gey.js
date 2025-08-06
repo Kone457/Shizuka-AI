@@ -33,7 +33,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
   }
 }
 
-handler.help = ['gay']
+handler.help = ['gey']
 handler.tags = ['maker']
 handler.command = ['gay', 'gey', 'oscar', 'rainbow']
 handler.register = true
