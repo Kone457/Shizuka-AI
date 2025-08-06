@@ -7,9 +7,9 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
   const user = global.db.data.users[m.sender]
   const name2 = conn.getName(m.sender)
   const whe = m.quoted?.sender || m.mentionedJid?.[0] || m.sender
-  const perfil = await conn.profilePictureUrl(whe, 'image').catch(_ => 'https://qu.ax/fYpnX.jpg')
+  const perfil = await conn.profilePictureUrl(whe, 'image').catch(_ => 'https://qu.ax/XGJKb.jpg')
   const perfilImg = perfil || 'https://qu.ax/fYpnX.jpg'
-  const dev = 'Carlos ✨ Poeta de Bots'
+  const dev = 'Carlos ✨ '
 
   if (user.registered) {
     return m.reply(`💛 Ya estás registrado.\n¿Deseas volver a registrarte?\nUsa *${usedPrefix}unreg* para eliminar tu registro.`)
