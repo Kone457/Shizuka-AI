@@ -3,24 +3,19 @@ import fetch from 'node-fetch';
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   const text = args.join(" ").trim();
   if (!text) {
-    return conn.reply(
-      m.chat,
-      `🔍 *¿Qué deseas escuchar en YouTube?*\n\n📌 Uso: *${usedPrefix + command} nombre de canción/artista*`,
-      m
-    );
+    return conn.reply(m.chat, `🎵 *¿Qué deseas escuchar?*\n\n📌 Uso: *${usedPrefix + command} <nombre de canción/artista>*`, m);
   }
 
-  // Mensaje inicial con miniatura personalizada
   await conn.sendMessage(m.chat, {
-    text: `🔎 *Buscando en YouTube...*\n🎬 Espera mientras encuentro la canción *${text}*`,
+    text: `🔎 *Buscando en Spotify...*\n🎶 Explorando sonidos ocultos de *${text}*`,
     contextInfo: {
       externalAdReply: {
-        title: "🎧 YouTube Music",
-        body: "Explorando el universo musical...",
+        title: "🎧 Shizuka Music",
+        body: "Conectando emociones a través del ritmo...",
         mediaType: 1,
         previewType: 0,
-        mediaUrl: "https://youtube.com",
-        sourceUrl: "https://youtube.com",
+        mediaUrl: "https://open.spotify.com",
+        sourceUrl: "https://open.spotify.com",
         thumbnailUrl: "https://qu.ax/QuwNu.jpg",
         renderLargerThumbnail: true
       }
@@ -28,58 +23,70 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }, { quoted: m });
 
   try {
-    // 1) Buscar link de YouTube para mostrar usando API Dorratz
+    // Buscar en Spotify
     const searchRes = await fetch(`https://api.vreden.my.id/api/spotifysearch?query=${encodeURIComponent(text)}`);
     const searchJson = await searchRes.json();
 
-    let videoUrl = "https://youtube.com"; // fallback por si no hay resultado
-    if (searchJson && searchJson.data && searchJson.data.length > 0) {
-      const video = searchJson.data[0];
-      videoUrl = `https://youtu.be/${video.videoId}`;
+    if (!searchJson.result || searchJson.result.length === 0) {
+      return conn.reply(m.chat, `❌ No se encontraron resultados para *${text}*.`, m);
     }
 
-    // 2) Usar la API original con el texto de búsqueda para descargar info y audio
-    const downloadRes = await fetch(`https://api.vreden.my.id/api/spotify?url=${encodeURIComponent(text)}`);
-    const downloadJson = await downloadRes.json();
+    const track = searchJson.result[0]; // Tomamos el primero por defecto
 
-    if (!downloadJson.status || !downloadJson.result?.downloadUrl) {
-      return conn.reply(m.chat, `
- ❌ *No pude descargar el audio para:* "${text}"`, m);
-    }
+    const trackCaption = `
+🎶 *${track.title}*
+👤 *Artista:* ${track.artist}
+📀 *Álbum:* ${track.album}
+⏱️ *Duración:* ${track.duration}
+📈 *Popularidad:* ${track.popularity}
+🗓️ *Lanzamiento:* ${track.releaseDate}
+🔗 *Spotify:* ${track.spotifyLink}
 
-    const { title, artist, duration, cover } = downloadJson.result.metadata;
-    const audio = downloadJson.result.downloadUrl;
-
-    const caption = `
-🎶 *${title}*
-📺 *Canal:* ${artist}
-⏱️ *Duración:* ${duration}
-🔗 *YouTube:* ${videoUrl}
-
-✅ Audio listo. ¡Disfrútalo! 🔊
+✨ Descargando audio... prepárate para sumergirte en el ritmo.
 `.trim();
 
-    // Enviar portada (solo una imagen)
+    // Mostrar imagen y datos
     await conn.sendMessage(m.chat, {
-      image: { url: cover },
-      caption: caption
+      image: { url: track.coverArt },
+      caption: trackCaption
     }, { quoted: m });
 
-    // Enviar audio mp3
+    // Descargar audio desde URL de Spotify
+    const audioRes = await fetch(`https://api.vreden.my.id/api/spotify?url=${encodeURIComponent(track.spotifyLink)}`);
+    const audioJson = await audioRes.json();
+
+    if (!audioJson.result || !audioJson.result.music) {
+      return conn.reply(m.chat, `❌ No se pudo obtener el audio para *${track.title}*.`, m);
+    }
+
+    const { title, artists, cover, music } = audioJson.result;
+    const audioCaption = `
+🎧 *${title}* - ${artists}
+💽 Listo para reproducir. ¡Disfrútalo como si fueras parte del mix!
+
+💫 *Shizuka te acompaña con cada nota.*
+`.trim();
+
     await conn.sendMessage(m.chat, {
-      audio: { url: audio },
+      image: { url: cover },
+      caption: audioCaption
+    }, { quoted: m });
+
+    await conn.sendMessage(m.chat, {
+      audio: { url: music },
       fileName: `${title}.mp3`,
       mimetype: "audio/mp4",
       ptt: false
     }, { quoted: m });
 
   } catch (e) {
-    console.error("⚠️ Error al procesar YouTube:", e);
-    return conn.reply(m.chat, `❌ *Error al obtener el audio desde YouTube.*\n\n🛠️ ${e.message}`, m);
+    console.error("⚠️ Error:", e);
+    return conn.reply(m.chat, `❌ *Ocurrió un error al procesar tu solicitud.*\n🛠️ ${e.message}`, m);
   }
 };
 
 handler.command = /^play$/i;
 handler.tags = ['descargas'];
 handler.help = ['play <nombre de canción/artista>'];
+
 export default handler;
