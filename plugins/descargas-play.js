@@ -1,37 +1,28 @@
 import fetch from 'node-fetch';
 
+const thumbnailUrl = 'https://qu.ax/QuwNu.jpg';
+
+const contextInfo = {
+  externalAdReply: {
+    title: "🎧 YouTube Music",
+    body: "Reproducción directa desde el universo musical...",
+    mediaType: 1,
+    previewType: 0,
+    mediaUrl: "https://youtube.com",
+    sourceUrl: "https://youtube.com",
+    thumbnailUrl,
+    renderLargerThumbnail: true
+  }
+};
+
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   const text = args.join(" ").trim();
   if (!text) {
     return conn.sendMessage(m.chat, {
       text: `🎬 *¿Qué deseas ver en YouTube?*\n\n📌 Uso: *${usedPrefix + command} <nombre de canción/artista>*`,
-      contextInfo: {
-        externalAdReply: {
-          title: "🎧 YouTube Music",
-          body: "Reproducción directa desde el universo musical...",
-          mediaType: 1,
-          previewType: 0,
-          mediaUrl: "https://youtube.com",
-          sourceUrl: "https://youtube.com",
-          thumbnailUrl: "https://qu.ax/QuwNu.jpg",
-          renderLargerThumbnail: true
-        }
-      }
+      contextInfo
     }, { quoted: m });
   }
-
-  const contextInfo = {
-    externalAdReply: {
-      title: "🎧 YouTube Music",
-      body: "Reproducción directa desde el universo musical...",
-      mediaType: 1,
-      previewType: 0,
-      mediaUrl: "https://youtube.com",
-      sourceUrl: "https://youtube.com",
-      thumbnailUrl: "https://qu.ax/QuwNu.jpg",
-      renderLargerThumbnail: true
-    }
-  };
 
   await conn.sendMessage(m.chat, {
     text: `🔎 *Buscando en YouTube...*\n🎞️ Cargando transmisiones de *${text}*`,
@@ -78,7 +69,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
     const { title, music } = audioJson.result;
 
-    await conn.sendMessage(m.chat, {
+    await conn, {
       audio: { url: music },
       fileName: `${title}.mp3`,
       mimetype: "audio/mp4",
