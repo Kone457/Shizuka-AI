@@ -61,7 +61,7 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
       externalAdReply: {
         title: '📌 REGISTRADO EN SHIZUKA',
         body: '✨ Has sido vinculado con los hilos del destino.',
-        thumbnailUrl: 'https://qu.ax/fYpnX.jpg',
+        thumbnailUrl: 'https://qu.ax/XGJKb.jpg',
         sourceUrl: 'https://shizuka.bot/perfil',
         mediaType: 1,
         showAdAttribution: false,
@@ -95,7 +95,7 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
       externalAdReply: {
         title: '📌 NUEVO REGISTRO EN SHIZUKA',
         body: '🧡 Magia, datos y emociones en cada conexión.',
-        thumbnailUrl: 'https://qu.ax/fYpnX.jpg',
+        thumbnailUrl: 'https://qu.ax/XGJKb.jpg',
         sourceUrl: 'https://shizuka.bot/perfil',
         mediaType: 1,
         showAdAttribution: false,
