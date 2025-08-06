@@ -1,6 +1,8 @@
 const handler = async (m, { conn }) => {
-  const usuario = m.sender;
-  const nombre = `@${usuario.split('@')[0]}`;
+  const autor = m.sender;
+  const mencionado = m.mentionedJid?.[0];
+  const objetivo = mencionado || autor;
+  const nombre = `@${objetivo.split('@')[0]}`;
 
   // 🎬 Lista de GIFs
   const gifs = [
@@ -30,7 +32,7 @@ const handler = async (m, { conn }) => {
   // Primer mensaje: solo texto
   await conn.sendMessage(m.chat, {
     text: `🥚💥 ${nombre}, esto te dolerá...`,
-    mentions: [usuario]
+    mentions: [objetivo]
   });
 
   // Segundo mensaje: GIF + frase
@@ -38,7 +40,7 @@ const handler = async (m, { conn }) => {
     video: { url: gifUrl },
     gifPlayback: true,
     caption: frase,
-    mentions: [usuario]
+    mentions: [objetivo]
   });
 };
 
