@@ -71,17 +71,7 @@ if (global.conns instanceof Array) console.log()
 else global.conns = []
 let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
 //if (!globalThis.db.data.settings[conn.user.jid].jadibotmd) return m.reply(♡ Comando desactivado temporalmente.)
-let time = global.db.data.users[m.sender].Subs + 120000
-if (new Date - global.db.data.users[m.sender].Subs < 120000) {
-  const waitMsg = `
-${emojis.start}
-${emojis.info} *Enfriamiento activo*
-    
-Debes esperar ${msToTime(time - new Date())} para volver a vincular un Sub-Bot.
-${emojis.end}
-  `;
-  return conn.reply(m.chat, waitMsg, m);
-}
+
 const subBots = [...new Set([...global.conns.filter((conn) => conn.user && conn.ws.socket && conn.ws.socket.readyState !== ws.CLOSED).map((conn) => conn)])]
 const subBotsCount = subBots.length
 if (subBotsCount === 20) {
@@ -111,7 +101,6 @@ yukiJBOptions.usedPrefix = usedPrefix
 yukiJBOptions.command = command
 yukiJBOptions.fromCommand = true
 yukiJadiBot(yukiJBOptions)
-global.db.data.users[m.sender].Subs = new Date() * 1
 }
 
 handler.help = ['qr', 'code']
