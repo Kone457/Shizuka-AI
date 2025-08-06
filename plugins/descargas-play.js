@@ -10,8 +10,7 @@ const contextInfo = {
     previewType: 0,
     mediaUrl: "https://youtube.com",
     sourceUrl: "https://youtube.com",
-    thumbnailUrl,
-    renderLargerThumbnail: true
+    thumbnailUrl // Miniatura en tamaño pequeño (no se incluye renderLargerThumbnail)
   }
 };
 
@@ -69,7 +68,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
     const { title, music } = audioJson.result;
 
-    await conn, {
+    await conn.sendMessage(m.chat, {
       audio: { url: music },
       fileName: `${title}.mp3`,
       mimetype: "audio/mp4",
@@ -79,7 +78,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   } catch (e) {
     console.error("⚠️ Error al simular YouTube:", e);
-    await conn.sendMessage(m.chat, {
+    await(m.chat, {
       text: `❌ *Error en la simulación YouTube.*\n\n🛠️ ${e.message}`,
       contextInfo
     }, { quoted: m });
