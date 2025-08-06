@@ -111,15 +111,8 @@ export default handler
 export async function yukiJadiBot(options) {
   let { pathYukiJadiBot, m, conn, args, usedPrefix, command } = options
   
-  const isCodeCommand = args[0] && args[0].toLowerCase() === 'code';
+  const isCodeCommand = command === 'code';
   
-  if (isCodeCommand) {
-    command = 'code';
-    args.shift(); // Remove 'code' from args
-  } else {
-    command = 'qr';
-  }
-
   const pathCreds = path.join(pathYukiJadiBot, "creds.json")
   if (!fs.existsSync(pathYukiJadiBot)){
     fs.mkdirSync(pathYukiJadiBot, { recursive: true })
