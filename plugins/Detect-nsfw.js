@@ -1,70 +1,81 @@
 import fetch from 'node-fetch'
 
-const handler = async (m, { conn, args, usedPrefix, command }) => {
+let handler = async (m, { conn, text, args, usedPrefix, command }) => {
   const emoji = '🔞'
-  const sparkle = '✨'
-  const flower = '🌸'
+  const kawaii = '💮'
   const error = '❌'
-  const ai = '🤖'
-  const kawaii = '💖'
 
-  if (!args[0]) {
-    return conn.reply(m.chat, `${emoji} ¡Oh~! Falta la URL de la imagen senpai~\n${paperclip || '📎'} Uso: *${usedPrefix + command} <url>*`, m)
+  // Primero intenta obtener URL desde texto
+  let imageUrl = text && text.trim()
+
+  // Si no hay texto, busca si enviaron una imagen directamente (m.message.imageMessage)
+  if (!imageUrl && m.message.imageMessage) {
+    // Obtener URL temporal del mensaje (descarga la imagen primero)
+    try {
+      const stream = await conn.downloadMedia(m)
+      // Aquí debes subir la imagen a un host público o directamente analizar localmente,
+      // pero la API que usas requiere URL pública, así que necesitas subir la imagen antes.
+      // Como subir no está contemplado, le indicaremos al usuario que envíe URL.
+      return conn.reply(m.chat, `${error} Lo siento, actualmente solo puedo analizar imágenes enviadas como URL pública. Por favor envía una URL de imagen.`, m)
+    } catch {
+      return conn.reply(m.chat, `${error} No pude descargar la imagen. Intenta enviar una URL válida.`, m)
+    }
   }
 
-  const imageUrl = args[0]
-  await conn.reply(m.chat, `${ai} Shizuka‑AI está analizando tu imagen... por favor espera ${flower}`, m)
+  if (!imageUrl || !imageUrl.startsWith('http')) {
+    return conn.reply(m.chat, `👀 *Debes proporcionar una URL de imagen para analizar.*\n\n📸 *Ejemplo:* ${usedPrefix + command} https://i.postimg.cc/3wkL5vtn/13.jpg`, m)
+  }
 
   try {
-    const res = await fetch(`https://delirius-apiofc.vercel.app/tools/checknsfw?image=${encodeURIComponent(imageUrl)}`)
+    const apiUrl = `https://delirius-apiofc.vercel.app/tools/checknsfw?image=${encodeURIComponent(imageUrl)}`
+    const res = await fetch(apiUrl)
     const json = await res.json()
+
     if (!json.status) {
-      throw new Error('La API devolvió estado falso')
+      return conn.reply(m.chat, '⚠️ No se pudo analizar la imagen. Vuelve a intentarlo.', m)
     }
 
-    const nsfw = json.data.NSFW
-    const percentage = json.data.percentage
-    const safe = json.data.safe
-    const response = json.data.response
+    const { NSFW, percentage, safe, response } = json.data
 
-    let verdict = safe
-      ? `${kawaii} ¡La imagen parece *segura para el trabajo*!`
-      : `${emoji} Esta imagen fue detectada como *NSFW* (${percentage})`
+    const result = NSFW
+      ? '🔞 *Contenido NSFW detectado*'
+      : '✅ *Imagen segura*'
 
     const caption = `
-${verdict}
-💧 Confianza: *${percentage}*
-🧿 NSFW: *${nsfw ? 'Sí' : 'No'}*
-✅ Safe: *${safe ? 'Sí' : 'No'}*
+🧠 *Shizuka-AI NSFW Detector*
 
-🗣️ Mensaje del sistema: "${response}"
-`
+🖼️ *Imagen Analizada*
+📊 *Resultado:* ${result}
+📈 *Porcentaje:* ${percentage}
+🔐 *Seguro:* ${safe ? 'Sí' : 'No'}
+📝 *Observación:* ${response}
+
+🧬 *API:* Delirius NSFW Detector
+    `.trim()
 
     await conn.sendMessage(m.chat, {
       image: { url: imageUrl },
       caption,
-      footer: `Shizuka-AI analizadora de imágenes ${sparkle}`,
+      footer: 'Shizuka-AI 💮',
       contextInfo: {
         externalAdReply: {
-          title: 'NSFW Check',
-          body: nsfw ? 'Cuidado al compartir~' : 'Segura para compartir',
+          title: "Detector NSFW por IA",
+          body: "Usa imágenes con responsabilidad",
           thumbnailUrl: imageUrl,
-          sourceUrl: imageUrl
+          sourceUrl: 'https://delirius-apiofc.vercel.app'
         }
       }
     }, { quoted: m })
 
   } catch (e) {
-    console.error(e)
-    return conn.reply(m.chat, `${error} Uhm~ ocurrió un error al procesar la imagen...\n🔧 Detalles: *${e.message}*`, m)
+    console.error('Error en NSFW Plugin:', e)
+    return conn.reply(m.chat, '❌ Error al analizar la imagen. Asegúrate de que el enlace sea válido y vuelve a intentarlo.', m)
   }
 }
 
-handler.command = ['checknsfw', 'nsfwcheck', 'analizarnsfw']
-handler.help = ['checknsfw <url de imagen>']
-handler.tags = ['nsfw', 'utility']
-handler.register = true
-handler.group = false
+handler.help = ['checknsfw <url_imagen>']
+handler.tags = ['tools', 'nsfw']
+handler.command = /^checknsfw$/i
 handler.premium = false
 
 export default handler
