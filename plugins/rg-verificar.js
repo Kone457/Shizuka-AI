@@ -69,7 +69,7 @@ regbot += `Usa *#perfil* para ver tu perfil.`
         }
     }, { quoted: m });
 
-/*    await m.react('📪')
+   await m.react('📪')
   await conn.sendMessage(m.chat, {
            text: regbot, 
         contextInfo: {
@@ -83,7 +83,7 @@ regbot += `Usa *#perfil* para ver tu perfil.`
                 showAdAttribution: true,
                 mediaType: 1, 
                 thumbnailUrl: 'https://qu.ax/YnWMn.jpg' }}}, {quoted: m})
-*/
+
 
 let chtxt = `👤 *𝚄𝚜𝚎𝚛* » ${m.pushName || 'Anónimo'}
 🗂 *𝚅𝚎𝚛𝚒𝚏𝚒𝚌𝚊𝚌𝚒𝚘́𝚗* » ${user.name}
