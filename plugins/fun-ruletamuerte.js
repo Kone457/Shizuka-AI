@@ -13,19 +13,19 @@ const handler = async (m, { conn }) => {
   const senderId = m.sender;
 
   if (salasRuleta[chatId]) 
-    return conn.reply(m.chat, '✧ Ya se encuentra una sala activa en este grupo, espera a que termine.', m);
+    return conn.reply(m.chat, '☠️ Ya hay una sala activa en este grupo. El ritual debe completarse antes de invocar otro.', m);
 
   salasRuleta[chatId] = { jugadores: [senderId], estado: 'esperando' };
 
   await conn.sendMessage(m.chat, { 
-    text: `✦ *Ruleta de la Muerte* ✦\n\n@${senderId.split('@')[0]} inició una sala de juego.\n> ❀ Para participar responde con *acepto* para entrar. Tiempo restante: 60 segundos...`, 
+    text: `☠️ *Ruleta Infernal* ☠️\n\n@${senderId.split('@')[0]} ha invocado el juego prohibido.\n🩸 Responde con *acepto* si tienes el valor de enfrentar al destino.\nTiempo restante: 60 segundos...`, 
     mentions: [senderId] 
   }, { quoted: m });
 
   await delay(60000);
   if (salasRuleta[chatId] && salasRuleta[chatId].estado === 'esperando') {
     delete salasRuleta[chatId];
-    await conn.sendMessage(m.chat, { text: '✦ Nadie aceptó el reto, la sala ha sido cerrada.' });
+    await conn.sendMessage(m.chat, { text: '☠️ Nadie aceptó el pacto. El círculo se disuelve en silencio...' });
   }
 };
 
@@ -41,10 +41,10 @@ handler.before = async (m, { conn }) => {
 
   if (texto === 'acepto' || texto === 'aceptar') {
     if (salasRuleta[chatId].jugadores.length >= 2) 
-      return conn.reply(m.chat, '✧ Ya se encuentran dos jugadores en esta sala.', m);
+      return conn.reply(m.chat, '☠️ El círculo ya está completo. No se admiten más almas.', m);
 
     if (senderId === salasRuleta[chatId].jugadores[0])
-      return conn.reply(m.chat, '✧ No puedes aceptar tu propio reto.', m);
+      return conn.reply(m.chat, '☠️ No puedes aceptar tu propio pacto.', m);
 
     salasRuleta[chatId].jugadores.push(senderId);
     salasRuleta[chatId].estado = 'completa';
@@ -56,18 +56,18 @@ handler.before = async (m, { conn }) => {
     });
 
     await conn.sendMessage(m.chat, { 
-      text: '✦ *Ruleta de la Muerte* ✦\n\n❀ ¡La sala está completa!\n\n> ✧ Seleccionando al perdedor...' 
+      text: '☠️ *Ruleta Infernal* ☠️\n\n🩸 ¡Dos almas han sido selladas!\n🔮 Invocando el juicio del abismo...' 
     });
 
     const loadingMessages = [
-      "《 █▒▒▒▒▒▒▒▒▒▒▒》10%\n- Calculando probabilidades...",
-      "《 ████▒▒▒▒▒▒▒▒》30%\n- El destino está echado...",
-      "《 ███████▒▒▒▒▒》50%\n- La suerte está decidida...",
-      "《 ██████████▒▒》80%\n- ¡Pronto conoceremos al perdedor!",
-      "《 ████████████》100%\n- ¡Resultado final!"
+      "《 █▒▒▒▒▒▒▒▒▒▒▒》10%\n- Los espíritus comienzan a murmurar...",
+      "《 ████▒▒▒▒▒▒▒▒》30%\n- El círculo se enciende con fuego oscuro...",
+      "《 ███████▒▒▒▒▒》50%\n- El sacrificio está cerca...",
+      "《 ██████████▒▒》80%\n- El abismo elige a su víctima...",
+      "《 ████████████》100%\n- El veredicto ha sido sellado con sangre."
     ];
 
-    let { key } = await conn.sendMessage(m.chat, { text: "✧ ¡Calculando resultado!" }, { quoted: m });
+    let { key } = await conn.sendMessage(m.chat, { text: "☠️ Invocando el destino oscuro..." }, { quoted: m });
 
     for (let msg of loadingMessages) {
       await delay(3000);
@@ -79,21 +79,21 @@ handler.before = async (m, { conn }) => {
 
     if (propietarios.includes(perdedor)) {
       await conn.sendMessage(m.chat, {
-        text: '✧ El destino intentó castigar al creador… pero su poder es inquebrantable ⚡',
+        text: '⚡ El abismo intentó devorar al creador… pero su esencia es eterna.',
         mentions: [perdedor]
       });
       perdedor = perdedor === jugador1 ? jugador2 : jugador1;
     }
 
     await conn.sendMessage(m.chat, { 
-      text: `✦ *Veredicto final* ✦\n\n@${perdedor.split('@')[0]} ha sido el perdedor.\n\n> ❀ Tiene 60 segundos para sus últimas palabras...`, 
+      text: `☠️ *Veredicto Infernal* ☠️\n\n@${perdedor.split('@')[0]} ha sido marcado por el abismo.\n🩸 Tiene 60 segundos para sus últimas palabras...`, 
       mentions: [perdedor] 
     });
 
     await delay(60000);        
     await conn.groupParticipantsUpdate(m.chat, [perdedor], 'remove');
     await conn.sendMessage(m.chat, { 
-      text: `❀ @${perdedor.split('@')[0]} ha sido eliminado. Fin del juego.`, 
+      text: `🩸 @${perdedor.split('@')[0]} ha sido devorado por las sombras.\n☠️ El juego ha terminado.`, 
       mentions: [perdedor] 
     });        
     delete salasRuleta[chatId];
@@ -101,7 +101,7 @@ handler.before = async (m, { conn }) => {
 
   if (texto === 'rechazar' && senderId === salasRuleta[chatId].jugadores[0]) {
     delete salasRuleta[chatId];
-    await conn.sendMessage(m.chat, { text: '✧ El juego ha sido cancelado por el retador.' });
+    await conn.sendMessage(m.chat, { text: '☠️ El retador ha roto el pacto. El juego ha sido cancelado.' });
   }
 };
 
