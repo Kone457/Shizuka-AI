@@ -1,4 +1,7 @@
 const handler = async (m, { conn, usedPrefix }) => {
+  // Reacción del bot al recibir el comando
+  await conn.sendMessage(m.chat, { react: { text: '✨', key: m.key } });
+
   const plugins = Object.values(global.plugins || {}).filter(p => !p?.disabled);
 
   // --- Mapeo de categorías con decoraciones ---
@@ -48,7 +51,6 @@ const handler = async (m, { conn, usedPrefix }) => {
   // --- Agrupa comandos por categoría (manteniendo la lógica original) ---
   const categoryCommands = {};
   for (let plugin of plugins) {
-    // Se mantiene la lógica original que lee plugin.tags y plugin.help
     const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : []);
     const helps = Array.isArray(plugin.help) ? plugin.help : (plugin.help ? [plugin.help] : []);
 
