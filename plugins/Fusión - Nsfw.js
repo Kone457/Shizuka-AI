@@ -1,49 +1,37 @@
 import fetch from 'node-fetch'
 import cheerio from 'cheerio'
 
-const emoji = '🔞'
-const emoji2 = '📛'
-const emojiSearch = '🔍'
-const emojiDownload = '⬇️'
-const emojiVideo = '🎬'
-const emojiClock = '⏱️'
-const emojiInfo = 'ℹ️'
-const emojiLink = '🔗'
-const emojiFile = '📁'
-const emojiError = '❌'
-const emojiSuccess = '✅'
-
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!db.data.chats[m.chat].nsfw && m.isGroup) {
-    return conn.reply(m.chat, `${emojiError} El contenido *NSFW* está desactivado en este grupo.\nActívalo con: *${usedPrefix}nsfw on*`, m)
+    return conn.reply(m.chat, `❌ El contenido *NSFW* está desactivado en este grupo.\nActívalo con: *${usedPrefix}nsfw on*`, m)
   }
 
   if (!text) {
-    return conn.reply(m.chat, `${emoji} Ingresa una búsqueda para encontrar videos.\n${emojiInfo} Ejemplo: *${usedPrefix + command} colegiala sexy*`, m)
+    return conn.reply(m.chat, `🔞 Ingresa una búsqueda para buscar videos.\nEjemplo: ${usedPrefix + command} colegiala`, m)
   }
 
   try {
-    await conn.reply(m.chat, `${emojiSearch} Buscando videos, espera un momento...`, m)
+    await conn.reply(m.chat, '🔍 Buscando videos, espera un momento...', m)
 
     const res = await xnxxsearch(text)
     const results = res.result
-    if (!results.length) return conn.reply(m.chat, `${emojiError} No se encontraron resultados para: *${text}*`, m)
+    if (!results.length) return conn.reply(m.chat, `❌ No se encontraron resultados para: ${text}`, m)
 
     const video = results[0] // primer resultado
     const detail = await xnxxdl(video.link)
 
     // Mostrar preview con información
     const caption = `
-${emojiVideo} *${detail.result.title}*
-${emojiClock} *Duración:* ${detail.result.duration}
-${emojiInfo} *Info:* ${detail.result.info}
-${emojiLink} *Enlace:* ${video.link}
+🎬 *${detail.result.title}*
+⏱️ Duración: ${detail.result.duration}
+🗂️ Info: ${detail.result.info}
+📎 Enlace: ${video.link}
 `
 
     await conn.sendMessage(m.chat, {
       image: { url: detail.result.image },
       caption,
-      footer: `${emojiSuccess} Obtenido desde XNXX`,
+      footer: '🔞 Obtenido desde XNXX',
       contextInfo: {
         externalAdReply: {
           title: 'Video NSFW',
@@ -63,7 +51,7 @@ ${emojiLink} *Enlace:* ${video.link}
 
   } catch (e) {
     console.error(e)
-    return conn.reply(m.chat, `${emoji2} Ocurrió un error:\n\n${emojiError} *${e.message}*`, m)
+    return conn.reply(m.chat, `❌ Ocurrió un error: ${e.message}`, m)
   }
 }
 
