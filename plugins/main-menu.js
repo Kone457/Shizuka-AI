@@ -106,23 +106,7 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
   menu += '```> Creado por Carlos ✨```';
 
-  // --- Envía el mensaje sin botones ni footer, pero con la apariencia de adReply ---
-  await conn.sendMessage(m.chat, {
-    text: menu,
-    contextInfo: {
-        mentionedJid: [m.sender],
-        externalAdReply: {
-            title: botname,
-            body: textbot,
-            thumbnailUrl: banner,
-            sourceUrl: redes,
-            mediaType: 1,
-            showAdAttribution: true,
-            renderLargerThumbnail: true,
-        },
-    },
-  }, { quoted: m });
-};
+  
 
 handler.command = /^(menu|help|comandos)$/i;
 export default handler;
