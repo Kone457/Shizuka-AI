@@ -86,12 +86,12 @@ const handler = async (m, { conn, usedPrefix }) => {
 │ 🗓️ *Fecha:* ${fecha}
 │ ⏰ *Hora:* ${hora}
 ╰━━━━━━━━━━━━━━━━━━━━━╯
-╭━━❪ 📊 𝗘𝘀𝘁𝗮𝗱𝗶́𝘀𝘁𝗶𝗰𝗮𝘀 ❫━━━╮
+╭━━━❪ 📊 𝗘𝘀𝘁𝗮𝗱𝗶́𝘀𝘁𝗶𝗰𝗮𝘀 ❫━━━━╮
 │
 │ 🕒 *Actividad:* ${uptime}
 │ 👥 *Usuarios:* ${totalreg}
 │ 📚 *Comandos:* ${totalCommands}
-╰━━━━━━━━━━━━━━━━━━╯
+╰━━━━━━━━━━━━━━━━━━━━╯
 `
   for (let [tag, label] of Object.entries(categoryMap)) {
     const cmds = categoryCommands[tag];
