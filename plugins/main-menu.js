@@ -18,7 +18,7 @@ const handler = async (m, { conn, usedPrefix }) => {
     info:          '📋 𝗜𝗻𝗳𝗼𝗿𝗺𝗮𝗰𝗶𝗼́𝗻 𝗱𝗲𝗹 𝗕𝗼𝘁',
     descargas:     '🚀 𝗗𝗲𝘀𝗰𝗮𝗿𝗴𝗮𝘀',
     buscadores:    '🔍 𝗕𝘂𝘀𝗰𝗮𝗱𝗼𝗿𝗲𝘀',
-    ia:            '🧠 𝗜𝗻𝘁𝗲𝗹𝗶𝗴𝗲𝗻𝗰𝗶𝗮 𝗔𝗿𝘁𝗶𝗳𝗶𝗰𝗶𝗮𝗹',
+    ia:            '🧠 𝗜𝗻𝘁𝗲𝗹𝗶𝗴𝗲𝗻𝗰𝗶𝗮 𝗔𝗜',
     imagen:        '🖼️ 𝗚𝗲𝗻𝗲𝗿𝗮𝗱𝗼𝗿 𝗱𝗲 𝗜𝗺𝗮́𝗴𝗲𝗻𝗲𝘀',
     transformador: '🔄 𝗖𝗼𝗻𝘃𝗲𝗿𝘀𝗼𝗿𝗲𝘀',
     fun:           '🎉 𝗗𝗶𝘃𝗲𝗿𝘀𝗶𝗼́𝗻 𝘆 𝗝𝘂𝗲𝗴𝗼𝘀',
@@ -106,11 +106,9 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
   menu += '> _Creado por Carlos_';
 
-  // --- Envía el mensaje con la imagen completa y el adReply ---
   await conn.sendMessage(m.chat, {
-    image: { url: banner },
-    caption: menu,
-    headerType: 4,
+    text: menu,
+    footer: `Creador: +52 1 55 1234 5678`,
     contextInfo: {
         mentionedJid: [m.sender],
         externalAdReply: {
