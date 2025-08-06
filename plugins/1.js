@@ -1,3 +1,10 @@
+/*───────────────────────────────────────
+  📁 Módulo:     rompehuevos.js
+  🧠 Autor:      Carlos
+  🛠 Proyecto:   Shizuka-AI
+  🔗 GitHub:     https://github.com/Kone457/Shizuka-AI
+───────────────────────────────────────*/
+
 const handler = async (m, { conn }) => {
   const autor = m.sender;
   const mencionado = m.mentionedJid?.[0];
