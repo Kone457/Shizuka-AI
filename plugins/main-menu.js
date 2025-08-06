@@ -1,153 +1,63 @@
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { format } from 'util'
+const handler = async (m, { conn, usedPrefix }) => {
+  // Obtiene todos los plugins activos
+  const plugins = Object.values(global.plugins || {}).filter(p => !p?.disabled);
 
-// Asegúrate de que estas variables estén definidas en tu archivo global.js
-const botname = global.botname || 'Shizuka-AI'
-const textbot = global.textbot || 'Asistente virtual de WhatsApp'
-const banner = global.banner || 'https://telegra.ph/file/a014909a39f67a29e2c65.jpg'
-const redes = global.redes || 'https://chat.whatsapp.com/G5v3lHn3w0x04kP2b39q31'
-const channelRD = global.channelRD || { id: '120363297750821010@newsletter', name: 'Shizuka-AI Channel' }
+  // Mapeo de categorías y sus emojis/etiquetas
+  const categoryMap = {
+    // AVISO: Asegúrate de que estos tags coincidan con los de tus plugins.
+    // Ejemplo:
+    // 'info': '📋 𝐼𝑁𝐹𝑂𝑅𝑀𝐴𝐶𝐼𝑂𝑁',
+    // 'descargas': '🚀 𝐷𝐸𝑆𝐶𝐴𝑅𝐺𝐴𝑆',
+    // 'grupo': '👥 𝐺𝑅𝑈𝑃𝑂𝑆', // Usar el tag correcto (ej. 'grupo', no 'group')
+    // etc.
+    info: '📋 𝐼𝑁𝐹𝑂𝑅𝑀𝐴𝐶𝐼𝑂𝑁',
+    buscadores: '🔍 𝐵𝑈𝑆𝐶𝐴𝐷𝑂𝑅𝐸𝑆',
+    descargas: '🚀 𝐷𝐸𝑆𝐶𝐴𝑅𝐺𝐴𝑆',
+    group: '👥 𝐺𝑅𝑈𝑃𝑂𝑆',
+    rpg: '🪄 𝑅𝑃𝐺',
+    anime: '🏵️  𝐴𝑁𝐼𝑀𝐸',
+    fun: '🎉 𝐷𝐼𝑉𝐸𝑅𝑆𝐼𝑂𝑁',
+    text: '✨ 𝐹𝐸𝐶𝑇𝑂𝑆 𝐷𝐸 𝑇𝐸𝑋𝑇𝑂',
+    tools: '🔧 𝐻𝐸𝑅𝑅𝐴𝑀𝐼𝐸𝑁𝑇𝐴𝑆',
+    sticker: '🧧 𝑆𝑇𝐼𝐶𝐾𝐸𝑅',
+    owner: '👑 𝑂𝑊𝑁𝐸𝑅'
+  };
 
+  // Agrupa comandos por categoría
+  const categoryCommands = {};
+  for (let plugin of plugins) {
+    // Líneas corregidas: se accede a las propiedades a través de plugin.handler
+    const tags = Array.isArray(plugin.handler.tags) ? plugin.handler.tags : (plugin.handler.tags ? [plugin.handler.tags] : []);
+    const helps = Array.isArray(plugin.handler.help) ? plugin.handler.help : (plugin.handler.help ? [plugin.handler.help] : []);
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-let handler = async (m, { conn, args }) => {
-    let userId = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.sender
-    let user = global.db.data.users[userId]
-    let name = conn.getName(userId)
-    let _uptime = process.uptime() * 1000
-    let uptime = clockString(_uptime)
-    let totalreg = Object.keys(global.db.data.users).length
-    let totalCommands = 0
-    let tags = {}
-    
-    // Directorios donde se encuentran tus plugins.
-    // VERIFICA ESTA RUTA EN TU CONSOLA
-    let pluginFolders = [
-        path.join(__dirname, '..', 'plugins')
-    ]
-
-    for (const folder of pluginFolders) {
-        console.log('Buscando plugins en:', folder); // Mensaje de depuración
-        if (!fs.existsSync(folder)) {
-            console.error('La carpeta de plugins no existe en:', folder);
-            continue;
-        }
-
-        const files = fs.readdirSync(folder)
-        console.log('Archivos encontrados:', files); // Mensaje de depuración
-
-        for (const filename of files) {
-            if (filename.endsWith('.js') && !filename.startsWith('_')) {
-                try {
-                    let pluginPath = path.join(folder, filename)
-                    let module = await import(`file://${pluginPath}?update=${Date.now()}`)
-                    let commands = module.default
-                    
-                    if (commands && commands.handler && commands.handler.help && commands.handler.tags) {
-                        commands.handler.tags.forEach(tag => {
-                            if (!tags[tag]) {
-                                tags[tag] = []
-                            }
-                            // Agregar los comandos de 'help' al array del tag
-                            tags[tag].push(...commands.handler.help)
-                            totalCommands += commands.handler.help.length
-                        })
-                    }
-                } catch (e) {
-                    console.error(`Error al cargar el plugin ${filename}:`, e)
-                }
-            }
-        }
+    for (let tag of tags) {
+      if (!categoryMap[tag]) continue;
+      if (!categoryCommands[tag]) categoryCommands[tag] = new Set();
+      helps.forEach(h => {
+        if (typeof h === 'string') categoryCommands[tag].add(h.trim());
+      });
     }
+  }
 
-    // Mapeo de tags a títulos de menú con emojis
-    let tagsMapping = {
-        'main': '✨ *P R I N C I P A L*',
-        'info': 'ℹ️ *I N F O R M A C I Ó N*',
-        'rg': '📝 *R E G I S T R O*',
-        'serbot': '🤖 *S U B - B O T*',
-        'tools': '🧰 *H E R R A M I E N T A S*',
-        'transformador': '🔄 *C O N V E R S O R E S*',
-        'imagen': '🎨 *I M Á G E N E S*',
-        'descargas': '📥 *D E S C A R G A S*',
-        'ia': '🧠 *I N T E L I G E N C I A   A R T I F I C I A L*',
-        'fun': '🤣 *E N T R E T E N I M I E N T O*',
-        'game': '🎮 *J U E G O S*',
-        'anime': '🎌 *A N I M E*',
-        'gacha': '🎰 *G A C H A*',
-        'grupo': '👥 *G R U P O S*',
-        'sticker': '🧩 *S T I C K E R S*',
-        'rpg': '💰 *E C O N O M Í A   Y   R P G*',
-        'owner': '👑 *P R O P I E T A R I O*',
-        'nsfw': '🔞 *C O N T E N I D O   + 1 8*',
+  // Construye el menú dinámico
+  let menu = '╭─『 𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄 』\n│\n';
+  for (let [tag, label] of Object.entries(categoryMap)) {
+    const cmds = categoryCommands[tag];
+    if (!cmds || cmds.size === 0) continue;
+    menu += `├ ${label}\n`;
+    for (let cmd of [...cmds].sort()) {
+      menu += `│ ◦ ${usedPrefix}${cmd}\n`;
     }
+    menu += '│\n';
+  }
+  menu += '╰─────────────────\n\n> _*Bot creado por Carlos*_'
 
-    let txt = `
-╭━━〔 🌟 𝘽𝙞𝙚𝙣𝙫𝙚𝙣𝙞𝙙𝙤 🌟 〕━╮
-┃ ¡Hola @${userId.split('@')[0]}!
-┃ Soy *${botname}*, tu asistente virtual.
-╰━━━━━━━━━━━━━━━━━━━━╯
+  // Envía el mensaje con imagen y menú
+  await conn.sendMessage(m.chat, {
+    image: { url: 'https://qu.ax/diNXY.jpg' },
+    caption: menu
+  }, { quoted: m });
+};
 
-╭━━━〔 📊 𝙀𝙨𝙩𝙖𝙙𝙞́𝙨𝙩𝙞𝙘𝙖𝙨 〕━━━╮
-┃ 🕒 Tiempo activo: *${uptime}*
-┃ 👥 Usuarios registrados: *${totalreg}*
-┃ 📚 Comandos disponibles: *${totalCommands}*
-╰━━━━━━━━━━━━━━━━━━━━━╯
-    `
-
-    for (let tag in tags) {
-        if (tagsMapping[tag] && tags[tag].length > 0) {
-            txt += `\n╭━━━〔 ${tagsMapping[tag]} 〕━━━╮\n`
-            let commands = tags[tag]
-            commands.forEach(command => {
-                txt += `┃ ⚙️ #${command}\n`
-            })
-            txt += `╰━━━━━━━━━━━━━━━━━━━━╯\n`
-        }
-    }
-
-    await conn.sendMessage(m.chat, { 
-        text: txt,
-        contextInfo: {
-            mentionedJid: [m.sender, userId],
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: channelRD.id,
-                newsletterName: channelRD.name,
-                serverMessageId: -1,
-            },
-            forwardingScore: 999,
-            externalAdReply: {
-                title: botname,
-                body: textbot,
-                thumbnailUrl: banner,
-                sourceUrl: redes,
-                mediaType: 1,
-                showAdAttribution: true,
-                renderLargerThumbnail: true,
-            },
-        },
-    }, { quoted: m })
-}
-
-handler.help = ['menu']
-handler.tags = ['main']
-handler.command = ['menu', 'menú', 'help']
-
-export default handler
-
-function clockString(ms) {
-    let d = Math.floor(ms / (1000 * 60 * 60 * 24))
-    let h = Math.floor((ms / (1000 * 60 * 60)) % 24)
-    let m = Math.floor((ms / (1000 * 60)) % 60)
-    let s = Math.floor((ms / 1000) % 60)
-    let dDisplay = d > 0 ? d + (d === 1 ? " día, " : " días, ") : ""
-    let hDisplay = h > 0 ? h + (h === 1 ? " hora, " : " horas, ") : ""
-    let mDisplay = m > 0 ? m + (m === 1 ? " minuto, " : " minutos, ") : ""
-    let sDisplay = s > 0 ? s + (s === 1 ? " segundo" : " segundos") : ""
-    return dDisplay + hDisplay + mDisplay + sDisplay
-}
+handler.command = /^(menu|help|comandos)$/i;
+export default handler;
