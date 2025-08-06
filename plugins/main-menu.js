@@ -1,6 +1,6 @@
 const handler = async (m, { conn, usedPrefix }) => {
   // Reacción del bot al recibir el comando
-  await conn.sendMessage(m.chat, { react: { text: '📚', key: m.key } });
+  await conn.sendMessage(m.chat, { react: { text: '🧨', key: m.key } });
 
   const plugins = Object.values(global.plugins || {}).filter(p => !p?.disabled);
 
