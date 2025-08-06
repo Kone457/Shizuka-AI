@@ -4,6 +4,13 @@ const handler = async (m, { conn, usedPrefix }) => {
 
   const plugins = Object.values(global.plugins || {}).filter(p => !p?.disabled);
 
+  // --- Variables para la apariencia de canal (puedes personalizarlas) ---
+  const botname = 'Shizuka-AI';
+  const textbot = 'Asistente virtual de WhatsApp';
+  const banner = 'https://qu.ax/diNXY.jpg';
+  const redes = 'https://chat.whatsapp.com/G5v3lHn3w0x04kP2b39q31';
+  const channelRD = { id: '120363297750821010@newsletter', name: 'Shizuka-AI Channel' };
+
   // --- Mapeo de categorías con decoraciones mejoradas ---
   const categoryMap = {
     main:          '🌟 𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀 𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹𝗲𝘀',
@@ -48,15 +55,6 @@ const handler = async (m, { conn, usedPrefix }) => {
     saludo = 'Buenas noches';
   }
   
-  const user = global.db.data.users[m.sender];
-  const partnerJid = user?.partner;
-  let relacion;
-  if (partnerJid) {
-    relacion = `Pareja: ❤️ @${partnerJid.split('@')[0]}`;
-  } else {
-    relacion = 'Pareja: 💔 Soltero/a';
-  }
-  
   const _uptime = process.uptime() * 1000;
   const uptime = clockString(_uptime);
   const totalreg = Object.keys(global.db.data.users).length;
@@ -83,10 +81,14 @@ const handler = async (m, { conn, usedPrefix }) => {
   let menu = `
 ╭━━━━━━━━❪ ✨ 𝑺𝒉𝒊𝒛𝒖𝒌𝒂-𝑨𝑰 ✨ ❫━━━━━━━━╮
 │
+│ 🤖 *Versión:* v1.0.0
+│ 👤 *Creador:* Carlos
 │ 👋 ${saludo}, @${m.sender.split('@')[0]}
 │ 🗓️ *Fecha:* ${fecha}
 │ ⏰ *Hora:* ${hora}
-│ ${relacion}
+│
+│ _Puedes usar ${usedPrefix}help <comando>_
+│ _para obtener más detalles sobre su uso._
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 ╭━━━━━━━━❪ 📊 𝗘𝘀𝘁𝗮𝗱𝗶́𝘀𝘁𝗶𝗰𝗮𝘀 ❫━━━━━━━━╮
 │
@@ -109,12 +111,29 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
   menu += '```> Creado por Carlos ✨```';
 
-  // Envía el mensaje con imagen y menú
+  // --- Envía el mensaje con la apariencia de canal ---
   await conn.sendMessage(m.chat, {
-    image: { url: 'https://qu.ax/diNXY.jpg' },
-    caption: menu,
-    mentions: [m.sender, partnerJid].filter(Boolean)
-  }, { quoted: m });
+    text: menu,
+    contextInfo: {
+        mentionedJid: [m.sender],
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: channelRD.id,
+            newsletterName: channelRD.name,
+            serverMessageId: -1,
+        },
+        forwardingScore: 999,
+        externalAdReply: {
+            title: botname,
+            body: textbot,
+            thumbnailUrl: banner,
+            sourceUrl: redes,
+            mediaType: 1,
+            showAdAttribution: true,
+            renderLargerThumbnail: true,
+        },
+    },
+}, { quoted: m });
 };
 
 handler.command = /^(menu|help|comandos)$/i;
