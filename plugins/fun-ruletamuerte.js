@@ -1,6 +1,5 @@
 import { delay } from '@whiskeysockets/baileys';
 
-// Extraer propietarios desde global.owner
 const propietarios = global.owner
   .flat()
   .filter(i => typeof i === 'string')
@@ -13,23 +12,23 @@ const handler = async (m, { conn }) => {
   const senderId = m.sender;
 
   if (salasRuleta[chatId]) 
-    return conn.reply(m.chat, '✧ Ya se encuentra una sala activa en este grupo, espera a que termine.', m);
+    return conn.reply(m.chat, '☠️ 𓆩 Ya existe un círculo activo en este aquelarre. Espera a que el ritual concluya. 𓆪 ☠️', m);
 
   salasRuleta[chatId] = { jugadores: [senderId], estado: 'esperando' };
 
   await conn.sendMessage(m.chat, { 
-    text: `✦ *Ruleta de la Muerte* ✦\n\n@${senderId.split('@')[0]} inició una sala de juego.\n> ❀ Para participar responde con *acepto* para entrar. Tiempo restante: 60 segundos...`, 
+    text: `༒︎ *Ruleta Infernal* ༒︎\n\n🜲 @${senderId.split('@')[0]} ha invocado el juego maldito.\n\n✶ Responde con *acepto* para sellar tu pacto. Tiempo: 60 segundos...`, 
     mentions: [senderId] 
   }, { quoted: m });
 
   await delay(60000);
   if (salasRuleta[chatId] && salasRuleta[chatId].estado === 'esperando') {
     delete salasRuleta[chatId];
-    await conn.sendMessage(m.chat, { text: '✦ Nadie aceptó el reto, la sala ha sido cerrada.' });
+    await conn.sendMessage(m.chat, { text: '✘ El ritual fue ignorado. El círculo se disuelve en sombras...' });
   }
 };
 
-handler.command = ['ruletamuerte'];
+handler.command = ['ruletainfernal'];
 handler.botAdmin = true;
 
 handler.before = async (m, { conn }) => {
@@ -41,10 +40,10 @@ handler.before = async (m, { conn }) => {
 
   if (texto === 'acepto' || texto === 'aceptar') {
     if (salasRuleta[chatId].jugadores.length >= 2) 
-      return conn.reply(m.chat, '✧ Ya se encuentran dos jugadores en esta sala.', m);
+      return conn.reply(m.chat, '☠️ Ya hay dos almas atrapadas en este juego. No puedes entrar.', m);
 
     if (senderId === salasRuleta[chatId].jugadores[0])
-      return conn.reply(m.chat, '✧ No puedes aceptar tu propio reto.', m);
+      return conn.reply(m.chat, '✘ No puedes pactar contigo mismo, criatura.', m);
 
     salasRuleta[chatId].jugadores.push(senderId);
     salasRuleta[chatId].estado = 'completa';
@@ -56,18 +55,18 @@ handler.before = async (m, { conn }) => {
     });
 
     await conn.sendMessage(m.chat, { 
-      text: '✦ *Ruleta de la Muerte* ✦\n\n❀ ¡La sala está completa!\n\n> ✧ Seleccionando al perdedor...' 
+      text: '༒︎ *Ruleta Infernal* ༒︎\n\n⚰️ ¡Dos almas han sellado el pacto!\n\n✶ Invocando al azar demoníaco...' 
     });
 
     const loadingMessages = [
-      "《 █▒▒▒▒▒▒▒▒▒▒▒》10%\n- Calculando probabilidades...",
-      "《 ████▒▒▒▒▒▒▒▒》30%\n- El destino está echado...",
-      "《 ███████▒▒▒▒▒》50%\n- La suerte está decidida...",
-      "《 ██████████▒▒》80%\n- ¡Pronto conoceremos al perdedor!",
-      "《 ████████████》100%\n- ¡Resultado final!"
+      "☠️ 《 █▒▒▒▒▒▒▒▒▒▒▒》10%\n- Invocando entidades oscuras...",
+      "☠️ 《 ████▒▒▒▒▒▒▒▒》30%\n- El velo entre mundos se abre...",
+      "☠️ 《 ███████▒▒▒▒▒》50%\n- El juicio se aproxima...",
+      "☠️ 《 ██████████▒▒》80%\n- El abismo elige su víctima...",
+      "☠️ 《 ████████████》100%\n- El veredicto ha sido sellado..."
     ];
 
-    let { key } = await conn.sendMessage(m.chat, { text: "✧ ¡Calculando resultado!" }, { quoted: m });
+    let { key } = await conn.sendMessage(m.chat, { text: "✶ El círculo está girando..." }, { quoted: m });
 
     for (let msg of loadingMessages) {
       await delay(3000);
@@ -79,29 +78,40 @@ handler.before = async (m, { conn }) => {
 
     if (propietarios.includes(perdedor)) {
       await conn.sendMessage(m.chat, {
-        text: '✧ El destino intentó castigar al creador… pero su poder es inquebrantable ⚡',
+        text: '🜲 El abismo intentó devorar al creador... pero su esencia es eterna.',
         mentions: [perdedor]
       });
       perdedor = perdedor === jugador1 ? jugador2 : jugador1;
     }
 
     await conn.sendMessage(m.chat, { 
-      text: `✦ *Veredicto final* ✦\n\n@${perdedor.split('@')[0]} ha sido el perdedor.\n\n> ❀ Tiene 60 segundos para sus últimas palabras...`, 
+      text: `☠️ *Veredicto Infernal* ☠️\n\n@${perdedor.split('@')[0]} ha sido marcado por el destino.\n\n✶ Tiene 60 segundos para sus últimas palabras antes de morir...`, 
       mentions: [perdedor] 
     });
 
     await delay(60000);        
     await conn.groupParticipantsUpdate(m.chat, [perdedor], 'remove');
     await conn.sendMessage(m.chat, { 
-      text: `❀ @${perdedor.split('@')[0]} ha sido eliminado. Fin del juego.`, 
+      text: `✘ @${perdedor.split('@')[0]} ha muerto. El círculo se cierra con su sangre. 🕱`, 
       mentions: [perdedor] 
-    });        
+    });
+
+    const epitafios = [
+      "Su alma ha sido arrancada del código.",
+      "El infierno lo reclama sin piedad.",
+      "Su existencia ha sido borrada.",
+      "Ni los demonios quisieron su esencia.",
+      "El círculo se alimenta de su muerte."
+    ];
+    const epitafio = epitafios[Math.floor(Math.random() * epitafios.length)];
+    await conn.sendMessage(m.chat, { text: `🕱 ${epitafio}` });
+
     delete salasRuleta[chatId];
   }
 
   if (texto === 'rechazar' && senderId === salasRuleta[chatId].jugadores[0]) {
     delete salasRuleta[chatId];
-    await conn.sendMessage(m.chat, { text: '✧ El juego ha sido cancelado por el retador.' });
+    await conn.sendMessage(m.chat, { text: '✘ El invocador ha roto el pacto. El juego se disuelve.' });
   }
 };
 
