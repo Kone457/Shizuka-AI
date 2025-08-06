@@ -27,10 +27,11 @@ const emojis = {
   end: '┗━━━━━━━━━━━━━━━━━━━━━━━'
 };
 
-let crm1 = "Y2QgcGx1Z2lucw"
-let crm2 = "A7IG1kNXN1b"
-let crm3 = "SBpbmZvLWRvbmFyLmpz"
-let crm4 = "IF9hdXRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
+// Variables corregidas para evitar el error de caracteres nulos
+let crm1 = "Y2QgcGx1Z2lucw=="
+let crm2 = "O21kNXN1bSByZW"
+let crm3 = "FkYW1lLm1kIF9hd"
+let crm4 = "XRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
 let drm1 = ""
 let drm2 = ""
 
