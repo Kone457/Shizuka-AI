@@ -2,62 +2,68 @@ import fetch from 'node-fetch'
 import cheerio from 'cheerio'
 
 const emoji = '🔞'
-const sparkle = '✨'
-const flower = '🌸'
-const paperclip = '📎'
-const error = '❌'
-const ai = '🤖'
-const kawaii = '💖'
+const emoji2 = '📛'
+const emojiSearch = '🔍'
+const emojiDownload = '⬇️'
+const emojiVideo = '🎬'
+const emojiClock = '⏱️'
+const emojiInfo = 'ℹ️'
+const emojiLink = '🔗'
+const emojiFile = '📁'
+const emojiError = '❌'
+const emojiSuccess = '✅'
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!db.data.chats[m.chat].nsfw && m.isGroup) {
-    return conn.reply(m.chat, `${error} Shizuka-AI detecta que el contenido NSFW está desactivado aquí...\n${sparkle} Un *administrador* puede activarlo con: *${usedPrefix}nsfw on* ${flower}`, m)
+    return conn.reply(m.chat, `${emojiError} El contenido *NSFW* está desactivado en este grupo.\nActívalo con: *${usedPrefix}nsfw on*`, m)
   }
 
   if (!text) {
-    return conn.reply(m.chat, `${emoji} Uhm~ me falta una búsqueda, senpai~\n${paperclip} Por favor, escribe algo como:\n*${usedPrefix + command} colegiala anime*`, m)
+    return conn.reply(m.chat, `${emoji} Ingresa una búsqueda para encontrar videos.\n${emojiInfo} Ejemplo: *${usedPrefix + command} colegiala sexy*`, m)
   }
 
   try {
-    await conn.reply(m.chat, `${ai} Shizuka-AI está buscando contenido delicado... espera un momentito, por favor ${flower}`, m)
+    await conn.reply(m.chat, `${emojiSearch} Buscando videos, espera un momento...`, m)
 
     const res = await xnxxsearch(text)
     const results = res.result
-    if (!results.length) return conn.reply(m.chat, `${error} Lo siento mucho, no encontré nada para: *${text}* ${flower}`, m)
+    if (!results.length) return conn.reply(m.chat, `${emojiError} No se encontraron resultados para: *${text}*`, m)
 
-    const video = results[0]
+    const video = results[0] // primer resultado
     const detail = await xnxxdl(video.link)
 
+    // Mostrar preview con información
     const caption = `
-${emoji} *${detail.result.title}* ${sparkle}
-⏱️ *Duración:* ${detail.result.duration}
-📁 *Info:* ${detail.result.info}
-🔗 *Enlace:* ${video.link}
+${emojiVideo} *${detail.result.title}*
+${emojiClock} *Duración:* ${detail.result.duration}
+${emojiInfo} *Info:* ${detail.result.info}
+${emojiLink} *Enlace:* ${video.link}
 `
 
     await conn.sendMessage(m.chat, {
       image: { url: detail.result.image },
       caption,
-      footer: `${kawaii} Contenido provisto por *Shizuka-AI* con mucho cuidado 💖`,
+      footer: `${emojiSuccess} Obtenido desde XNXX`,
       contextInfo: {
         externalAdReply: {
-          title: 'Video sugerente~',
-          body: 'Contenido preparado con elegancia ✨',
+          title: 'Video NSFW',
+          body: 'Descarga automática completada',
           thumbnailUrl: detail.result.image,
           sourceUrl: video.link
         }
       }
     }, { quoted: m })
 
+    // Enviar video
     await conn.sendMessage(m.chat, {
       document: { url: detail.result.files.high },
       mimetype: 'video/mp4',
-      fileName: `Shizuka-${detail.result.title.replace(/[^\w\s]/gi, '')}.mp4`
+      fileName: `${detail.result.title.replace(/[^\w\s]/gi, '')}.mp4`
     }, { quoted: m })
 
   } catch (e) {
     console.error(e)
-    return conn.reply(m.chat, `${error} ¡Oh no~! Hubo un problema...\n${ai} *Shizuka-AI* te pide disculpas...\n🔧 Detalles: ${e.message}`, m)
+    return conn.reply(m.chat, `${emoji2} Ocurrió un error:\n\n${emojiError} *${e.message}*`, m)
   }
 }
 
@@ -75,6 +81,7 @@ export default handler
 async function xnxxsearch(query) {
   return new Promise((resolve, reject) => {
     const baseurl = 'https://www.xnxx.com'
+
     fetch(`${baseurl}/search/${query}/${Math.floor(Math.random() * 3) + 1}`)
       .then(res => res.text())
       .then(res => {
