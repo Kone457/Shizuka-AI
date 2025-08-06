@@ -106,9 +106,10 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
   menu += '> _Creado por Carlos_';
 
+  // --- Envía el mensaje con la imagen completa y el adReply ---
   await conn.sendMessage(m.chat, {
-    text: menu,
-    footer: `Creador: +52 1 55 1234 5678`,
+    image: { url: banner },
+    caption: menu,
     contextInfo: {
         mentionedJid: [m.sender],
         externalAdReply: {
