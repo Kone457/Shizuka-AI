@@ -1,7 +1,31 @@
 const handler = async (m, { conn }) => {
   const usuario = m.sender;
   const nombre = `@${usuario.split('@')[0]}`;
-  const gifUrl = ['https://qu.ax/JPZMF.mp4', 'https://qu.ax/LwXNt.mp4']; // Tu GIF personalizado
+
+  // 🎬 Lista de GIFs
+  const gifs = [
+    'https://qu.ax/JPZMF.mp4',
+    'https://qu.ax/LwXNt.mp4',
+    'https://qu.ax/NSMSb.mp4',
+    'https://qu.ax/PCmWo.mp4',
+    'https://qu.ax/lqFMp.mp4'
+  ];
+
+  // 🗯️ Lista de frases
+  const frases = [
+    `😈 Le acabo de romper los huevos a ${nombre}`,
+    `💀 ${nombre} ya no podrá reproducirse jamás`,
+    `🔥 El linaje de ${nombre} ha sido interrumpido`,
+    `🥚💥 ${nombre} recibió el golpe ancestral`,
+    `🧨 ${nombre} ha sido neutralizado con precisión testicular`,
+    `👹 ${nombre} sintió el poder del rompehuevos`,
+    `⚔️ ${nombre} fue víctima del ataque más bajo... literalmente`,
+    `🎯 ${nombre} recibió un golpe directo a la descendencia`
+  ];
+
+  // Selección aleatoria
+  const gifUrl = gifs[Math.floor(Math.random() * gifs.length)];
+  const frase = frases[Math.floor(Math.random() * frases.length)];
 
   // Primer mensaje: solo texto
   await conn.sendMessage(m.chat, {
@@ -9,11 +33,11 @@ const handler = async (m, { conn }) => {
     mentions: [usuario]
   });
 
-  // Segundo mensaje: GIF + mensaje
+  // Segundo mensaje: GIF + frase
   await conn.sendMessage(m.chat, {
     video: { url: gifUrl },
     gifPlayback: true,
-    caption: `😈 Le acabo de romper los huevos a ${nombre}`,
+    caption: frase,
     mentions: [usuario]
   });
 };
