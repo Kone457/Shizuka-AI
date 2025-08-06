@@ -25,15 +25,23 @@ let handler = async (m, { conn, args }) => {
     let tags = {}
     
     // Directorios donde se encuentran tus plugins.
-    // Puedes agregar más carpetas si tus plugins están en otros lugares.
+    // VERIFICA ESTA RUTA EN TU CONSOLA
     let pluginFolders = [
         path.join(__dirname, '..', 'plugins')
     ]
 
     for (const folder of pluginFolders) {
+        console.log('Buscando plugins en:', folder); // Mensaje de depuración
+        if (!fs.existsSync(folder)) {
+            console.error('La carpeta de plugins no existe en:', folder);
+            continue;
+        }
+
         const files = fs.readdirSync(folder)
+        console.log('Archivos encontrados:', files); // Mensaje de depuración
+
         for (const filename of files) {
-            if (filename.endsWith('.js')) {
+            if (filename.endsWith('.js') && !filename.startsWith('_')) {
                 try {
                     let pluginPath = path.join(folder, filename)
                     let module = await import(`file://${pluginPath}?update=${Date.now()}`)
