@@ -29,7 +29,7 @@ const handler = async (m, { conn, usedPrefix }) => {
   const date = new Date();
   const options = {
     year: 'numeric', month: 'long', day: 'numeric',
-    timeZone: 'America/Mexico_City', // Cambia a tu zona horaria si es necesario
+    timeZone: 'America/Mexico_City',
   };
   const fecha = date.toLocaleDateString('es-ES', options);
   const hora = date.toLocaleTimeString('es-ES', { timeZone: 'America/Mexico_City' });
@@ -47,7 +47,9 @@ const handler = async (m, { conn, usedPrefix }) => {
   // --- Agrupa comandos por categoría (Lógica corregida) ---
   const categoryCommands = {};
   for (let plugin of plugins) {
-    // Se accede a las propiedades a través de plugin.handler (corrección)
+    // ESTAS SON LAS LÍNEAS CORREGIDAS
+    // Se accede a las propiedades a través de plugin.handler
+    if (!plugin.handler) continue; // Si no hay handler, saltamos el plugin
     const tags = Array.isArray(plugin.handler.tags) ? plugin.handler.tags : (plugin.handler.tags ? [plugin.handler.tags] : []);
     const helps = Array.isArray(plugin.handler.help) ? plugin.handler.help : (plugin.handler.help ? [plugin.handler.help] : []);
 
