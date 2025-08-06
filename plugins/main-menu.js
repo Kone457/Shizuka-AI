@@ -104,7 +104,7 @@ const handler = async (m, { conn, usedPrefix }) => {
     }
     menu += `╰───────────────\n\n`;
   }
-  menu += '```> Creado por Carlos ✨```';
+  menu += '> _Creado por Carlos_';
 
   
 
