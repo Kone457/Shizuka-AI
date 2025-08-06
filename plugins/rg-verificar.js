@@ -65,7 +65,7 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
         sourceUrl: 'https://shizuka.bot/perfil',
         mediaType: 1,
         showAdAttribution: false,
-        renderLargerThumbnail: false
+        renderLargerThumbnail: true
       }
     }
   }, { quoted: m })
