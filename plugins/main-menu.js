@@ -104,30 +104,11 @@ const handler = async (m, { conn, usedPrefix }) => {
     }
     menu += `╰───────────────\n\n`;
   }
-  menu += '> _Creado por Carlos_ ✨';
+  menu += '```> Creado por Carlos ✨```';
 
-  // --- Envía el mensaje con un botón y la apariencia de adReply ---
-  const messageOptions = {
-    image: { url: banner },
-    caption: menu,
-    footer: `Creador: +5355699866`, // Reemplaza con el número real
-    templateButtons: [
-      {
-        index: 1,
-        urlButton: {
-          displayText: '🔗 Link del grupo',
-          url: redes
-        },
-      },
-      {
-        index: 2,
-        quickReplyButton: {
-          displayText: '👤 Contactar Creador',
-          id: `${usedPrefix}creator`
-        }
-      }
-    ],
-    headerType: 4,
+  // --- Envía el mensaje sin botones ni footer, pero con la apariencia de adReply ---
+  await conn.sendMessage(m.chat, {
+    text: menu,
     contextInfo: {
         mentionedJid: [m.sender],
         externalAdReply: {
@@ -140,9 +121,7 @@ const handler = async (m, { conn, usedPrefix }) => {
             renderLargerThumbnail: true,
         },
     },
-  };
-  
-  await conn.sendMessage(m.chat, messageOptions, { quoted: m });
+  }, { quoted: m });
 };
 
 handler.command = /^(menu|help|comandos)$/i;
