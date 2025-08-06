@@ -17,12 +17,13 @@ const handler = async (m, { conn, usedPrefix }) => {
     anime:         '🏵️ 𝐴𝑁𝐼𝑀𝐸',
     gacha:         '🎰 𝐺𝐴𝐶𝐻𝐴',
     grupo:         '👥 𝐺𝑅𝑈𝑃𝑂𝑆',
+    group:         '👥 𝐺𝑅𝑈𝑃𝑂𝑆',
+    text:          '✨ 𝐹𝐸𝐶𝑇𝑂𝑆 𝐷𝐸 𝑇𝐸𝑋𝑇𝑂',
     rpg:           '🪄 𝑅𝑃𝐺',
     sticker:       '🧧 𝑆𝑇𝐼𝐶𝐾𝐸𝑅',
     tools:         '🔧 𝐻𝐸𝑅𝑅𝐴𝑀𝐼𝐸𝑁𝑇𝐴𝑆',
     nsfw:          '🔞 𝑁𝑆𝐹𝑊',
     owner:         '👑 𝑂𝑊𝑁𝐸𝑅',
-    text:          '✨ 𝐹𝐸𝐶𝑇𝑂𝑆 𝐷𝐸 𝑇𝐸𝑋𝑇𝑂',
   };
 
   // --- Lógica para obtener la fecha y hora ---
@@ -44,14 +45,12 @@ const handler = async (m, { conn, usedPrefix }) => {
     saludo = 'Buenas noches';
   }
 
-  // --- Agrupa comandos por categoría (Lógica corregida) ---
+  // --- Agrupa comandos por categoría (manteniendo la lógica original) ---
   const categoryCommands = {};
   for (let plugin of plugins) {
-    // ESTAS SON LAS LÍNEAS CORREGIDAS
-    // Se accede a las propiedades a través de plugin.handler
-    if (!plugin.handler) continue; // Si no hay handler, saltamos el plugin
-    const tags = Array.isArray(plugin.handler.tags) ? plugin.handler.tags : (plugin.handler.tags ? [plugin.handler.tags] : []);
-    const helps = Array.isArray(plugin.handler.help) ? plugin.handler.help : (plugin.handler.help ? [plugin.handler.help] : []);
+    // Se mantiene la lógica original que lee plugin.tags y plugin.help
+    const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : []);
+    const helps = Array.isArray(plugin.help) ? plugin.help : (plugin.help ? [plugin.help] : []);
 
     for (let tag of tags) {
       if (!categoryMap[tag]) continue;
