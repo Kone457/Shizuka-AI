@@ -106,22 +106,10 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
   menu += '> _Creado por Carlos_';
 
-  // --- Envía el mensaje con la imagen completa y el adReply ---
+  // --- Envía el mensaje solo con la imagen completa y el texto del menú ---
   await conn.sendMessage(m.chat, {
     image: { url: banner },
     caption: menu,
-    contextInfo: {
-        mentionedJid: [m.sender],
-        externalAdReply: {
-            title: botname,
-            body: textbot,
-            thumbnailUrl: banner,
-            sourceUrl: redes,
-            mediaType: 1,
-            showAdAttribution: true,
-            renderLargerThumbnail: true,
-        },
-    },
   }, { quoted: m });
 };
 
