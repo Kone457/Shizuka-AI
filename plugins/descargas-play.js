@@ -27,23 +27,23 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }, { quoted: m });
 
   try {
-    // Buscar en Spotify (simulado como si fuese YouTube)
+    // Buscar en Spotify (simulando YouTube)
     const searchRes = await fetch(`https://api.vreden.my.id/api/spotifysearch?query=${encodeURIComponent(text)}`);
     const searchJson = await searchRes.json();
 
     if (!searchJson.result || searchJson.result.length === 0) {
-      return conn.reply(m.chat, `❌ No se encontraron transmisiones en YouTube para *${text}*.`, m);
+      return conn.reply(m.chat, `❌ No se encontraron transmisiones para *${text}*.`, m);
     }
 
-    const track = searchJson.result[0]; // El primero como predeterminado
+    const track = searchJson.result[0]; // Primer resultado
 
-    const videoUrlSimulado = `https://youtube.com/watch?v=${track.title.replace(/\s+/g, '')}`;
+    const videoUrlFake = `https://youtube.com/watch?v=${track.title.replace(/\s+/g, '')}`;
     const caption = `
 🎬 *${track.title}*
 👤 *Autor:* ${track.artist}
 ⏱️ *Duración:* ${track.duration}
 📺 *Popularidad:* ${track.popularity}
-🔗 *YouTube:* ${videoUrlSimulado}
+🔗 *YouTube:* ${videoUrlFake}
 `.trim();
 
     await conn.sendMessage(m.chat, {
@@ -51,7 +51,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       caption
     }, { quoted: m });
 
-    // Obtener audio real
+    // Descargar audio real desde Spotify
     const audioRes = await fetch(`https://api.vreden.my.id/api/spotify?url=${encodeURIComponent(track.spotifyLink)}`);
     const audioJson = await audioRes.json();
 
@@ -59,12 +59,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       return conn.reply(m.chat, `❌ No se pudo obtener el audio para *${track.title}*.`, m);
     }
 
-    const { title, artists, cover, music } = audioJson.result;
-
-    await conn.sendMessage(m.chat, {
-      image: { url: cover },
-      caption: `🎧 *${title}* - ${artists}\n💽 Audio listo. ¡Disfrútalo como si lo vieras en pantalla completa.`
-    }, { quoted: m });
+    const { title, music } = audioJson.result;
 
     await conn.sendMessage(m.chat, {
       audio: { url: music },
@@ -75,7 +70,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   } catch (e) {
     console.error("⚠️ Error al simular YouTube:", e);
-    return conn.reply(m.chat, `❌ *Error de simulación YouTube.*\n\n🛠️ ${e.message}`, m);
+    return conn.reply(m.chat, `❌ *Error en la simulación YouTube.*\n\n🛠️ ${e.message}`, m);
   }
 };
 
