@@ -104,17 +104,27 @@ const handler = async (m, { conn, usedPrefix }) => {
     }
     menu += `╰───────────────\n\n`;
   }
-  menu += '```> Creado por Carlos ✨```';
+  menu += '> _Creado por Carlos_ ✨';
 
   // --- Envía el mensaje con un botón y la apariencia de adReply ---
-  await conn.sendMessage(m.chat, {
-    text: menu,
-    footer: `Creador: +52 1 55 1234 5678`, // Reemplaza con el número real
-    buttons: [
+  const messageOptions = {
+    image: { url: banner },
+    caption: menu,
+    footer: `Creador: +5355699866`, // Reemplaza con el número real
+    templateButtons: [
       {
-        buttonId: `${usedPrefix}creator`,
-        buttonText: { displayText: '👤 Contactar Creador' },
-        type: 1
+        index: 1,
+        urlButton: {
+          displayText: '🔗 Link del grupo',
+          url: redes
+        },
+      },
+      {
+        index: 2,
+        quickReplyButton: {
+          displayText: '👤 Contactar Creador',
+          id: `${usedPrefix}creator`
+        }
       }
     ],
     headerType: 4,
@@ -130,7 +140,9 @@ const handler = async (m, { conn, usedPrefix }) => {
             renderLargerThumbnail: true,
         },
     },
-  }, { quoted: m });
+  };
+  
+  await conn.sendMessage(m.chat, messageOptions, { quoted: m });
 };
 
 handler.command = /^(menu|help|comandos)$/i;
