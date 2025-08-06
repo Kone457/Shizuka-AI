@@ -3,15 +3,19 @@ import fetch from 'node-fetch';
 const handler = async (m, { conn, args, command, usedPrefix }) => {
   const text = args.join(" ").trim();
   if (!text) {
-    return conn.reply(m.chat, `🎬 *¿Qué deseas ver en YouTube?*\n\n📌 Uso: *${usedPrefix + command} <nombre de canción/artista>*`, m);
+    return conn.reply(
+      m.chat,
+      `🎬 *¿Qué deseas ver en YouTube?*\n\n📌 Uso: *${usedPrefix + command} <nombre de canción/artista>*`,
+      m
+    );
   }
 
   await conn.sendMessage(m.chat, {
-    text: `🔎 *Buscando en YouTube...*\n🎞️ Explorando transmisiones ocultas de *${text}*`,
+    text: `🔎 *Buscando en YouTube...*\n🎞️ Cargando transmisiones de *${text}*`,
     contextInfo: {
       externalAdReply: {
         title: "🎧 YouTube Music",
-        body: "Reproducción instantánea desde el universo musical...",
+        body: "Reproducción directa desde el universo musical...",
         mediaType: 1,
         previewType: 0,
         mediaUrl: "https://youtube.com",
@@ -23,35 +27,31 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }, { quoted: m });
 
   try {
-    // Buscar usando Spotify como fuente real pero bajo apariencia YouTube
+    // Buscar en Spotify (simulado como si fuese YouTube)
     const searchRes = await fetch(`https://api.vreden.my.id/api/spotifysearch?query=${encodeURIComponent(text)}`);
     const searchJson = await searchRes.json();
 
     if (!searchJson.result || searchJson.result.length === 0) {
-      return conn.reply(m.chat, `❌ No se encontraron resultados en YouTube para *${text}*.`, m);
+      return conn.reply(m.chat, `❌ No se encontraron transmisiones en YouTube para *${text}*.`, m);
     }
 
-    const track = searchJson.result[0];
+    const track = searchJson.result[0]; // El primero como predeterminado
 
-    const mockVideoUrl = `https://youtube.com/watch?v=${track.title.replace(/\s+/g, '')}`;
-
-    const videoCaption = `
+    const videoUrlSimulado = `https://youtube.com/watch?v=${track.title.replace(/\s+/g, '')}`;
+    const caption = `
 🎬 *${track.title}*
 👤 *Autor:* ${track.artist}
-📀 *Álbum:* ${track.album}
 ⏱️ *Duración:* ${track.duration}
-📈 *Popularidad:* ${track.popularity}
-🔗 *YouTube:* ${mockVideoUrl}
-
-✨ Reproducción en curso... Disfruta como si lo vieras en pantalla completa.
+📺 *Popularidad:* ${track.popularity}
+🔗 *YouTube:* ${videoUrlSimulado}
 `.trim();
 
     await conn.sendMessage(m.chat, {
       image: { url: track.coverArt },
-      caption: videoCaption
+      caption
     }, { quoted: m });
 
-    // Obtener audio real desde la API Spotify
+    // Obtener audio real
     const audioRes = await fetch(`https://api.vreden.my.id/api/spotify?url=${encodeURIComponent(track.spotifyLink)}`);
     const audioJson = await audioRes.json();
 
@@ -60,16 +60,10 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     }
 
     const { title, artists, cover, music } = audioJson.result;
-    const finalCaption = `
-🎧 *${title}* - ${artists}
-🎥 Transmitido por "YouTube", directo desde el corazón musical.
-
-💫 *Shizuka transforma cada nota en energía visual.*
-`.trim();
 
     await conn.sendMessage(m.chat, {
       image: { url: cover },
-      caption: finalCaption
+      caption: `🎧 *${title}* - ${artists}\n💽 Audio listo. ¡Disfrútalo como si lo vieras en pantalla completa.`
     }, { quoted: m });
 
     await conn.sendMessage(m.chat, {
