@@ -111,9 +111,18 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
   menu += '```> Creado por Carlos ✨```';
 
-  // --- Envía el mensaje con la apariencia de canal ---
+  // --- Envía el mensaje con la apariencia de canal y el botón del Creador ---
   await conn.sendMessage(m.chat, {
     text: menu,
+    footer: `Creador: +52 1 55 1234 5678`, // Reemplaza con el número real
+    buttons: [
+      {
+        buttonId: `${usedPrefix}creator`, // Comando para contactar al creador
+        buttonText: { displayText: '👤 Contactar Creador' },
+        type: 1
+      }
+    ],
+    headerType: 4,
     contextInfo: {
         mentionedJid: [m.sender],
         isForwarded: true,
