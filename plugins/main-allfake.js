@@ -51,13 +51,13 @@ global.tiempo = d.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', s
 global.rwait = '🔥'
 global.done = '❤‍🔥'
 global.error = '💔'
-global.msm = '⚠︎'
+global.msm = '🚫'
 
-global.emoji = '❀'
-global.emoji2 = '✧'
-global.emoji3 = '✦'
-global.emoji4 = '❍'
-global.emoji5 = '✰'
+global.emoji = '🌸'
+global.emoji2 = '✨'
+global.emoji3 = '♦'
+global.emoji4 = '🀄'
+global.emoji5 = '🌟'
 global.emojis = [emoji, emoji2, emoji3, emoji4].getRandom()
 
 global.wait = '❍ Espera un momento...';
@@ -68,7 +68,7 @@ global.waitttt = '❍ Espera un momento...';
 var canal = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'  
 var comunidad = 'https://chat.whatsapp.com/FKdA4geFvKVD17dP6O6MHt'
 var git = 'https://github.com/Kone457'
-var github = 'https://github.com/Kone457/Shizuka-AI' 
+var github =de 'https://github.com/Kone457/Shizuka-AI' 
 let correo = 'c2117620@gmail.com'
 global.redes = [canal, comunidad, git, github, correo].getRandom()
 
