@@ -1,8 +1,10 @@
 const handler = async (m, { conn, isBotAdmin }) => {
   if (!m.isGroup) return conn.reply(m.chat, '🌀 *Este ritual solo puede realizarse en un grupo.*', m);
 
-  const owner = global.owner || [];
-  const isOwner = owner.includes(m.sender);
+  // Verificación robusta de owner
+  const sender = m.sender.replace(/[^0-9]/g, '');
+  const owners = (global.owner || []).map(o => Array.isArray(o) ? o[0] : o);
+  const isOwner = owners.some(o => o.replace(/[^0-9]/g, '') === sender);
 
   if (!isOwner) return conn.reply(m.chat, '🛑 *Solo el invocador supremo puede ejecutar este ritual.*', m);
   if (!isBotAdmin) return conn.reply(m.chat, '⚠️ *Necesito ser administrador para abrir el portal.*', m);
