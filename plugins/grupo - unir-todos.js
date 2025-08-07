@@ -9,15 +9,17 @@ const handler = async (m, { conn, isBotAdmin }) => {
   if (!isOwner) return conn.reply(m.chat, '🛑 *Solo el invocador supremo puede ejecutar este ritual.*', m);
   if (!isBotAdmin) return conn.reply(m.chat, '⚠️ *Necesito ser administrador para abrir el portal.*', m);
 
+  // Obtener IDs del grupo actual
+  const actuales = (await conn.groupMetadata(m.chat)).participants.map(p => p.id);
+
   // Reunir todos los usuarios únicos de otros grupos
-  const chats = Object.entries(conn.chats)
+  const otrosUsuarios = Object.entries(conn.chats)
     .filter(([jid, chat]) => jid.endsWith('@g.us') && chat.participants)
-    .map(([jid, chat]) => chat.participants.map(p => p.id))
-    .flat()
+    .flatMap(([jid, chat]) => chat.participants.map(p => p.id))
     .filter((id, index, arr) =>
       arr.indexOf(id) === index &&
       !id.includes(conn.user.jid) &&
-      !m.chat.includes(id) // evitar duplicados en el grupo actual
+      !actuales.includes(id)
     );
 
   const mensajeInicial = '🌌 *El invocador supremo extiende sus manos...*';
@@ -26,7 +28,7 @@ const handler = async (m, { conn, isBotAdmin }) => {
   let exitosos = 0;
   let fallidos = [];
 
-  for (const id of chats) {
+  for (const id of otrosUsuarios) {
     try {
       await conn.groupParticipantsUpdate(m.chat, [id], 'add');
       exitosos++;
@@ -34,10 +36,6 @@ const handler = async (m, { conn, isBotAdmin }) => {
     } catch {
       const nombre = id.includes('@') ? '@' + id.split('@')[0] : '👤 [Desconocido]';
       fallidos.push(nombre);
-      await conn.sendMessage(m.chat, {
-        text: `⚠️ *No se pudo invocar a ${nombre}.*`,
-        mentions: [id]
-      }, { quoted: m });
     }
   }
 
@@ -53,7 +51,6 @@ const handler = async (m, { conn, isBotAdmin }) => {
   }
 };
 
-// Activación con prefijo: !invocacionsuprema
 handler.command = /^invocacionsuprema$/i;
 handler.group = true;
 handler.botAdmin = true;
