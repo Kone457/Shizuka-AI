@@ -63,7 +63,7 @@ const handler = async (m, { conn, participants, isAdmin }) => {
   }, { quoted: m });
 };
 
-handler.customPrefix = /^ritual\s+de\s+invocaci[oó]n$/i;
+handler.customPrefix = /^despierten$/i;
 handler.command = new RegExp();
 handler.group = true;
 handler.admin = true;
