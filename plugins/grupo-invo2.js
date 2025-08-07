@@ -9,9 +9,43 @@ const handler = async (m, { conn, participants, isAdmin }) => {
     .map(p => p.id)
     .filter(id => id !== conn.user.jid);
 
-  const nombresDecorados = menciones
-    .map(id => `🔔 Invocado: @${id.split('@')[0]}`)
-    .join('\n');
+  // Mapa de prefijos a banderas
+  const banderas = {
+    '1': '🇺🇸', // USA, Canadá
+    '44': '🇬🇧',
+    '34': '🇪🇸',
+    '52': '🇲🇽',
+    '54': '🇦🇷',
+    '55': '🇧🇷',
+    '57': '🇨🇴',
+    '58': '🇻🇪',
+    '91': '🇮🇳',
+    '81': '🇯🇵',
+    '82': '🇰🇷',
+    '86': '🇨🇳',
+    '53': '🇨🇺',
+    '49': '🇩🇪',
+    '33': '🇫🇷',
+    '39': '🇮🇹',
+    '7': '🇷🇺',
+    '351': '🇵🇹',
+    '56': '🇨🇱',
+    '593': '🇪🇨',
+    '595': '🇵🇾',
+    '598': '🇺🇾',
+    '505': '🇳🇮',
+    '507': '🇵🇦',
+    '502': '🇬🇹',
+    '506': '🇨🇷',
+    '51': '🇵🇪'
+  };
+
+  const nombresDecorados = menciones.map(id => {
+    const numero = id.split('@')[0];
+    const prefijo = numero.replace(/[^0-9]/g, '').slice(0, 3); // Tomamos los primeros 2–3 dígitos
+    const bandera = Object.entries(banderas).find(([codigo]) => prefijo.startsWith(codigo))?.[1] || '🏳️';
+    return `🔔 Invocado: ${bandera} @${numero}`;
+  }).join('\n');
 
   const textoInicial = `🌑 *El círculo se forma. Las sombras se agitan...*\n\n🧙‍♂️ *El chamán extiende sus manos hacia los espíritus dormidos...*`;
   const textoInvocacion = `📜 *Lista de invocados:*\n\n${nombresDecorados}\n\n🔥 *¡Que se eleven las voces! El ritual ha comenzado.*`;
