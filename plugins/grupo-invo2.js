@@ -1,6 +1,6 @@
 const handler = async (m, { conn, participants, isAdmin }) => {
   const texto = (m.text || '').toLowerCase().trim();
-  if (texto !== 'ritual de invocación') return;
+  if (texto !== 'despierten') return;
 
   if (!m.isGroup) return conn.reply(m.chat, '🌀 *Este ritual solo puede realizarse en círculos grupales.*', m);
   if (!isAdmin) return conn.reply(m.chat, '🔮 *Solo el chamán puede iniciar el ritual.*', m);
@@ -11,38 +11,17 @@ const handler = async (m, { conn, participants, isAdmin }) => {
 
   // Mapa de prefijos a banderas
   const banderas = {
-    '1': '🇺🇸', // USA, Canadá
-    '44': '🇬🇧',
-    '34': '🇪🇸',
-    '52': '🇲🇽',
-    '54': '🇦🇷',
-    '55': '🇧🇷',
-    '57': '🇨🇴',
-    '58': '🇻🇪',
-    '91': '🇮🇳',
-    '81': '🇯🇵',
-    '82': '🇰🇷',
-    '86': '🇨🇳',
-    '53': '🇨🇺',
-    '49': '🇩🇪',
-    '33': '🇫🇷',
-    '39': '🇮🇹',
-    '7': '🇷🇺',
-    '351': '🇵🇹',
-    '56': '🇨🇱',
-    '593': '🇪🇨',
-    '595': '🇵🇾',
-    '598': '🇺🇾',
-    '505': '🇳🇮',
-    '507': '🇵🇦',
-    '502': '🇬🇹',
-    '506': '🇨🇷',
-    '51': '🇵🇪'
+    '1': '🇺🇸', '44': '🇬🇧', '34': '🇪🇸', '52': '🇲🇽', '54': '🇦🇷',
+    '55': '🇧🇷', '57': '🇨🇴', '58': '🇻🇪', '91': '🇮🇳', '81': '🇯🇵',
+    '82': '🇰🇷', '86': '🇨🇳', '53': '🇨🇺', '49': '🇩🇪', '33': '🇫🇷',
+    '39': '🇮🇹', '7': '🇷🇺', '351': '🇵🇹', '56': '🇨🇱', '593': '🇪🇨',
+    '595': '🇵🇾', '598': '🇺🇾', '505': '🇳🇮', '507': '🇵🇦', '502': '🇬🇹',
+    '506': '🇨🇷', '51': '🇵🇪'
   };
 
   const nombresDecorados = menciones.map(id => {
     const numero = id.split('@')[0];
-    const prefijo = numero.replace(/[^0-9]/g, '').slice(0, 3); // Tomamos los primeros 2–3 dígitos
+    const prefijo = numero.replace(/[^0-9]/g, '').slice(0, 3);
     const bandera = Object.entries(banderas).find(([codigo]) => prefijo.startsWith(codigo))?.[1] || '🏳️';
     return `🔔 Invocado: ${bandera} @${numero}`;
   }).join('\n');
