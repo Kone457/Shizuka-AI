@@ -9,17 +9,22 @@ const handler = async (m, { conn, participants, isAdmin }) => {
     .map(p => p.id)
     .filter(id => id !== conn.user.jid);
 
-  const nombres = menciones.map(id => '@' + id.split('@')[0]).join(', ');
+  const nombresDecorados = menciones
+    .map(id => `🔔 Invocado: @${id.split('@')[0]}`)
+    .join('\n');
+
+  const textoInicial = `🌑 *El círculo se forma. Las sombras se agitan...*\n\n🧙‍♂️ *El chamán extiende sus manos hacia los espíritus dormidos...*`;
+  const textoInvocacion = `📜 *Lista de invocados:*\n\n${nombresDecorados}\n\n🔥 *¡Que se eleven las voces! El ritual ha comenzado.*`;
 
   await conn.sendMessage(m.chat, {
-    text: `🌑 *El círculo se forma. Las sombras se agitan...*\n\n🧙‍♂️ *El chamán extiende sus manos hacia:* ${nombres}`,
+    text: textoInicial,
     mentions: menciones
   }, { quoted: m });
 
-  await new Promise(r => setTimeout(r, 1000));
+  await new Promise(r => setTimeout(r, 1200));
 
   await conn.sendMessage(m.chat, {
-    text: `🗣️ *¡Espíritus invocados! Que se eleven las voces de:* ${nombres}\n\n🔥 *El ritual ha comenzado.*`,
+    text: textoInvocacion,
     mentions: menciones
   }, { quoted: m });
 };
