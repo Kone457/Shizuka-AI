@@ -1,8 +1,6 @@
+
 import { createHash } from 'crypto'
 import moment from 'moment-timezone'
-import fetch from 'node-fetch'
-import dotenv from 'dotenv'
-dotenv.config()
 
 const Reg = /\|?(.*)([.|] *?)([0-9]*)$/i
 
@@ -57,13 +55,14 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
 ✨ Que tus datos conecten con emociones.
 `
 
+  // 📨 Mensaje privado con imagen personalizada
   await conn.sendMessage(m.chat, {
     text: regbot,
     contextInfo: {
       externalAdReply: {
         title: '📌 REGISTRADO EN SHIZUKA',
         body: '✨ Has sido vinculado con los hilos del destino.',
-        thumbnailUrl: perfilImg,
+        thumbnailUrl: 'https://qu.ax/XGJKb.jpg',
         sourceUrl: 'https://shizuka.bot/perfil',
         mediaType: 1,
         showAdAttribution: false,
@@ -74,41 +73,37 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
 
   await m.react('📪')
 
-  // 📤 Envío a Discord usando token y canal ID
-  const discordBotToken = process.env.DISCORD_BOT_TOKEN
-  const discordChannelId = process.env.DISCORD_CHANNEL_ID
+  const channelMessage = `
+╭━━━━━━━━ 🌟 ＳＨＩＺＵＫＡ ＮＯＴＩＦＩＣＡＣＩＯ́Ｎ ━━━━━━━━╮
+┃ 🆕 *¡Nueva alma conectada al sistema...!*
+┃ 
+┃ 🖋️ *Usuario:* ${m.pushName || 'Anónimo'}
+┃ 📖 *Nombre real:* ${user.name}
+┃ 🎂 *Edad:* ${user.age} años
+┃ 💌 *Descripción:* ${user.descripcion || 'Sin descripción'}
+┃ 🔐 *ID:* ${sn}
+┃ 
+┃ ✨ _Los datos bailan entre bytes y constelaciones..._
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-  const discordMessage = {
-    content: `🌸 **Nuevo registro en Shizuka** 🌸`,
-    embeds: [{
-      title: 'Registro completado',
-      color: 0xf9a8d4,
-      thumbnail: { url: perfilImg },
-      fields: [
-        { name: '👤 Usuario', value: m.pushName || 'Anónimo', inline: true },
-        { name: '📖 Nombre real', value: user.name, inline: true },
-        { name: '🎂 Edad', value: `${user.age} años`, inline: true },
-        { name: '🔐 ID', value: sn, inline: false },
-        { name: '💌 Descripción', value: user.descripcion || 'Sin descripción', inline: false }
-      ],
-      footer: {
-        text: `Registrado por ${dev} • ${moment().tz('America/Havana').format('DD/MM/YYYY HH:mm:ss')}`
+🌈 *Shizuka Bot celebra la llegada con magia y emoción.*
+📝 Por: ${dev}
+`
+
+  await conn.sendMessage('120363400241973967@newsletter', {
+    text: channelMessage,
+    contextInfo: {
+      externalAdReply: {
+        title: '📌 NUEVO REGISTRO EN SHIZUKA',
+        body: '🧡 Magia, datos y emociones en cada conexión.',
+        thumbnailUrl: 'https://qu.ax/XGJKb.jpg',
+        sourceUrl: 'https://shizuka.bot/perfil',
+        mediaType: 1,
+        showAdAttribution: false,
+        renderLargerThumbnail: true
       }
-    }]
-  }
-
-  try {
-    await fetch(`https://discord.com/api/v10/channels/${discordChannelId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bot ${discordBotToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(discordMessage)
-    })
-  } catch (err) {
-    console.error('❌ Error al enviar mensaje a Discord:', err)
-  }
+    }
+  }, { quoted: null })
 }
 
 handler.help = ['register']
