@@ -23,11 +23,11 @@ const handler = async (m, { conn, participants, isAdmin }) => {
     const numero = id.split('@')[0];
     const prefijo = numero.replace(/[^0-9]/g, '').slice(0, 3);
     const bandera = Object.entries(banderas).find(([codigo]) => prefijo.startsWith(codigo))?.[1] || '🏳️';
-    return `🔔 Invocado: ${bandera} @${numero}`;
+    return `${bandera} @${numero}`;
   }).join('\n');
 
   const textoInicial = `🌑 *El círculo se forma. Las sombras se agitan...*\n\n🧙‍♂️ *El chamán extiende sus manos hacia los espíritus dormidos...*`;
-  const textoInvocacion = `📜 *Lista de invocados:*\n\n${nombresDecorados}\n\n🔥 *¡Que se eleven las voces! El ritual ha comenzado.*`;
+  const textoInvocacion = `📜 *Lista de espíritus convocados:*\n\n${nombresDecorados}\n\n🔥 *¡Que se eleven las voces! El ritual ha comenzado.*`;
 
   await conn.sendMessage(m.chat, {
     text: textoInicial,
