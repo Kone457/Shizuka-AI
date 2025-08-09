@@ -35,7 +35,16 @@ export async function before(m, { conn, participants, groupMetadata }) {
     const texto = `Welcome to the official Delirius API 😈`
     const footer = `${nombre} 😨`
     const apiDelirius = `https://delirius-apiofc.vercel.app/canvas/quote?image=${encodeURIComponent(fotoPerfil)}&text=${encodeURIComponent(texto)}&footer=${encodeURIComponent(footer)}`
-    const imgDelirius = await (await fetch(apiDelirius)).buffer()
+
+    let imgDelirius
+    try {
+      const res = await fetch(apiDelirius)
+      if (!res.ok) throw new Error('API Delirius falló')
+      imgDelirius = await res.buffer()
+    } catch (err) {
+      console.error('⚠️ Error al generar imagen Delirius:', err)
+      imgDelirius = await (await fetch('https://i.postimg.cc/Hk6hNCDw/quotedelirius.jpg')).buffer()
+    }
 
     const bienvenida = `
 ☠️ *▄︻デ══━💀 @${mention}...*  
