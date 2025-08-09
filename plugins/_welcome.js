@@ -1,4 +1,3 @@
-
 import { WAMessageStubType } from '@whiskeysockets/baileys'
 import fetch from 'node-fetch'
 
@@ -14,7 +13,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     }, 
     "message": { 
       "contactMessage": { 
-        "vcard": BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD 
+        "vcard": `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD` 
       }
     }, 
     "participant": "0@s.whatsapp.net"
@@ -22,7 +21,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   // Configuración inicial
   let ppBienvenida = await conn.profilePictureUrl(m.messageStubParameters[0], 'image').catch(_ => 'https://qu.ax/rnsuj.jpg') // Imagen de bienvenida (predeterminada o perfil)
-  let ppDespedida = 'https://qu.ax/cLXXz.jpg' // Imagen personalizada para despedida (enlace alternativo)
+  let ppDespedida = 'https://qu.ax/OTGDz.jpg' // Imagen personalizada para despedida (enlace alternativo)
   
   let imgBienvenida = await (await fetch(ppBienvenida)).buffer()
   let imgDespedida = await (await fetch(ppDespedida)).buffer() // Buffer de la imagen de despedida
@@ -38,13 +37,13 @@ export async function before(m, { conn, participants, groupMetadata }) {
   if (chat.welcome && m.messageStubType == 27) {
     const mention = m.messageStubParameters[0].split('@')[0]
     const bienvenida = `
-☠️ ▄︻デ══━💀 @${mention}...  
-Tu huella digital ha sido rastreada. Bienvenido a la red oscura.
+☠️ *▄︻デ══━💀 @${mention}...*  
+*Tu huella digital ha sido rastreada. Bienvenido a la red oscura.*
 
 ${global.welcom1}
 
 ✦ Presas en el sistema: ${groupSize}
-No escaparás...
+*No escaparás...*
 > Tu alma ahora es nuestra 👁️`.trim()
     
     await conn.sendMini(
@@ -63,13 +62,13 @@ No escaparás...
   if (chat.welcome && (m.messageStubType == 28 || m.messageStubType == 32)) {
     const mention = m.messageStubParameters[0].split('@')[0]
     const bye = `
-☠️ ▄︻デ══━💀 @${mention}...  
-¡Señal perdida! El objetivo ha abandonado la red oscura.
+☠️ *▄︻デ══━💀 @${mention}...*  
+*¡Señal perdida! El objetivo ha abandonado la red oscura.*
 
 ${global.welcom2}
 
 ✦ Sobrevivientes: ${groupSize} 
-La cacería no termina...
+*La cacería no termina...*
 > Tu sangre aún nos pertenece 🩸`.trim()
     
     await conn.sendMini(
