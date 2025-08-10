@@ -17,7 +17,7 @@ const handler = async (m, { conn }) => {
     'https://sylphy.xyz/download/mPQMW7.jpeg',
     'https://sylphy.xyz/download/eFyjep.mp4',
     'https://sylphy.xyz/download/TZj66W.mp4',
-    'https://sylphy.xyz/download/KEgHIr.jpeg'
+    'https://sylphy.xyz/download/U2x0S7.mp4'
   ];
 
   // 🗯️ Lista de frases
