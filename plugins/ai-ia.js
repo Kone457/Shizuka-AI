@@ -9,6 +9,8 @@ const rwait = '⏳';
 const done = '✅';
 const error = '❌';
 const msm = '[Shizuka Log]';
+const etiqueta = 'Adrian';
+const vs = 'v1.0.0';
 
 // 🎨 Función para construir el prompt base
 function buildPrompt(username) {
@@ -33,7 +35,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
             const imageAnalysis = await fetchImageBuffer(content, img);
             const query = `${emoji} Descríbeme la imagen y detalla por qué actúan así. También dime quién eres.`;
             const prompt = `${basePrompt}. La imagen que se analiza es: ${imageAnalysis.result}. ${query}`;
-            const description = await geminiPrompt(prompt);
+            const description = await shizukaPrompt(prompt, username);
             await conn.reply(m.chat, description, m);
         } catch (err) {
             console.error(`${msm} Error en análisis de imagen:`, err.message);
@@ -49,12 +51,12 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
             }, { quoted: m });
 
             const prompt = `${basePrompt}. Responde lo siguiente: ${userText}`;
-            console.log(`${msm} Prompt enviado a Gemini:`, prompt);
-            const response = await geminiPrompt(prompt);
+            console.log(`${msm} Prompt enviado a Mora:`, prompt);
+            const response = await shizukaPrompt(prompt, username);
             await conn.sendMessage(m.chat, { text: response, edit: key });
             await m.react(done);
         } catch (err) {
-            console.error(`${msm} Error en Gemini:`, err.message);
+            console.error(`${msm} Error en Mora:`, err.message);
             await m.react(error);
             await conn.reply(m.chat, '✘ Shizuka no puede responder a esa pregunta.', m);
         }
@@ -87,13 +89,13 @@ async function fetchImageBuffer(content, imageBuffer) {
     }
 }
 
-// 🔮 Función para usar la API de Gemini
-async function geminiPrompt(fullPrompt) {
+// 💋 Función adaptada para la API Mora de Vreden
+async function shizukaPrompt(fullPrompt, username) {
     try {
-        const response = await axios.get(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullPrompt)}`);
-        return response.data?.result || '✘ No se obtuvo respuesta de Shizuka.';
+        const response = await axios.get(`https://api.vreden.my.id/api/mora?query=${encodeURIComponent(fullPrompt)}&username=${encodeURIComponent(username)}`);
+        return response.data?.result || '✘ Shizuka no obtuvo respuesta.';
     } catch (error) {
-        console.error('[Gemini Error]', error.message);
+        console.error('[Mora Error]', error.message);
         throw error;
     }
 }
