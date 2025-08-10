@@ -3,8 +3,6 @@ import fetch from 'node-fetch';
 
 // 🎭 Variables rituales
 const botname = 'Shizuka';
-const etiqueta = '@Carlos';
-const vs = 'v1.0';
 const emoji = '✨';
 const emoji2 = '🔮';
 const rwait = '⏳';
