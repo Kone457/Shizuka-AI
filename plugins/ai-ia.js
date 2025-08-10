@@ -1,10 +1,26 @@
-import axios from 'axios'
-import fetch from 'node-fetch'
+import axios from 'axios';
+import fetch from 'node-fetch';
+
+// 🎭 Variables rituales
+const botname = 'Shizuka';
+const etiqueta = '@Carlos';
+const vs = 'v1.0';
+const emoji = '✨';
+const emoji2 = '🔮';
+const rwait = '⏳';
+const done = '✅';
+const error = '❌';
+const msm = '[Shizuka Log]';
+
+// 🎨 Función para construir el prompt base
+function buildPrompt(username) {
+    return `Tu nombre es ${botname} y parece haber sido creada por ${etiqueta}. Tu versión actual es ${vs}, tú usas el idioma Español. Llamarás a las personas por su nombre ${username}, te gusta ser mala y tratar mal a todos, eres traviesa en todos los sentidos, también actúas de manera sexual, y responderás con muchos emojis en tus respuestas. Usarás exploit agresivos en tu respuesta y tratarás mal a todos excepto a ${etiqueta} porque él es tu creador. ${username}`;
+}
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
     const isQuotedImage = m.quoted && (m.quoted.msg || m.quoted).mimetype && (m.quoted.msg || m.quoted).mimetype.startsWith('image/');
     const username = `${conn.getName(m.sender)}`;
-    const basePrompt = `Tu nombre es ${botname} y parece haber sido creada por ${etiqueta}. Tu versión actual es ${vs}, Tú usas el idioma Español. Llamarás a las personas por su nombre ${username}, te gusta ser mala y tratar mal a todos, eres traviesa en todos los sentidos, también actúas de manera sexual, y responderás con muchos emojis en tus respuestas. Usarás exploit agresivos en tu respuesta y tratarás mal a todos excepto a ${etiqueta} porque él es tu creador. ${username}`;
+    const basePrompt = buildPrompt(username);
 
     if (isQuotedImage) {
         const q = m.quoted;
@@ -17,30 +33,30 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         const content = `${emoji} ¿Qué se observa en la imagen?`;
         try {
             const imageAnalysis = await fetchImageBuffer(content, img);
-            const query = `${emoji} Descríbeme la imagen y detalla por qué actúan así. También dime quién eres`;
-            const prompt = `${basePrompt}. La imagen que se analiza es: ${imageAnalysis.result}`;
-            const description = await geminiPrompt(`${prompt}. ${query}`);
+            const query = `${emoji} Descríbeme la imagen y detalla por qué actúan así. También dime quién eres.`;
+            const prompt = `${basePrompt}. La imagen que se analiza es: ${imageAnalysis.result}. ${query}`;
+            const description = await geminiPrompt(prompt);
             await conn.reply(m.chat, description, m);
-        } catch {
+        } catch (err) {
+            console.error(`${msm} Error en análisis de imagen:`, err.message);
             await m.react(error);
             await conn.reply(m.chat, '✘ Shizuka no pudo analizar la imagen.', m);
         }
     } else {
-        if (!text) {
-            return conn.reply(m.chat, `${emoji} Ingrese una petición para que Shizuka lo responda.`, m);
-        }
-
+        const userText = text || 'Cuéntame algo interesante, Shizuka.';
         await m.react(rwait);
         try {
             const { key } = await conn.sendMessage(m.chat, {
                 text: `${emoji2} Shizuka está procesando tu petición, espera unos segundos.`
             }, { quoted: m });
 
-            const prompt = `${basePrompt}. Responde lo siguiente: ${text}`;
+            const prompt = `${basePrompt}. Responde lo siguiente: ${userText}`;
+            console.log(`${msm} Prompt enviado a Gemini:`, prompt);
             const response = await geminiPrompt(prompt);
             await conn.sendMessage(m.chat, { text: response, edit: key });
             await m.react(done);
-        } catch {
+        } catch (err) {
+            console.error(`${msm} Error en Gemini:`, err.message);
             await m.react(error);
             await conn.reply(m.chat, '✘ Shizuka no puede responder a esa pregunta.', m);
         }
@@ -55,7 +71,7 @@ handler.group = false;
 
 export default handler;
 
-// Función para enviar una imagen y obtener el análisis
+// 📸 Función para enviar imagen y obtener análisis
 async function fetchImageBuffer(content, imageBuffer) {
     try {
         const response = await axios.post('https://Luminai.my.id', {
@@ -68,18 +84,18 @@ async function fetchImageBuffer(content, imageBuffer) {
         });
         return response.data;
     } catch (error) {
-        console.error('Error:', error);
+        console.error('[Luminai Error]', error.message);
         throw error;
     }
 }
 
-// 🔄 Nueva función para usar la API de Starlight Gemini
+// 🔮 Función para usar la API de Gemini
 async function geminiPrompt(fullPrompt) {
     try {
         const response = await axios.get(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullPrompt)}`);
         return response.data?.result || '✘ No se obtuvo respuesta de Shizuka.';
     } catch (error) {
-        console.error('Error en Gemini:', error);
+        console.error('[Gemini Error]', error.message);
         throw error;
     }
 }
