@@ -11,7 +11,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   const thumbnailCard = 'https://qu.ax/AEkvz.jpg';
   const mainImage = 'https://qu.ax/phgPU.jpg';
 
-  if (!text || !text.includes('facebook.com') && !text.includes('fb.watch')) {
+  if (!text || (!text.includes('facebook.com') && !text.includes('fb.watch'))) {
     return await conn.sendMessage(m.chat, {
       text: `🎥 *Proporciona un enlace válido de Facebook para descargar.*\nEjemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
       footer: '🔗 Facebook Downloader por Delirius API',
@@ -32,8 +32,8 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const json = await res.json();
 
     const title = json.title || 'Video de Facebook';
-    const hd = json.urls?.find(u => u.hd)?.hd;
-    const sd = json.urls?.find(u => u.sd)?.sd;
+    const hd = json.urls?.[0]?.hd;
+    const sd = json.urls?.[1]?.sd;
     const videoUrl = hd || sd;
 
     if (!videoUrl) {
@@ -73,8 +73,8 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
   } catch (error) {
     console.error(error);
-    m.reply(`❌ Error al procesar el enlace.\n📛 Detalles: ${error.message}`);
-    m.react('⚠️');
+    await m.reply(`❌ Error al procesar el enlace.\n📛 Detalles: ${error.message}`);
+    await m.react('⚠️');
   }
 };
 
