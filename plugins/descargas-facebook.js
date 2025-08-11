@@ -69,7 +69,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   } catch (error) {
     console.error(error);
     await m.reply(`❌ *Shizuka detectó un error al procesar el enlace.*\n📛 *Detalles:* ${error.message}`);
-    await m.react('⚠️');
+    await m.react('⚠️'); // ✅ Reacción directa sin variable emoji
   }
 };
 
