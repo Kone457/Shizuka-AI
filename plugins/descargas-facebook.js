@@ -1,4 +1,4 @@
-// 🎭 Plugin Shizuka: Descargador de Facebook Watch por Delirius API
+// 🎭 Plugin Shizuka: Descargador de Facebook por Delirius API
 
 import fetch from 'node-fetch';
 
@@ -11,9 +11,15 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   const thumbnailCard = 'https://qu.ax/phgPU.jpg'; // Miniatura ritual
   const mainImage = 'https://qu.ax/AEkvz.jpg';     // Imagen escénica principal
 
-  if (!text || !text.includes('fb.watch')) {
+  // 🎯 Validación ampliada del enlace
+  if (
+    !text ||
+    (!text.includes('fb.watch') &&
+     !text.includes('facebook.com') &&
+     !text.match(/https?:\/\/(www\.)?facebook\.com\/.+/))
+  ) {
     return await conn.sendMessage(m.chat, {
-      text: `🎬 *Shizuka necesita un enlace válido de Facebook Watch para invocar la descarga.*\n\n📌 Ejemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
+      text: `🎬 *Shizuka necesita un enlace válido de Facebook para invocar la descarga.*\n\n📌 Ejemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
       footer: '🔗 Ritual de descarga por Delirius API',
       contextInfo: {
         externalAdReply: {
@@ -37,7 +43,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const caption = `
 🎞️ *Título:* ${title}
 📺 *Calidad:* ${isHdAvailable ? 'Alta definición (HD)' : 'Definición estándar (SD)'}
-🧭 *Origen:* Facebook Watch
+🧭 *Origen:* Facebook
 🧙 *Invocado por:* Shizuka
 `.trim();
 
