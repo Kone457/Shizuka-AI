@@ -1,25 +1,24 @@
-// 🎬 Descargador de Facebook por Delirius API
+// 🎭 Plugin Shizuka: Descargador de Facebook Watch por Delirius API
 
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-  // 🛡️ Protección por ID único del mensaje
+  // 🛡️ Protección escénica por ID único
   global._processedMessages ??= new Set();
   if (global._processedMessages.has(m.key.id)) return;
   global._processedMessages.add(m.key.id);
 
-  const thumbnailCard = 'https://qu.ax/AEkvz.jpg';
-  const mainImage = 'https://qu.ax/phgPU.jpg';
+  const thumbnailCard = 'https://qu.ax/phgPU.jpg'; // Miniatura ritual
+  const mainImage = 'https://qu.ax/AEkvz.jpg';     // Imagen escénica principal
 
-  // 🎯 Validación del enlace
-  if (!text || (!text.includes('facebook.com') && !text.includes('fb.watch'))) {
+  if (!text || !text.includes('fb.watch')) {
     return await conn.sendMessage(m.chat, {
-      text: `🎥 *Proporciona un enlace válido de Facebook para descargar.*\n\n📌 Ejemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
-      footer: '🔗 Facebook Downloader por Delirius API',
+      text: `🎬 *Shizuka necesita un enlace válido de Facebook Watch para invocar la descarga.*\n\n📌 Ejemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
+      footer: '🔗 Ritual de descarga por Delirius API',
       contextInfo: {
         externalAdReply: {
-          title: 'Descarga directa desde Facebook',
-          body: 'Convierte enlaces en videos descargables',
+          title: 'Shizuka invoca escenas desde Facebook',
+          body: 'Transforma enlaces en descargas teatrales',
           thumbnailUrl: thumbnailCard,
           sourceUrl: 'https://facebook.com'
         }
@@ -32,52 +31,47 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const res = await fetch(api);
     const json = await res.json();
 
-    const title = json.title || 'Video de Facebook';
-    const hd = json.urls?.[0]?.hd;
-    const sd = json.urls?.[1]?.sd;
-    const videoUrl = hd || sd;
-
-    if (!videoUrl) {
-      return m.reply('❌ No se encontró una resolución adecuada para descargar.');
-    }
+    const { title, isHdAvailable, urls } = json;
+    const videoUrl = isHdAvailable ? urls[0].hd : urls[1].sd;
 
     const caption = `
-🎬 *Título:* ${title}
-📥 *Resolución:* ${hd ? 'HD' : 'SD'}
-🔗 *Fuente:* Facebook
+🎞️ *Título:* ${title}
+📺 *Calidad:* ${isHdAvailable ? 'Alta definición (HD)' : 'Definición estándar (SD)'}
+🧭 *Origen:* Facebook Watch
+🧙 *Invocado por:* Shizuka
 `.trim();
 
-    // 🖼️ Mensaje 1: visualización escénica
+    // 🖼️ Escena 1: visualización emocional
     await conn.sendMessage(m.chat, {
       image: { url: mainImage },
       caption,
-      footer: '🎭 Video obtenido vía Delirius API',
+      footer: '🎭 Escena ritual vía Delirius API',
       contextInfo: {
         externalAdReply: {
-          title,
-          body: hd ? 'Alta definición disponible' : 'Resolución estándar',
+          title: title,
+          body: isHdAvailable ? 'HD disponible' : 'SD disponible',
           thumbnailUrl: thumbnailCard,
-          sourceUrl: text
+          sourceUrl: videoUrl
         }
       }
     }, { quoted: m });
 
-    // 🎥 Mensaje 2: envío del video
+    // 📥 Escena 2: entrega del archivo como documento MP4
     await conn.sendMessage(m.chat, {
-      video: {
+      document: {
         url: videoUrl,
-        fileName: 'facebook.mp4',
+        fileName: `${title}.mp4`,
         mimetype: 'video/mp4'
       },
-      caption: '🎬 Aquí tienes tu video descargado desde Facebook.'
+      caption: '📥 Shizuka ha completado la descarga ritual'
     }, { quoted: m });
 
   } catch (error) {
     console.error(error);
-    await m.reply(`❌ Error al procesar el enlace.\n📛 Detalles: ${error.message}`);
+    await m.reply(`❌ *Shizuka detectó un error al procesar el enlace.*\n📛 *Detalles:* ${error.message}`);
     await m.react('⚠️');
   }
 };
 
-handler.command = ['fb', 'facebook'];
+handler.command = ['fb'];
 export default handler;
