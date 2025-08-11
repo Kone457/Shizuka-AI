@@ -11,9 +11,10 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   const thumbnailCard = 'https://qu.ax/AEkvz.jpg';
   const mainImage = 'https://qu.ax/phgPU.jpg';
 
+  // 🎯 Validación del enlace
   if (!text || (!text.includes('facebook.com') && !text.includes('fb.watch'))) {
     return await conn.sendMessage(m.chat, {
-      text: `🎥 *Proporciona un enlace válido de Facebook para descargar.*\nEjemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
+      text: `🎥 *Proporciona un enlace válido de Facebook para descargar.*\n\n📌 Ejemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
       footer: '🔗 Facebook Downloader por Delirius API',
       contextInfo: {
         externalAdReply: {
