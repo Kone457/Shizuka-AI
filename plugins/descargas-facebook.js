@@ -1,9 +1,11 @@
-// 🎬 Descargador ritual de Facebook por Shizuka (v2)
+// 🎬 Descargador ritual de Facebook por Shizuka 
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-  // 🛡️ Prevención de mensajes duplicados
-  global._processedMessages ??= new Set();
+  // 🛡️ Prevención de mensajes duplicados (fallback clásico en vez de ??=)
+  if (!global._processedMessages) {
+    global._processedMessages = new Set();
+  }
   if (global._processedMessages.has(m.key.id)) return;
   global._processedMessages.add(m.key.id);
 
@@ -20,64 +22,66 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             title: 'Invocación desde Facebook',
             body: 'Shizuka transforma enlaces en reliquias visuales',
             thumbnailUrl: thumbnailCard,
-            sourceUrl: 'https://facebook.com',
-          },
-        },
+            sourceUrl: 'https://facebook.com'
+          }
+        }
       },
       { quoted: m }
     );
   }
 
   try {
-    await m.react('🧨');
+    await m.react('🌀');
 
     // 📡 Llamada a la API de Dorratz
-    const apiRes = await fetch(`https://api.dorratz.com/fbvideo?url=${encodeURIComponent(text)}`);
+    const apiRes = await fetch(
+      `https://api.dorratz.com/fbvideo?url=${encodeURIComponent(text)}`
+    );
     let videos = await apiRes.json();
+
     if (!Array.isArray(videos) && videos.objects) {
       videos = JSON.parse(videos.objects[0].content);
     }
 
     // 🎚️ Selección ritual de resolución
     const chosen =
-      videos.find((v) => v.resolution.includes('1080')) ||
-      videos.find((v) => v.resolution.includes('720')) ||
+      videos.find(v => v.resolution.includes('1080')) ||
+      videos.find(v => v.resolution.includes('720')) ||
       videos[0];
-
-    if (!chosen?.url) throw new Error('No se encontró un video válido');
+    if (!chosen || !chosen.url) throw new Error('No se encontró un video válido');
 
     const { resolution, thumbnail: thumbUrl, url: videoUrl } = chosen;
 
-    // 🖼️ Buffer de la miniatura
+    // 🖼️ Buffer de miniatura
     let jpegThumbnail = null;
     try {
       jpegThumbnail = await conn.getBuffer(thumbUrl);
-    } catch {}
+    } catch (e) {
+      // si falla el buffer, seguimos sin thumbnail
+    }
 
-    // 📸 Envío de la miniatura pequeña
+    // 📸 Miniatura pequeña
     if (jpegThumbnail) {
       await conn.sendMessage(
         m.chat,
         {
           image: jpegThumbnail,
-          caption: '📸 Miniatura pequeña para tu contemplación ritual.',
+          caption: '📸 Miniatura pequeña para tu contemplación ritual.'
         },
         { quoted: m }
       );
     }
 
-    // 🎬 Entrega final: video con miniatura incrustada
+    // 🎬 Entrega final: video reproducible
     await conn.sendMessage(
       m.chat,
       {
-        video: {
-          url: videoUrl,
-          thumbnail: jpegThumbnail,       // miniatura pequeña incrustada
-        },
+        video: { url: videoUrl },
         caption: `
 🎞️ Resolución: ${resolution}
 📥 El archivo ha sido purificado y está listo para su contemplación ritual.
         `.trim(),
+        jpegThumbnail
       },
       { quoted: m }
     );
@@ -88,7 +92,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     await conn.sendMessage(
       m.chat,
       {
-        text: `❌ *Ritual interrumpido.*\n📛 Detalles: ${err.message}`,
+        text: `❌ *Ritual interrumpido.*\n📛 Detalles: ${err.message}`
       },
       { quoted: m }
     );
