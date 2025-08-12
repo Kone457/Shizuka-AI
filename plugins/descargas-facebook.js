@@ -33,7 +33,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 
   try {
-    const api = `https://delirius-apiofc.vercel.app/download/facebook?url=${encodeURIComponent(text)}`;
+    const api = `https://api.dorratz.com/fbvideo?url=${encodeURIComponent(text)}`;
     const res = await fetch(api);
     const json = await res.json();
 
