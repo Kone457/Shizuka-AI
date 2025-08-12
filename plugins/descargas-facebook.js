@@ -9,7 +9,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   global._processedMessages.add(m.key.id);
 
   const thumbnailCard = 'https://qu.ax/phgPU.jpg'; // Miniatura ritual
-  const mainImage = 'https://qu.ax/AEkvz.jpg';     // Imagen escénica principal
+  const mainImage = 'https://d.uguu.se/fUzMERCs.jpg';     // Imagen escénica principal
 
   // 🎯 Validación ampliada del enlace
   if (
