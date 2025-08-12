@@ -1,27 +1,30 @@
-import pkg from '@whiskeysockets/baileys';
-import fs from 'fs';
-import fetch from 'node-fetch';
-import axios from 'axios';
-import moment from 'moment-timezone';
+import pkg from '@whiskeysockets/baileys'
+import fs from 'fs'
+import fetch from 'node-fetch'
+import axios from 'axios'
+import moment from 'moment-timezone'
 
-const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg;
+const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 // Handler base
-var handler = m => m;
+var handler = m => m
 
-handler.all = async (m, { conn } = {}) => {
-  // Abort early if conn is missing
+/**
+ * Captura conn de extras o de global.conn.
+ * Asegúrate de asignar global.conn antes de usar este handler.
+ */
+handler.all = async function (m, extras = {}) {
+  // Prioridad: extras.conn → global.conn
+  const conn = extras.conn || global.conn
   if (!conn) {
-    console.error('handler.all: conn is undefined — aborting.');
-    return;
+    console.error('handler.all: conn is undefined — aborting.')
+    return
   }
 
   // 🛡️ Prevención de mensajes duplicados
-  if (!global._processedMessages) {
-    global._processedMessages = new Set();
-  }
-  if (global._processedMessages.has(m.key.id)) return;
-  global._processedMessages.add(m.key.id);
+  if (!global._processedMessages) global._processedMessages = new Set()
+  if (global._processedMessages.has(m.key.id)) return
+  global._processedMessages.add(m.key.id)
 
   // 📦 Helper para obtener buffers
   global.getBuffer = async (url, options = {}) => {
@@ -34,90 +37,117 @@ handler.all = async (m, { conn } = {}) => {
         },
         responseType: 'arraybuffer',
         ...options
-      });
-      return res.data;
+      })
+      return res.data
     } catch (e) {
-      console.log(`Error al bajar buffer: ${e}`);
-      return null;
+      console.log(`Error al bajar buffer: ${e}`)
+      return null
     }
-  };
+  }
 
   // 🔗 Datos globales de Shizuka
-  global.creador     = 'Wa.me/5355699866';
-  global.ofcbot      = conn.user?.jid.split('@')[0] || 'unknown';
-  global.namechannel = '𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄 𝘾𝙝𝙖𝙣𝙣𝙚𝙡';
-  global.namegrupo   = 'Shizuka-AI';
-  global.namecomu    = 'Shizuka-AI';
-  global.listo       = '*Aquí tienes *';
+  global.creador     = 'Wa.me/5355699866'
+  global.ofcbot      = conn.user?.jid.split('@')[0] || 'unknown'
+  global.namechannel = '𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄 𝘾𝙝𝙖𝙣𝙣𝙚𝙡'
+  global.namegrupo   = 'Shizuka-AI'
+  global.namecomu    = 'Shizuka-AI'
+  global.listo       = '*Aquí tienes *'
   global.fotoperfil  = await conn
     .profilePictureUrl(m.sender, 'image')
-    .catch(() => 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/sss.jpg');
+    .catch(() => 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/sss.jpg')
 
   // 📣 Configuración de newsletters
-  global.canalIdM     = ['120363400241973967@newsletter', '120363400241973967@newsletter'];
-  global.canalNombreM = ['Shizuka-AI Channel', 'Shizuka-AI Channel'];
-  global.channelRD    = await getRandomChannel();
+  global.canalIdM     = [
+    '120363400241973967@newsletter',
+    '120363400241973967@newsletter'
+  ]
+  global.canalNombreM = [
+    'Shizuka-AI Channel',
+    'Shizuka-AI Channel'
+  ]
+  global.channelRD    = await getRandomChannel()
 
   // 🗓️ Fecha y hora en zona local
-  const d = new Date(Date.now() + 3600000);
-  global.locale = 'es';
-  global.dia    = d.toLocaleDateString(global.locale,   { weekday: 'long' });
-  global.fecha  = d.toLocaleDateString('es',            { day: 'numeric', month: 'numeric', year: 'numeric' });
-  global.mes    = d.toLocaleDateString('es',            { month: 'long' });
-  global.año    = d.toLocaleDateString('es',            { year: 'numeric' });
+  const d = new Date(Date.now() + 3600000)
+  global.locale = 'es'
+  global.dia    = d.toLocaleDateString(global.locale, {
+    weekday: 'long'
+  })
+  global.fecha  = d.toLocaleDateString('es', {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric'
+  })
+  global.mes    = d.toLocaleDateString('es', {
+    month: 'long'
+  })
+  global.año    = d.toLocaleDateString('es', {
+    year: 'numeric'
+  })
   global.tiempo = d.toLocaleTimeString('en-US', {
-    hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true
-  });
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true
+  })
 
   // 🔥 Estados y emojis
-  global.rwait  = '🔥';
-  global.done   = '❤‍🔥';
-  global.error  = '💔';
-  global.msm    = '🚫';
-  global.emoji   = '🌸'; 
-  global.emoji2  = '✨';
-  global.emoji3  = '♦';
-  global.emoji4  = '🀄';
-  global.emoji5  = '🌟';
-  global.emojis  = pickRandom([global.emoji, global.emoji2, global.emoji3, global.emoji4, global.emoji5]);
-  global.wait    = '❍ Espera un momento...';
+  global.rwait   = '🔥'
+  global.done    = '❤‍🔥'
+  global.error   = '💔'
+  global.msm     = '🚫'
+  global.emoji   = '🌸'
+  global.emoji2  = '✨'
+  global.emoji3  = '♦'
+  global.emoji4  = '🀄'
+  global.emoji5  = '🌟'
+  global.emojis  = pickRandom([
+    global.emoji,
+    global.emoji2,
+    global.emoji3,
+    global.emoji4,
+    global.emoji5
+  ])
+  global.wait    = '❍ Espera un momento...'
 
   // 🌐 Redes sociales aleatorias
-  const canal     = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v';
-  const comunidad = 'https://chat.whatsapp.com/FKdA4geFvKVD17dP6O6MHt';
-  const git       = 'https://github.com/Kone457';
-  const github    = 'https://github.com/Kone457/Shizuka-AI';
-  const correo    = 'c2117620@gmail.com';
-  global.redes    = pickRandom([canal, comunidad, git, github, correo]);
+  const canal     = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
+  const comunidad = 'https://chat.whatsapp.com/FKdA4geFvKVD17dP6O6MHt'
+  const git       = 'https://github.com/Kone457'
+  const github    = 'https://github.com/Kone457/Shizuka-AI'
+  const correo    = 'c2117620@gmail.com'
+  global.redes    = pickRandom([canal, comunidad, git, github, correo])
 
   // 🖼️ Icono aleatorio desde base de datos
-  const dbPath = './src/database/db.json';
-  const db_    = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-  const links  = db_.links?.imagen || [];
-  const rnd    = Math.floor(Math.random() * links.length);
-  const iconsBuffer = links[rnd] ? await fetch(links[rnd]).then(r => r.buffer()) : null;
-  global.icons  = iconsBuffer;
+  const dbPath = './src/database/db.json'
+  const db_    = JSON.parse(fs.readFileSync(dbPath, 'utf8'))
+  const links  = db_.links?.imagen || []
+  const rnd    = Math.floor(Math.random() * links.length)
+  const iconsBuffer = links[rnd]
+    ? await fetch(links[rnd]).then(r => r.buffer())
+    : null
+  global.icons  = iconsBuffer
 
   // 👋 Saludo según la hora
-  const hour = d.getHours();
-  if (hour < 3)          global.saludo = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃';
-  else if (hour < 10)    global.saludo = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄';
-  else if (hour < 15)    global.saludo = 'Lɪɴᴅᴏ Dɪᴀ 🌤';
-  else if (hour < 18)    global.saludo = 'Lɪɴᴅᴀ Tᴀʀᴅᴇ 🌆';
-  else                   global.saludo = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃';
+  const hour = d.getHours()
+  if (hour < 3)          global.saludo = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
+  else if (hour < 10)    global.saludo = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄'
+  else if (hour < 15)    global.saludo = 'Lɪɴᴅᴏ Dɪᴀ 🌤'
+  else if (hour < 18)    global.saludo = 'Lɪɴᴅᴀ Tᴀʀᴅᴇ 🌆'
+  else                   global.saludo = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
 
-  global.nombre  = m.pushName || 'Anónimo';
-  global.taguser = '@' + m.sender.split('@')[0];
-  const more     = String.fromCharCode(8206);
-  global.readMore = more.repeat(850);
+  global.nombre  = m.pushName || 'Anónimo'
+  global.taguser = '@' + m.sender.split('@')[0]
+  const more     = String.fromCharCode(8206)
+  global.readMore = more.repeat(850)
 
   // 🏷️ Plantillas para stickers
   global.packsticker  =
     `°.⎯⃘... Usuario: ${global.nombre}\n` +
     `Bot: ${conn.user.name || 'Shizuka-AI'}\n` +
     `Fecha: ${global.fecha}\n` +
-    `Hora: ${global.tiempo}`;
-  global.packsticker2 = `\n°.⎯⃘...\n${global.creador}`;
+    `Hora: ${global.tiempo}`
+  global.packsticker2 = `\n°.⎯⃘...\n${global.creador}`
 
   // 📇 Contact card
   global.fkontak = {
@@ -142,7 +172,7 @@ handler.all = async (m, { conn } = {}) => {
         sendEphemeral: true
       }
     }
-  };
+  }
 
   // 📑 Fake context para mensajes reenviados
   global.fake = {
@@ -154,10 +184,10 @@ handler.all = async (m, { conn } = {}) => {
         serverMessageId: -1
       }
     }
-  };
+  }
 
   // 📡 Canal de noticias con AdReply
-  global.icono = pickRandom(['https://tinyurl.com/285a5ejf']);
+  global.icono = pickRandom(['https://tinyurl.com/285a5ejf'])
   global.rcanal = {
     contextInfo: {
       isForwarded: true,
@@ -177,12 +207,10 @@ handler.all = async (m, { conn } = {}) => {
         renderLargerThumbnail: false
       }
     }
-  };
+  }
+} // ← fin de handler.all
 
-}; // ← fin de handler.all
-
-export default handler;
-
+export default handler
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -190,15 +218,15 @@ export default handler;
  * Elige un elemento aleatorio de una lista.
  */
 function pickRandom(list) {
-  return list[Math.floor(Math.random() * list.length)];
+  return list[Math.floor(Math.random() * list.length)]
 }
 
 /**
  * Obtiene un canal aleatorio para newsletter.
  */
 async function getRandomChannel() {
-  const idx  = Math.floor(Math.random() * global.canalIdM.length);
-  const id   = global.canalIdM[idx];
-  const name = global.canalNombreM[idx];
-  return { id, name };
+  const idx  = Math.floor(Math.random() * global.canalIdM.length)
+  const id   = global.canalIdM[idx]
+  const name = global.canalNombreM[idx]
+  return { id, name }
 }
