@@ -15,7 +15,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
      !text.match(/https?:\/\/(www\.)?facebook\.com\/.+/))
   ) {
     return await conn.sendMessage(m.chat, {
-      text: `🎬 *Shizuka necesita un enlace válido de Facebook para invocar la descarga.*\n\n📌 Ejemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
+      text: `🎬 Shizuka necesita un enlace válido de Facebook para invocar la descarga.\n\n📌 Ejemplo:\n${usedPrefix + command} https://fb.watch/abc123xyz/`,
       footer: '🔗 Ritual de descarga por Delirius API',
       contextInfo: {
         externalAdReply: {
@@ -37,10 +37,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
     if (!Array.isArray(videos) || videos.length === 0) {
       await m.react('❌');
-      return m.reply(`⚠️ No se pudo encontrar un video en el enlace proporcionado. Intenta con otro.`);
+      return m.reply('⚠️ No se pudo encontrar un video en el enlace proporcionado. Intenta con otro.');
     }
 
-    // 🎚️ Selección ritual: prioriza 1080p, luego 720p, luego el primero disponible
     const preferred = videos.find(v => v.resolution.includes('1080p')) ||
                       videos.find(v => v.resolution.includes('720p')) ||
                       videos[0];
@@ -49,10 +48,10 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const title = 'Escena invocada desde Facebook';
 
     const caption = `
-🎞️ *Resolución:* ${resolution}
-📺 *Calidad:* ${resolution.includes('1080p') ? 'Ultra HD' : resolution.includes('720p') ? 'HD' : 'SD'}
-🧭 *Origen:* Facebook
-🧙 *Invocado por:* Shizuka
+🎞️ Resolución: ${resolution}
+📺 Calidad: ${resolution.includes('1080p') ? 'Ultra HD' : resolution.includes('720p') ? 'HD' : 'SD'}
+🧭 Origen: Facebook
+🧙 Invocado por: Shizuka
 `.trim();
 
     await conn.sendMessage(m.chat, {
@@ -71,8 +70,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       }
     }, { quoted: m });
 
+    // 🎥 Envío como video en vez de documento
     await conn.sendMessage(m.chat, {
-      document: {
+      video: {
         url,
         fileName: `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`,
         mimetype: 'video/mp4'
@@ -97,7 +97,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
     await conn.sendMessage(m.chat, {
-      caption: `❌ *Shizuka detectó un error al procesar el enlace.*\n📛 *Detalles:* ${mensaje}\n🧩 *Tipo:* ${tipo}`
+      text: `❌ Shizuka detectó un error al procesar el enlace.\n📛 Detalles: ${mensaje}\n🧩 Tipo: ${tipo}`
     }, { quoted: m });
 
     console.error(`[FB-DL] Error capturado: ${tipo} → ${error.message}`);
