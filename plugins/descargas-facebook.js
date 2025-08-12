@@ -29,7 +29,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 
   try {
-    await m.react('🌀');
+    await m.react('🧨');
 
     // 📡 Llamada a la API de Dorratz
     const apiRes = await fetch(`https://api.dorratz.com/fbvideo?url=${encodeURIComponent(text)}`);
