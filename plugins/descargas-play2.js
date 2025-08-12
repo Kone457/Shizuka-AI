@@ -7,7 +7,7 @@ const SEARCH_APIS = [
 ];
 
 const DOWNLOAD_APIS = [ // Array for iteration
-  { name: 'Servidor Masha', url: 'http://api.alyabot.xyz:3269/download_video?url=' },
+  { name: 'Servidor Masha', url: 'https://myapiadonix.vercel.app/api/ytmp4=' },
   { name: 'Servidor Alya', url: 'http://api2.alyabot.xyz:5216/download_video?url=' },
   { name: 'Servidor Masachika', url: 'https://api3.alyabot.xyz/download_video?url=' }
 ];
