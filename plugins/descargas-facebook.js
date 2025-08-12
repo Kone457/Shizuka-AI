@@ -1,17 +1,13 @@
-// 🎭 Plugin Shizuka: Descargador de Facebook por Delirius API
-
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-  // 🛡️ Protección escénica por ID único
   global._processedMessages ??= new Set();
   if (global._processedMessages.has(m.key.id)) return;
   global._processedMessages.add(m.key.id);
 
-  const thumbnailCard = 'https://qu.ax/phgPU.jpg'; // Miniatura ritual
-  const mainImage = 'https://d.uguu.se/fUzMERCs.jpg';     // Imagen escénica principal
+  const thumbnailCard = 'https://qu.ax/phgPU.jpg';
+  const mainImage = 'https://d.uguu.se/fUzMERCs.jpg';
 
-  // 🎯 Validación ampliada del enlace
   if (
     !text ||
     (!text.includes('fb.watch') &&
@@ -37,17 +33,23 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const res = await fetch(api);
     const json = await res.json();
 
-    const { title, isHdAvailable, urls } = json;
-    const videoUrl = isHdAvailable ? urls[0].hd : urls[1].sd;
+    if (!Array.isArray(json) || json.length === 0) throw new Error('Respuesta vacía o inválida');
+
+    // 🎚️ Selección ritual: prioriza 1080p, luego 720p, luego el primero disponible
+    const preferred = json.find(v => v.resolution.includes('1080p')) ||
+                      json.find(v => v.resolution.includes('720p')) ||
+                      json[0];
+
+    const { resolution, thumbnail, url } = preferred;
+    const title = 'Escena invocada desde Facebook'; // La API no da título, así que lo ritualizamos
 
     const caption = `
-🎞️ *Título:* ${title}
-📺 *Calidad:* ${isHdAvailable ? 'Alta definición (HD)' : 'Definición estándar (SD)'}
+🎞️ *Resolución:* ${resolution}
+📺 *Calidad:* ${resolution.includes('1080p') ? 'Ultra HD' : resolution.includes('720p') ? 'HD' : 'SD'}
 🧭 *Origen:* Facebook
 🧙 *Invocado por:* Shizuka
 `.trim();
 
-    // 🖼️ Escena 1: visualización emocional
     await conn.sendMessage(m.chat, {
       image: { url: mainImage },
       caption,
@@ -55,18 +57,17 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       contextInfo: {
         externalAdReply: {
           title: title,
-          body: isHdAvailable ? 'HD disponible' : 'SD disponible',
-          thumbnailUrl: thumbnailCard,
-          sourceUrl: videoUrl
+          body: resolution,
+          thumbnailUrl: thumbnail,
+          sourceUrl: url
         }
       }
     }, { quoted: m });
 
-    // 📥 Escena 2: entrega del archivo como documento MP4
     await conn.sendMessage(m.chat, {
       document: {
-        url: videoUrl,
-        fileName: `${title}.mp4`,
+        url,
+        fileName: `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp4`,
         mimetype: 'video/mp4'
       },
       caption: '📥 Shizuka ha completado la descarga ritual'
@@ -75,7 +76,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   } catch (error) {
     console.error(error);
     await m.reply(`❌ *Shizuka detectó un error al procesar el enlace.*\n📛 *Detalles:* ${error.message}`);
-    await m.react('⚠️'); // ✅ Reacción directa sin variable emoji
+    await m.react('⚠️');
   }
 };
 
