@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   global._processedMessages ??= new Set();
@@ -28,20 +28,25 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }, { quoted: m });
   }
 
-  try {
-    const api = `https://api.dorratz.com/fbvideo?url=${encodeURIComponent(text)}`;
-    const res = await fetch(api);
-    const json = await res.json();
+  await m.react('🌀');
 
-    if (!Array.isArray(json) || json.length === 0) throw new Error('Respuesta vacía o inválida');
+  try {
+    const apiUrl = `https://api.dorratz.com/fbvideo?url=${encodeURIComponent(text)}`;
+    const res = await axios.get(apiUrl);
+    const videos = res.data;
+
+    if (!Array.isArray(videos) || videos.length === 0) {
+      await m.react('❌');
+      return m.reply(`⚠️ No se pudo encontrar un video en el enlace proporcionado. Intenta con otro.`);
+    }
 
     // 🎚️ Selección ritual: prioriza 1080p, luego 720p, luego el primero disponible
-    const preferred = json.find(v => v.resolution.includes('1080p')) ||
-                      json.find(v => v.resolution.includes('720p')) ||
-                      json[0];
+    const preferred = videos.find(v => v.resolution.includes('1080p')) ||
+                      videos.find(v => v.resolution.includes('720p')) ||
+                      videos[0];
 
     const { resolution, thumbnail, url } = preferred;
-    const title = 'Escena invocada desde Facebook'; // La API no da título, así que lo ritualizamos
+    const title = 'Escena invocada desde Facebook';
 
     const caption = `
 🎞️ *Resolución:* ${resolution}
@@ -59,7 +64,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
           title: title,
           body: resolution,
           thumbnailUrl: thumbnail,
-          sourceUrl: url
+          sourceUrl: url,
+          mediaType: 1,
+          renderLargerThumbnail: true
         }
       }
     }, { quoted: m });
@@ -73,12 +80,32 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       caption: '📥 Shizuka ha completado la descarga ritual'
     }, { quoted: m });
 
+    await m.react('✅');
+
   } catch (error) {
-    console.error(error);
-    await m.reply(`❌ *Shizuka detectó un error al procesar el enlace.*\n📛 *Detalles:* ${error.message}`);
-    await m.react('⚠️');
+    await m.react('❌');
+
+    let tipo = 'Error inesperado';
+    let mensaje = error.message;
+
+    if (error.response) {
+      tipo = `Error HTTP ${error.response.status}`;
+      mensaje = `La API respondió con un error: ${error.response.statusText}`;
+    } else if (error.request) {
+      tipo = 'Error de conexión';
+      mensaje = 'No se pudo conectar con el servidor de la API. Revisa tu conexión a internet.';
+    }
+
+    await conn.sendMessage(m.chat, {
+      caption: `❌ *Shizuka detectó un error al procesar el enlace.*\n📛 *Detalles:* ${mensaje}\n🧩 *Tipo:* ${tipo}`
+    }, { quoted: m });
+
+    console.error(`[FB-DL] Error capturado: ${tipo} → ${error.message}`);
   }
 };
 
-handler.command = ['fb'];
+handler.command = ['fb', 'facebook'];
+handler.help = ['fb <url>'];
+handler.tags = ['download'];
+
 export default handler;
