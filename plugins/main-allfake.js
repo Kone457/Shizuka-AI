@@ -47,7 +47,7 @@ handler.all = async function (m, extras = {}) {
 
   // 🔗 Datos globales de Shizuka
   global.creador     = 'Wa.me/5355699866'
-  global.ofcbot      = conn.user?.jid.split('@')[0] || 'unknown'
+  global.ofcbot      = conn.user[0] || 'unknown'
   global.namechannel = '𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄 𝘾𝙝𝙖𝙣𝙣𝙚𝙡'
   global.namegrupo   = 'Shizuka-AI'
   global.namecomu    = 'Shizuka-AI'
@@ -70,20 +70,14 @@ handler.all = async function (m, extras = {}) {
   // 🗓️ Fecha y hora en zona local
   const d = new Date(Date.now() + 3600000)
   global.locale = 'es'
-  global.dia    = d.toLocaleDateString(global.locale, {
-    weekday: 'long'
-  })
+  global.dia    = d.toLocaleDateString(global.locale, { weekday: 'long' })
   global.fecha  = d.toLocaleDateString('es', {
     day: 'numeric',
     month: 'numeric',
     year: 'numeric'
   })
-  global.mes    = d.toLocaleDateString('es', {
-    month: 'long'
-  })
-  global.año    = d.toLocaleDateString('es', {
-    year: 'numeric'
-  })
+  global.mes    = d.toLocaleDateString('es', { month: 'long' })
+  global.año    = d.toLocaleDateString('es', { year: 'numeric' })
   global.tiempo = d.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: 'numeric',
@@ -118,15 +112,23 @@ handler.all = async function (m, extras = {}) {
   const correo    = 'c2117620@gmail.com'
   global.redes    = pickRandom([canal, comunidad, git, github, correo])
 
-  // 🖼️ Icono aleatorio desde base de datos
+  // 🖼️ Icono aleatorio desde base de datos (sin deprecation warning)
   const dbPath = './src/database/db.json'
   const db_    = JSON.parse(fs.readFileSync(dbPath, 'utf8'))
   const links  = db_.links?.imagen || []
   const rnd    = Math.floor(Math.random() * links.length)
-  const iconsBuffer = links[rnd]
-    ? await fetch(links[rnd]).then(r => r.buffer())
-    : null
-  global.icons  = iconsBuffer
+
+  let iconsBuffer = null
+  if (links[rnd]) {
+    try {
+      const res         = await fetch(links[rnd])
+      const arrayBuffer = await res.arrayBuffer()
+      iconsBuffer       = Buffer.from(arrayBuffer)
+    } catch (e) {
+      console.error('Error al bajar ícono:', e)
+    }
+  }
+  global.icons = iconsBuffer
 
   // 👋 Saludo según la hora
   const hour = d.getHours()
@@ -136,9 +138,10 @@ handler.all = async function (m, extras = {}) {
   else if (hour < 18)    global.saludo = 'Lɪɴᴅᴀ Tᴀʀᴅᴇ 🌆'
   else                   global.saludo = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
 
-  global.nombre  = m.pushName || 'Anónimo'
-  global.taguser = '@' + m.sender.split('@')[0]
-  const more     = String.fromCharCode(8206)
+  // Datos de usuario y read-more
+  global.nombre   = m.pushName || 'Anónimo'
+  global.taguser  = '@' + m.sender.split('@')[0]
+  const more      = String.fromCharCode(8206)
   global.readMore = more.repeat(850)
 
   // 🏷️ Plantillas para stickers
@@ -230,3 +233,4 @@ async function getRandomChannel() {
   const name = global.canalNombreM[idx]
   return { id, name }
 }
+```[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/ethantrithon/wolframalpha/tree/86de79ed11de536faa77f6a41bec46e4f3c84260/adapter.go?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/alexherbo2/alexherbo2.github.io/tree/15b5e22b2fda88effb427a1047a10bb465a8d25d/packages%2Fmodal.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "2")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/pouyakary/gerda/tree/f922891d5f249e681ddad5ee66bd7bbe2127aa46/server%2Farendelle-tools%2Ffile-system%2Fdirectory.ts?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "3")
