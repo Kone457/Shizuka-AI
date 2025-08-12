@@ -2,15 +2,15 @@
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-  // 🛡️ Protección por ID único del mensaje
+  // 🛡️ Prevención de mensajes duplicados
   global._processedMessages ??= new Set();
   if (global._processedMessages.has(m.key.id)) return;
   global._processedMessages.add(m.key.id);
 
-  const thumbnailCard = 'https://qu.ax/phgPU.jpg'; // 🖼️ Tarjeta ceremonial
-  const mainImage = 'https://d.uguu.se/fUzMERCs.jpg';     // 🎭 Imagen escénica
+  const thumbnailCard = 'https://qu.ax/phgPU.jpg';
+  const mainImage    = 'https://qu.ax/AEkvz.jpg';
 
-  if (!text || !text.includes('facebook.com')) {
+  if (!text || !/(facebook\.com|fb\.watch)/.test(text)) {
     return await conn.sendMessage(m.chat, {
       text: `📥 *Proporciona un enlace válido de Facebook para invocar el video.*\nEjemplo:\n${usedPrefix + command} https://www.facebook.com/share/v/abc123`,
       footer: '🔗 Ritual de descarga por Shizuka',
@@ -26,55 +26,56 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 
   try {
-    const api = `https://api.dorratz.com/fbvideo?url=${encodeURIComponent(text)}`;
-    const res = await fetch(api);
-    const json = await res.json();
+    await m.react('🌀');
 
-    const videoList = json?.[0] || json.objects?.[0]?.content;
-    const parsed = typeof videoList === 'string' ? JSON.parse(videoList) : videoList;
-    const video720 = parsed.find(v => v.resolution.includes('720p'));
+    // 📡 Llamada a la API de Dorratz
+    const apiRes = await fetch(`https://api.dorratz.com/fbvideo?url=${encodeURIComponent(text)}`);
+    let videos  = await apiRes.json();
 
-    if (!video720?.url) {
-      return m.reply('❌ No se encontró video en 720p para este enlace.');
+    // Si viene con wrapper { objects: [...] }
+    if (!Array.isArray(videos) && videos.objects) {
+      videos = JSON.parse(videos.objects[0].content);
     }
 
-    const videoUrl = video720.url;
-    const thumbnailUrl = video720.thumbnail;
+    // 🎚️ Selección ritual de resolución
+    const chosen = videos.find(v => v.resolution.includes('1080')) ||
+                   videos.find(v => v.resolution.includes('720'))  ||
+                   videos[0];
 
-    const caption = `
-🎬 *Resolución:* ${video720.resolution}
-📦 *Formato:* Video MP4
-🔗 *Origen:* Facebook
-`.trim();
+    if (!chosen?.url) throw new Error('No se encontró un video válido');
 
-    // 🖼️ Mensaje 1: presentación escénica
+    const { resolution, thumbnail: thumbUrl, url: videoUrl } = chosen;
+
+    // 🔮 Mensaje de preludio ceremonial
     await conn.sendMessage(m.chat, {
-      image: { url: mainImage },
-      caption,
-      footer: '📥 Video ritualizado por Shizuka',
-      contextInfo: {
-        externalAdReply: {
-          title: 'Video en 720p listo para contemplación',
-          body: 'Shizuka ha purificado el archivo',
-          thumbnailUrl: thumbnailCard,
-          sourceUrl: videoUrl
-        }
-      }
+      text: `🔄 *Shizuka está invocando el video en ${resolution}...*`,
     }, { quoted: m });
 
-    // 🎥 Mensaje 2: entrega del video como mensaje reproducible
+    // 🖼️ Buffer de la miniatura
+    let jpegThumbnail = null;
+    try {
+      jpegThumbnail = await conn.getBuffer(thumbUrl);
+    } catch {}
+
+    // 🎬 Entrega final: video reproducible
     await conn.sendMessage(m.chat, {
       video: { url: videoUrl },
-      caption: '📥 *Shizuka ha completado la ceremonia.*\n\n🎬 El archivo está listo para su contemplación ritual.',
-      jpegThumbnail: await conn.getBuffer(thumbnailUrl)
+      caption: `
+🎞️ Resolución: ${resolution}
+📥 El archivo ha sido purificado y está listo para su contemplación ritual.
+      `.trim(),
+      jpegThumbnail
     }, { quoted: m });
 
-  } catch (error) {
-    console.error(error);
-    m.reply(`❌ Error en el ritual.\n📛 Detalles: ${error.message}`);
-    m.react('⚠️');
+    await m.react('✅');
+  } catch (err) {
+    console.error('Ritual fallido:', err);
+    await conn.sendMessage(m.chat, {
+      text: `❌ *Ritual interrumpido.*\n📛 Detalles: ${err.message}`
+    }, { quoted: m });
+    await m.react('⚠️');
   }
 };
 
-handler.command = ['fb', 'fbritual', 'shizukafb'];
+handler.command = ['fb','fbritual','shizukafb'];
 export default handler;
