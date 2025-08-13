@@ -8,7 +8,7 @@ const STELLAR_KEYS = [
   'stellar-PhpDeilZ',
   'stellar-DqKpmwws'
 ];
-const MINIATURA_SHIZUKA = 'https://qu.ax/diNXY.jpg';
+const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
 
 function elegirClaveAleatoria() {
   return STELLAR_KEYS[Math.floor(Math.random() * STELLAR_KEYS.length)];
