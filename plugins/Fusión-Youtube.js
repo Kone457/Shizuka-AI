@@ -142,5 +142,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = ['ytmp4', 'playvideo', 'buscayoutube'];
+handler.command = ['playvideo', 'buscayoutube'];
 export default handler;
