@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 const SEARCH_APIS = [
-  { name: 'Servidor Masha', url: 'http://api.alyabot.xyz:3269/search_youtube?query=' },
+  { name: 'dorratz', url: 'https://api.dorratz.com/v3/yt-search?query=' },
   { name: 'Servidor Alya', url: 'http://api2.alyabot.xyz:5216/search_youtube?query=' },
   { name: 'Servidor Masachika', url: 'https://api3.alyabot.xyz/search_youtube?query=' }
 ];
