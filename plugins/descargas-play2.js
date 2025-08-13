@@ -14,6 +14,18 @@ function elegirClaveAleatoria() {
   return STELLAR_KEYS[Math.floor(Math.random() * STELLAR_KEYS.length)];
 }
 
+const contextInfo = {
+  externalAdReply: {
+    title: "🎬 Sello de Shizuka",
+    body: "Transmisión escénica desde el imperio digital...",
+    mediaType: 1,
+    previewType: 0,
+    mediaUrl: "https://youtube.com",
+    sourceUrl: "https://youtube.com",
+    thumbnailUrl: MINIATURA_SHIZUKA
+  }
+};
+
 async function invocarBusqueda(query) {
   try {
     const res = await fetch(SEARCH_API + encodeURIComponent(query));
@@ -41,8 +53,8 @@ async function invocarDescarga(videoUrl) {
 let handler = async (m, { text, conn, command }) => {
   const enviarMiniatura = async (caption) => {
     await conn.sendMessage(m.chat, {
-      image: { url: MINIATURA_SHIZUKA },
-      caption
+      text: caption,
+      contextInfo
     }, { quoted: m });
   };
 
@@ -79,7 +91,8 @@ let handler = async (m, { text, conn, command }) => {
     await conn.sendMessage(m.chat, {
       video: { url: descarga.dl },
       mimetype: 'video/mp4',
-      fileName: descarga.title || 'video.mp4'
+      fileName: descarga.title || 'video.mp4',
+      contextInfo
     }, { quoted: m });
 
   } catch (e) {
