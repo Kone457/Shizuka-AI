@@ -6,7 +6,7 @@ let handler = async (m, { text }) => {
     return;
   }
 
-  const apiUrl = `https://delirius-apiofc.vercel.app/search/googlesearch?query=${encodeURIComponent(text)}`;
+  const apiUrl = `https://api.vreden.my.id/api/google?query=${encodeURIComponent(text)}`;
 
   try {
     const response = await fetch(apiUrl);
