@@ -19,24 +19,27 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     let enhanced = await enhanceImage(link);
     if (!enhanced) throw "No se pudo mejorar la imagen.";
 
-    let img = await (await fetch(enhanced)).buffer();
+    // Descargamos la imagen mejorada
+    const res = await fetch(enhanced);
+    const contentType = res.headers.get("content-type") || "image/webp";
+    const imgBuffer = await res.buffer();
+
+    // Construimos el mensaje ritualizado
     let txt = `乂  *I M A G E N   R I T U A L I Z A D A*  乂\n\n`;
     txt += `*» Enlace original* : ${link}\n`;
-    txt += `*» Enlaceanced}\n`;
+    txt += `*» Enlace mejorado* : ${enhanced}\n`;
     txt += `*» Acortado* : ${await shortUrl(enhanced)}\n`;
-    txt += `*» Tamaño original* : ${formatBytes(media.length)}\n`;
+    txt +=* : ${formatBytes(media.length)}\n`;
     txt += `*» Expiración* : ${isTele ? 'No expira' : 'Desconocido'}\n\n`;
     txt += `> *Plugin ceremonial por Carlos & Copilot*`;
 
-    await conn.sendFile(
-      m.chat,
-      img,
-      'imagen_mejorada.jpg',
-      txt,
-      m,
-      false,
-      { mimetype: 'image/jpeg' }
-    );
+    // Enviamos la imagen como archivo visual, no sticker
+    await conn.sendMessage(m.chat, {
+      image: imgBuffer,
+      caption: txt,
+      mimetype: contentType,
+      fileName: 'imagen_mejorada.webp'
+    }, { quoted: m });
 
     await m.react("✅");
   } catch (e) {
