@@ -41,21 +41,19 @@ async function invocarDescarga(videoUrl) {
 let handler = async (m, { text, conn, command }) => {
   const enviarMiniatura = async (caption) => {
     await conn.sendMessage(m.chat, {
-      document: { url: MINIATURA_SHIZUKA },
-      mimetype: 'image/jpeg',
-      fileName: 'shizuka.jpg',
+      image: { url: MINIATURA_SHIZUKA },
       caption
     }, { quoted: m });
   };
 
   if (!text) {
-    return enviarMiniatura(`🔮 *Invocación incompleta*\n\nPor favor, escribe el nombre del video que deseas conjurar.\nEjemplo: *.play2 Usewa Ado*`);
+    return enviarMiniatura(`🔮 *Invocación incompleta*\nEscribe el nombre del video que deseas conjurar.\nEjemplo: *.play2 Usewa Ado*`);
   }
 
   try {
     const video = await invocarBusqueda(text);
     if (!video) {
-      return enviarMiniatura(`⚠️ *Resultado vacío*\n\nNo se encontraron visiones para tu búsqueda. Intenta con otro título, viajero de las ondas.`);
+      return enviarMiniatura(`⚠️ *Resultado vacío*\nNo se encontraron visiones para tu búsqueda. Intenta con otro título.`);
     }
 
     const { title, url, seconds, views, author } = video;
@@ -64,21 +62,18 @@ let handler = async (m, { text, conn, command }) => {
     const mensajeCeremonial = `
 🎀 *Sello de Shizuka activado*
 
-🎬 *Título:* 『${title}』
-⏱️ *Duración:* ${seconds}s
-👁️ *Vistas:* ${views.toLocaleString()}
-🧑‍🎤 *Autor:* ${nombreAutor}
-🔗 *Enlace:* ${url}
-🌐 *Servidor:* StellarWA (clave rotativa)
-
-🪄 *Preparando descarga ceremonial...*
+🎬 『${title}』
+⏱️ ${seconds}s | 👁️ ${views.toLocaleString()}
+🧑‍🎤 ${nombreAutor}
+🔗 ${url}
+🌐 StellarWA (clave rotativa)
     `.trim();
 
     await enviarMiniatura(mensajeCeremonial);
 
     const descarga = await invocarDescarga(url);
     if (!descarga || !descarga.dl) {
-      return enviarMiniatura(`❌ *Descarga fallida*\n\nEl portal Stellar se ha cerrado sin entregar el archivo. Intenta nuevamente bajo otra luna.`);
+      return enviarMiniatura(`❌ *Descarga fallida*\nEl portal Stellar no respondió. Intenta nuevamente bajo otra luna.`);
     }
 
     await conn.sendMessage(m.chat, {
@@ -89,7 +84,7 @@ let handler = async (m, { text, conn, command }) => {
 
   } catch (e) {
     console.error(e);
-    return enviarMiniatura(`💥 *Error ritual*\n\nHubo una interrupción en el flujo ceremonial. Reintenta la invocación con energía renovada.`);
+    return enviarMiniatura(`💥 *Error ritual*\nHubo una interrupción en el flujo ceremonial. Reintenta la invocación con energía renovada.`);
   }
 };
 
