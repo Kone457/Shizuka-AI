@@ -2,7 +2,17 @@ import fetch from 'node-fetch';
 
 const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
 const STELLAR_API = 'https://api.stellarwa.xyz/dow/ytmp4?url=';
-const STELLAR_KEY = 'stellar-xI80Ci6e';
+const STELLAR_KEYS = [
+  'stellar-xI80Ci6e',
+  '',
+  '',
+  ''
+]; // ← Añade aquí todas tus llaves ceremoniales
+const MINIATURA_SHIZUKA = 'https://qu.ax/diNXY.jpg';
+
+function elegirClaveAleatoria() {
+  return STELLAR_KEYS[Math.floor(Math.random() * STELLAR_KEYS.length)];
+}
 
 async function invocarBusqueda(query) {
   try {
@@ -16,8 +26,9 @@ async function invocarBusqueda(query) {
 }
 
 async function invocarDescarga(videoUrl) {
+  const clave = elegirClaveAleatoria();
+  const fullUrl = `${STELLAR_API}${encodeURIComponent(videoUrl)}&apikey=${clave}`;
   try {
-    const fullUrl = `${STELLAR_API}${encodeURIComponent(videoUrl)}&apikey=${STELLAR_KEY}`;
     const res = await fetch(fullUrl);
     if (!res.ok) return null;
     const json = await res.json();
@@ -29,13 +40,19 @@ async function invocarDescarga(videoUrl) {
 
 let handler = async (m, { text, conn, command }) => {
   if (!text) {
-    return m.reply(`🔮 *Invocación incompleta*\n\nPor favor, escribe el nombre del video que deseas conjurar.\nEjemplo: *.play2 Usewa Ado*`);
+    return conn.sendMessage(m.chat, {
+      image: { url: MINIATURA_SHIZUKA },
+      caption: `🔮 *Invocación incompleta*\n\nPor favor, escribe el nombre del video que deseas conjurar.\nEjemplo: *.play2 Usewa Ado*`
+    }, { quoted: m });
   }
 
   try {
     const video = await invocarBusqueda(text);
     if (!video) {
-      return m.reply(`⚠️ *Resultado vacío*\n\nNo se encontraron visiones para tu búsqueda. Intenta con otro título, viajero de las ondas.`);
+      return conn.sendMessage(m.chat, {
+        image: { url: MINIATURA_SHIZUKA },
+        caption: `⚠️ *Resultado vacío*\n\nNo se encontraron visiones para tu búsqueda. Intenta con otro título, viajero de las ondas.`
+      }, { quoted: m });
     }
 
     const { thumbnail, title, url, seconds, views, author } = video;
@@ -49,22 +66,25 @@ let handler = async (m, { text, conn, command }) => {
 👁️ *Vistas:* ${views.toLocaleString()}
 🧑‍🎤 *Autor:* ${nombreAutor}
 🔗 *Enlace:* ${url}
-🌐 *Servidor:* StellarWA
+🌐 *Servidor:* StellarWA (clave rotativa)
 
 🪄 *Preparando descarga ceremonial...*
     `.trim();
 
     await conn.sendMessage(m.chat, {
-      image: { url: thumbnail },
+      image: { url: MINIATURA_SHIZUKA },
       caption: mensajeCeremonial
     }, { quoted: m });
 
     const descarga = await invocarDescarga(url);
     if (!descarga || !descarga.dl) {
-      return m.reply(`❌ *Descarga fallida*\n\nEl portal Stellar se ha cerrado sin entregar el archivo. Intenta nuevamente bajo otra luna.`);
+      return conn.sendMessage(m.chat, {
+        image: { url: MINIATURA_SHIZUKA },
+        caption: `❌ *Descarga fallida*\n\nEl portal Stellar se ha cerrado sin entregar el archivo. Intenta nuevamente bajo otra luna.`
+      }, { quoted: m });
     }
 
-    await conn, {
+    await conn.sendMessage(m.chat, {
       video: { url: descarga.dl },
       mimetype: 'video/mp4',
       fileName: descarga.title || 'video.mp4'
@@ -72,7 +92,10 @@ let handler = async (m, { text, conn, command }) => {
 
   } catch (e) {
     console.error(e);
-    m.reply(`💥 *Error ritual*\n\nHubo una interrupción en el flujo ceremonial. Reintenta la invocación con energía renovada.`);
+    return conn.sendMessage(m.chat, {
+      image: { url: MINIATURA_SHIZUKA },
+      caption: `💥 *Error ritual*\n\nHubo una interrupción en el flujo ceremonial. Reintenta la invocación con energía renovada.`
+    }, { quoted: m });
   }
 };
 
