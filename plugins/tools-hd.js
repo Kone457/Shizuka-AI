@@ -16,21 +16,14 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     let link = await (isTele ? uploadImage : uploadFile)(media);
 
     conn.reply(m.chat, `✧ Invocando mejora visual ceremonial...`, m);
-    console.log("🔗 Enlace subido:", link);
-
-    let enhanced = await enhanceImage(link);
+    const enhanced = await enhanceWithAdo(link);
     if (!enhanced) throw "No se pudo obtener imagen mejorada.";
 
-    console.log("🖼️ Enlace mejorado:", enhanced);
-
     const res = await fetch(enhanced, {
-      headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
+      headers: { "User-Agent": "Mozilla/5.0" }
     });
-
     if (!res.ok) throw `Error al descargar imagen mejorada: ${res.status}`;
-    const contentType = res.headers.get("content-type") || "image/webp";
+    const contentType = res.headers.get("content-type") || "image/jpeg";
     const imgBuffer = await res.buffer();
 
     let txt = `乂  *I M A G E N   R I T U A L I Z A D A*  乂\n\n`;
@@ -45,7 +38,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
       image: imgBuffer,
       caption: txt,
       mimetype: contentType,
-      fileName: 'imagen_mejorada.webp'
+      fileName: 'imagen_mejorada.jpg'
     }, { quoted: m });
 
     await m.react("✅");
@@ -62,15 +55,16 @@ handler.command = ["remini", "hd", "enhance"];
 
 export default handler;
 
-async function enhanceImage(imageUrl) {
-  const api = `https://api.vreden.my.id/api/artificial/aiease/img2img/enhance?url=${encodeURIComponent(imageUrl)}`;
+// 🧙‍♂️ Mejora visual usando la API de Ado
+async function enhanceWithAdo(imageUrl) {
+  const api = `https://myapiadonix.vercel.app/api/ends/upscale?url=${encodeURIComponent(imageUrl)}`;
   const res = await fetch(api);
   const json = await res.json();
-  console.log("📦 Respuesta de la API:", json);
-  if (json.status !== 200 || !json.result?.[0]?.origin) return null;
-  return json.result[0].origin;
+  if (json.status !== "success" || !json.result_url) return null;
+  return json.result_url;
 }
 
+// 🧮 Tamaño en bytes ritualizado
 function formatBytes(bytes) {
   if (bytes === 0) return '0 B';
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -78,6 +72,7 @@ function formatBytes(bytes) {
   return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
 }
 
+// 🔗 Acortador ceremonial
 async function shortUrl(url) {
   let res = await fetch(`https://tinyurl.com/api-create.php?url=${url}`);
   return await res.text();
