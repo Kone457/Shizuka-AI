@@ -11,7 +11,6 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     if (!mime) return conn.reply(m.chat, `❀ Por favor, responde a una imagen.`, m);
     if (!/image\/(jpe?g|png)/.test(mime)) return m.reply(`✧ El formato (${mime}) no es compatible. Usa JPG o PNG.`);
 
-    conn.reply(m.chat, `✧ Subiendo imagen al altar digital...`, m);
     let media = await q.download();
     let isTele = /image\/(png|jpe?g|gif)/.test(mime);
     let link = await (isTele ? uploadImage : uploadFile)(media);
@@ -23,13 +22,22 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     let img = await (await fetch(enhanced)).buffer();
     let txt = `乂  *I M A G E N   R I T U A L I Z A D A*  乂\n\n`;
     txt += `*» Enlace original* : ${link}\n`;
-    txt += `*» Enlace mejorado* : ${enhanced}\n`;
+    txt += `*» Enlaceanced}\n`;
     txt += `*» Acortado* : ${await shortUrl(enhanced)}\n`;
     txt += `*» Tamaño original* : ${formatBytes(media.length)}\n`;
     txt += `*» Expiración* : ${isTele ? 'No expira' : 'Desconocido'}\n\n`;
     txt += `> *Plugin ceremonial por Carlos & Copilot*`;
 
-    await conn.sendFile(m.chat, img, 'imagen_mejorada.webp', txt, m);
+    await conn.sendFile(
+      m.chat,
+      img,
+      'imagen_mejorada.jpg',
+      txt,
+      m,
+      false,
+      { mimetype: 'image/jpeg' }
+    );
+
     await m.react("✅");
   } catch (e) {
     console.error(e);
