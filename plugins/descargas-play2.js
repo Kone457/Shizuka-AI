@@ -4,9 +4,9 @@ const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
 const STELLAR_API = 'https://api.stellarwa.xyz/dow/ytmp4?url=';
 const STELLAR_KEYS = [
   'stellar-xI80Ci6e',
-  '',
-  '',
-  ''
+  'stellar-Gn3yNy3a',
+  'stellar-PhpDeilZ',
+  'stellar-DqKpmwws'
 ]; // ← Añade aquí todas tus llaves ceremoniales
 const MINIATURA_SHIZUKA = 'https://qu.ax/diNXY.jpg';
 
