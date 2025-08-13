@@ -7,7 +7,7 @@ const STELLAR_KEYS = [
   'stellar-Gn3yNy3a',
   'stellar-PhpDeilZ',
   'stellar-DqKpmwws'
-]; // ← Añade aquí todas tus llaves ceremoniales
+];
 const MINIATURA_SHIZUKA = 'https://qu.ax/diNXY.jpg';
 
 function elegirClaveAleatoria() {
@@ -39,23 +39,26 @@ async function invocarDescarga(videoUrl) {
 }
 
 let handler = async (m, { text, conn, command }) => {
-  if (!text) {
-    return conn.sendMessage(m.chat, {
-      image: { url: MINIATURA_SHIZUKA },
-      caption: `🔮 *Invocación incompleta*\n\nPor favor, escribe el nombre del video que deseas conjurar.\nEjemplo: *.play2 Usewa Ado*`
+  const enviarMiniatura = async (caption) => {
+    await conn.sendMessage(m.chat, {
+      document: { url: MINIATURA_SHIZUKA },
+      mimetype: 'image/jpeg',
+      fileName: 'shizuka.jpg',
+      caption
     }, { quoted: m });
+  };
+
+  if (!text) {
+    return enviarMiniatura(`🔮 *Invocación incompleta*\n\nPor favor, escribe el nombre del video que deseas conjurar.\nEjemplo: *.play2 Usewa Ado*`);
   }
 
   try {
     const video = await invocarBusqueda(text);
     if (!video) {
-      return conn.sendMessage(m.chat, {
-        image: { url: MINIATURA_SHIZUKA },
-        caption: `⚠️ *Resultado vacío*\n\nNo se encontraron visiones para tu búsqueda. Intenta con otro título, viajero de las ondas.`
-      }, { quoted: m });
+      return enviarMiniatura(`⚠️ *Resultado vacío*\n\nNo se encontraron visiones para tu búsqueda. Intenta con otro título, viajero de las ondas.`);
     }
 
-    const { thumbnail, title, url, seconds, views, author } = video;
+    const { title, url, seconds, views, author } = video;
     const nombreAutor = author?.name || 'Desconocido';
 
     const mensajeCeremonial = `
@@ -71,17 +74,11 @@ let handler = async (m, { text, conn, command }) => {
 🪄 *Preparando descarga ceremonial...*
     `.trim();
 
-    await conn.sendMessage(m.chat, {
-      image: { url: MINIATURA_SHIZUKA },
-      caption: mensajeCeremonial
-    }, { quoted: m });
+    await enviarMiniatura(mensajeCeremonial);
 
     const descarga = await invocarDescarga(url);
     if (!descarga || !descarga.dl) {
-      return conn.sendMessage(m.chat, {
-        image: { url: MINIATURA_SHIZUKA },
-        caption: `❌ *Descarga fallida*\n\nEl portal Stellar se ha cerrado sin entregar el archivo. Intenta nuevamente bajo otra luna.`
-      }, { quoted: m });
+      return enviarMiniatura(`❌ *Descarga fallida*\n\nEl portal Stellar se ha cerrado sin entregar el archivo. Intenta nuevamente bajo otra luna.`);
     }
 
     await conn.sendMessage(m.chat, {
@@ -92,10 +89,7 @@ let handler = async (m, { text, conn, command }) => {
 
   } catch (e) {
     console.error(e);
-    return conn.sendMessage(m.chat, {
-      image: { url: MINIATURA_SHIZUKA },
-      caption: `💥 *Error ritual*\n\nHubo una interrupción en el flujo ceremonial. Reintenta la invocación con energía renovada.`
-    }, { quoted: m });
+    return enviarMiniatura(`💥 *Error ritual*\n\nHubo una interrupción en el flujo ceremonial. Reintenta la invocación con energía renovada.`);
   }
 };
 
