@@ -31,7 +31,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     txt += `🔹 *Mejorada* : ${result.url}\n`;
     txt += `🔹 *Acortado* : ${await shortUrl(result.url)}\n`;
     txt += `🔹 *Tamaño original* : ${formatBytes(media.length)}\n`;
-    txt += `ado* : ${formatBytes(result.filesize)}\n`;
+    txt += `🔹 *Tamaño Mejorada* : ${formatBytes(result.filesize)}\n`;
     txt += `🔹 *Tipo* : ${result.mimetype}\n`;
     txt += `🔹 *Archivo* : ${result.filename}\n`;
     txt += `🔹 *Expiración* : ${isTele ? 'No expira, como mis ganas de verte' : 'Desconocido'}\n\n`;
