@@ -13,11 +13,11 @@ const handler = async (m, { conn }) => {
 
   // 🎬 Lista de GIFs
   const gifs = [
-    'https://sylphy.xyz/download/7KvKOn.mp4',
-    'https://sylphy.xyz/download/mPQMW7.jpeg',
-    'https://sylphy.xyz/download/eFyjep.mp4',
-    'https://sylphy.xyz/download/TZj66W.mp4',
-    'https://sylphy.xyz/download/U2x0S7.mp4'
+    'https://qu.ax/seOLf.mp4',
+    'https://qu.ax/fXDCH.mp4',
+    'https://qu.ax/kdZUn.mp4',
+    'https://qu.ax/fXDCH.mp4',
+    'https://qu.ax/CsSGd.mp4'
   ];
 
   // 🗯️ Lista de frases
