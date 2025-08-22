@@ -16,10 +16,10 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     let link = await (isTele ? uploadImage : uploadFile)(media);
 
     conn.reply(m.chat, `✧ Invocando mejora visual ceremonial...`, m);
-    const enhanced = await enhanceWithAdo(link);
-    if (!enhanced) throw "No se pudo obtener imagen mejorada.";
+    const result = await enhanceWithVreden(link);
+    if (!result || !result.url) throw "No se pudo obtener imagen mejorada.";
 
-    const res = await fetch(enhanced, {
+    const res = await fetch(result.url, {
       headers: { "User-Agent": "Mozilla/5.0" }
     });
     if (!res.ok) throw `Error al descargar imagen mejorada: ${res.status}`;
@@ -28,9 +28,12 @@ const handler = async (m, { conn, usedPrefix, command }) => {
 
     let txt = `乂  *I M A G E N   R I T U A L I Z A D A*  乂\n\n`;
     txt += `*» Enlace original* : ${link}\n`;
-    txt += `*» Enlace mejorado* : ${enhanced}\n`;
-    txt += `*» Acortado* : ${await shortUrl(enhanced)}\n`;
+    txt += `*» Enlace mejorado* : ${result.url}\n`;
+    txt += `*» Acortado* : ${await shortUrl(result.url)}\n`;
     txt += `*» Tamaño original* : ${formatBytes(media.length)}\n`;
+    txt += `*» Tamaño mejorado* : ${formatBytes(result.filesize)}\n`;
+    txt += `*» Tipo MIME* : ${result.mimetype}\n`;
+    txt += `*» Archivo original* : ${result.filename}\n`;
     txt += `*» Expiración* : ${isTele ? 'No expira' : 'Desconocido'}\n\n`;
     txt += `> *Plugin ceremonial por Carlos & Copilot*`;
 
@@ -55,13 +58,23 @@ handler.command = ["remini", "hd", "enhance"];
 
 export default handler;
 
-// 🧙‍♂️ Mejora visual usando la API de Ado
-async function enhanceWithAdo(imageUrl) {
-  const api = `https://myapiadonix.vercel.app/api/ends/upscale?url=${encodeURIComponent(imageUrl)}`;
+// 🧙‍♂️ Mejora visual usando la API de Vreden
+async function enhanceWithVreden(imageUrl) {
+  const api = `https://api.vreden.my.id/api/artificial/hdr?url=${encodeURIComponent(imageUrl)}&pixel=4`;
   const res = await fetch(api);
   const json = await res.json();
-  if (json.status !== "success" || !json.result_url) return null;
-  return json.result_url;
+
+  const data = json?.result?.data;
+  const success = data?.status === url = data?.downloadUrls?.[0];
+
+  return success && url
+    ? {
+        url,
+        filesize: data.filesize,
+        mimetype: data.imagemimetype,
+        filename: data.originalfilename
+      }
+    : null;
 }
 
 // 🧮 Tamaño en bytes ritualizado
