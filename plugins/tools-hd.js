@@ -15,9 +15,13 @@ const handler = async (m, { conn, usedPrefix, command }) => {
     let isTele = /image\/(png|jpe?g|gif)/.test(mime);
     let link = await (isTele ? uploadImage : uploadFile)(media);
 
+    console.log("🔗 Enlace original:", link);
     conn.reply(m.chat, `✧ Invocando mejora visual ceremonial...`, m);
+
     const result = await enhanceWithVreden(link);
-    if (!result || !result.url) throw "No se pudo obtener imagen mejorada.";
+    if (!result || !result.url) throw "⛔ No se pudo obtener imagen mejorada.";
+
+    console.log("📸 Enlace mejorado:", result.url);
 
     const res = await fetch(result.url, {
       headers: { "User-Agent": "Mozilla/5.0" }
@@ -48,7 +52,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
   } catch (e) {
     console.error("❌ Error en el ritual:", e);
     await m.react("✖️");
-    m.reply("⚠️ El ritual falló. Intenta nuevamente.");
+    m.reply("☠️ El ritual fue interrumpido por fuerzas desconocidas. El archivo puede estar corrupto o el vínculo no fue aceptado por los oráculos de Vreden.");
   }
 };
 
@@ -64,8 +68,11 @@ async function enhanceWithVreden(imageUrl) {
   const res = await fetch(api);
   const json = await res.json();
 
+  console.log("🧪 Respuesta de Vreden:", JSON.stringify(json, null, 2));
+
   const data = json?.result?.data;
-  const success = data?.status === url = data?.downloadUrls?.[0];
+  const success = data?.status === "success";
+  const url = data?.downloadUrls?.[0];
 
   return success && url
     ? {
