@@ -1,11 +1,12 @@
 import fetch from 'node-fetch';
 
-const API_VREDEN = 'https://api.vreden.my.id/api/ytplaymp4?query=';
+const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
+const DOWNLOAD_API = 'https://api.vreden.my.id/api/ytmp4?url=';
 const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
 
 const contextInfo = {
   externalAdReply: {
-    title: "🎬 Sello de Shizuka",
+    title: "uka",
     body: "Transmisión escénica desde el imperio digital...",
     mediaType: 1,
     previewType: 0,
@@ -15,12 +16,23 @@ const contextInfo = {
   }
 };
 
-async function invocarVision(query) {
+async function buscarVideo(query) {
   try {
-    const res = await fetch(API_VREDEN + encodeURIComponent(query));
+    const res = await fetch(SEARCH_API + encodeURIComponent(query));
     if (!res.ok) return null;
     const json = await res.json();
-    return json.result?.metadata && json.result?.download?.status ? json.result : null;
+    return json.result?.all?.[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+async function descargarVideo(videoUrl) {
+  try {
+    const res = await fetch(DOWNLOAD_API + encodeURIComponent(videoUrl));
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.result?.status ? json.result : null;
   } catch {
     return null;
   }
@@ -36,18 +48,17 @@ let handler = async (m, { text, conn, command }) => {
   };
 
   if (!text) {
-    return enviarCeremonia(`🔮 Invocación incompleta\nEscribe el nombre del video que deseas conjurar.\nEjemplo: .play3 DJ Malam Pagi`);
+    return enviarCeremonia(`🔮 Invocación incompleta\nEscribe el nombre del video que deseas conjurar.\nEjemplo: .play2 Ambatukam Termuwani`);
   }
 
   try {
-    const resultado = await invocarVision(text);
-    if (!resultado) {
-      return enviarCeremonia(`⚠️ Visión fallida\nNo se pudo abrir el portal de Vreden. Intenta con otro título o bajo otra luna.`);
+    const vision = await buscarVideo(text);
+    if (!vision) {
+      return enviarCeremonia(`⚠️ Visión fallida\nNo se encontraron portales abiertos para tu búsqueda.`);
     }
 
-    const { metadata, download } = resultado;
-    const { title, url, seconds, views, author } = metadata;
-    const nombreAutor = author?.name || 'Desconocido';
+    const { title, url, seconds, views, author } = vision;
+    const nombreAutor = authorocido';
 
     const mensajeCeremonial = `
 🎀 Sello de Shizuka activado
@@ -56,15 +67,19 @@ let handler = async (m, { text, conn, command }) => {
 ⏱️ ${seconds}s | 👁️ ${views.toLocaleString()}
 🧑‍🎤 ${nombreAutor}
 🔗 ${url}
-🌐 Calidad: ${download.quality}
     `.trim();
 
     await enviarCeremonia(mensajeCeremonial);
 
+    const descarga = await descargarVideo(url);
+    if (!descarga || !descarga.download?.status) {
+      return enviarCeremonia(`❌ Portal cerrado\nLa conversión de 『${title}』 falló. Intenta nuevamente bajo otra luna.`);
+    }
+
     await conn.sendMessage(m.chat, {
-      video: { url: download.url },
+      video: { url: descarga.download.url },
       mimetype: 'video/mp4',
-      fileName: download.filename || 'video.mp4',
+      fileName: descarga.download.filename || 'video.mp4',
       contextInfo
     }, { quoted: m });
 
@@ -74,7 +89,7 @@ let handler = async (m, { text, conn, command }) => {
   }
 };
 
-handler.command = ['play2', 'ytmp4', 'playmp4'];
+handler.command = ['play2'];
 handler.help = ['play2 <video>'];
 handler.tags = ['downloader'];
 export default handler;
