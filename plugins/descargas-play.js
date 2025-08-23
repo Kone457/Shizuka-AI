@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const thumbnailUrl = 'https://qu.ax/QuwNu.jpg';
+const thumbnailUrl = 'https://qu.ax/QuwNu.jpg'; // Miniatura oficial
 
 const contextInfo = {
   externalAdReply: {
@@ -10,7 +10,7 @@ const contextInfo = {
     previewType: 0,
     mediaUrl: "https://youtube.com",
     sourceUrl: "https://youtube.com",
-    thumbnailUrl // Miniatura en tamaño pequeño (no se incluye renderLargerThumbnail)
+    thumbnailUrl
   }
 };
 
@@ -29,48 +29,40 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }, { quoted: m });
 
   try {
-    const searchRes = await fetch(`https://api.vreden.my.id/api/spotifysearch?query=${encodeURIComponent(text)}`);
-    const searchJson = await searchRes.json();
+    const res = await fetch(`https://api.vreden.my.id/api/ytplaymp3?query=${encodeURIComponent(text)}`);
+    const json = await res.json();
 
-    if (!searchJson.result || searchJson.result.length === 0) {
+    if (!json.result || !json.result.metadata || !json.result.download) {
       return conn.sendMessage(m.chat, {
         text: `❌ No se encontraron transmisiones para *${text}*.`,
         contextInfo
       }, { quoted: m });
     }
 
-    const track = searchJson.result[0];
-    const fakeVideoUrl = `https://youtube.com/watch?v=${track.title.replace(/\s+/g, '')}`;
-
+    const { metadata, download } = json.result;
     const caption = `
-🎬 *${track.title}*
-👤 *Autor:* ${track.artist}
-⏱️ *Duración:* ${track.duration}
-📺 *Popularidad:* ${track.popularity}
-🔗 *YouTube:* ${fakeVideoUrl}
+🎬 *${metadata.title}*
+👤 *Autor:* ${metadata.author.name}
+⏱️ *Duración:* ${metadata.duration.timestamp}
+📺 *Vistas:* ${metadata.views}
+🕰️ *Publicado:* ${metadata.ago}
+🔗 *YouTube:* ${metadata.url}
 `.trim();
 
     await conn.sendMessage(m.chat, {
-      image: { url: track.coverArt },
+      image: { url: metadata.thumbnail },
       caption,
       contextInfo
     }, { quoted: m });
 
-    const audioRes = await fetch(`https://api.vreden.my.id/api/spotify?url=${encodeURIComponent(track.spotifyLink)}`);
-    const audioJson = await audioRes.json();
-
-    if (!audioJson.result || !audioJson.result.music) {
-      return conn.sendMessage(m.chat, {
-        text: `❌ No se pudo obtener el audio para *${track.title}*.`,
-        contextInfo
-      }, { quoted: m });
-    }
-
-    const { title, music } = audioJson.result;
+    await conn.sendMessage(m.chat, {
+      text: `🎧 *Reproduciendo la atmósfera sonora de ${metadata.title}...*`,
+      contextInfo
+    }, { quoted: m });
 
     await conn.sendMessage(m.chat, {
-      audio: { url: music },
-      fileName: `${title}.mp3`,
+      audio: { url: download.url },
+      fileName: download.filename,
       mimetype: "audio/mp4",
       ptt: false,
       contextInfo
@@ -78,8 +70,8 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   } catch (e) {
     console.error("⚠️ Error al simular YouTube:", e);
-    await(m.chat, {
-      text: `❌ *Error en la simulación YouTube.*\n\n🛠️ ${e.message}`,
+    await conn.sendMessage(m.chat, {
+      text: `🎭 *La transmisión se desvaneció entre bambalinas...*\n\n🛠️ ${e.message}`,
       contextInfo
     }, { quoted: m });
   }
