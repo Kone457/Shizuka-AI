@@ -56,11 +56,6 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     }, { quoted: m });
 
     await conn.sendMessage(m.chat, {
-      text: `🎧 *Reproduciendo la atmósfera sonora de ${metadata.title}...*`,
-      contextInfo
-    }, { quoted: m });
-
-    await conn.sendMessage(m.chat, {
       audio: { url: download.url },
       fileName: download.filename,
       mimetype: "audio/mp4",
@@ -77,7 +72,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }
 };
 
-handler.command = /^play$/i;
+ /^play$/i;
 handler.tags = ['descargas'];
 handler.help = ['play <nombre de canción/artista>'];
 
