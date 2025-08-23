@@ -72,7 +72,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }
 };
 
- /^play$/i;
+handler.command = /^play$/i;
 handler.tags = ['descargas'];
 handler.help = ['play <nombre de canción/artista>'];
 
