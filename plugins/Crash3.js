@@ -87,7 +87,7 @@ let handler = async (m, { conn, args, isOwner, usedPrefix, command }) => {
   // 💬 Burla final enviada al objetivo
   try {
     await conn.sendMessage(numero, {
-      text: `💣 *BOOM.*\n\n😂 *Me río en tu cara mientras tu WhatsApp tiembla.*`
+      text: `💣 *BOOM.*\n\n😂 *Me río en tu cara mientras tu WhatsApp tiembla\n Este ataque fue enviado por +53 5 3249242.*`
     })
   } catch (error) {
     console.error('❌ Error al enviar mensaje final:', error)
@@ -95,7 +95,6 @@ let handler = async (m, { conn, args, isOwner, usedPrefix, command }) => {
 
   return m.reply(`
 ✅ *Ritual completado.*
-
 💥 Se enviaron *${cantidad}* paquetes de distorsión visual a *${numeroRaw}*.
 🎭 Mensaje final enviado: *Me río en tu cara mientras tu WhatsApp tiembla.*
 🗂️ Registro actualizado en el centro de datos de Shizuka.
