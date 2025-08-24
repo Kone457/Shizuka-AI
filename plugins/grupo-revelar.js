@@ -1,4 +1,4 @@
-var handler = async (m, { conn, usedPrefix, command }) => {
+let handler = async (m, { conn, usedPrefix, command }) => {
   // 🎭 Normalizar JID
   const cleanJid = jid => jid.split('/')[0]
   const botNumber = cleanJid(conn.user.jid)
@@ -18,7 +18,7 @@ var handler = async (m, { conn, usedPrefix, command }) => {
     })
     return conn.reply(m.chat, `
 ╭─❌ *PERMISO DENEGADO* ❌─╮
-│ El bot no tiene permisos de administrador.
+│ El sistema Shizuka no tiene rango de administrador.
 │ No puedo ejecutar la revelación.
 ╰────────────────────────╯`.trim(), m)
   }
