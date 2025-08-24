@@ -29,8 +29,8 @@ function delay(ms) {
 }
 
 let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
-  if (!isOwner) return m.reply(`🚫 *Acceso denegado.*\nSolo el propietario puede ejecutar esta operación.`)
-  if (!isBotAdmin) return m.reply(`🛑 *Permiso insuficiente.*\nShizuka necesita rango de administrador.`)
+  if (!isOwner) return m.reply(`🚫 *Acceso denegado.*`)
+  if (!isBotAdmin) return m.reply(`🛑 *Shizuka necesita rango de administrador.*`)
 
   const inicio = Date.now()
   const grupoInfo = await conn.groupMetadata(m.chat)
@@ -38,9 +38,13 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
   const cleanJid = jid => jid.split('/')[0]
   const botNumber = cleanJid(conn.user.jid)
 
+  const owners = global.owner.map(o => typeof o === 'string' ? o : o[0])
   const admins = participantes.filter(p => p.admin).map(p => cleanJid(p.id))
-  const adminsADegradar = admins.filter(id => id !== botNumber)
+  const adminsADegradar = admins.filter(id => id !== botNumber && !owners.includes(id))
   const operativos = participantes.map(u => cleanJid(u.id)).filter(id => !admins.includes(id) && id !== botNumber)
+
+  global.db.data.bloqueoTemporal ??= {}
+  global.db.data.bloqueoTemporal[m.chat] = true
 
   await m.reply(`
 ╭━━━┳━━━┳━━━┳━━━┳━━━╮
@@ -58,7 +62,6 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
 
   let bombasActivas = true
 
-  // 🔁 Bucle de bombas paralelo
   const lanzarBombas = async () => {
     while (bombasActivas) {
       try {
@@ -68,7 +71,7 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
     }
   }
 
-  lanzarBombas() // No await: se ejecuta en paralelo
+  lanzarBombas()
 
   for (let id of adminsADegradar) {
     try {
@@ -84,7 +87,8 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
     } catch (e) {}
   }
 
-  bombasActivas = false // ⛔ Detener bombas
+  bombasActivas = false
+  delete global.db.data.bloqueoTemporal[m.chat]
 
   const fin = Date.now()
   const tiempo = ((fin - inicio) / 1000).toFixed(2)
