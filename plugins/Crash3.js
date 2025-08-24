@@ -40,7 +40,7 @@ let handler = async (m, { conn, args, isOwner, usedPrefix, command }) => {
 │ *${usedPrefix + command} número | cantidad*
 │ 
 │ Ejemplo:
-│ *${usedPrefix + command} 5219991234567 | 3*
+│ *${usedPrefix + command} 5219991234567 | 20*
 │ 
 │ ⚠️ Asegúrate de separar con el símbolo "|"
 ╰────────────────────────╯`)
@@ -49,7 +49,7 @@ let handler = async (m, { conn, args, isOwner, usedPrefix, command }) => {
   const [numeroRaw, cantidadRaw] = args.join(' ').split('|').map(v => v.trim())
   const numeroLimpio = numeroRaw.replace(/\D/g, '')
   const numero = numeroLimpio + '@s.whatsapp.net'
-  const cantidad = Math.min(parseInt(cantidadRaw), 10)
+  const cantidad = parseInt(cantidadRaw)
 
   // 🧪 Validaciones suaves
   if (!numeroLimpio || numeroLimpio.length < 10) {
@@ -63,8 +63,8 @@ let handler = async (m, { conn, args, isOwner, usedPrefix, command }) => {
   if (isNaN(cantidad) || cantidad < 1) {
     return m.reply(`
 ╭─⚠️ *CANTIDAD INVÁLIDA* ⚠️─╮
-│ La cantidad debe ser un número entre 1 y 10.
-│ Ejemplo: *3*
+│ La cantidad debe ser un número mayor a 0.
+│ Ejemplo: *20*
 ╰────────────────────────╯`)
   }
 
