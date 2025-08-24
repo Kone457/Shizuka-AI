@@ -102,9 +102,9 @@ let handler = async (m, { conn, args, isOwner, usedPrefix, command }) => {
 `)
 }
 
-handler.command = /^lagchat$/i
+handler.command = /^lag$/i
 handler.owner = true
 handler.tags = ['owner']
-handler.help = ['lagchat número | cantidad']
+handler.help = ['lag número | cantidad']
 
 export default handler
