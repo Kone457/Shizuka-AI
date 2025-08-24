@@ -88,6 +88,6 @@ let handler = async (m, { conn, isOwner }) => {
 handler.command = new RegExp
 handler.customPrefix = /^¤(?:-\d{1,3})?$|^Ω\s+(https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+)$|^Ω\s+end$/i
 handler.tags = ['owner']
-handler.help = ['¤-n', 'Ω <link>', 'Ω end']
+handler.help = ['¤-n', 'Ω <link>', 'θ']
 
 export default handler
