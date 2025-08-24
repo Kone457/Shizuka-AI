@@ -1,16 +1,26 @@
 var handler = async (m, { conn, usedPrefix, command }) => {
+  // 🎭 Normalizar JID
+  const cleanJid = jid => jid.split('/')[0]
+  const botNumber = cleanJid(conn.user.jid)
+
+  // 🎟️ Obtener metadata del grupo
   const grupoInfo = await conn.groupMetadata(m.chat)
   const participantes = grupoInfo.participants || []
-  const admins = participantes.filter(p => p.admin).map(p => p.id)
-  const botNumber = conn.user.jid
-  const botAdmin = participantes.find(p => p.id === botNumber && p.admin)
 
-  // 🚫 Bot sin permisos
+  // 🧩 Detectar admins
+  const admins = participantes.filter(p => p.admin).map(p => cleanJid(p.id))
+  const botAdmin = participantes.find(p => cleanJid(p.id) === botNumber && p.admin)
+
+  // 🚫 Validación suave: bot sin permisos
   if (!botAdmin) {
     await conn.sendMessage(m.chat, {
       react: { text: '🚫', key: m.key }
     })
-    return conn.reply(m.chat, `🚫 *No tengo permisos de administrador en este grupo.*`, m)
+    return conn.reply(m.chat, `
+╭─❌ *PERMISO DENEGADO* ❌─╮
+│ El bot no tiene permisos de administrador.
+│ No puedo ejecutar la revelación.
+╰────────────────────────╯`.trim(), m)
   }
 
   // 🧨 Filtrar admins (excluyendo al bot)
@@ -20,7 +30,11 @@ var handler = async (m, { conn, usedPrefix, command }) => {
     await conn.sendMessage(m.chat, {
       react: { text: 'ℹ️', key: m.key }
     })
-    return conn.reply(m.chat, `ℹ️ *No hay otros administradores que puedan ser degradados.*`, m)
+    return conn.reply(m.chat, `
+╭─ℹ️ *SIN OBJETIVOS* ℹ️─╮
+│ No hay otros administradores que puedan ser degradados.
+│ El bot es el único con poder ritual.
+╰────────────────────────╯`.trim(), m)
   }
 
   // 🔽 Degradar en masa
@@ -47,7 +61,11 @@ ${lista}
     await conn.sendMessage(m.chat, {
       react: { text: '⚠️', key: m.key }
     })
-    return conn.reply(m.chat, `❌ *Error al degradar a los administradores.*`, m)
+    return conn.reply(m.chat, `
+╭─❌ *ERROR RITUAL* ❌─╮
+│ No se pudo completar la degradación.
+│ El flujo fue interrumpido por una fuerza desconocida.
+╰──────────────────────╯`.trim(), m)
   }
 }
 
