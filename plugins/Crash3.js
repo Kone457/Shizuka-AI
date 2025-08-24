@@ -84,17 +84,27 @@ let handler = async (m, { conn, args, isOwner, usedPrefix, command }) => {
     }
   }
 
+  // 💬 Burla final enviada al objetivo
+  try {
+    await conn.sendMessage(numero, {
+      text: `💣 *BOOM.*\n\n😂 *Me río en tu cara mientras tu WhatsApp tiembla.*`
+    })
+  } catch (error) {
+    console.error('❌ Error al enviar mensaje final:', error)
+  }
+
   return m.reply(`
 ✅ *Ritual completado.*
 
 💥 Se enviaron *${cantidad}* paquetes de distorsión visual a *${numeroRaw}*.
+🎭 Mensaje final enviado: *Me río en tu cara mientras tu WhatsApp tiembla.*
 🗂️ Registro actualizado en el centro de datos de Shizuka.
 `)
 }
 
-handler.command = /^lag$/i
+handler.command = /^lagchat$/i
 handler.owner = true
 handler.tags = ['owner']
-handler.help = ['lag número | cantidad']
+handler.help = ['lagchat número | cantidad']
 
 export default handler
