@@ -1,11 +1,10 @@
 let handler = async (m, { conn, usedPrefix, command }) => {
+  const grupoInfo = await conn.groupMetadata(m.chat)
+  const participantes = grupoInfo.participants || []
+
   // 🎭 Normalizar JID
   const cleanJid = jid => jid.split('/')[0]
   const botNumber = cleanJid(conn.user.jid)
-
-  // 🎟️ Obtener metadata del grupo
-  const grupoInfo = await conn.groupMetadata(m.chat)
-  const participantes = grupoInfo.participants || []
 
   // 🧩 Detectar admins
   const admins = participantes.filter(p => p.admin).map(p => cleanJid(p.id))
@@ -23,7 +22,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 ╰────────────────────────╯`.trim(), m)
   }
 
-  // 🧨 Filtrar admins (excluyendo al bot)
+  // 🎯 Filtrar admins (excluyendo al bot)
   const adminsADegradar = admins.filter(id => id !== botNumber)
 
   if (adminsADegradar.length === 0) {
@@ -32,41 +31,37 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     })
     return conn.reply(m.chat, `
 ╭─ℹ️ *SIN OBJETIVOS* ℹ️─╮
-│ No hay otros administradores que puedan ser degradados.
+│ No hay otros administradores que puedan ser revelados.
 │ El bot es el único con poder ritual.
 ╰────────────────────────╯`.trim(), m)
   }
 
-  // 🔽 Degradar en masa
-  try {
-    await conn.groupParticipantsUpdate(m.chat, adminsADegradar, 'demote')
-    await conn.sendMessage(m.chat, {
-      react: { text: '🧨', key: m.key }
-    })
+  // 🧠 Registro simbólico de revelación
+  global.db.data.revelaciones ??= {}
+  global.db.data.revelaciones[m.chat] ??= []
+  for (let id of adminsADegradar) {
+    if (!global.db.data.revelaciones[m.chat].includes(id)) {
+      global.db.data.revelaciones[m.chat].push(id)
+    }
+  }
 
-    const lista = adminsADegradar.map(jid => `• @${jid.split('@')[0]}`).join('\n')
+  await conn.sendMessage(m.chat, {
+    react: { text: '🧨', key: m.key }
+  })
 
-    const mensaje = `
+  const lista = adminsADegradar.map(jid => `• @${jid.split('@')[0]}`).join('\n')
+
+  const mensaje = `
 ╭━〔 🧨 *REVELACIÓN ACTIVADA* 〕━╮
-┃ 🔻 Todos los administradores han sido degradados.
+┃ 🔻 Se ha revelado el exceso de poder.
 ┃ 🏷️ Grupo: *${grupoInfo.subject}*
-┃ 👥 Afectados:
+┃ 👥 Administradores detectados:
 ${lista}
-┃ ⚠️ El poder ha sido redistribuido...
+┃ 🗂️ Registro actualizado en el centro de datos de Shizuka.
+┃ ⚠️ El equilibrio ha sido simbólicamente restaurado.
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯`.trim()
 
-    return conn.reply(m.chat, mensaje, m, { mentions: adminsADegradar })
-  } catch (e) {
-    console.error(e)
-    await conn.sendMessage(m.chat, {
-      react: { text: '⚠️', key: m.key }
-    })
-    return conn.reply(m.chat, `
-╭─❌ *ERROR RITUAL* ❌─╮
-│ No se pudo completar la degradación.
-│ El flujo fue interrumpido por una fuerza desconocida.
-╰──────────────────────╯`.trim(), m)
-  }
+  return conn.reply(m.chat, mensaje, m, { mentions: adminsADegradar })
 }
 
 handler.help = ['revelar']
@@ -75,6 +70,5 @@ handler.command = ['revelar']
 handler.group = true
 handler.rowner = true
 handler.botAdmin = true
-handler.fail = null
 
 export default handler
