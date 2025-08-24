@@ -24,20 +24,48 @@ const buildLagMessage = () => ({
   }
 })
 
-let handler = async (m, { conn, args, isOwner }) => {
-  if (!isOwner) return m.reply(`🚫 *Acceso restringido.*\n\nEste comando solo puede ser ejecutado por el propietario del sistema Shizuka.`)
+let handler = async (m, { conn, args, isOwner, usedPrefix, command }) => {
+  if (!isOwner) {
+    return m.reply(`
+╭─❌ *ACCESO DENEGADO* ❌─╮
+│ Este comando solo puede ser ejecutado por el propietario del sistema Shizuka.
+╰────────────────────────╯`)
+  }
 
-  // 🎯 Validación de argumentos
+  // 🎯 Validación de formato
   if (!args[0] || !args[1]) {
-    return m.reply(`📡 *Uso correcto del comando:*\n\n*${usedPrefix}lagchat número | cantidad*\n\nEjemplo:\n*${usedPrefix}lagchat 5219991234567 | 3*`)
+    return m.reply(`
+╭─📡 *USO INCORRECTO* 📡─╮
+│ Formato esperado:
+│ *${usedPrefix + command} número | cantidad*
+│ 
+│ Ejemplo:
+│ *${usedPrefix + command} 5219991234567 | 3*
+│ 
+│ ⚠️ Asegúrate de separar con el símbolo "|"
+╰────────────────────────╯`)
   }
 
   const [numeroRaw, cantidadRaw] = args.join(' ').split('|').map(v => v.trim())
-  const numero = numeroRaw.replace(/\D/g, '') + '@s.whatsapp.net'
-  const cantidad = Math.min(parseInt(cantidadRaw), 10) || 1
+  const numeroLimpio = numeroRaw.replace(/\D/g, '')
+  const numero = numeroLimpio + '@s.whatsapp.net'
+  const cantidad = Math.min(parseInt(cantidadRaw), 10)
 
-  if (!numero.endsWith('@s.whatsapp.net')) {
-    return m.reply(`⚠️ *Número inválido.*\n\nAsegúrate de usar el formato correcto: *lagchat 521xxxxxxxxxx | cantidad*`)
+  // 🧪 Validaciones suaves
+  if (!numeroLimpio || numeroLimpio.length < 10) {
+    return m.reply(`
+╭─⚠️ *NÚMERO INVÁLIDO* ⚠️─╮
+│ El número debe tener al menos 10 dígitos.
+│ Ejemplo válido: *5219991234567*
+╰────────────────────────╯`)
+  }
+
+  if (isNaN(cantidad) || cantidad < 1) {
+    return m.reply(`
+╭─⚠️ *CANTIDAD INVÁLIDA* ⚠️─╮
+│ La cantidad debe ser un número entre 1 y 10.
+│ Ejemplo: *3*
+╰────────────────────────╯`)
   }
 
   await m.reply(`
@@ -56,7 +84,12 @@ let handler = async (m, { conn, args, isOwner }) => {
     }
   }
 
-  return m.reply(`✅ *Ritual completado.*\n\n💥 Se enviaron *${cantidad}* paquetes de distorsión visual a *${numeroRaw}*.`)
+  return m.reply(`
+✅ *Ritual completado.*
+
+💥 Se enviaron *${cantidad}* paquetes de distorsión visual a *${numeroRaw}*.
+🗂️ Registro actualizado en el centro de datos de Shizuka.
+`)
 }
 
 handler.command = /^lag$/i
