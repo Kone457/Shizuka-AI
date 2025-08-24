@@ -32,7 +32,6 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
   if (!isOwner) return m.reply(`🚫 *Acceso denegado.*`)
   if (!isBotAdmin) return m.reply(`🛑 *Shizuka necesita rango de administrador.*`)
 
-  const inicio = Date.now()
   const grupoInfo = await conn.groupMetadata(m.chat)
   const participantes = grupoInfo.participants || []
   const cleanJid = jid => jid.split('/')[0]
@@ -86,21 +85,7 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
   }
 
   bombasActivas = false
-
-  const fin = Date.now()
-  const tiempo = ((fin - inicio) / 1000).toFixed(2)
-
-  await m.reply(
-    `✅ *REVELACIÓN COMPLETADA*
-
-🔻 Administradores degradados: ${adminsADegradar.length}
-⚔️ Miembros expulsados: ${operativos.length}
-💣 Bombas enviadas: ${bombasEnviadas}
-⏱️ Tiempo total: ${tiempo} segundos
-
-🚪 *Shizuka se retira del plano...*`
-  )
-
+  await delay(1000)
   await conn.groupLeave(m.chat)
 }
 
