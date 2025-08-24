@@ -55,7 +55,7 @@ handler.help = ['revelar']
 handler.tags = ['grupo']
 handler.command = ['revelar']
 handler.group = true
-handler.admin = true
+handler.rowner = true
 handler.botAdmin = true
 handler.fail = null
 
