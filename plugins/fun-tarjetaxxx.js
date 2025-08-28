@@ -2,7 +2,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
   const mentioned = m.mentionedJid
   const text = m.text.split(' ').slice(1).join(' ')
   if (!mentioned.length || !text) {
-    return conn.reply(m.chat, `🪷 Menciona a *una persona* y agrega una descripción.\nEjemplo: ${usedPrefix + command} @usuario Bienvenido a Delirius API 😈`, m)
+    return conn.reply(m.chat, `🌸 Menciona a *una persona* y agrega una descripción emocional.\nEjemplo: ${usedPrefix + command} @usuario Bienvenido a Delirius API 😈`, m)
   }
 
   const user = mentioned[0]
@@ -12,12 +12,12 @@ const handler = async (m, { conn, usedPrefix, command }) => {
 
   await conn.sendMessage(m.chat, {
     image: { url: api },
-    caption: `🎴 Ritual visual generado\n📝 *${text}*`,
-    footer: '✨ Tarjeta ceremonial completada',
+    caption: `📝 *${text}*`,
+    footer: '✨ Imagen ritual sin etiquetas añadidas',
     contextInfo: {
       externalAdReply: {
         title: 'Aura personalizada',
-        body: 'Imagen ritual con descripción emocional',
+        body: 'Visualización emocional sin interferencias',
         thumbnailUrl: api,
         sourceUrl: api
       }
@@ -25,7 +25,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
   }, { quoted: m })
 }
 
-handler.command = ['tarjeta', 'xnxxcardperfil']
+handler.command = ['tarjeta', 'perfilcard']
 handler.help = ['tarjeta @usuario descripción']
 handler.tags = ['fun']
 handler.register = true
