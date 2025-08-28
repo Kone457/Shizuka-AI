@@ -32,8 +32,8 @@ const handler = async (m, { conn, participants, usedPrefix, command }) => {
   }, { quoted: m })
 }
 
-handler.command = ['amistad', 'friendshipauto']
-handler.help = ['amistad @usuario1 @usuario2']
+handler.command = ['amistad2', 'friendshipauto']
+handler.help = ['amistad2 @usuario1 @usuario2']
 handler.tags = ['fun']
 handler.register = true
 handler.group = true
