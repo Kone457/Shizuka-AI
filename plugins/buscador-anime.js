@@ -1,47 +1,106 @@
-const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return conn.reply(m.chat, `🔍 Ingresa una búsqueda para obtener imágenes.\nEjemplo: ${usedPrefix + command} waifu`, m)
+import fetch from 'node-fetch';
+import baileys from '@whiskeysockets/baileys';
 
-  try {
-    const res = await fetch(`https://delirius-apiofc.vercel.app/search/anime-pictures?q=${encodeURIComponent(text)}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        'Accept': 'application/json'
-      }
-    })
-
-    const json = await res.json()
-
-    if (!json.status || !json.data.length) {
-      return conn.reply(m.chat, `❌ No se encontraron imágenes para: *${text}*`, m)
+async function sendAlbumMessage(jid, medias, options = {}) {
+    if (typeof jid !== 'string') throw new TypeError(`jid debe ser un string, recibido: ${typeof jid}`);
+    if (!Array.isArray(medias) || medias.length < 2) {
+        throw new RangeError('Se necesitan al menos 2 imágenes para crear un álbum.');
     }
 
-    for (const url of json.data) {
-      await conn.sendMessage(m.chat, {
-        image: { url },
-        caption: `🎴 *Búsqueda:* ${text}`,
-        footer: '🌸 Imagen ritualizada desde Delirius API',
-        contextInfo: {
-          externalAdReply: {
-            title: 'Anime Pictures',
-            body: 'Miniatura ceremonial generada',
-            thumbnailUrl: url,
-            sourceUrl: url
-          }
-        }
-      }, { quoted: m })
+    const caption = options.text || options.caption || '';
+    const delay = !isNaN(options.delay) ? Number(options.delay) : 500;
+    const quoted = options.quoted || null;
+
+    const album = baileys.generateWAMessageFromContent(
+        jid,
+        { messageContextInfo: {}, albumMessage: { expectedImageCount: medias.length } },
+        {}
+    );
+
+    await conn.relayMessage(jid, album.message, { messageId: album.key.id });
+
+    for (let i = 0; i < medias.length; i++) {
+        const { type, data } = medias[i];
+        const msg = await baileys.generateWAMessage(
+            jid,
+            { [type]: data, ...(i === 0 ? { caption } : {}) },
+            { upload: conn.waUploadToServer }
+        );
+
+        msg.message.messageContextInfo = {
+            messageAssociation: {
+                associationType: 1,
+                parentMessageKey: album.key,
+            },
+        };
+
+        await conn.relayMessage(jid, msg.message, { messageId: msg.key.id });
+        await new Promise(resolve => setTimeout(resolve, delay));
     }
 
-  } catch (e) {
-    console.error(e)
-    return conn.reply(m.chat, `⚠️ Error al obtener imágenes: ${e.message}`, m)
-  }
+    return album;
 }
 
-handler.command = ['anime', 'ritualanimefull']
-handler.help = ['anime <búsqueda>']
-handler.tags = ['rituales', 'canvas']
-handler.register = true
-handler.group = false
-handler.premium = false
+const animepictures = async (m, { conn, text, usedPrefix, command }) => {
+    if (!text) {
+        return conn.reply(m.chat, `🎴 *¿Qué deseas visualizar?* Ingresa una palabra clave para buscar imágenes de anime.`, m);
+    }
 
-export default handler
+    await m.react('🕒');
+
+    const thumbnail = await fetch('https://qu.ax/GoxWU.jpg').then(res => res.buffer());
+
+    conn.reply(m.chat, '⌛ *Explorando imágenes rituales para ti...*', m, {
+        contextInfo: {
+            externalAdReply: {
+                mediaUrl: null,
+                mediaType: 1,
+                showAdAttribution: true,
+                title: 'Delirius API',
+                body: 'Anime ritualizado',
+                previewType: 0,
+                thumbnail,
+                sourceUrl: 'https://delirius-apiofc.vercel.app'
+            }
+        }
+    });
+
+    try {
+        const res = await fetch(`https://delirius-apiofc.vercel.app/search/anime-pictures?q=${encodeURIComponent(text)}`, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0',
+                'Accept': 'application/json'
+            }
+        });
+
+        const json = await res.json();
+
+        if (!json.status || !Array.isArray(json.data) || json.data.length < 2) {
+            return conn.reply(m.chat, '📭 *No encontré suficientes imágenes rituales.* Intenta con otra búsqueda más específica.', m);
+        }
+
+        const images = json.data.map(url => ({
+            type: 'image',
+            data: { url }
+        }));
+
+        const caption = `*Resultados rituales para:* "${text}"`;
+        await sendAlbumMessage(m.chat, images, { caption, quoted: m });
+
+        await m.react('✅');
+        await conn.reply(m.chat, `✨ *Listo.* Aquí están las imágenes de *${text}*. ¿Deseas buscar otra atmósfera?`, m);
+
+    } catch (error) {
+        console.error(error);
+        await m.react('❌');
+        conn.reply(m.chat, '🚫 *Ups... algo falló al obtener imágenes rituales.* Intenta más tarde o cambia tu término de búsqueda.', m);
+    }
+};
+
+animepictures.help = ['anime <consulta>'];
+animepictures.tags = ['buscador'];
+animepictures.command = ['anime', 'animepictures'];
+animepictures.register = false;
+animepictures.group = true;
+
+export default animepictures;
