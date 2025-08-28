@@ -34,7 +34,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
 
 handler.command = ['ship2', 'vinculo']
 handler.help = ['ship2 @usuario1 @usuario2']
-handler.tags = ['rituales', 'canvas']
+handler.tags = ['fun']
 handler.register = true
 handler.group = true
 handler.premium = false
