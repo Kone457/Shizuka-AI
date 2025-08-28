@@ -21,6 +21,7 @@ handler.help = ['sendto <número>|<mensaje>']
 handler.tags = ['owner']
 handler.register = true
 handler.group = false
+handler.rowner = true
 handler.premium = false
 
 export default handler
