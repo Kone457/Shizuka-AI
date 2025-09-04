@@ -1,75 +1,30 @@
-import { readFileSync, unlinkSync } from 'fs';
-import { join } from 'path';
 import axios from 'axios';
 import gtts from 'node-gtts';
+import { readFileSync, unlinkSync } from 'fs';
+import { join } from 'path';
+import mime from 'mime-types';
 
-const defaultLang = 'es';
+// 🎭 Variables del bot
 const botname = 'Shizuka';
 const vs = 'v1.0.0';
+const emoji = '✨';
+const emoji2 = '🔮';
 const rwait = '⏳';
 const done = '✅';
 const error = '❌';
 const msm = '[Shizuka Log]';
-const GEMINI_API_KEY = 'AIzaSyBA_t7qCvPrsuokI_RV2myhaEf3wtJSqbc';
+
+// 🔑 API KEY de Gemini
+const GEMINI_API_KEY = "AIzaSyDwBh9DGaV88MW2WHSp7e4bMLv87GMbg8M";
 const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
+// 🎨 Construye el prompt base
 function buildPrompt(username) {
-    return `Tu nombre es ${botname}, versión ${vs}, hablas Español. Llamarás a las personas por su nombre ${username}, eres traviesa y respondona, con mucho flow.`;
+    return `Tu nombre es ${botname}, versión ${vs}, hablas Español. Llamarás a las personas por su nombre ${username}, eres traviesa, respondona y con mucho flow.`;
 }
 
-let handler = async (m, { conn, text, args }) => {
-    const username = conn.getName(m.sender);
-    const basePrompt = buildPrompt(username);
-    const langArg = args[0] && args[0].length === 2 ? args[0] : defaultLang;
-    const userText = args.slice(langArg === defaultLang ? 0 : 1).join(' ') || m.quoted?.text || 'Cuéntame algo interesante, Shizuka.';
-
-    await m.react(rwait);
-
-    try {
-        let analysisText = '';
-        if (m.quoted?.mimetype?.startsWith('image/')) {
-            const imgBuffer = await m.quoted.download();
-            const response = await axios.post('https://Luminai.my.id', {
-                content: `Analiza esta imagen`,
-                imageBuffer: imgBuffer
-            }, { headers: { 'Content-Type': 'application/json' } });
-            analysisText = response.data.result || '';
-        }
-
-        const prompt = `${basePrompt}. ${analysisText} Responde: ${userText}`;
-
-        // Llamada a Gemini API
-        const aiResp = await axios.post(GEMINI_ENDPOINT, {
-            contents: [{ parts: [{ text: prompt }] }]
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-goog-api-key': GEMINI_API_KEY
-            }
-        });
-
-        // Leer respuesta de manera segura
-        let replyText = '';
-        if (aiResp.data?.candidates && aiResp.data.candidates.length > 0) {
-            replyText = aiResp.data.candidates[0].content?.map(p => p.text).join('') || '';
-        }
-        if (!replyText && aiResp.data?.output_text) {
-            replyText = aiResp.data.output_text;
-        }
-        if (!replyText) replyText = 'Shizuka no obtuvo respuesta.';
-
-        const voiceBuffer = await tts(replyText, langArg);
-        await conn.sendFile(m.chat, voiceBuffer, 'shizuka.opus', null, m, true);
-        await m.react(done);
-
-    } catch (err) {
-        console.error(`${msm} Error:`, err.message);
-        await m.react(error);
-        await conn.reply(m.chat, 'Ocurrió un error al procesar tu solicitud.', m);
-    }
-};
-
-async function tts(text, lang = defaultLang) {
+// 🗣 Función de TTS
+async function tts(text, lang = 'es') {
     return new Promise((resolve, reject) => {
         try {
             const ttsEngine = gtts(lang);
@@ -85,9 +40,103 @@ async function tts(text, lang = defaultLang) {
     });
 }
 
-handler.help = ['voz <texto>'];
+// 💬 Función para interactuar con Gemini (texto)
+async function shizukaPrompt(prompt) {
+    try {
+        const response = await axios.post(GEMINI_ENDPOINT, {
+            contents: [{ role: "user", parts: [{ text: prompt }] }]
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': GEMINI_API_KEY
+            }
+        });
+
+        // Manejo seguro de la respuesta
+        let result = '';
+        if (response.data?.candidates?.length > 0) {
+            result = response.data.candidates[0].content?.map(p => p.text).join('') || '';
+        }
+        if (!result && response.data?.output_text) result = response.data.output_text;
+        return result || '✘ Shizuka no obtuvo respuesta.';
+    } catch (err) {
+        console.error('[Gemini Error]', err.response?.data || err.message);
+        throw err;
+    }
+}
+
+// 📸 Función para análisis de imagen con Gemini
+async function fetchImageBuffer(basePrompt, imageBuffer, query, mimeType) {
+    try {
+        const base64Image = imageBuffer.toString('base64');
+        const response = await axios.post(GEMINI_ENDPOINT, {
+            contents: [
+                {
+                    role: "user",
+                    parts: [
+                        { text: `${basePrompt}. ${query}` },
+                        { inlineData: { mimeType, data: base64Image } }
+                    ]
+                }
+            ]
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': GEMINI_API_KEY
+            }
+        });
+
+        let result = '';
+        if (response.data?.candidates?.length > 0) {
+            result = response.data.candidates[0].content?.map(p => p.text).join('') || '';
+        }
+        return result || '✘ Shizuka no obtuvo respuesta de la imagen.';
+    } catch (err) {
+        console.error('[Gemini Img Error]', err.response?.data || err.message);
+        throw err;
+    }
+}
+
+// 📌 Handler principal
+let handler = async (m, { conn, text }) => {
+    const username = conn.getName(m.sender);
+    const basePrompt = buildPrompt(username);
+
+    // 📸 Analiza imagen si está citada
+    const isQuotedImage = m.quoted && (m.quoted.msg || m.quoted).mimetype?.startsWith('image/');
+    if (isQuotedImage) {
+        const img = await m.quoted.download?.();
+        if (!img) return conn.reply(m.chat, '✘ Shizuka no pudo descargar la imagen.', m);
+        const mimeType = m.quoted.mimetype || 'image/png';
+        try {
+            const description = await fetchImageBuffer(basePrompt, img, 'Describe esta imagen detalladamente', mimeType);
+            return conn.reply(m.chat, description, m);
+        } catch {
+            return conn.reply(m.chat, '✘ Shizuka no pudo analizar la imagen.', m);
+        }
+    }
+
+    // 💬 Texto normal
+    if (!text && m.quoted?.text) text = m.quoted.text;
+    if (!text) return conn.reply(m.chat, '✘ Por favor ingresa un mensaje para Shizuka.', m);
+
+    await m.react(rwait);
+    try {
+        const prompt = `${basePrompt}. Responde lo siguiente: ${text}`;
+        const responseText = await shizukaPrompt(prompt);
+        const voiceBuffer = await tts(responseText, 'es');
+        await conn.sendFile(m.chat, voiceBuffer, 'shizuka.opus', null, m, true);
+        await m.react(done);
+    } catch {
+        await conn.react(error);
+        await conn.reply(m.chat, '✘ Shizuka no pudo procesar tu solicitud.', m);
+    }
+};
+
+// 🏷 Configuración de comandos
+handler.help = ['shizuka <texto>'];
 handler.tags = ['ai', 'voz'];
-handler.command = ['voz', 'ttsai', 'ttsvoz'];
+handler.command = ['shizuka', 'ia', 'chatgpt'];
 handler.register = true;
 
 export default handler;
