@@ -14,7 +14,6 @@ export async function before(m) {
   };
 
   if (!command) return;
-
   if (command === "bot") return;
 
   if (validCommand(command, global.plugins)) {
@@ -23,12 +22,17 @@ export async function before(m) {
 
     if (chat.isBanned) {
       const avisoDesactivado = `
-╭━━━〔 ⚠️ BOT DESACTIVADO ⚠️ 〕━━━╮
-┃ ✦ El bot *${botname}* está *desactivado* en este grupo.
-┃ ✦ Solo un *administrador* puede activarlo.
-┃ ✦ Usa el comando:
-┃ ➤ *${usedPrefix}bot on*
-╰━━━━━━━━━━━━━━━━━━━━━━━╯`;
+╭───────────────🌸───────────────╮
+│  💖 ¡Hola, mi querido usuario! 💖
+│
+│  El bot *${botname}* está tomando una siestita 💤
+│  en este grupo tan lindo.
+│
+│  Si eres admin, puedes despertarlo con:
+│  🌷 *${usedPrefix}bot on*
+│
+│  Gracias por tu comprensión, eres un amor ✨
+╰───────────────🌸───────────────╯`;
       await m.reply(avisoDesactivado);
       return;
     }
@@ -39,10 +43,14 @@ export async function before(m) {
   } else {
     const comando = m.text.trim().split(' ')[0];
     await m.reply(`
-╭━━━〔 ❌ COMANDO INVÁLIDO ❌ 〕━━━╮
-┃ ✦ El comando *${comando}* no existe.
-┃ ✦ Para ver la lista de comandos disponibles:
-┃ ➤ *#help*
-╰━━━━━━━━━━━━━━━━━━━━━━━╯`);
+╭━━━━━━⊱🌼⊰━━━━━━╮
+┃  Ooops... ese comando *${comando}* no existe 😢
+┃
+┃  Pero no te preocupes, mi cielo 🌈
+┃  Puedes ver todos los comandos mágicos con:
+┃  💫 *#help*
+┃
+┃  Siempre estoy aquí para ti, con todo mi cariño 💕
+╰━━━━━━⊱🌼⊰━━━━━━╯`);
   }
 }
