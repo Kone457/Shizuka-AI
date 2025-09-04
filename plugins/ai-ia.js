@@ -1,7 +1,6 @@
-
 import axios from 'axios';
 import fetch from 'node-fetch';
-import mime from 'mime-types'; 
+import mime from 'mime-types'; // 📦 Para detectar el tipo de imagen
 
 // 🎭 Variables rituales
 const botname = 'Shizuka';
@@ -12,8 +11,6 @@ const done = '✅';
 const error = '❌';
 const msm = '[Shizuka Log]';
 const vs = 'v1.0.0';
-const etiqueta = 'Carlos';
-
 
 // 🎨 Función para construir el prompt base
 function buildPrompt(username) {
@@ -33,13 +30,13 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
             return conn.reply(m.chat, '✘ Shizuka no pudo descargar la imagen.', m);
         }
 
-        const mimeType = q.mimetype || 'image/png'; // Detectamos MIME de la imagen
+        const mimeType = q.mimetype || 'image/png'; // Detectamos MIME real
         const query = `${emoji} Descríbeme la imagen y detalla por qué actúan así. También dime quién eres.`;
         try {
             const description = await fetchImageBuffer(basePrompt, img, query, mimeType);
             await conn.reply(m.chat, description, m);
         } catch (err) {
-            console.error(`${msm} Error en análisis de imagen:`, err.message);
+            console.error(`${msm} Error en análisis de imagen:`, err.response?.data || err.message);
             await m.react(error);
             await conn.reply(m.chat, '✘ Shizuka no pudo analizar la imagen.', m);
         }
@@ -57,7 +54,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
             await conn.sendMessage(m.chat, { text: response, edit: key });
             await m.react(done);
         } catch (err) {
-            console.error(`${msm} Error en Gemini:`, err.message);
+            console.error(`${msm} Error en Gemini:`, err.response?.data || err.message);
             await m.react(error);
             await conn.reply(m.chat, '✘ Shizuka no puede responder a esa pregunta.', m);
         }
@@ -82,6 +79,7 @@ async function fetchImageBuffer(basePrompt, imageBuffer, query, mimeType) {
             {
                 contents: [
                     {
+                        role: "user",
                         parts: [
                             { text: `${basePrompt}. ${query}` },
                             {
@@ -106,7 +104,7 @@ async function fetchImageBuffer(basePrompt, imageBuffer, query, mimeType) {
             '✘ Shizuka no obtuvo respuesta de la imagen.';
         return result;
     } catch (error) {
-        console.error('[Gemini Img Error]', error.message);
+        console.error('[Gemini Img Error]', error.response?.data || error.message);
         throw error;
     }
 }
@@ -119,6 +117,7 @@ async function shizukaPrompt(fullPrompt, username) {
             {
                 contents: [
                     {
+                        role: "user",
                         parts: [
                             { text: fullPrompt }
                         ]
@@ -137,7 +136,7 @@ async function shizukaPrompt(fullPrompt, username) {
             '✘ Shizuka no obtuvo respuesta.';
         return result;
     } catch (error) {
-        console.error('[Gemini Error]', error.message);
+        console.error('[Gemini Error]', error.response?.data || error.message);
         throw error;
     }
 }
