@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 const botname = 'Shizuka';
-const etiqueta = 'TuCreador';
 const vs = 'v1.0.0';
 const rwait = '⏳';
 const done = '✅';
