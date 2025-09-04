@@ -26,7 +26,6 @@ let handler = async (m, { conn, text, args }) => {
     await m.react(rwait);
 
     try {
-        // Analiza imagen si hay
         let analysisText = '';
         if (m.quoted?.mimetype?.startsWith('image/')) {
             const imgBuffer = await m.quoted.download();
@@ -37,14 +36,11 @@ let handler = async (m, { conn, text, args }) => {
             analysisText = response.data.result || '';
         }
 
-        // Construir prompt final para Gemini
         const prompt = `${basePrompt}. ${analysisText} Responde: ${userText}`;
 
         // Llamada a Gemini API
         const aiResp = await axios.post(GEMINI_ENDPOINT, {
-            contents: [
-                { parts: [{ text: prompt }] }
-            ]
+            contents: [{ parts: [{ text: prompt }] }]
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -52,13 +48,20 @@ let handler = async (m, { conn, text, args }) => {
             }
         });
 
-        const replyText = aiResp.data?.candidates?.[0]?.content?.map(p => p.text).join('') || 'Shizuka no obtuvo respuesta.';
+        // Leer respuesta de manera segura
+        let replyText = '';
+        if (aiResp.data?.candidates && aiResp.data.candidates.length > 0) {
+            replyText = aiResp.data.candidates[0].content?.map(p => p.text).join('') || '';
+        }
+        if (!replyText && aiResp.data?.output_text) {
+            replyText = aiResp.data.output_text;
+        }
+        if (!replyText) replyText = 'Shizuka no obtuvo respuesta.';
 
-        // Generar TTS
         const voiceBuffer = await tts(replyText, langArg);
-
         await conn.sendFile(m.chat, voiceBuffer, 'shizuka.opus', null, m, true);
         await m.react(done);
+
     } catch (err) {
         console.error(`${msm} Error:`, err.message);
         await m.react(error);
