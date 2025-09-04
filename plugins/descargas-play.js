@@ -29,42 +29,62 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }, { quoted: m });
 
   try {
-    const res = await fetch(`https://api.vreden.my.id/api/ytplaymp3?query=${encodeURIComponent(text)}`);
-    const json = await res.json();
+    // Buscar en YouTube
+    const search = await fetch(`https://delirius-apiofc.vercel.app/search/ytsearch?q=${encodeURIComponent(text)}`);
+    const jsonSearch = await search.json();
 
-    if (!json.result || !json.result.metadata || !json.result.download) {
+    if (!jsonSearch.status || !jsonSearch.data || jsonSearch.data.length === 0) {
       return conn.sendMessage(m.chat, {
-        text: `❌ No se encontraron transmisiones para *${text}*.`,
+        text: `❌ No se encontraron resultados para *${text}*.`,
         contextInfo
       }, { quoted: m });
     }
 
-    const { metadata, download } = json.result;
+    // Tomar el primer resultado
+    const video = jsonSearch.data[0];
+
+    // Descargar MP3
+    const dl = await fetch(`https://delirius-apiofc.vercel.app/download/ytmp3?url=${encodeURIComponent(video.url)}`);
+    const jsonDl = await dl.json();
+
+    if (!jsonDl.estado || !jsonDl.datos || !jsonDl.datos.descargar) {
+      return conn.sendMessage(m.chat, {
+        text: `⚠️ No se pudo obtener el audio de *${video.title}*.`,
+        contextInfo
+      }, { quoted: m });
+    }
+
+    const datos = jsonDl.datos;
+
     const caption = `
-🎬 *${metadata.title}*
-👤 *Autor:* ${metadata.author.name}
-⏱️ *Duración:* ${metadata.duration.timestamp}
-📺 *Vistas:* ${metadata.views}
-🕰️ *Publicado:* ${metadata.ago}
-🔗 *YouTube:* ${metadata.url}
+🎬 *${datos.título}*
+👤 *Autor:* ${datos.autor}
+⏱️ *Duración:* ${Math.floor(datos.duración / 60)}:${(datos.duración % 60).toString().padStart(2, "0")}
+📺 *Vistas:* ${datos.vistas}
+👍 *Likes:* ${datos["me gusta"]}
+💬 *Comentarios:* ${datos.comentarios}
+📂 *Tamaño:* ${datos.descargar.tamaño}
+🔗 *YouTube:* ${video.url}
 `.trim();
 
+    // Enviar información con miniatura
     await conn.sendMessage(m.chat, {
-      image: { url: metadata.thumbnail },
+      image: { url: datos["resolución máxima de la imagen"] || datos.imagen },
       caption,
       contextInfo
     }, { quoted: m });
 
+    // Enviar audio MP3
     await conn.sendMessage(m.chat, {
-      audio: { url: download.url },
-      fileName: download.filename,
+      audio: { url: datos.descargar.url },
+      fileName: datos.descargar.filename,
       mimetype: "audio/mp4",
       ptt: false,
       contextInfo
     }, { quoted: m });
 
   } catch (e) {
-    console.error("⚠️ Error al simular YouTube:", e);
+    console.error("⚠️ Error en YouTube:", e);
     await conn.sendMessage(m.chat, {
       text: `🎭 *La transmisión se desvaneció entre bambalinas...*\n\n🛠️ ${e.message}`,
       contextInfo
