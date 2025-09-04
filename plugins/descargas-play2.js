@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
-const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
-const DOWNLOAD_API = 'https://api.vreden.my.id/api/ytmp4?url=';
+const SEARCH_API = 'https://delirius-apiofc.vercel.app/search/ytsearch?q=';
+const DOWNLOAD_API = 'https://api.starlights.uk/api/downloader/youtube?url=';
 const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
 
 const contextInfo = {
@@ -21,7 +21,7 @@ async function buscarVideo(query) {
     const res = await fetch(SEARCH_API + encodeURIComponent(query));
     if (!res.ok) return null;
     const json = await res.json();
-    return json.result?.all?.[0] || null;
+    return json.status && json.data && json.data.length > 0 ? json.data[0] : null;
   } catch {
     return null;
   }
@@ -32,7 +32,7 @@ async function descargarVideo(videoUrl) {
     const res = await fetch(DOWNLOAD_API + encodeURIComponent(videoUrl));
     if (!res.ok) return null;
     const json = await res.json();
-    return json.result?.status ? json.result : null;
+    return json.status && json.mp4 ? json.mp4 : null;
   } catch {
     return null;
   }
@@ -48,7 +48,7 @@ let handler = async (m, { text, conn, command }) => {
   };
 
   if (!text) {
-    return enviarCeremonia(`🔮 Invocación incompleta\nEscribe el nombre del video que deseas conjurar.\nEjemplo: .play2 Ambatukam Termuwani`);
+    return enviarCeremonia(`🔮 Invocación incompleta\nEscribe el nombre del video que deseas conjurar.\nEjemplo: .${command} Ambatukam Termuwani`);
   }
 
   try {
@@ -57,14 +57,14 @@ let handler = async (m, { text, conn, command }) => {
       return enviarCeremonia(`⚠️ Visión fallida\nNo se encontraron portales abiertos para tu búsqueda.`);
     }
 
-    const { title, url, seconds, views, author } = vision;
-    const nombreAutor = authorocido';
+    const { title, url, duration, views, author } = vision;
+    const nombreAutor = author?.name || "Desconocido";
 
     const mensajeCeremonial = `
 🎀 Sello de Shizuka activado
 
 🎬 『${title}』
-⏱️ ${seconds}s | 👁️ ${views.toLocaleString()}
+⏱️ ${duration} | 👁️ ${views.toLocaleString()}
 🧑‍🎤 ${nombreAutor}
 🔗 ${url}
     `.trim();
@@ -72,14 +72,15 @@ let handler = async (m, { text, conn, command }) => {
     await enviarCeremonia(mensajeCeremonial);
 
     const descarga = await descargarVideo(url);
-    if (!descarga || !descarga.download?.status) {
+    if (!descarga || !descarga.dl_url) {
       return enviarCeremonia(`❌ Portal cerrado\nLa conversión de 『${title}』 falló. Intenta nuevamente bajo otra luna.`);
     }
 
     await conn.sendMessage(m.chat, {
-      video: { url: descarga.download.url },
+      video: { url: descarga.dl_url },
       mimetype: 'video/mp4',
-      fileName: descarga.download.filename || 'video.mp4',
+      fileName: `${descarga.title || 'video'}.mp4`,
+      caption: `🎬 ${descarga.title || title}`,
       contextInfo
     }, { quoted: m });
 
@@ -92,4 +93,5 @@ let handler = async (m, { text, conn, command }) => {
 handler.command = ['play2'];
 handler.help = ['play2 <video>'];
 handler.tags = ['downloader'];
+
 export default handler;
