@@ -1,106 +1,79 @@
-import fetch from 'node-fetch';
+import gtts from 'node-gtts';
+import { readFileSync, unlinkSync } from 'fs';
+import { join } from 'path';
+import axios from 'axios';
 
-const getShizukaVoice = async (phrase) => {
-  try {
-    const url = `https://myapiadonix.vercel.app/ai/iavoz?q=${encodeURIComponent(phrase)}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Respuesta no válida de la API');
+const defaultLang = 'es';
+const botname = 'Shizuka';
+const emoji = '✨';
+const rwait = '⏳';
+const done = '✅';
+const error = '❌';
+const msm = '[Shizuka Log]';
+const vs = 'v1.0.0';
 
-    const data = await res.json();
-    if (!data.success || !data.audio_base64) {
-      throw new Error('La API no devolvió audio válido');
-    }
+function buildPrompt(username) {
+    return `Tu nombre es ${botname}, versión ${vs}, usas Español. Llamarás a las personas por su nombre ${username}, eres traviesa y respondona, sin emojis ni símbolos y con mucho flow.`;
+}
 
-    // Convertir el base64 a Buffer
-    const buffer = Buffer.from(data.audio_base64, 'base64');
-    return { buffer, text: data.text };
-  } catch (err) {
-    console.warn('⚠️ Adonix falló:', err.message);
-    return null;
-  }
-};
+let handler = async (m, { conn, text, args }) => {
+    const username = conn.getName(m.sender);
+    const basePrompt = buildPrompt(username);
+    const langArg = args[0] && args[0].length === 2 ? args[0] : defaultLang;
+    const userText = args.slice(langArg === defaultLang ? 0 : 1).join(' ') || m.quoted?.text || 'Cuéntame algo interesante, Shizuka.';
 
-// 🎧 Comando principal
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-  const thumbnailCard = 'https://qu.ax/phgPU.jpg';
+    await m.react(rwait);
 
-  // 🌙 Validación inicial
-  if (!text) {
-    await conn.sendMessage(m.chat, {
-      text: `
-╭─❀ Shizuka te escucha... ❀─╮
-│ 🗣️ Por favor, susúrrale lo que deseas que diga  
-│ 💡 Ejemplo: ${usedPrefix + command} Te extraño bajo la luna, Mitsuri~
-╰─⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹─╯
-`.trim(),
-      footer: '🎧 Voz canalizada con ternura',
-      contextInfo: {
-        externalAdReply: {
-          title: 'Voz emocional estilo Shizuka',
-          body: 'Convierte tu frase en suspiro ceremonial',
-          thumbnailUrl: thumbnailCard,
-          sourceUrl: 'https://myapiadonix.vercel.app'
+    try {
+        // Procesa imagen si se envía
+        let analysisText = '';
+        if (m.quoted?.mimetype?.startsWith('image/')) {
+            const imgBuffer = await m.quoted.download();
+            const response = await axios.post('https://Luminai.my.id', {
+                content: `Analiza esta imagen`,
+                imageBuffer: imgBuffer
+            }, { headers: { 'Content-Type': 'application/json' } });
+            analysisText = response.data.result || '';
         }
-      }
-    }, { quoted: m });
-    return;
-  }
 
-  // 🫧 Mensaje de espera
-  await conn.sendMessage(m.chat, {
-    text: `
-╭─🌙 Canalizando la voz... 🌙─╮
-│ 🌺 Shizuka está preparando su susurro emocional  
-│ ⏳ Esto tomará solo unos segundos...
-╰─⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹─╯
-`.trim(),
-    footer: '🫧 Ritual de voz en curso',
-    contextInfo: {
-      externalAdReply: {
-        title: 'Preparando la voz...',
-        body: 'Susurros florales en proceso',
-        thumbnailUrl: thumbnailCard,
-        sourceUrl: 'https://myapiadonix.vercel.app'
-      }
+        // Genera prompt final
+        const prompt = `${basePrompt}. ${analysisText} Responde: ${userText}`;
+
+        // Llamada a Mora API
+        const aiResp = await axios.get(`https://api.vreden.my.id/api/mora?query=${encodeURIComponent(prompt)}&username=${encodeURIComponent(username)}`);
+        const replyText = aiResp.data?.result || 'Shizuka no obtuvo respuesta.';
+
+        // Generar TTS y enviar voz únicamente
+        const voiceBuffer = await tts(replyText, langArg);
+        await conn.sendFile(m.chat, voiceBuffer, 'shizuka.opus', null, m, true);
+
+        await m.react(done);
+    } catch (err) {
+        console.error(`${msm} Error:`, err.message);
+        await m.react(error);
+        await conn.reply(m.chat, 'Ocurrió un error al procesar tu solicitud.', m);
     }
-  }, { quoted: m });
-
-  // 🎙️ Obtener audio
-  const result = await getShizukaVoice(text);
-  if (!result) {
-    return m.reply(`
-╭─🚫 Ups... Shizuka se quedó sin voz ─╮
-│ 📄 Detalles: No se pudo generar el audio  
-│ 🔁 Sugerencia: Intenta más tarde o cambia la frase  
-╰─⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹─╯
-
-🌸 Pero no te preocupes...  
-Shizuka siempre regresa cuando la necesitas 🌙✨
-`.trim());
-  }
-
-  // 🌸 Mensaje final
-  const caption = `
-╭─🔊 Voz canalizada por Shizuka ─╮
-│ 📝 Frase original: ${text}  
-│ 💬 Respuesta IA: ${result.text}  
-│ 🌸 Estilo: susurro emocional y ceremonial  
-╰─⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹⊹─╯
-
-Tu frase se convirtió en melodía suave...  
-Como un recuerdo que flota entre pétalos 💫
-`.trim();
-
-  await conn.sendMessage(m.chat, {
-    audio: result.buffer,
-    mimetype: 'audio/mp4',
-    ptt: true,
-    caption
-  }, { quoted: m });
 };
 
-// 🎀 Registro del comando
-handler.command = ['voz', 'susurro', 'ritualshizuka'];
-handler.help = ['shizukavoz <frase>'];
-handler.tags = ['ai'];
+async function tts(text, lang = defaultLang) {
+    return new Promise((resolve, reject) => {
+        try {
+            const ttsEngine = gtts(lang);
+            const filePath = join(global.__dirname(import.meta.url), '../tmp', `${Date.now()}.wav`);
+            ttsEngine.save(filePath, text, () => {
+                const buffer = readFileSync(filePath);
+                unlinkSync(filePath);
+                resolve(buffer);
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+handler.help = ['voz <texto>'];
+handler.tags = ['ai', 'voz'];
+handler.command = ['voz', 'ttsai', 'ttsvoz'];
+handler.register = true;
+
 export default handler;
