@@ -22,7 +22,7 @@ export async function before(m) {
 
     if (chat.isBanned) {
       const avisoDesactivado = `
-╭───────────────🌸───────────────╮
+╭──────────🌸──────────╮
 │  💖 ¡Hola, mi querido usuario! 💖
 │
 │  El bot *${botname}* está tomando una siestita 💤
@@ -32,7 +32,7 @@ export async function before(m) {
 │  🌷 *${usedPrefix}bot on*
 │
 │  Gracias por tu comprensión, eres un amor ✨
-╰───────────────🌸───────────────╯`;
+╰──────────🌸─────────╯`;
       await m.reply(avisoDesactivado);
       return;
     }
