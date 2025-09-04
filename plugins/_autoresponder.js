@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const botname = 'Shizuka';
-const etiqueta = 'Carlos';
+const etiqueta = 'TuCreador';
 const vs = 'v1.0.0';
 const rwait = '⏳';
 const done = '✅';
@@ -28,7 +28,6 @@ async function shizukaPrompt(prompt, username) {
 let handler = m => m;
 handler.all = async function (m) {
     const chat = global.db?.data?.chats?.[m.chat];
-    const user = global.db?.data?.users?.[m.sender];
 
     const isPrivate = m.chat.endsWith('@s.whatsapp.net');
     const isCommand = m.text && /^[\/!.\-]/.test(m.text);
@@ -38,7 +37,6 @@ handler.all = async function (m) {
     if (!isPrivate) return;                // Solo privado
     if (isCommand) return;                 // Ignorar comandos
     if (m.fromMe) return;                  // Ignorar mensajes propios
-    if (!user?.registered) return;         // Ignorar usuarios no registrados
     if (!m.text) return;                   // Ignorar mensajes vacíos
 
     try {
