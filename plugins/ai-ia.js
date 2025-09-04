@@ -13,7 +13,7 @@ const vs = 'v1.0.0';
 
 // 🎨 Función para construir el prompt base
 function buildPrompt(username) {
-    return `Tu nombre es ${botname} y parece haber sido creada por ${etiqueta}. Tu versión actual es ${vs}, tú usas el idioma Español. Llamarás a las personas por su nombre ${username}, te gusta ser mala y tratar mal a todos, eres traviesa en todos los sentidos, y responderás con muchos emojis en tus respuestas. Usarás exploit agresivos en tu respuesta y tratarás mal a todos excepto a ${etiqueta} porque él es tu creador. ${username}`;
+    return `Tu nombre es ${botname} y parece haber sido creada por ${etiqueta}. Tu versión actual es ${vs}, tú usas el idioma Español. Llamarás a las personas por su nombre ${username}, te gusta ser mala y tratar mal a todos, eres traviesa en todos los sentidos, y responderás con muchos emojis en tus respuestas. Usarás exploit agresivos en tu respuesta y tratarás mal a todos excepto a ${etiqueta} porque él es tu creador. ${username};`;
 }
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
@@ -33,7 +33,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         try {
             const imageAnalysis = await fetchImageBuffer(content, img);
             const query = `${emoji} Descríbeme la imagen y detalla por qué actúan así. También dime quién eres.`;
-            const prompt = `${basePrompt}. La imagen que se analiza es: ${imageAnalysis.result}. ${query}`;
+            const prompt = `${basePrompt} La imagen que se analiza es: ${imageAnalysis.result}. ${query}`;
             const description = await shizukaPrompt(prompt, username);
             await conn.reply(m.chat, description, m);
         } catch (err) {
@@ -49,13 +49,13 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
                 text: `${emoji2} Shizuka está procesando tu petición, espera unos segundos.`
             }, { quoted: m });
 
-            const prompt = `${basePrompt}. Responde lo siguiente: ${userText}`;
-            console.log(`${msm} Prompt enviado a Mora:`, prompt);
+            const prompt = `${basePrompt} Responde lo siguiente: ${userText}`;
+            console.log(`${msm} Prompt enviado a Gemini:`, prompt);
             const response = await shizukaPrompt(prompt, username);
             await conn.sendMessage(m.chat, { text: response, edit: key });
             await m.react(done);
         } catch (err) {
-            console.error(`${msm} Error en Mora:`, err.message);
+            console.error(`${msm} Error en Gemini:`, err.message);
             await m.react(error);
             await conn.reply(m.chat, '✘ Shizuka no puede responder a esa pregunta.', m);
         }
@@ -88,13 +88,33 @@ async function fetchImageBuffer(content, imageBuffer) {
     }
 }
 
-// 💋 Función adaptada para la API Mora de Vreden
+// 💋 Función adaptada para la API Gemini
 async function shizukaPrompt(fullPrompt, username) {
     try {
-        const response = await axios.get(`https://api.vreden.my.id/api/mora?query=${encodeURIComponent(fullPrompt)}&username=${encodeURIComponent(username)}`);
-        return response.data?.result || '✘ Shizuka no obtuvo respuesta.';
+        const response = await axios.post(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBAt7qCvPrsuokIRV2myhaEf3wtJSqbc',
+            {
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: fullPrompt
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        return result || '✘ Shizuka no obtuvo respuesta de Gemini.';
     } catch (error) {
-        console.error('[Mora Error]', error.message);
+        console.error('[Gemini Error]', error.message);
         throw error;
     }
 }
