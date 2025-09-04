@@ -26,13 +26,13 @@ async function shizukaPrompt(prompt, username) {
 
 // 🎭 Handler principal
 let handler = m => m;
-handler.all = async function (m, { conn }) {
+handler.all = async function (m) {
     const chat = global.db?.data?.chats?.[m.chat];
     const user = global.db?.data?.users?.[m.sender];
 
     const isPrivate = m.chat.endsWith('@s.whatsapp.net');
     const isCommand = m.text && /^[\/!.\-]/.test(m.text);
-    const username = conn.getName(m.sender);
+    const username = global.conn.getName(m.sender); // 🔹 Usar global.conn
 
     if (!chat?.autoresponder) return;      // Solo chats con autoresponder activo
     if (!isPrivate) return;                // Solo privado
@@ -43,7 +43,7 @@ handler.all = async function (m, { conn }) {
 
     try {
         // ✨ Reacción inicial (opcional)
-        await conn.sendMessage(m.chat, { react: { text: rwait, key: m.key } });
+        await global.conn.sendMessage(m.chat, { react: { text: rwait, key: m.key } });
 
         // Generar prompt y obtener respuesta
         const prompt = buildPrompt(username, m.text);
@@ -51,14 +51,14 @@ handler.all = async function (m, { conn }) {
         const response = await shizukaPrompt(prompt, username);
 
         // ✅ Responder en privado
-        await conn.sendMessage(m.sender, { text: response }); // Aquí es importante usar m.sender
+        await global.conn.sendMessage(m.sender, { text: response });
 
         // Reacción final
-        await conn.sendMessage(m.chat, { react: { text: done, key: m.key } });
+        await global.conn.sendMessage(m.chat, { react: { text: done, key: m.key } });
     } catch (err) {
         console.error(`${msm} Error en Mora:`, err.message);
-        await conn.sendMessage(m.chat, { react: { text: error, key: m.key } });
-        await conn.sendMessage(m.sender, { text: '✘ Shizuka no puede responder a eso.' });
+        await global.conn.sendMessage(m.chat, { react: { text: error, key: m.key } });
+        await global.conn.sendMessage(m.sender, { text: '✘ Shizuka no puede responder a eso.' });
     }
 };
 
