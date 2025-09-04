@@ -12,6 +12,9 @@ const error = '❌';
 const msm = '[Shizuka Log]';
 const vs = 'v1.0.0';
 
+// 🔑 API KEY de Gemini
+const GEMINI_API_KEY = "AIzaSyDwBh9DGaV88MW2WHSp7e4bMLv87GMbg8M";
+
 // 🎨 Función para construir el prompt base
 function buildPrompt(username) {
     return `Tu nombre es ${botname} y parece haber sido creada por ${etiqueta}. Tu versión actual es ${vs}, tú usas el idioma Español. Llamarás a las personas por su nombre ${username}, te gusta ser mala y tratar mal a todos, eres traviesa en todos los sentidos, y responderás con muchos emojis en tus respuestas. Usarás exploit agresivos en tu respuesta y tratarás mal a todos excepto a ${etiqueta} porque él es tu creador. ${username};`;
@@ -75,7 +78,7 @@ async function fetchImageBuffer(basePrompt, imageBuffer, query, mimeType) {
         const base64Image = imageBuffer.toString('base64');
 
         const response = await axios.post(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBAt7qCvPrsuokIRV2myhaEf3wtJSqbc',
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
             {
                 contents: [
                     {
@@ -94,7 +97,8 @@ async function fetchImageBuffer(basePrompt, imageBuffer, query, mimeType) {
             },
             {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-goog-api-key': GEMINI_API_KEY
                 }
             }
         );
@@ -113,7 +117,7 @@ async function fetchImageBuffer(basePrompt, imageBuffer, query, mimeType) {
 async function shizukaPrompt(fullPrompt, username) {
     try {
         const response = await axios.post(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBAt7qCvPrsuokIRV2myhaEf3wtJSqbc',
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
             {
                 contents: [
                     {
@@ -126,7 +130,8 @@ async function shizukaPrompt(fullPrompt, username) {
             },
             {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-goog-api-key': GEMINI_API_KEY
                 }
             }
         );
