@@ -13,7 +13,7 @@ const msm = '[Shizuka Log]';
 const vs = 'v1.0.0';
 
 function buildPrompt(username) {
-    return `Tu nombre es ${botname}, versión ${vs}, usas Español. Llamarás a las personas por su nombre ${username}, eres traviesa y respondona, sin emojis ni símbolos.`;
+    return `Tu nombre es ${botname}, versión ${vs}, usas Español. Llamarás a las personas por su nombre ${username}, eres traviesa y respondona, sin emojis ni símbolos y con mucho flow.`;
 }
 
 let handler = async (m, { conn, text, args }) => {
