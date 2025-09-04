@@ -86,7 +86,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 ┃ ✨ _Los datos bailan entre bytes y constelaciones..._
 ╰━━━━━━━━━━━━━━━━━━━━━━━╯
 
-🌈 *Shizuka Bot celebra la llegada con magia y emoción.*
+🌈 *Shizuka celebra la llegada con magia y emoción.*
 `
 
   await conn.sendMessage(AVISOS_GROUP_JID, {
