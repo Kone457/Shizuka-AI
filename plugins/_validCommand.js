@@ -1,7 +1,5 @@
 export async function before(m) {
-  if (!m.text || !global.prefix.test(m.text)) {
-    return;
-  }
+  if (!m.text || !global.prefix.test(m.text)) return;
 
   const usedPrefix = global.prefix.exec(m.text)[0];
   const command = m.text.slice(usedPrefix.length).trim().split(' ')[0].toLowerCase();
@@ -17,25 +15,34 @@ export async function before(m) {
 
   if (!command) return;
 
-  if (command === "bot") {
-    return;
-    }
+  if (command === "bot") return;
+
   if (validCommand(command, global.plugins)) {
     let chat = global.db.data.chats[m.chat];
     let user = global.db.data.users[m.sender];
-    
+
     if (chat.isBanned) {
-      const avisoDesactivado = `《✦》El bot *${botname}* está desactivado en este grupo.\n\n> ✦ Un *administrador* puede activarlo con el comando:\n> » *${usedPrefix}bot on*`;
+      const avisoDesactivado = `
+╭━━━〔 ⚠️ BOT DESACTIVADO ⚠️ 〕━━━╮
+┃ ✦ El bot *${botname}* está *desactivado* en este grupo.
+┃ ✦ Solo un *administrador* puede activarlo.
+┃ ✦ Usa el comando:
+┃ ➤ *${usedPrefix}bot on*
+╰━━━━━━━━━━━━━━━━━━━━━━━╯`;
       await m.reply(avisoDesactivado);
       return;
     }
-    
-    if (!user.commands) {
-      user.commands = 0;
-    }
-    user.commands += 1;
-  } else {
 
-    return;
+    if (!user.commands) user.commands = 0;
+    user.commands += 1;
+
+  } else {
+    const comando = m.text.trim().split(' ')[0];
+    await m.reply(`
+╭━━━〔 ❌ COMANDO INVÁLIDO ❌ 〕━━━╮
+┃ ✦ El comando *${comando}* no existe.
+┃ ✦ Para ver la lista de comandos disponibles:
+┃ ➤ *#help*
+╰━━━━━━━━━━━━━━━━━━━━━━━╯`);
   }
 }
