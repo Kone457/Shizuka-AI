@@ -1,5 +1,7 @@
+
 import axios from 'axios';
 import fetch from 'node-fetch';
+import mime from 'mime-types'; 
 
 // 🎭 Variables rituales
 const botname = 'Shizuka';
@@ -29,12 +31,10 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
             return conn.reply(m.chat, '✘ Shizuka no pudo descargar la imagen.', m);
         }
 
-        const content = `${emoji} ¿Qué se observa en la imagen?`;
+        const mimeType = q.mimetype || 'image/png'; // Detectamos MIME de la imagen
+        const query = `${emoji} Descríbeme la imagen y detalla por qué actúan así. También dime quién eres.`;
         try {
-            const imageAnalysis = await fetchImageBuffer(content, img);
-            const query = `${emoji} Descríbeme la imagen y detalla por qué actúan así. También dime quién eres.`;
-            const prompt = `${basePrompt} La imagen que se analiza es: ${imageAnalysis.result}. ${query}`;
-            const description = await shizukaPrompt(prompt, username);
+            const description = await fetchImageBuffer(basePrompt, img, query, mimeType);
             await conn.reply(m.chat, description, m);
         } catch (err) {
             console.error(`${msm} Error en análisis de imagen:`, err.message);
@@ -49,7 +49,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
                 text: `${emoji2} Shizuka está procesando tu petición, espera unos segundos.`
             }, { quoted: m });
 
-            const prompt = `${basePrompt} Responde lo siguiente: ${userText}`;
+            const prompt = `${basePrompt}. Responde lo siguiente: ${userText}`;
             console.log(`${msm} Prompt enviado a Gemini:`, prompt);
             const response = await shizukaPrompt(prompt, username);
             await conn.sendMessage(m.chat, { text: response, edit: key });
@@ -70,35 +70,23 @@ handler.group = false;
 
 export default handler;
 
-// 📸 Función para enviar imagen y obtener análisis
-async function fetchImageBuffer(content, imageBuffer) {
+// 📸 Función para enviar imagen y obtener análisis con Gemini
+async function fetchImageBuffer(basePrompt, imageBuffer, query, mimeType) {
     try {
-        const response = await axios.post('https://Luminai.my.id', {
-            content: content,
-            imageBuffer: imageBuffer
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('[Luminai Error]', error.message);
-        throw error;
-    }
-}
+        const base64Image = imageBuffer.toString('base64');
 
-// 💋 Función adaptada para la API Gemini
-async function shizukaPrompt(fullPrompt, username) {
-    try {
         const response = await axios.post(
             'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBAt7qCvPrsuokIRV2myhaEf3wtJSqbc',
             {
                 contents: [
                     {
                         parts: [
+                            { text: `${basePrompt}. ${query}` },
                             {
-                                text: fullPrompt
+                                inlineData: {
+                                    mimeType: mimeType,
+                                    data: base64Image
+                                }
                             }
                         ]
                     }
@@ -111,8 +99,41 @@ async function shizukaPrompt(fullPrompt, username) {
             }
         );
 
-        const result = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        return result || '✘ Shizuka no obtuvo respuesta de Gemini.';
+        const result =
+            response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            '✘ Shizuka no obtuvo respuesta de la imagen.';
+        return result;
+    } catch (error) {
+        console.error('[Gemini Img Error]', error.message);
+        throw error;
+    }
+}
+
+// 💋 Función adaptada para la API Gemini (texto)
+async function shizukaPrompt(fullPrompt, username) {
+    try {
+        const response = await axios.post(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBAt7qCvPrsuokIRV2myhaEf3wtJSqbc',
+            {
+                contents: [
+                    {
+                        parts: [
+                            { text: fullPrompt }
+                        ]
+                    }
+                ]
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        const result =
+            response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            '✘ Shizuka no obtuvo respuesta.';
+        return result;
     } catch (error) {
         console.error('[Gemini Error]', error.message);
         throw error;
