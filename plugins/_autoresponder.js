@@ -34,15 +34,15 @@ handler.all = async function (m, { conn }) {
     const isCommand = m.text && /^[\/!.\-]/.test(m.text);
     const username = conn.getName(m.sender);
 
-    // Solo activa el autoresponder si está habilitado en el chat
-    if (!chat?.autoresponder) return;
-    if (!isPrivate) return;       // Solo mensajes privados
-    if (isCommand) return;        // Ignorar comandos
-    if (m.fromMe) return;         // Ignorar mensajes propios
-    if (!user?.registered) return; // Ignorar usuarios no registrados
+    if (!chat?.autoresponder) return;      // Solo chats con autoresponder activo
+    if (!isPrivate) return;                // Solo privado
+    if (isCommand) return;                 // Ignorar comandos
+    if (m.fromMe) return;                  // Ignorar mensajes propios
+    if (!user?.registered) return;         // Ignorar usuarios no registrados
+    if (!m.text) return;                   // Ignorar mensajes vacíos
 
     try {
-        // Reacción inicial
+        // ✨ Reacción inicial (opcional)
         await conn.sendMessage(m.chat, { react: { text: rwait, key: m.key } });
 
         // Generar prompt y obtener respuesta
@@ -50,15 +50,15 @@ handler.all = async function (m, { conn }) {
         console.log(`${msm} Prompt enviado a Mora:`, prompt);
         const response = await shizukaPrompt(prompt, username);
 
-        // Responder en privado
-        await conn.reply(m.chat, response, m);
+        // ✅ Responder en privado
+        await conn.sendMessage(m.sender, { text: response }); // Aquí es importante usar m.sender
 
         // Reacción final
         await conn.sendMessage(m.chat, { react: { text: done, key: m.key } });
     } catch (err) {
         console.error(`${msm} Error en Mora:`, err.message);
         await conn.sendMessage(m.chat, { react: { text: error, key: m.key } });
-        await conn.reply(m.chat, '✘ Shizuka no puede responder a eso.', m);
+        await conn.sendMessage(m.sender, { text: '✘ Shizuka no puede responder a eso.' });
     }
 };
 
