@@ -33,7 +33,7 @@ console.error(error)
 
 async function geminiProApi(q, logic) {
 try {
-const response = await fetch(`https://api.ryzendesu.vip/api/ai/gemini-pro?text=${encodeURIComponent(q)}&prompt=${encodeURIComponent(logic)}`);
+const response = await fetch(`https://api.vreden.my.id/api/mora?query=${encodeURIComponent(q)}&prompt=${encodeURIComponent(logic)}`);
 if (!response.ok) throw new Error(`Error en la solicitud: ${response.statusText}`)
 const result = await response.json();
 return result.answer
