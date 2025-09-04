@@ -1,24 +1,48 @@
 import axios from 'axios';
 
-const botname = 'Shizuka';
-const vs = 'v1.0.0';
+
 const rwait = '⏳';
 const done = '✅';
 const error = '❌';
 const msm = '[Shizuka Log]';
+
+// 🔑 API Key de Gemini
+const GEMINI_API_KEY = "AIzaSyDwBh9DGaV88MW2WHSp7e4bMLv87GMbg8M";
 
 // 🎨 Generar prompt teatral
 function buildPrompt(username, mensaje) {
     return `Tu nombre es ${botname} y fue creada por ${etiqueta}. Versión: ${vs}. Hablas Español, llamas a las personas por su nombre ${username}, eres traviesa, respondes con muchos emojis y tratas mal a todos excepto a ${etiqueta}. Responde lo siguiente: ${mensaje}`;
 }
 
-// 💋 Función para llamar a la API Mora
+// 💋 Función para llamar a la API Gemini
 async function shizukaPrompt(prompt, username) {
     try {
-        const response = await axios.get(`https://api.vreden.my.id/api/mora?query=${encodeURIComponent(prompt)}&username=${encodeURIComponent(username)}`);
-        return response.data?.result || '✘ Shizuka no obtuvo respuesta.';
+        const response = await axios.post(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+            {
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            { text: prompt }
+                        ]
+                    }
+                ]
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-goog-api-key': GEMINI_API_KEY
+                }
+            }
+        );
+
+        const result =
+            response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            '✘ Shizuka no obtuvo respuesta.';
+        return result;
     } catch (err) {
-        console.error('[Mora Error]', err.message);
+        console.error('[Gemini Error]', err.response?.data || err.message);
         return '✘ Shizuka no pudo conectarse a la API.';
     }
 }
@@ -44,7 +68,7 @@ handler.all = async function (m) {
 
         // Generar prompt y obtener respuesta
         const prompt = buildPrompt(username, m.text);
-        console.log(`${msm} Prompt enviado a Mora:`, prompt);
+        console.log(`${msm} Prompt enviado a Gemini:`, prompt);
         const response = await shizukaPrompt(prompt, username);
 
         // ✅ Responder en privado
@@ -53,7 +77,7 @@ handler.all = async function (m) {
         // Reacción final
         await global.conn.sendMessage(m.chat, { react: { text: done, key: m.key } });
     } catch (err) {
-        console.error(`${msm} Error en Mora:`, err.message);
+        console.error(`${msm} Error en Gemini:`, err.response?.data || err.message);
         await global.conn.sendMessage(m.chat, { react: { text: error, key: m.key } });
         await global.conn.sendMessage(m.sender, { text: '✘ Shizuka no puede responder a eso.' });
     }
