@@ -11,7 +11,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
 
   await conn.sendMessage(m.chat, {
     image: { url: api },
-    caption: `🧻 La mierda a llegado`,
+    caption: `🧻 E pisado una mierda`,
     footer: '✨ Imagen generada',
     contextInfo: {
       externalAdReply: {
