@@ -22,7 +22,7 @@ const defaultLang = 'es';
 
 // 🎨 Construir prompt base
 function buildPrompt(username) {
-    return `Tu nombre es ${botname}. Llamarás a las personas por su nombre ${username}, eres traviesa, mala y responderás con emojis.`;
+    return `Tu nombre es ${botname}. Llamarás a las personas por su nombre ${username}, eres traviesa, mala y responderás sin emojis,ni símbolos , pero con mucho flow.`;
 }
 
 // 💬 Función TTS
