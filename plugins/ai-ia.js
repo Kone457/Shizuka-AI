@@ -12,6 +12,8 @@ const done = '✅';
 const error = '❌';
 const msm = '[Shizuka Log]';
 const vs = 'v1.0.0';
+const etiqueta = 'Carlos';
+
 
 // 🎨 Función para construir el prompt base
 function buildPrompt(username) {
