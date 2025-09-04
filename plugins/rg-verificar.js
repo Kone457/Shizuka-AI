@@ -1,22 +1,27 @@
-
 import { createHash } from 'crypto'
-import moment from 'moment-timezone'
 
-const Reg = /\|?(.*)([.|] *?)([0-9]*)$/i
+// ▶️ JID de tu canal WhatsApp
+const NEWSLETTER_JID = '120363400241973967@newsletter'
 
-let handler = async function (m, { conn, text, args, usedPrefix, command }) {
-  const user = global.db.data.users[m.sender]
+// Regex: nombre.edad  (ej: Mitsuri.20 o Mitsuri|20)
+const Reg = /\|?(.*)([.|]\s*?)([0-9]{1,4})$/i
+
+let handler = async function (m, { conn, text, usedPrefix, command }) {
+  const user = global.db?.data?.users?.[m.sender] || (global.db.data.users[m.sender] = {})
   const name2 = conn.getName(m.sender)
-  const whe = m.quoted?.sender || m.mentionedJid?.[0] || m.sender
-  const perfil = await conn.profilePictureUrl(whe, 'image').catch(_ => 'https://qu.ax/XGJKb.jpg')
-  const perfilImg = perfil || 'https://qu.ax/fYpnX.jpg'
   const dev = 'Carlos ✨ '
+
+  // Defaults seguros
+  user.money = Number.isFinite(user.money) ? user.money : 0
+  user.estrellas = Number.isFinite(user.estrellas) ? user.estrellas : 0
+  user.exp = Number.isFinite(user.exp) ? user.exp : 0
+  user.joincount = Number.isFinite(user.joincount) ? user.joincount : 0
 
   if (user.registered) {
     return m.reply(`💛 Ya estás registrado.\n¿Deseas volver a registrarte?\nUsa *${usedPrefix}unreg* para eliminar tu registro.`)
   }
 
-  if (!Reg.test(text)) {
+  if (!Reg.test(text || '')) {
     return m.reply(`❌ Formato incorrecto\n\nUsa: ${usedPrefix + command} nombre.edad\nEjemplo: *${usedPrefix + command} ${name2}.20*`)
   }
 
@@ -26,14 +31,17 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
   age = parseInt(age)
   if (age < 5 || age > 1000) return m.reply('*Edad ingresada no válida*')
 
+  // Guardar registro
   user.name = name.trim()
   user.age = age
-  user.regTime = +new Date
+  user.regTime = +new Date()
   user.registered = true
-  user.money += 600
-  user.estrellas += 15
-  user.exp += 245
-  user.joincount += 5
+
+  // Recompensas
+  user.money += 600       // 600 Coins
+  user.estrellas += 15    // 15 Estrellas
+  user.exp += 245         // 245 Exp
+  user.joincount += 5     // 5 Tokens
 
   const sn = createHash('md5').update(m.sender).digest('hex')
 
@@ -42,37 +50,24 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
 │   *🌸 REGISTRO COMPLETADO 🌸*
 ╰───── ❍ ✦ ❍ ─────╯
 
-👤 *Nombre:* ${name}
-🎂 *Edad:* ${age} años
+👤 *Nombre:* ${user.name}
+🎂 *Edad:* ${user.age} años
 
 🎁 *Bienvenido al universo Shizuka:*
 ┆💫 15 Estrellas
-┆🪙 5 Coins
+┆🪙 600 Coins
 ┆📈 245 Exp
-┆🎟️ 12 Tokens
+┆🎟️ 5 Tokens
 
 🔮 Usa *#perfil* para ver tu carta astral.
 ✨ Que tus datos conecten con emociones.
-`
+`.trim()
 
-  // 📨 Mensaje privado con imagen personalizada
-  await conn.sendMessage(m.chat, {
-    text: regbot,
-    contextInfo: {
-      externalAdReply: {
-        title: '📌 REGISTRADO EN SHIZUKA',
-        body: '✨ Has sido vinculado con los hilos del destino.',
-        thumbnailUrl: 'https://qu.ax/XGJKb.jpg',
-        sourceUrl: 'https://shizuka.bot/perfil',
-        mediaType: 1,
-        showAdAttribution: false,
-        renderLargerThumbnail: true
-      }
-    }
-  }, { quoted: m })
-
+  // 📩 Confirmación solo al chat del usuario
+  await conn.sendMessage(m.chat, { text: regbot }, { quoted: m })
   await m.react('📪')
 
+  // 📡 Publicación en el canal WhatsApp
   const channelMessage = `
 ╭━━━━━━━━ 🌟 ＳＨＩＺＵＫＡ ＮＯＴＩＦＩＣＡＣＩＯ́Ｎ ━━━━━━━━╮
 ┃ 🆕 *¡Nueva alma conectada al sistema...!*
@@ -88,22 +83,16 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
 
 🌈 *Shizuka Bot celebra la llegada con magia y emoción.*
 📝 Por: ${dev}
-`
+`.trim()
 
-  await conn.sendMessage('120363400241973967@newsletter', {
-    text: channelMessage,
-    contextInfo: {
-      externalAdReply: {
-        title: '📌 NUEVO REGISTRO EN SHIZUKA',
-        body: '🧡 Magia, datos y emociones en cada conexión.',
-        thumbnailUrl: 'https://qu.ax/XGJKb.jpg',
-        sourceUrl: 'https://shizuka.bot/perfil',
-        mediaType: 1,
-        showAdAttribution: false,
-        renderLargerThumbnail: true
-      }
-    }
-  }, { quoted: null })
+  try {
+    await conn.sendMessage(NEWSLETTER_JID, { text: channelMessage })
+    await m.react('✅')
+  } catch (e) {
+    console.error('❌ Error enviando al canal:', e)
+    await m.react('⚠️')
+    await conn.sendMessage(m.chat, { text: '⚠️ No se pudo publicar en el canal.' }, { quoted: m })
+  }
 }
 
 handler.help = ['register']
