@@ -72,7 +72,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   await m.react('📪')
 
-  // Mensaje al grupo de avisos con la misma miniatura y estilo
+  // Mensaje al grupo de avisos usando la foto de perfil del usuario
   const channelMessage = `
 ╭━🌟 𝓢𝓱𝓲𝔃𝓾𝓴𝓪 𝓝𝓸𝓽𝓲𝓯𝓲𝓬𝓪𝓬𝓲𝓸𝓷  ━╮
 ┃ 🆕 *¡Nueva alma conectada al sistema...!*
@@ -95,7 +95,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
       externalAdReply: {
         title: '📌 NUEVO REGISTRO EN SHIZUKA',
         body: '🧡 Magia, datos y emociones en cada conexión.',
-        thumbnailUrl: 'https://qu.ax/XGJKb.jpg',
+        thumbnailUrl: perfilImg, // <-- aquí usamos la foto del usuario
         sourceUrl: 'https://shizuka.bot/perfil',
         mediaType: 1,
         showAdAttribution: false,
