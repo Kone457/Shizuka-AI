@@ -10,7 +10,7 @@ const rwait = '⏳';
 const done = '✅';
 const error = '❌';
 const msm = '[Shizuka Log]';
-const vs = 'v1.0.0';
+
 
 // 🔑 API KEY de Gemini
 const GEMINI_API_KEY = "AIzaSyDwBh9DGaV88MW2WHSp7e4bMLv87GMbg8M";
