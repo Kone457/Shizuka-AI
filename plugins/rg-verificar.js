@@ -74,7 +74,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   // Mensaje al grupo de avisos con la misma miniatura y estilo
   const channelMessage = `
-╭━━━━━━━━ 🌟 ＳＨＩＺＵＫＡ ＮＯＴＩＦＩＣＡＣＩＯ́Ｎ ━━━━━━━━╮
+╭━🌟 ＳＨＩＺＵＫＡ ＮＯＴＩＦＩＣＡＣＩＯ́Ｎ ━╮
 ┃ 🆕 *¡Nueva alma conectada al sistema...!*
 ┃
 ┃ 🖋️ *Usuario:* ${m.pushName || 'Anónimo'}
@@ -84,10 +84,9 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 ┃ 🔐 *ID:* ${sn}
 ┃
 ┃ ✨ _Los datos bailan entre bytes y constelaciones..._
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
 🌈 *Shizuka Bot celebra la llegada con magia y emoción.*
-📝 Por: ${dev}
 `
 
   await conn.sendMessage(AVISOS_GROUP_JID, {
