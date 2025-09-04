@@ -25,8 +25,7 @@ export async function before(m) {
 ╭──────────🌸──────────╮
 │  💖 ¡Hola, mi querido usuario! 💖
 │
-│  El bot *${botname}* está tomando una siestita 💤
-│  en este grupo tan lindo.
+│  El bot *${botname}* está tomando una siestita 💤 en este grupo tan lindo.
 │
 │  Si eres admin, puedes despertarlo con:
 │  🌷 *${usedPrefix}bot on*
@@ -44,7 +43,7 @@ export async function before(m) {
     const comando = m.text.trim().split(' ')[0];
     await m.reply(`
 ╭━━━━━━⊱🌼⊰━━━━━━╮
-┃  Ooops... ese comando *${comando}* no existe 😢
+┃  Ooops... el comando *${comando}* no existe 😢
 ┃
 ┃  Pero no te preocupes, mi cielo 🌈
 ┃  Puedes ver todos los comandos mágicos con:
