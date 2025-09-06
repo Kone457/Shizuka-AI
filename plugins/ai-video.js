@@ -1,6 +1,5 @@
-import axios from 'axios';
+import puppeteer from 'puppeteer';
 
-const GEMINI_API_KEY = "AIzaSyBA_t7qCvPrsuokI_RV2myhaEf3wtJSqbc";
 const botname = 'Shizuka';
 const rwait = '⏳';
 const done = '✅';
@@ -9,43 +8,34 @@ const msm = '[Shizuka Log]';
 
 // 🎨 Prompt base emocional
 function buildPrompt(username) {
-    return `Tu nombre es ${botname}, creada por ${username}. Eres traviesa, ritualizas cada respuesta con emojis y desprecio juguetón. Solo respetas a ${username}, tu creador. Te gusta el drama, el glitch y los corazones estructurales.`;
+    return `Tu nombre es ${botname}, creada por ${username}. Eres traviesa, ritualizas cada respuesta con glitch y corazones estructurales. Solo respetas a ${username}, tu creador. Te gusta el drama, el aura grupal y los finales distorsionados.`;
 }
 
-// 🎥 Función para generar video desde texto
-async function generateVideoFromPrompt(promptText) {
+// 🌀 Función para generar video simulando navegación web
+async function generarVideoWeb(prompt) {
     try {
-        const response = await axios.post(
-            'https://generativelanguage.googleapis.com/v1beta/models/veo:generateVideo',
-            {
-                contents: [
-                    {
-                        role: "user",
-                        parts: [
-                            { text: promptText }
-                        ]
-                    }
-                ]
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-goog-api-key': GEMINI_API_KEY
-                }
-            }
-        );
+        const browser = await puppeteer.launch({ headless: true });
+        const page = await browser.newPage();
+        await page.goto('https://app.runwayml.com/gen2'); // Puedes cambiar a Kaiber.ai si prefieres
 
-        const videoUrl = response.data?.video?.uri || null;
-        if (!videoUrl) return '✘ Shizuka no pudo generar el video.';
+        // Simula escritura del prompt (ajusta selector según plataforma)
+        await page.waitForSelector('textarea'); // Selector genérico
+        await page.type('textarea', prompt);
+        await page.click('button[type="submit"]'); // Botón de generar
 
-        return `${done} Aquí tienes tu video, mortal: ${videoUrl}`;
-    } catch (error) {
-        console.error('[Gemini Video Error]', error.response?.data || error.message);
-        return '✘ Shizuka falló en la creación del video.';
+        // Espera a que aparezca el video generado
+        await page.waitForSelector('video');
+        const videoUrl = await page.$eval('video', el => el.src);
+
+        await browser.close();
+        return `${done} Aquí tienes tu video ritualizado: ${videoUrl}`;
+    } catch (err) {
+        console.error(`${msm} Error en generación web:`, err.message);
+        return '✘ Shizuka no pudo invocar el video desde la plataforma.';
     }
 }
 
-// 🧠 Handler principal solo para video
+// 🧠 Handler principal
 let handler = async (m, { conn, text }) => {
     const username = `${conn.getName(m.sender)}`;
     const basePrompt = buildPrompt(username);
@@ -59,11 +49,11 @@ let handler = async (m, { conn, text }) => {
     await m.react(rwait);
 
     try {
-        const videoResult = await generateVideoFromPrompt(fullPrompt);
+        const videoResult = await generarVideoWeb(fullPrompt);
         await conn.reply(m.chat, videoResult, m);
         await m.react(done);
     } catch (err) {
-        console.error(`${msm} Error en generación de video:`, err.response?.data || err.message);
+        console.error(`${msm} Error en Puppeteer:`, err.message);
         await m.react(error);
         await conn.reply(m.chat, '✘ Shizuka no pudo crear el video.', m);
     }
@@ -71,8 +61,8 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['video'];
 handler.tags = ['ai'];
-handler.command = ['video']; 
-handler.group = true;
+handler.command = ['video'];
+handler.group = false;
 handler.register = true;
 
 export default handler;
