@@ -15,7 +15,7 @@ const error = '❌';
 const msm = '[Shizuka Log]';
 
 // 🔑 API KEY de Gemini
-const GEMINI_API_KEY = "AIzaSyDwBh9DGaV88MW2WHSp7e4bMLv87GMbg8M";
+const GEMINI_API_KEY = "AIzaSyBA_t7qCvPrsuokI_RV2myhaEf3wtJSqbc";
 
 // Idioma por defecto para TTS
 const defaultLang = 'es';
