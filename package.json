@@ -80,6 +80,7 @@
     "pdfkit": "^0.13.0",
     "perf_hooks": "^0.0.1",
     "performance-now": "^2.1.0",
+    "puppeteer": "^21.3.0",
     "pino": "^8.6.1",
     "pino-pretty": "^9.1.1",
     "qrcode": "^1.5.1",
