@@ -46,15 +46,21 @@ async function generateVideoFromPrompt(promptText) {
 }
 
 // 🧠 Handler principal solo para video
-let handler = async (m, { conn, text }) => {
+let handler = async (m, { conn, command, text }) => {
     const username = `${conn.getName(m.sender)}`;
     const basePrompt = buildPrompt(username);
 
-    if (!text || !text.startsWith('video:')) {
-        return conn.reply(m.chat, '✘ Shizuka necesita que empieces tu mensaje con "video:".', m);
+    // 🧼 Validación flexible del comando
+    const videoRegex = /^\.?video[:]?/i;
+    if (!videoRegex.test(text)) {
+        return conn.reply(m.chat, '✘ Shizuka necesita que empieces tu mensaje con "video:" o ".video:".', m);
     }
 
-    const videoPrompt = text.replace(/^video:/i, '').trim();
+    const videoPrompt = text.replace(videoRegex, '').trim();
+    if (!videoPrompt) {
+        return conn.reply(m.chat, '✘ Shizuka exige una escena emocional después de "video:".', m);
+    }
+
     const fullPrompt = `${basePrompt}. Crea un video con esta escena: ${videoPrompt}`;
     await m.react(rwait);
 
@@ -71,8 +77,8 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['video'];
 handler.tags = ['ai'];
-handler.command = ['video'];
-handler.group = true;
+handler.command = /^video$/i; // El comando base sigue siendo "video"
+handler.group = false;
 handler.register = true;
 
 export default handler;
