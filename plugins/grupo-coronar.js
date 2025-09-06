@@ -14,6 +14,15 @@ const handler = async (m, { conn, mentionedJid, text, isGroup, isAdmin, isBotAdm
   if (target === m.sender)
     return conn.reply(m.chat, '🪞 *¿Autocoronación? Eso suena a tiranía.*', m);
 
+  const groupMetadata = await conn.groupMetadata(m.chat);
+  const participant = groupMetadata.participants.find(p => p.id === target);
+
+  if (!participant)
+    return conn.reply(m.chat, '👻 *No se puede coronar a quien no camina entre nosotros.*', m);
+
+  if (participant.admin)
+    return conn.reply(m.chat, '👑 *Ese usuario ya porta la corona. No se puede coronar dos veces.*', m);
+
   const ceremonia = [
     '🎺 *Los heraldos anuncian el ritual...*',
     '🕊️ El aire se llena de solemnidad...',
@@ -33,14 +42,13 @@ const handler = async (m, { conn, mentionedJid, text, isGroup, isAdmin, isBotAdm
     await new Promise(r => setTimeout(r, 700 + i * 90));
   }
 
-  // Coronación final
   try {
     await conn.groupParticipantsUpdate(m.chat, [target], 'promote');
-  } catch {
-    return conn.reply(m.chat, '🚫 *No se pudo colocar la corona. Tal vez el destino se opuso...*', m);
+  } catch (e) {
+    console.error(e); // Para depuración interna
+    return conn.reply(m.chat, '🛡️ *La corona está protegida por el fundador del reino. Solo él puede otorgarla.*', m);
   }
 
-  // Cierre ceremonial
   await new Promise(r => setTimeout(r, 600));
   await conn.sendMessage(m.chat, { text: ceremonia[ceremonia.length - 2], mentions: [target] }, { quoted: m });
   await new Promise(r => setTimeout(r, 400));
