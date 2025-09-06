@@ -1,11 +1,12 @@
 let contadorMensajes = {}
 
-const handler = async (m, { conn }) => {
-  // Ignorar si no es grupo o si el mensaje es del bot
-  if (!m.isGroup || m.fromMe) return
-
+var handler = async (m, { conn, usedPrefix, command, text }) => {
   const grupoID = m.chat
-  const usuarioID = m.sender
+  const grupoInfo = await conn.groupMetadata(grupoID)
+  const participantes = grupoInfo.participants || []
+
+  // Ignorar si el mensaje es del bot
+  if (m.fromMe) return
 
   // Inicializar grupo si no existe
   if (!contadorMensajes[grupoID]) {
@@ -13,38 +14,53 @@ const handler = async (m, { conn }) => {
   }
 
   // Inicializar usuario si no existe
-  if (!contadorMensajes[grupoID][usuarioID]) {
-    contadorMensajes[grupoID][usuarioID] = 0
+  if (!contadorMensajes[grupoID][m.sender]) {
+    contadorMensajes[grupoID][m.sender] = 0
   }
 
   // Incrementar contador
-  contadorMensajes[grupoID][usuarioID]++
+  contadorMensajes[grupoID][m.sender]++
 
   // Comando: .contador
-  if (/^\.contador$/i.test(m.text)) {
-    const grupoInfo = await conn.groupMetadata(grupoID)
-    const participantes = grupoInfo.participants.map(p => p.id)
-
+  if (command === 'contador') {
     const ranking = participantes
-      .map(id => ({
-        id,
-        nombre: await conn.getName(id),
-        count: contadorMensajes[grupoID][id] || 0
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
+      .map(p => {
+        const id = p.id
+        const nombre = conn.getName(id)
+        const count = contadorMensajes[grupoID][id] || 0
+        return { id, nombre, count }
+      })
 
-    let texto = '📖 *Registro de presencia grupal:*\n\n'
-    for (let i = 0; i < ranking.length; i++) {
-      texto += `${i + 1}. ${ranking[i].nombre} — ${ranking[i].count} mensajes 🌸\n`
-    }
+    // Ordenar por cantidad
+    ranking.sort((a, b) => b.count - a.count)
 
-    texto += '\n🕯️ *Cada palabra deja un rastro. Cada rastro forma el círculo.*'
-    return conn.reply(grupoID, texto, m)
+    // Top 5
+    const top = await Promise.all(
+      ranking.slice(0, 5).map(async (r, i) => {
+        const nombre = await r.nombre
+        return `${i + 1}. ${nombre} — ${r.count} mensajes 🌸`
+      })
+    )
+
+    const mensaje = `
+📖 *Registro de presencia grupal:*
+
+${top.join('\n')}
+
+🕯️ *Cada palabra deja un rastro. Cada rastro forma el círculo.*`.trim()
+
+    await conn.sendMessage(m.chat, {
+      react: { text: '📊', key: m.key }
+    })
+
+    return conn.reply(m.chat, mensaje, m)
   }
 }
 
-handler.command = /^mensajes$/i
+handler.help = ['mensajes']
+handler.tags = ['grupo']
+handler.command = ['contador']
 handler.group = true
+handler.fail = null
 
 export default handler
