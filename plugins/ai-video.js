@@ -14,17 +14,23 @@ function buildPrompt(username) {
 // 🌀 Función para generar video simulando navegación web
 async function generarVideoWeb(prompt) {
     try {
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+
         const page = await browser.newPage();
-        await page.goto('https://app.runwayml.com/gen2'); // Puedes cambiar a Kaiber.ai si prefieres
+        await page.goto('https://app.runwayml.com/gen2', { waitUntil: 'networkidle2' });
 
-        // Simula escritura del prompt (ajusta selector según plataforma)
-        await page.waitForSelector('textarea'); // Selector genérico
+        // Espera que cargue el input del prompt
+        await page.waitForSelector('textarea');
         await page.type('textarea', prompt);
-        await page.click('button[type="submit"]'); // Botón de generar
 
-        // Espera a que aparezca el video generado
-        await page.waitForSelector('video');
+        // Simula clic en el botón de generar (ajusta si cambia el selector)
+        await page.click('button[type="submit"]');
+
+        // Espera que aparezca el video generado
+        await page.waitForSelector('video', { timeout: 60000 });
         const videoUrl = await page.$eval('video', el => el.src);
 
         await browser.close();
