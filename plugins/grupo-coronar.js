@@ -1,28 +1,44 @@
-const handler = async (m, { conn, mentionedJid, text, isGroup, isAdmin, isBotAdmin }) => {
-  if (!isGroup && !m.chat.endsWith('@g.us'))
-    return conn.reply(m.chat, '👥 *Este comando solo se puede usar en grupos.*', m);
-  if (!isAdmin)
-    return conn.reply(m.chat, '👑 *Solo los nobles pueden coronar a otro miembro.*', m);
-  if (!isBotAdmin)
-    return conn.reply(m.chat, '⚠️ *Necesito ser admin para colocar la corona.*', m);
+var handler = async (m, { conn, usedPrefix, command, text }) => {
+  const grupoInfo = await conn.groupMetadata(m.chat)
+  const participantes = grupoInfo.participants || []
+  const admins = participantes.filter(p => p.admin).map(p => p.id)
+  const botNumber = conn.user.jid
+  const botAdmin = participantes.find(p => p.id === botNumber && p.admin)
 
-  const target = mentionedJid?.[0] || (text ? text.replace(/[^0-9]/g, '') + '@s.whatsapp.net' : null);
-  if (!target)
-    return conn.reply(m.chat, '📌 *Debes mencionar al futuro monarca.*\nEj: `.coronar @usuario` o `.coronar 52123456789`', m);
-  if (target === conn.user.jid)
-    return conn.reply(m.chat, '😼 *¿Coronarme a mí? Ya soy el guardián del reino.*', m);
-  if (target === m.sender)
-    return conn.reply(m.chat, '🪞 *¿Autocoronación? Eso suena a tiranía.*', m);
+  // 🚫 Bot sin permisos
+  if (!botAdmin) {
+    await conn.sendMessage(m.chat, {
+      react: { text: '🚫', key: m.key }
+    })
+    return conn.reply(m.chat, `🚫 *No tengo permisos de administrador en este grupo.*`, m)
+  }
 
-  const groupMetadata = await conn.groupMetadata(m.chat);
-  const participant = groupMetadata.participants.find(p => p.id === target);
+  // 📍 Detectar número o mención
+  let number = ''
+  if (text) {
+    number = text.replace(/\D/g, '')
+  } else if (m.quoted) {
+    number = m.quoted.sender.split('@')[0]
+  }
 
-  if (!participant)
-    return conn.reply(m.chat, '👻 *No se puede coronar a quien no camina entre nosotros.*', m);
+  if (!number || number.length < 8 || number.length > 13) {
+    await conn.sendMessage(m.chat, {
+      react: { text: '❓', key: m.key }
+    })
+    return conn.reply(m.chat, `⚠️ *Debes mencionar o responder a un usuario válido para coronar.*`, m)
+  }
 
-  if (participant.admin)
-    return conn.reply(m.chat, '👑 *Ese usuario ya porta la corona. No se puede coronar dos veces.*', m);
+  const userJid = number + '@s.whatsapp.net'
 
+  // ✅ Ya es admin
+  if (admins.includes(userJid)) {
+    await conn.sendMessage(m.chat, {
+      react: { text: '👑', key: m.key }
+    })
+    return conn.reply(m.chat, `ℹ️ @${number} *ya porta la corona de administrador.*`, m, { mentions: [userJid] })
+  }
+
+  // 🎭 Ceremonia real
   const ceremonia = [
     '🎺 *Los heraldos anuncian el ritual...*',
     '🕊️ El aire se llena de solemnidad...',
@@ -34,32 +50,53 @@ const handler = async (m, { conn, mentionedJid, text, isGroup, isAdmin, isBotAdm
     '🧿 El círculo de poder se cierra sobre @user...',
     '🪄 *¡Admin otorgado con bendición ancestral!*',
     '🎆 *El reino celebra a su nuevo protector.*'
-  ];
+  ]
 
   for (let i = 0; i < ceremonia.length - 2; i++) {
-    const txt = ceremonia[i].replace('@user', '@' + target.split('@')[0]);
-    await conn.sendMessage(m.chat, { text: txt, mentions: [target] }, { quoted: m });
-    await new Promise(r => setTimeout(r, 700 + i * 90));
+    const txt = ceremonia[i].replace('@user', '@' + number)
+    await conn.sendMessage(m.chat, { text: txt, mentions: [userJid] }, { quoted: m })
+    await new Promise(r => setTimeout(r, 700 + i * 90))
   }
 
+  // 🔼 Coronación
   try {
-    await conn.groupParticipantsUpdate(m.chat, [target], 'promote');
+    await conn.groupParticipantsUpdate(m.chat, [userJid], 'promote')
+    await conn.sendMessage(m.chat, {
+      react: { text: '🎖️', key: m.key }
+    })
+
+    const mensajeFinal = ceremonia.slice(-2).map(txt =>
+      txt.replace('@user', '@' + number)
+    )
+
+    await conn.sendMessage(m.chat, { text: mensajeFinal[0], mentions: [userJid] }, { quoted: m })
+    await new Promise(r => setTimeout(r, 400))
+    await conn.sendMessage(m.chat, { text: mensajeFinal[1] }, { quoted: m })
+
+    const pergamino = `
+╭━━━〔 👑 *CORONACIÓN REALIZADA* 〕━━━╮
+┃ 🧍 Usuario: @${number}
+┃ 🏷️ Grupo: *${grupoInfo.subject}*
+┃ 📜 Rango otorgado: *Administrador*
+┃ 🎉 ¡La corona ha sido colocada con honor!
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯`.trim()
+
+    return conn.reply(m.chat, pergamino, m, { mentions: [userJid] })
   } catch (e) {
-    console.error(e); // Para depuración interna
-    return conn.reply(m.chat, '🛡️ *La corona está protegida por el fundador del reino. Solo él puede otorgarla.*', m);
+    console.error(e)
+    await conn.sendMessage(m.chat, {
+      react: { text: '⚠️', key: m.key }
+    })
+    return conn.reply(m.chat, `❌ *No se pudo coronar a @${number}. Tal vez el destino se opuso...*`, m, { mentions: [userJid] })
   }
+}
 
-  await new Promise(r => setTimeout(r, 600));
-  await conn.sendMessage(m.chat, { text: ceremonia[ceremonia.length - 2], mentions: [target] }, { quoted: m });
-  await new Promise(r => setTimeout(r, 400));
-  await conn.sendMessage(m.chat, { text: ceremonia[ceremonia.length - 1] }, { quoted: m });
-};
+handler.help = ['coronar']
+handler.tags = ['grupo', 'ceremonia']
+handler.command = ['coronar']
+handler.group = true
+handler.admin = true
+handler.botAdmin = true
+handler.fail = null
 
-handler.command = /^coronar$/i;
-handler.group = true;
-handler.admin = true;
-handler.botAdmin = true;
-handler.tags = ['grupo'];
-handler.help = ['coronar @usuario'];
-
-export default handler;
+export default handler
