@@ -3,11 +3,11 @@ import os from 'os';
 let handler = async (m, { conn }) => {
     try {
         const mensaje = `
-╭─〔 🔄 Reinicio del sistema 〕─╮
-│ 🧠 Estado: *Preparando memoria*
-│ 🧩 Módulos: *Desactivando procesos*
-│ 🕰️ Tiempo estimado: *3 segundos*
-╰──────────────────────────────╯
+╭♡───────────────♡╮
+│ Ya me reinicio, amor...     
+│ Solo serán 3 segundos        
+│ Ya vuelvo 😘                 
+╰♡───────────────♡╯
         `.trim();
 
         await conn.reply(m.chat, mensaje, m);
@@ -16,7 +16,7 @@ let handler = async (m, { conn }) => {
 
     } catch (error) {
         console.error('[ERROR][REINICIO]', error);
-        await conn.reply(m.chat, `❌ *Error durante el reinicio:*\n${error.message || error}`, m);
+        await conn.reply(m.chat, `❌ *No pude descansar como esperaba:*\n${error.message || error}`, m);
     }
 };
 
