@@ -1,6 +1,7 @@
 let contadorMensajes = {}
 
 const handler = async (m, { conn }) => {
+  // Ignorar si no es grupo o si el mensaje es del bot
   if (!m.isGroup || m.fromMe) return
 
   const grupoID = m.chat
@@ -20,7 +21,7 @@ const handler = async (m, { conn }) => {
   contadorMensajes[grupoID][usuarioID]++
 
   // Comando: .contador
-  if (/^\.?contador$/i.test(m.text)) {
+  if (/^\.contador$/i.test(m.text)) {
     const grupoInfo = await conn.groupMetadata(grupoID)
     const participantes = grupoInfo.participants.map(p => p.id)
 
@@ -43,8 +44,7 @@ const handler = async (m, { conn }) => {
   }
 }
 
-handler.customPrefix = /^\.?mensajes$/i
-handler.command = new RegExp
+handler.command = /^mensajes$/i
 handler.group = true
 
 export default handler
