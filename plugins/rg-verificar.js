@@ -2,6 +2,7 @@ import { createHash } from 'crypto'
 
 const Reg = /\|?(.*)([.|] *?)([0-9]*)$/i
 const AVISOS_GROUP_JID = '120363402449121688@g.us' // Grupo de avisos
+const NEWSLETTER_JID = '120363400241973967@newsletter' // Canal de newsletter
 
 let handler = async function (m, { conn, text, usedPrefix, command }) {
   const user = global.db.data.users[m.sender]
@@ -9,7 +10,6 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   const whe = m.quoted?.sender || m.mentionedJid?.[0] || m.sender
   const perfil = await conn.profilePictureUrl(whe, 'image').catch(_ => 'https://qu.ax/XGJKb.jpg')
   const perfilImg = perfil || 'https://qu.ax/fYpnX.jpg'
-  const dev = 'Carlos ✨ '
 
   if (user.registered) {
     return m.reply(`💛 Ya estás registrado.\n¿Deseas volver a registrarte?\nUsa *${usedPrefix}unreg* para eliminar tu registro.`)
@@ -54,7 +54,6 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 ✨ Que tus datos conecten con emociones.
 `
 
-  // Mensaje privado con imagen personalizada
   await conn.sendMessage(m.chat, {
     text: regbot,
     contextInfo: {
@@ -72,7 +71,6 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 
   await m.react('📪')
 
-  // Mensaje al grupo de avisos usando la foto de perfil del usuario
   const channelMessage = `
 ╭━🌟 𝓢𝓱𝓲𝔃𝓾𝓴𝓪 𝓝𝓸𝓽𝓲𝓯𝓲𝓬𝓪𝓬𝓲𝓸𝓷  ━╮
 ┃ 🆕 *¡Nueva alma conectada al sistema...!*
@@ -89,13 +87,30 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 🌈 *Shizuka celebra la llegada con magia y emoción.*
 `
 
+  // Enviar al grupo de avisos
   await conn.sendMessage(AVISOS_GROUP_JID, {
     text: channelMessage,
     contextInfo: {
       externalAdReply: {
         title: '📌 NUEVO REGISTRO EN SHIZUKA',
         body: '🧡 Magia, datos y emociones en cada conexión.',
-        thumbnailUrl: perfilImg, // <-- aquí usamos la foto del usuario
+        thumbnailUrl: perfilImg,
+        sourceUrl: 'https://shizuka.bot/perfil',
+        mediaType: 1,
+        showAdAttribution: false,
+        renderLargerThumbnail: true
+      }
+    }
+  }, { quoted: null })
+
+  // Enviar al canal de newsletter
+  await conn.sendMessage(NEWSLETTER_JID, {
+    text: channelMessage,
+    contextInfo: {
+      externalAdReply: {
+        title: '📌 NUEVO REGISTRO EN SHIZUKA',
+        body: '🧡 Magia, datos y emociones en cada conexión.',
+        thumbnailUrl: perfilImg,
         sourceUrl: 'https://shizuka.bot/perfil',
         mediaType: 1,
         showAdAttribution: false,
