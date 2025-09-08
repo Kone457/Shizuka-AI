@@ -13,7 +13,7 @@ const msm = '[Shizuka Log]';
 
 
 // 🔑 API KEY de Gemini
-const GEMINI_API_KEY = "AIzaSyBA_t7qCvPrsuokI_RV2myhaEf3wtJSqbc";
+const GEMINI_API_KEY = "AIzaSyBrYQZ3s5IVrp-on-ewJON8Gj6ZoD_NWWI";
 
 // 🎨 Función para construir el prompt base
 function buildPrompt(username) {
