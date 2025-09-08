@@ -13,10 +13,10 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 
 ▄︻デ══━► *𝕲𝖗𝖚𝖕𝖔𝖘 𝕺𝖋𝖎𝖈𝖎𝖆𝖑𝖊𝖘* ◄══━デ︻▄
 > 🕸️ ${namegrupo}
-> *❀* ${gp1}
-
+> https://chat.whatsapp.com/G5PblfIsVaT5ixPp0PAgzm
 ▄︻デ══━► *𝕾𝖔𝖕𝖔𝖗𝖙𝖊 𝕯𝖆𝖗𝖐* ◄══━デ︻▄
 > 🕸️ Soporte 
+> https://chat.whatsapp.com/DIXvs4fzTKj0QKzyUnfT0t?mode=ac_t
 
 ${darkBorder}
 
@@ -33,7 +33,7 @@ ${darkBorder}
       externalAdReply: {
         title: `⚠️ 𝕽𝖊𝖉 𝕯𝖆𝖗𝖐 𝕹𝖊𝖙𝖜𝖔𝖗𝖐 ⚠️`,
         body: "𝕿𝖚 𝖉𝖆𝖙𝖆 𝖍𝖆𝖘 𝖇𝖊𝖊𝖓 𝖗𝖊𝖈𝖔𝖗𝖉𝖊𝖉",
-        thumbnail: await (await fetch('https://i.imgur.com/XYZdarkimage.jpg')).buffer()
+        thumbnail: await (await fetch('https://qu.ax/qmfkB.jpg')).buffer()
       }
     }
   })
