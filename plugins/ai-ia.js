@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import mime from 'mime-types'; // 📦 Para detectar el tipo de imagen
+import mime from 'mime-types'; 
 
 // 🎭 Variables rituales
 const botname = 'Shizuka';
@@ -27,7 +27,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         await m.react(rwait);
         try {
             const { key } = await conn.sendMessage(m.chat, {
-                text: `${emoji2} Shizuka está invocando su poder desde Dorratz, espera...`
+                text: `${emoji2} Shizuka está invocando su poder, espera...`
             }, { quoted: m });
 
             const fullPrompt = `${basePrompt}. Responde lo siguiente: ${userText}`;
