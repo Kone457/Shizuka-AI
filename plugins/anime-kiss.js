@@ -1,9 +1,13 @@
 
 
-let handler = async (m, { conn, usedPrefix }) => {
-  let who = m.mentionedJid.length > 0
-    ? m.mentionedJid[0]
-    : (m.quoted ? m.quoted.sender : m.sender)
+let handler = async (m, { conn, usedPrefix, args }) => {
+  // Si viene con argumento, usarlo como destinatario
+  let who =
+    args[0] && args[0].includes('@')
+      ? args[0].replace(/[@+]/g, '') + '@s.whatsapp.net'
+      : m.mentionedJid.length > 0
+        ? m.mentionedJid[0]
+        : (m.quoted ? m.quoted.sender : m.sender)
 
   let name = await conn.getName(who)
   let name2 = await conn.getName(m.sender)
@@ -38,8 +42,9 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     const video = videos[Math.floor(Math.random() * videos.length)]
 
-    // ─── Botón: devuelve el beso al que inició el comando ───
-    let devolverBeso = `${usedPrefix}kiss @${m.sender.split('@')[0]}`
+    // Botón que devuelve el beso al que inició el comando
+    const target = m.sender // siempre devolver al que inició
+    const devolverBeso = `${usedPrefix}kiss ${target.split('@')[0]}`
 
     const buttons = [
       { buttonId: devolverBeso, buttonText: { displayText: "💋 Devolver beso" }, type: 1 }
