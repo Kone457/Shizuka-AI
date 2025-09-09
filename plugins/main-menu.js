@@ -8,7 +8,7 @@ const handler = async (m, { conn, usedPrefix }) => {
   const botname = 'Shizuka-AI';
   const textbot = 'Asistente virtual de WhatsApp';
   const banner = 'https://qu.ax/diNXY.jpg';
-  const redes = 'https://chat.whatsapp.com/G5PblfIsVaT5ixPp0PAgzm';
+  const redes = 'https://chat.whatsapp.com/G5v3lHn3w0x04kP2b39q31';
 
   const categoryMap = {
     main: '🌟 𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀 𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹𝗲𝘀',
@@ -93,9 +93,9 @@ const handler = async (m, { conn, usedPrefix }) => {
 
   // --- Botones ---
   let buttons = [
-    { buttonId: `${usedPrefix}menu`, buttonText: { displayText: "📜 Menú" }, type: 1 },
+    { buttonId: `${usedPrefix}code`, buttonText: { displayText: "💻 Code" }, type: 1 },
     { buttonId: `${usedPrefix}owner`, buttonText: { displayText: "👑 Creador" }, type: 1 },
-    { buttonId: `${usedPrefix}grupo`, buttonText: { displayText: "👥 Grupo Oficial" }, type: 1 }
+    { buttonId: `${usedPrefix}grupos`, buttonText: { displayText: "👥 Grupo Oficial" }, type: 1 }
   ];
 
   // --- Enviar mensaje con botones ---
