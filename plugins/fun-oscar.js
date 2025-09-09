@@ -12,7 +12,7 @@ const handler = async (m, { conn }) => {
   const nombre = `@${objetivo.split('@')[0]}`;
 
   const imageUrl = 'https://qu.ax/GNebj.jpg';
-  const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
+  const thumbnailUrl = 'https://qu.ax/RTYxO.jpg';
 
   const contextInfo = {
     externalAdReply: {
