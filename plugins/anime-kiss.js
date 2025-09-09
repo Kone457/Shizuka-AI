@@ -1,8 +1,3 @@
-/*───────────────────────────────────────
-  📁 Módulo:     kiss.js
-  🧠 Autor:      Carlos
-  🛠 Proyecto:   Shizuka-AI
-───────────────────────────────────────*/
 
 import fs from 'fs'
 import path from 'path'
@@ -11,7 +6,7 @@ import path from 'path'
 const kissDBFile = path.resolve('./storage/databases/kissHistory.json')
 let kissHistory = fs.existsSync(kissDBFile) ? JSON.parse(fs.readFileSync(kissDBFile)) : {}
 
-// Videos para los besos
+// Videos
 const videos = [
   'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1745784879173.mp4',
   'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1745784874988.mp4',
@@ -21,10 +16,10 @@ const videos = [
   'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1745784908581.mp4'
 ]
 
-// Propuestas pendientes: proposer -> { target }
+// Propuestas pendientes (quien fue besado -> { proposer })
 const kissPending = {}
 
-// Función para guardar historial
+// Guardar historial en archivo
 function saveKissHistory() {
   fs.writeFileSync(kissDBFile, JSON.stringify(kissHistory, null, 2))
 }
@@ -55,7 +50,7 @@ let handler = async (m, { conn }) => {
   }
 
   // Guardar propuesta pendiente sin límite de tiempo
-  kissPending[proposer] = { target: who }
+  kissPending[who] = { proposer }
 
   // Botón para devolver beso
   const buttonId = `kiss_return:${proposer}`
@@ -78,16 +73,16 @@ handler.before = async (m, { conn }) => {
     if (!selected) return
     if (!selected.startsWith('kiss_return:')) return
 
-    const proposer = selected.split(':')[1] // quien envió el beso original
-    const presser = m.sender // quien pulsa el botón
+    const proposer = selected.split(':')[1]
+    const presser = m.sender
 
-    const pending = kissPending[proposer]
-    if (!pending || pending.target !== presser) {
+    const pending = kissPending[presser]
+    if (!pending || pending.proposer !== proposer) {
       return await conn.sendMessage(m.chat, { text: '❌ Este botón no es para ti.' }, { quoted: m })
     }
 
     // Devolver beso
-    delete kissPending[proposer]
+    delete kissPending[presser]
 
     const video = videos[Math.floor(Math.random() * videos.length)]
     const namePresser = await conn.getName(presser)
