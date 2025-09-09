@@ -1,14 +1,9 @@
-/*───────────────────────────────────────
-  📁 Módulo:     kiss.js
-  🧠 Autor:      Carlos
-  🛠 Proyecto:   Shizuka-AI
-  🔗 GitHub:     https://github.com/Kone457/Shizuka-AI
-───────────────────────────────────────*/
+
 
 import fs from 'fs'
 import path from 'path'
 
-let handler = async (m, { conn }) => {
+let handler = async (m, { conn, usedPrefix }) => {
   let who = m.mentionedJid.length > 0
     ? m.mentionedJid[0]
     : (m.quoted ? m.quoted.sender : m.sender)
@@ -46,13 +41,19 @@ let handler = async (m, { conn }) => {
 
     const video = videos[Math.floor(Math.random() * videos.length)]
 
+    // ─── Botón único: Devolver beso ───
+    const buttons = [
+      { buttonId: `${usedPrefix}kiss @${m.sender.split('@')[0]}`, buttonText: { displayText: "💋 Devolver beso" }, type: 1 }
+    ]
+
     await conn.sendMessage(
       m.chat,
       {
         video: { url: video },
         gifPlayback: true,
         caption: str,
-        mentions: [who]
+        mentions: [who, m.sender],
+        buttons
       },
       { quoted: m }
     )
