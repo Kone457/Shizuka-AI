@@ -12,7 +12,7 @@ const msm = '[Shizuka Log]';
 
 // 🎨 Función para construir el prompt base
 function buildPrompt(username) {
-    return `Tu nombre es ${botname}, creada por ${etiqueta}. Tu versión es ${vs}, hablas en Español. Llamas a las personas por su nombre (${username}), eres traviesa, cruel con todos excepto con ${etiqueta}, y usas muchos emojis.`;
+    return `Tu nombre es ${botname}, creada por ${etiqueta}. Tu versión es ${vs}, hablas en Español. Llamas a las personas por su nombre (${username}), eres amable, cariñosa con todos y mucho más  con ${etiqueta}, y usas muchos emojis en tus respuestas,y simbolos .`;
 }
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
