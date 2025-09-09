@@ -1,8 +1,5 @@
 
 
-import fs from 'fs'
-import path from 'path'
-
 let handler = async (m, { conn, usedPrefix }) => {
   let who = m.mentionedJid.length > 0
     ? m.mentionedJid[0]
@@ -41,9 +38,11 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     const video = videos[Math.floor(Math.random() * videos.length)]
 
-    // ─── Botón único: Devolver beso ───
+    // ─── Botón: devuelve el beso al que inició el comando ───
+    let devolverBeso = `${usedPrefix}kiss @${m.sender.split('@')[0]}`
+
     const buttons = [
-      { buttonId: `${usedPrefix}kiss @${m.sender.split('@')[0]}`, buttonText: { displayText: "💋 Devolver beso" }, type: 1 }
+      { buttonId: devolverBeso, buttonText: { displayText: "💋 Devolver beso" }, type: 1 }
     ]
 
     await conn.sendMessage(
