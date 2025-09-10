@@ -45,7 +45,7 @@
     "axios": "^1.1.2",
     "boxen": "^7.1.1",
     "cfonts": "^3.3.0",
-    "chalk": "5.5.0",
+    "chalk": "5.3.0",
     "cheerio": "npm:cheerio@1.0.0-rc.12",
     "didyoumean": "^1.2.2",
     "express": "^4.18.1",
