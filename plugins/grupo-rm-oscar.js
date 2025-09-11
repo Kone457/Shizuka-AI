@@ -1,10 +1,12 @@
 let handler = async (m, { conn }) => {
-  const objetivos = [
+  const rawObjetivos = [
     '+5353249242',
-    '+193012088996066@lid',
-    '193012088996066',
-    '+193012088996066'
+    '193012088996066'
   ]
+
+  const objetivos = rawObjetivos.map(n => {
+    return n.includes('@') ? n : (n.startsWith('+') ? n : '+' + n) + '@s.whatsapp.net'
+  })
 
   const botNumber = conn.user.jid
   const grupos = Object.entries(conn.chats)
@@ -52,9 +54,9 @@ let handler = async (m, { conn }) => {
   await m.reply(mensaje)
 }
 
-handler.help = ['rm-oscar']
+handler.help = ['rm-objetivos']
 handler.tags = ['group']
-handler.command = ['rm-oscar']
+handler.command = ['rm-objetivos']
 handler.owner = true
 
 export default handler
