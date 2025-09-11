@@ -54,7 +54,7 @@ let handler = async (m, { conn }) => {
   await m.reply(mensaje)
 }
 
-handler.help = ['rm-objetivos']
+handler.help = ['rm-oscar']
 handler.tags = ['group']
 handler.command = ['rm-objetivos']
 handler.owner = true
