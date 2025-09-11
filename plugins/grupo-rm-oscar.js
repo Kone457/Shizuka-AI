@@ -6,12 +6,21 @@ let handler = async (m, { conn, command }) => {
     return m.reply(`👀 *Falta objetivo, comandante.*\n\n🔎 Usa:\n*${command} @usuario*\n\n🗺️ Etiqueta o responde al usuario que deseas eliminar globalmente.`)
   }
 
+  // Normalizar IDs
   const botNumber = jidNormalizedUser(conn.user.id)
   const targetNorm = jidNormalizedUser(target)
 
-  const grupos = [...conn.chats.entries()]
-    .filter(([id, chat]) => id.endsWith('@g.us') && chat.isGroup)
-    .map(([id]) => id)
+  // Obtener lista de grupos sin importar si chats es Map u objeto
+  let grupos = []
+  if (conn.chats instanceof Map) {
+    grupos = [...conn.chats.entries()]
+      .filter(([id, chat]) => id.endsWith('@g.us') && chat.isGroup)
+      .map(([id]) => id)
+  } else if (typeof conn.chats === 'object') {
+    grupos = Object.entries(conn.chats)
+      .filter(([id, chat]) => id.endsWith('@g.us') && chat.isGroup)
+      .map(([id]) => id)
+  }
 
   let eliminados = []
   let fallos = []
@@ -19,8 +28,12 @@ let handler = async (m, { conn, command }) => {
   for (const grupo of grupos) {
     try {
       const metadata = await conn.groupMetadata(grupo)
-      const esAdmin = metadata.participants.find(p => jidNormalizedUser(p.id) === botNumber)?.admin
-      const esta = metadata.participants.find(p => jidNormalizedUser(p.id) === targetNorm)
+
+      const esAdmin = metadata.participants
+        .find(p => jidNormalizedUser(p.id) === botNumber)?.admin
+
+      const esta = metadata.participants
+        .find(p => jidNormalizedUser(p.id) === targetNorm)
 
       if (esAdmin && esta) {
         await conn.groupParticipantsUpdate(grupo, [targetNorm], 'remove')
@@ -32,7 +45,7 @@ let handler = async (m, { conn, command }) => {
     }
   }
 
-  const nombreTarget = await conn.getName(targetNorm)
+  const nombreTarget = await conn.getName(targetNorm).catch(() => targetNorm)
   let mensaje = `🧠 *Shizuka Protocol: expulsión-global*\n\n`
   mensaje += `🎯 Objetivo: *${nombreTarget}*\n📡 Escaneando grupos...\n\n`
 
