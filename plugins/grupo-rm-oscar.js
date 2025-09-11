@@ -1,11 +1,15 @@
+import { jidNormalizedUser } from '@whiskeysockets/baileys'
+
 let handler = async (m, { conn, command }) => {
   const target = m.mentionedJid?.[0] || m.quoted?.sender
   if (!target) {
     return m.reply(`👀 *Falta objetivo, comandante.*\n\n🔎 Usa:\n*${command} @usuario*\n\n🗺️ Etiqueta o responde al usuario que deseas eliminar globalmente.`)
   }
 
-  const botNumber = conn.user.jid
-  const grupos = Object.entries(conn.chats)
+  const botNumber = jidNormalizedUser(conn.user.id)
+  const targetNorm = jidNormalizedUser(target)
+
+  const grupos = [...conn.chats.entries()]
     .filter(([id, chat]) => id.endsWith('@g.us') && chat.isGroup)
     .map(([id]) => id)
 
@@ -15,11 +19,11 @@ let handler = async (m, { conn, command }) => {
   for (const grupo of grupos) {
     try {
       const metadata = await conn.groupMetadata(grupo)
-      const esAdmin = metadata.participants.find(p => p.id === botNumber)?.admin
-      const esta = metadata.participants.find(p => p.id === target)
+      const esAdmin = metadata.participants.find(p => jidNormalizedUser(p.id) === botNumber)?.admin
+      const esta = metadata.participants.find(p => jidNormalizedUser(p.id) === targetNorm)
 
       if (esAdmin && esta) {
-        await conn.groupParticipantsUpdate(grupo, [target], 'remove')
+        await conn.groupParticipantsUpdate(grupo, [targetNorm], 'remove')
         eliminados.push(metadata.subject)
       }
     } catch (e) {
@@ -28,7 +32,7 @@ let handler = async (m, { conn, command }) => {
     }
   }
 
-  const nombreTarget = await conn.getName(target)
+  const nombreTarget = await conn.getName(targetNorm)
   let mensaje = `🧠 *Shizuka Protocol: expulsión-global*\n\n`
   mensaje += `🎯 Objetivo: *${nombreTarget}*\n📡 Escaneando grupos...\n\n`
 
