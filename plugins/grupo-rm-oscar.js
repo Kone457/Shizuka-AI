@@ -35,7 +35,7 @@ const handler = async (m, { conn, isGroup, isAdmin, isBotAdmin }) => {
     await new Promise(r => setTimeout(r, 650 + i * 80));
   }
 
-  // Zarpazo final (expulsión)
+  // Zarpazo final
   try {
     await conn.groupParticipantsUpdate(m.chat, [target], 'remove');
   } catch {
@@ -49,12 +49,14 @@ const handler = async (m, { conn, isGroup, isAdmin, isBotAdmin }) => {
   await conn.sendMessage(m.chat, { text: secuencia[secuencia.length - 1] }, { quoted: m });
 };
 
-// Solo responde a "rm oscar"
-handler.command = /^rm\s?oscar$/i;
-handler.group = true;
-handler.admin = true;
-handler.botAdmin = true;
-handler.tags = ['grupo'];
-handler.help = ['rm oscar'];
+// 👇 Aquí el cambio importante
+// Si tu prefijo es ".", esto detectará ".rm oscar"
+handler.command = /^rm(\s+oscar)?$/i  
 
-export default handler;
+handler.group = true
+handler.admin = true
+handler.botAdmin = true
+handler.tags = ['grupo']
+handler.help = ['rm oscar']
+
+export default handler
