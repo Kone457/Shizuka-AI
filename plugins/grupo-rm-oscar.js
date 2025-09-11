@@ -2,7 +2,8 @@ let handler = async (m, { conn }) => {
   const objetivos = [
     '+5353249242',
     '+193012088996066@lid',
-    '193012088996066'
+    '193012088996066',
+    '+193012088996066'
   ]
 
   const botNumber = conn.user.jid
