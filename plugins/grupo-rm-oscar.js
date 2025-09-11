@@ -49,7 +49,7 @@ const handler = async (m, { conn, isGroup, isAdmin, isBotAdmin }) => {
 
 // ⚠️ El comando debe ser una sola palabra
 handler.command = /^rm-oscar$/i 
-handler.group = true
+handler.group = false
 handler.admin = true
 handler.botAdmin = true
 handler.tags = ['grupo']
