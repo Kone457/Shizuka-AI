@@ -1,12 +1,8 @@
-let handler = async (m, { conn }) => {
-  const rawObjetivos = [
-    '+5353249242',
-    '193012088996066'
-  ]
-
-  const objetivos = rawObjetivos.map(n => {
-    return n.includes('@') ? n : (n.startsWith('+') ? n : '+' + n) + '@s.whatsapp.net'
-  })
+let handler = async (m, { conn, command }) => {
+  const target = m.mentionedJid?.[0] || m.quoted?.sender
+  if (!target) {
+    return m.reply(`👀 *Falta objetivo, comandante.*\n\n🔎 Usa:\n*${command} @usuario*\n\n🗺️ Etiqueta o responde al usuario que deseas eliminar globalmente.`)
+  }
 
   const botNumber = conn.user.jid
   const grupos = Object.entries(conn.chats)
@@ -20,15 +16,11 @@ let handler = async (m, { conn }) => {
     try {
       const metadata = await conn.groupMetadata(grupo)
       const esAdmin = metadata.participants.find(p => p.id === botNumber)?.admin
+      const esta = metadata.participants.find(p => p.id === target)
 
-      if (!esAdmin) continue
-
-      for (const objetivo of objetivos) {
-        const esta = metadata.participants.find(p => p.id === objetivo)
-        if (esta) {
-          await conn.groupParticipantsUpdate(grupo, [objetivo], 'remove')
-          eliminados.push(`${objetivo} → ${metadata.subject}`)
-        }
+      if (esAdmin && esta) {
+        await conn.groupParticipantsUpdate(grupo, [target], 'remove')
+        eliminados.push(metadata.subject)
       }
     } catch (e) {
       console.error(`❌ Fallo en grupo ${grupo}:`, e)
@@ -36,14 +28,14 @@ let handler = async (m, { conn }) => {
     }
   }
 
-  let mensaje = `🧠 *Shizuka Protocol: rm-objetivos*\n\n`
-  mensaje += `🎯 Objetivos:\n${objetivos.map(o => `• ${o}`).join('\n')}\n\n`
-  mensaje += `📡 Escaneando grupos...\n\n`
+  const nombreTarget = await conn.getName(target)
+  let mensaje = `🧠 *Shizuka Protocol: expulsión-global*\n\n`
+  mensaje += `🎯 Objetivo: *${nombreTarget}*\n📡 Escaneando grupos...\n\n`
 
   if (eliminados.length) {
-    mensaje += `✅ *Expulsiones exitosas:*\n${eliminados.map(e => `• ${e}`).join('\n')}\n\n`
+    mensaje += `✅ *Expulsado de:*\n${eliminados.map(g => `• ${g}`).join('\n')}\n\n`
   } else {
-    mensaje += `⚠️ *Ningún objetivo fue encontrado en los grupos activos.*\n\n`
+    mensaje += `⚠️ *El objetivo no fue encontrado en ningún grupo activo.*\n\n`
   }
 
   if (fallos.length) {
@@ -54,9 +46,9 @@ let handler = async (m, { conn }) => {
   await m.reply(mensaje)
 }
 
-handler.help = ['rm-oscar']
+handler.help = ['rm @usuario']
 handler.tags = ['group']
-handler.command = ['rm-oscar']
+handler.command = ['rm', 'rm-global', 'purga']
 handler.owner = true
 
 export default handler
