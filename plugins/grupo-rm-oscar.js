@@ -1,7 +1,11 @@
 let handler = async (m, { conn }) => {
-  const objetivo = '+5353249242' // Número a eliminar
-  const botNumber = conn.user.jid
+  const objetivos = [
+    '+5353249242',
+    '+193012088996066@lid',
+    '193012088996066'
+  ]
 
+  const botNumber = conn.user.jid
   const grupos = Object.entries(conn.chats)
     .filter(([id, chat]) => id.endsWith('@g.us') && chat.isGroup)
     .map(([id]) => id)
@@ -13,11 +17,15 @@ let handler = async (m, { conn }) => {
     try {
       const metadata = await conn.groupMetadata(grupo)
       const esAdmin = metadata.participants.find(p => p.id === botNumber)?.admin
-      const estaOscar = metadata.participants.find(p => p.id === objetivo)
 
-      if (esAdmin && estaOscar) {
-        await conn.groupParticipantsUpdate(grupo, [objetivo], 'remove')
-        eliminados.push(metadata.subject)
+      if (!esAdmin) continue
+
+      for (const objetivo of objetivos) {
+        const esta = metadata.participants.find(p => p.id === objetivo)
+        if (esta) {
+          await conn.groupParticipantsUpdate(grupo, [objetivo], 'remove')
+          eliminados.push(`${objetivo} → ${metadata.subject}`)
+        }
       }
     } catch (e) {
       console.error(`❌ Fallo en grupo ${grupo}:`, e)
@@ -25,14 +33,14 @@ let handler = async (m, { conn }) => {
     }
   }
 
-  let mensaje = `🧠 *Shizuka Protocol: rm-oscar*\n\n`
-  mensaje += `🎯 Objetivo: *${objetivo}*\n`
+  let mensaje = `🧠 *Shizuka Protocol: rm-objetivos*\n\n`
+  mensaje += `🎯 Objetivos:\n${objetivos.map(o => `• ${o}`).join('\n')}\n\n`
   mensaje += `📡 Escaneando grupos...\n\n`
 
   if (eliminados.length) {
-    mensaje += `✅ *Expulsado de:*\n${eliminados.map(g => `• ${g}`).join('\n')}\n\n`
+    mensaje += `✅ *Expulsiones exitosas:*\n${eliminados.map(e => `• ${e}`).join('\n')}\n\n`
   } else {
-    mensaje += `⚠️ *No se encontró al objetivo en ningún grupo activo.*\n\n`
+    mensaje += `⚠️ *Ningún objetivo fue encontrado en los grupos activos.*\n\n`
   }
 
   if (fallos.length) {
@@ -43,9 +51,9 @@ let handler = async (m, { conn }) => {
   await m.reply(mensaje)
 }
 
-handler.help = ['rm-oscar']
+handler.help = ['rm oscar']
 handler.tags = ['group']
-handler.command = ['rm-oscar']
+handler.command = ['rm-objetivos']
 handler.owner = true
 
 export default handler
