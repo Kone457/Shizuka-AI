@@ -56,7 +56,7 @@ let handler = async (m, { conn }) => {
 
 handler.help = ['rm-oscar']
 handler.tags = ['group']
-handler.command = ['rm-objetivos']
+handler.command = ['rm-oscar']
 handler.owner = true
 
 export default handler
