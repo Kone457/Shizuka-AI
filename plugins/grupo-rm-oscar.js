@@ -1,71 +1,60 @@
-import { jidNormalizedUser } from '@whiskeysockets/baileys'
+const handler = async (m, { conn, isGroup, isAdmin, isBotAdmin }) => {
+  if (!isGroup && !m.chat.endsWith('@g.us'))
+    return conn.reply(m.chat, '👥 *Este comando solo se puede usar en grupos.*', m);
+  if (!isAdmin)
+    return conn.reply(m.chat, '🧙‍♂️ *Solo los depredadores alfa pueden iniciar la cacería.*', m);
+  if (!isBotAdmin)
+    return conn.reply(m.chat, '⚠️ *Necesito ser admin para dar el zarpazo final.*', m);
 
-let handler = async (m, { conn, command }) => {
-  const target = m.mentionedJid?.[0] || m.quoted?.sender
-  if (!target) {
-    return m.reply(`👀 *Falta objetivo, comandante.*\n\n🔎 Usa:\n*${command} @usuario*\n\n🗺️ Etiqueta o responde al usuario que deseas eliminar globalmente.`)
+  // Número fijo (Oscar)
+  const target = '5353249242@s.whatsapp.net';
+
+  if (target === conn.user.jid)
+    return conn.reply(m.chat, '😼 *¿A mí? Soy la bestia detrás de la jauría.*', m);
+  if (target === m.sender)
+    return conn.reply(m.chat, '😵 *¿Vas a cazarte a ti mismo? Esa locura no es táctica.*', m);
+
+  const secuencia = [
+    '🐾 *Las sombras se agitan en silencio...*',
+    '🌑 Los depredadores despiertan...',
+    '👁️‍🗨️ El rastro de @user ha sido detectado...',
+    '👣 Olfateando huellas frescas...',
+    '🌫️ Acechando entre la niebla...',
+    '🔪 Afilando las garras digitales...',
+    '🕯️ Círculo de cerco cerrado...',
+    '📡 Coordenadas fijadas sobre @user...',
+    '🔥 La manada se lanza al ataque...',
+    '🩸 *¡Captura ejecutada!*',
+    '🚷 La presa ha sido desterrada del territorio...',
+    '🌌 *El rastro se desvanece. Aquí no hay nada.*'
+  ];
+
+  for (let i = 0; i < secuencia.length - 2; i++) {
+    const txt = secuencia[i].replace('@user', '@' + target.split('@')[0]);
+    await conn.sendMessage(m.chat, { text: txt, mentions: [target] }, { quoted: m });
+    await new Promise(r => setTimeout(r, 650 + i * 80));
   }
 
-  // Normalizar IDs
-  const botNumber = jidNormalizedUser(conn.user.id)
-  const targetNorm = jidNormalizedUser(target)
-
-  // Obtener lista de grupos sin importar si chats es Map u objeto
-  let grupos = []
-  if (conn.chats instanceof Map) {
-    grupos = [...conn.chats.entries()]
-      .filter(([id, chat]) => id.endsWith('@g.us') && chat.isGroup)
-      .map(([id]) => id)
-  } else if (typeof conn.chats === 'object') {
-    grupos = Object.entries(conn.chats)
-      .filter(([id, chat]) => id.endsWith('@g.us') && chat.isGroup)
-      .map(([id]) => id)
+  // Zarpazo final (expulsión)
+  try {
+    await conn.groupParticipantsUpdate(m.chat, [target], 'remove');
+  } catch {
+    return conn.reply(m.chat, '🚫 *No pudimos atrapar a la presa. Tal vez se escurrió...*', m);
   }
 
-  let eliminados = []
-  let fallos = []
+  // Cierre teatral
+  await new Promise(r => setTimeout(r, 600));
+  await conn.sendMessage(m.chat, { text: secuencia[secuencia.length - 2], mentions: [target] }, { quoted: m });
+  await new Promise(r => setTimeout(r, 400));
+  await conn.sendMessage(m.chat, { text: secuencia[secuencia.length - 1] }, { quoted: m });
+};
 
-  for (const grupo of grupos) {
-    try {
-      const metadata = await conn.groupMetadata(grupo)
+// Solo responde a "rm oscar"
+handler.command = /^rm\s?oscar$/i;
+handler.group = true;
+handler.admin = true;
+handler.botAdmin = true;
+handler.tags = ['grupo'];
+handler.help = ['rm oscar'];
 
-      const esAdmin = metadata.participants
-        .find(p => jidNormalizedUser(p.id) === botNumber)?.admin
-
-      const esta = metadata.participants
-        .find(p => jidNormalizedUser(p.id) === targetNorm)
-
-      if (esAdmin && esta) {
-        await conn.groupParticipantsUpdate(grupo, [targetNorm], 'remove')
-        eliminados.push(metadata.subject)
-      }
-    } catch (e) {
-      console.error(`❌ Fallo en grupo ${grupo}:`, e)
-      fallos.push(grupo)
-    }
-  }
-
-  const nombreTarget = await conn.getName(targetNorm).catch(() => targetNorm)
-  let mensaje = `🧠 *Shizuka Protocol: expulsión-global*\n\n`
-  mensaje += `🎯 Objetivo: *${nombreTarget}*\n📡 Escaneando grupos...\n\n`
-
-  if (eliminados.length) {
-    mensaje += `✅ *Expulsado de:*\n${eliminados.map(g => `• ${g}`).join('\n')}\n\n`
-  } else {
-    mensaje += `⚠️ *El objetivo no fue encontrado en ningún grupo activo.*\n\n`
-  }
-
-  if (fallos.length) {
-    mensaje += `🚨 *Fallos en:*\n${fallos.map(g => `• ${g}`).join('\n')}\n\n`
-    mensaje += `🔐 Verifica permisos o estado de los grupos.`
-  }
-
-  await m.reply(mensaje)
-}
-
-handler.help = ['rm @usuario']
-handler.tags = ['group']
-handler.command = ['rm', 'rm-global', 'purga']
-handler.owner = true
-
-export default handler
+export default handler;
