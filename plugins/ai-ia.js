@@ -1,7 +1,5 @@
 import fetch from 'node-fetch';
 import mime from 'mime-types';
-import dotenv from 'dotenv';
-dotenv.config({ path: './tmp/.env' }); // ← Carga desde carpeta tmp
 
 // 🎭 Variables rituales
 const botname = 'Shizuka';
@@ -12,9 +10,6 @@ const done = '✅';
 const error = '❌';
 const msm = '[Shizuka Log]';
 
-// 🔐 Clave desde tmp/.env
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-
 // 🎨 Prompt base
 function buildPrompt(username) {
     const etiqueta = 'Carlos';
@@ -22,6 +17,28 @@ function buildPrompt(username) {
     return `Tu nombre es ${botname}, creada por ${etiqueta}. Tu versión es ${vs}, hablas en Español. Llamas a las personas por su nombre (${username}), eres amable, cariñosa con todos y mucho más con ${etiqueta}, y usas muchos emojis en tus respuestas y símbolos.`;
 }
 
+
+async function shizukaPrompt(fullPrompt) {
+    const encodedPrompt = encodeURIComponent(fullPrompt);
+    const url = `https://eliasar-yt-api.vercel.app/api/ia/gemini?prompt=${encodedPrompt}`;
+
+    try {
+        const res = await fetch(url);
+        const json = await res.json();
+
+        if (json.status && json.content) {
+            return `${emoji} ${json.content.trim()}`;
+        } else {
+            console.error(`${msm} Respuesta inválida de EliasarYT:`, json);
+            return '✘ Shizuka no recibió una respuesta válida.';
+        }
+    } catch (error) {
+        console.error(`${msm} Error en EliasarYT API:`, error.message);
+        throw error;
+    }
+}
+
+// 🧬 Handler principal
 let handler = async (m, { conn, usedPrefix, command, text }) => {
     const isQuotedImage = m.quoted && (m.quoted.msg || m.quoted).mimetype && (m.quoted.msg || m.quoted).mimetype.startsWith('image/');
     const username = `${conn.getName(m.sender)}`;
@@ -38,13 +55,13 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
             }, { quoted: m });
 
             const fullPrompt = `${basePrompt}. Responde lo siguiente: ${userText}`;
-            console.log(`${msm} Prompt enviado a OpenAI:`, fullPrompt);
+            console.log(`${msm} Prompt enviado a EliasarYT:`, fullPrompt);
 
             const response = await shizukaPrompt(fullPrompt);
             await conn.sendMessage(m.chat, { text: response, edit: key });
             await m.react(done);
         } catch (err) {
-            console.error(`${msm} Error en OpenAI:`, err.message);
+            console.error(`${msm} Error en EliasarYT API:`, err.message);
             await m.react(error);
             await conn.reply(m.chat, '✘ Shizuka no pudo responder esta vez.', m);
         }
@@ -58,39 +75,3 @@ handler.command = ['ia', 'chatgpt', 'luminai', 'shizuka'];
 handler.group = false;
 
 export default handler;
-
-// 💋 Función para invocar OpenAI
-async function shizukaPrompt(fullPrompt) {
-    const url = 'https://api.openai.com/v1/chat/completions';
-    const body = {
-        model: 'gpt-3.5-turbo',
-        messages: [
-            {
-                role: 'system',
-                content: 'Eres Shizuka, una IA emocional, cariñosa, que responde en español con ternura y muchos emojis.'
-            },
-            {
-                role: 'user',
-                content: fullPrompt
-            }
-        ],
-        temperature: 0.8
-    };
-
-    try {
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        });
-
-        const json = await res.json();
-        return json.choices?.[0]?.message?.content || '✘ Shizuka no obtuvo respuesta.';
-    } catch (error) {
-        console.error('[OpenAI Error]', error.message);
-        throw error;
-    }
-}
