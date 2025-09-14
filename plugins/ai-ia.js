@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import mime from 'mime-types';
-import 'dotenv/config'; // ← Carga el .env automáticamente
+import dotenv from 'dotenv';
+dotenv.config({ path: './tmp/.env' }); // ← Carga desde carpeta tmp
 
 // 🎭 Variables rituales
 const botname = 'Shizuka';
@@ -11,7 +12,7 @@ const done = '✅';
 const error = '❌';
 const msm = '[Shizuka Log]';
 
-// 🔐 Clave desde .env
+// 🔐 Clave desde tmp/.env
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 // 🎨 Prompt base
