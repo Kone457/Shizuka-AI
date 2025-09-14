@@ -31,13 +31,13 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
             }, { quoted: m });
 
             const fullPrompt = `${basePrompt}. Responde lo siguiente: ${userText}`;
-            console.log(`${msm} Prompt enviado a Sky:`, fullPrompt);
+            console.log(`${msm} Prompt enviado a Delirius:`, fullPrompt);
 
             const response = await shizukaPrompt(userText);
             await conn.sendMessage(m.chat, { text: response, edit: key });
             await m.react(done);
         } catch (err) {
-            console.error(`${msm} Error en Sky API:`, err.message);
+            console.error(`${msm} Error en Delirius API:`, err.message);
             await m.react(error);
             await conn.reply(m.chat, '✘ Shizuka no pudo responder esta vez.', m);
         }
@@ -52,17 +52,17 @@ handler.group = false;
 
 export default handler;
 
-// 💋 Función para invocar Sky API
+// 💋 Función para invocar Delirius API
 async function shizukaPrompt(message) {
     try {
-        const url = `https://sky-api-ashy.vercel.app/ai/chatbot?message=${encodeURIComponent(message)}&personality=Shizuka`;
+        const url = `https://delirius-apiofc.vercel.app/ia/chatgpt?q=${encodeURIComponent(message)}`;
         const res = await fetch(url);
         const data = await res.json();
 
-        const result = data.result?.response || '✘ Shizuka no obtuvo respuesta.';
+        const result = data.data || '✘ Shizuka no obtuvo respuesta.';
         return result;
     } catch (error) {
-        console.error('[Sky API Error]', error.message);
+        console.error('[Delirius Error]', error.message);
         throw error;
     }
 }
