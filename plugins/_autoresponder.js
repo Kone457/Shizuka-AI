@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 
-const rwait = '⏳';
-const done = '✅';
-const error = '❌';
+const rwait = '👿';
+const done = '😈';
+const error = '⚠️';
 const msm = '[Shizuka Log]';
 
 // 🔑 API Key de Gemini
