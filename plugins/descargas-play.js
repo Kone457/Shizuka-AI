@@ -18,24 +18,24 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   const text = args.join(" ").trim();
   if (!text) {
     return conn.sendMessage(m.chat, {
-      text: `🎬 *¿Qué deseas escuchar en YouTube?*\n\n📌 Uso: *${usedPrefix + command} <nombre de canción/artista>*`,
+      text: `🎬 ¿Qué deseas escuchar en YouTube?\n\n📌 Uso: ${usedPrefix + command} <nombre de canción/artista>`,
       contextInfo
     }, { quoted: m });
   }
 
   await conn.sendMessage(m.chat, {
-    text: `🔎 *Buscando en YouTube...*\n🎵 Cargando resultados de *${text}*`,
+    text: `🔎 Buscando en YouTube...\n🎵 Cargando resultados de ${text}`,
     contextInfo
   }, { quoted: m });
 
   try {
-    // Buscar en YouTube (con la API de Delirius, o cualquier otra de búsqueda)
+    // Buscar en YouTube
     const search = await fetch(`https://delirius-apiofc.vercel.app/search/ytsearch?q=${encodeURIComponent(text)}`);
     const jsonSearch = await search.json();
 
     if (!jsonSearch.status || !jsonSearch.data || jsonSearch.data.length === 0) {
       return conn.sendMessage(m.chat, {
-        text: `❌ No se encontraron resultados para *${text}*.`,
+        text: `❌ No se encontraron resultados para ${text}.`,
         contextInfo
       }, { quoted: m });
     }
@@ -43,40 +43,41 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     // Tomamos el primer resultado
     const video = jsonSearch.data[0];
 
-    // Pasamos su URL a la API de Starlights
-    const dl = await fetch(`https://api.starlights.uk/api/downloader/youtube?url=${encodeURIComponent(video.url)}`);
+    // Usamos la API de Vreden para descargar
+    const dl = await fetch(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(video.url)}`);
     const jsonDl = await dl.json();
 
-    if (!jsonDl.status || !jsonDl.mp3) {
+    if (!jsonDl.result?.download?.status || !jsonDl.result.download.url) {
       return conn.sendMessage(m.chat, {
-        text: `⚠️ No se pudo obtener el audio de *${video.title}*.`,
+        text: `⚠️ No se pudo obtener el audio de ${video.title}.`,
         contextInfo
       }, { quoted: m });
     }
 
-    const { mp3 } = jsonDl;
+    const meta = jsonDl.result.metadata;
+    const audio = jsonDl.result.download;
 
     const caption = `
-🎬 *${mp3.title}*
-⏱️ *Duración:* ${video.duration}
-📺 *Vistas:* ${video.views}
-👤 *Canal:* ${video.author?.name || "Desconocido"}
-🎵 *Calidad:* ${mp3.quality}
-📂 *Tamaño:* ${mp3.size}
-🔗 *YouTube:* ${video.url}
+🎬 ${meta.title}
+⏱️ Duración: ${meta.duration.timestamp}
+📺 Vistas: ${meta.views.toLocaleString()}
+👤 Canal: ${meta.author?.name || "Desconocido"}
+🎵 Calidad: ${audio.quality}
+📂 Tamaño: —
+🔗 YouTube: ${meta.url}
 `.trim();
 
     // Enviar info con miniatura
     await conn.sendMessage(m.chat, {
-      image: { url: mp3.thumbnail },
+      image: { url: meta.thumbnail },
       caption,
       contextInfo
     }, { quoted: m });
 
     // Enviar audio MP3
     await conn.sendMessage(m.chat, {
-      audio: { url: mp3.dl_url },
-      fileName: `${mp3.title}.mp3`,
+      audio: { url: audio.url },
+      fileName: audio.filename,
       mimetype: "audio/mp4",
       ptt: false,
       contextInfo
@@ -85,7 +86,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   } catch (e) {
     console.error("⚠️ Error en YouTube Downloader:", e);
     await conn.sendMessage(m.chat, {
-      text: `🎭 *La transmisión se desvaneció entre bambalinas...*\n\n🛠️ ${e.message}`,
+      text: `🎭 La transmisión se desvaneció entre bambalinas...\n\n🛠️ ${e.message}`,
       contextInfo
     }, { quoted: m });
   }
