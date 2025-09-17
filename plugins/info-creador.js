@@ -25,15 +25,9 @@ let handler = async (m, { conn }) => {
 │ 📧 *Correo:* ${correo}
 │ 🌐 *GitHub:* ${github}
 │ 📣 *Canal:* ${canal}
-│ 🗺️ *Ubicación:* Cuba
-│ 📝 *Bio:* ${bio}
 ╰─────────────────────────────╯
 
-╭─「 *🤖 Información del Bot* 」─╮
-│ 📦 *Nombre:* ${packname}
-│ 🧑‍🎨 *Desarrollador:* ${dev}
-│ 📝 *Bio:* ${bioBot}
-╰─────────────────────────────╯
+
 `.trim()
 
   await conn.sendMessage(m.chat, {
