@@ -6,6 +6,7 @@ let handler = async (m, { conn }) => {
   const canal = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
   const packname = 'Shizuka-AI'
   const dev = 'Carlos'
+  const numero = `+${suittag}`
 
   await m.react('📇')
 
@@ -19,6 +20,7 @@ let handler = async (m, { conn }) => {
   const mensaje = `
 ╭─「 *👤 Información del Creador* 」─╮
 │ 🧑‍💻 *Nombre:* ${dev}
+│ 📱 *Número:* ${numero}
 │ 🤖 *Bot:* ${botname}
 │ 📧 *Correo:* ${correo}
 │ 🌐 *GitHub:* ${github}
