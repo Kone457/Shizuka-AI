@@ -5,13 +5,11 @@ let handler = async (m, { conn }) => {
   const botname = 'Shizuka-AI'
   const correo = 'c211762O@gmail.com'
   const md = 'https://github.com/Kone457/Shizuka-AI'
-  const channel = 'https://whatsapp.com/channel/XXXX'
-  const packname = 'ShizukaBot'
-  const dev = 'Carlos Dev'
+  const channel = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
+  const packname = 'Shizuka-AI'
+  const dev = 'Carlos'
 
   await m.react('📇')
-
-  const who = m.mentionedJid?.[0] || (m.fromMe ? conn.user.jid : m.sender)
 
   const bioOwnerData = await conn.fetchStatus(`${suittag}@s.whatsapp.net`).catch(() => ({ status: 'Sin Biografía' }))
   const bioBotData = await conn.fetchStatus(`${conn.user.jid}`)?.catch(() => ({ status: 'Sin Biografía' }))
@@ -19,14 +17,32 @@ let handler = async (m, { conn }) => {
   const bio = bioOwnerData?.status?.toString() || 'Sin Biografía'
   const bioBot = bioBotData?.status?.toString() || 'Sin Biografía'
 
-  // Aviso en público
+  const mensaje = `
+╭─「 *👤 Información del Creador* 」─╮
+│ 🧑‍💻 *Nombre:* Carlos
+│ 🤖 *Bot:* ${botname}
+│ 📧 *Correo:* ${correo}
+│ 🌐 *GitHub:* ${md}
+│ 📣 *Canal:* ${channel}
+│ 🗺️ *Ubicación:* Cuba
+│ 📝 *Bio:* ${bio}
+╰─────────────────────────────╯
+
+╭─「 *🤖 Información del Bot* 」─╮
+│ 📦 *Nombre:* ${packname}
+│ 🧑‍🎨 *Desarrollador:* ${dev}
+│ 📝 *Bio:* ${bioBot}
+╰─────────────────────────────╯
+`.trim()
+
+  // Enviar mensaje estético al grupo
   await conn.sendMessage(m.chat, {
-    text: `📬 Te envié por privado los datos de mi creador. No los pierdas.`,
-    mentions: [who]
+    text: mensaje,
+    mentions: [`${suittag}@s.whatsapp.net`, conn.user.jid]
   }, { quoted: m })
 
-  // Envío por privado
-  await sendContactArray(conn, who, [
+  // Enviar contactos directamente al grupo
+  await sendContactArray(conn, m.chat, [
     [
       suittag,
       `ᰔᩚ Propietario`,
@@ -47,7 +63,7 @@ let handler = async (m, { conn }) => {
       channel,
       bioBot
     ]
-  ])
+  ], m)
 }
 
 handler.help = ['owner', 'creador']
