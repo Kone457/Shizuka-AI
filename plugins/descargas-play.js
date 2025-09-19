@@ -15,66 +15,70 @@ const contextInfo = {
 };
 
 const handler = async (m, { conn, args, command, usedPrefix }) => {
-  const text = args.join(" ").trim();
-  if (!text) {
+  const input = args.join(" ").trim();
+  if (!input) {
     return conn.sendMessage(m.chat, {
-      text: `🎬 ¿Qué deseas escuchar en YouTube?\n\n📌 Uso: ${usedPrefix + command} <nombre de canción/artista>`,
+      text: `🎬 ¿Qué deseas escuchar en YouTube?\n\n📌 Uso: ${usedPrefix + command} <nombre o enlace>`,
       contextInfo
     }, { quoted: m });
   }
 
   await conn.sendMessage(m.chat, {
-    text: `🔎 Buscando en YouTube...\n🎵 Cargando resultados de ${text}`,
+    text: `🔎 Procesando tu petición...\n🎵 Cargando resultados de ${input}`,
     contextInfo
   }, { quoted: m });
 
   try {
-    // Buscar en YouTube
-    const search = await fetch(`https://delirius-apiofc.vercel.app/search/ytsearch?q=${encodeURIComponent(text)}`);
-    const jsonSearch = await search.json();
+    const isUrl = input.includes("youtu");
+    const videoUrl = isUrl ? input : null;
 
-    if (!jsonSearch.status || !jsonSearch.data || jsonSearch.data.length === 0) {
+    // Si es texto, buscar en YouTube
+    let finalUrl = videoUrl;
+    if (!isUrl) {
+      const search = await fetch(`https://delirius-apiofc.vercel.app/search/ytsearch?q=${encodeURIComponent(input)}`);
+      const jsonSearch = await search.json();
+
+      if (!jsonSearch.status || !jsonSearch.data || jsonSearch.data.length === 0) {
+        return conn.send          text: `❌ No se encontraron resultados para ${input}.`,
+          contextInfo
+        }, { quoted: m });
+      }
+
+      finalUrl = jsonSearch.data[0].url;
+    }
+
+    // Descargar con la API de Delirius
+    const res = await fetch(`https://delirius-apiofc.vercel.app/download/ytmp3?url=${encodeURIComponent(finalUrl)}`);
+    const json = await res.json();
+
+    if (!json.status || !json.data?.download?.url) {
       return conn.sendMessage(m.chat, {
-        text: `❌ No se encontraron resultados para ${text}.`,
+        text obtener el audio de ${input}.`,
         contextInfo
       }, { quoted: m });
     }
 
-    // Tomamos el primer resultado
-    const video = jsonSearch.data[0];
-
-    // Usamos la API de Vreden para descargar
-    const dl = await fetch(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(video.url)}`);
-    const jsonDl = await dl.json();
-
-    if (!jsonDl.result?.download?.status || !jsonDl.result.download.url) {
-      return conn.sendMessage(m.chat, {
-        text: `⚠️ No se pudo obtener el audio de ${video.title}.`,
-        contextInfo
-      }, { quoted: m });
-    }
-
-    const meta = jsonDl.result.metadata;
-    const audio = jsonDl.result.download;
+    const data = json.data;
+    const audio = data.download;
 
     const caption = `
-🎬 ${meta.title}
-⏱️ Duración: ${meta.duration.timestamp}
-📺 Vistas: ${meta.views.toLocaleString()}
-👤 Canal: ${meta.author?.name || "Desconocido"}
+🎬 ${data.title}
+👤 Canal: ${data.author}
+📺 Vistas: ${parseInt(data.views).toLocaleString()}
+❤️ Likes: ${parseInt(data.likes).toLocaleString()}
+💬 Comentarios: ${parseInt(data.comments).toLocaleString()}
 🎵 Calidad: ${audio.quality}
-📂 Tamaño: —
-🔗 YouTube: ${meta.url}
+📂 Tamaño: ${audio.size}
+⏱️ Duración: ${Math.floor(data.duration / 60)}:${(data.duration % 60).toString().padStart(2, '0')}
+🔗 YouTube: https://youtu.be/${data.id}
 `.trim();
 
-    // Enviar info con miniatura
     await conn.sendMessage(m.chat, {
-      image: { url: meta.thumbnail },
+      image: { url: data.image_max_resolution || data.image },
       caption,
       contextInfo
     }, { quoted: m });
 
-    // Enviar audio MP3
     await conn.sendMessage(m.chat, {
       audio: { url: audio.url },
       fileName: audio.filename,
@@ -94,6 +98,6 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
 handler.command = /^play$/i;
 handler.tags = ['descargas'];
-handler.help = ['play <nombre de canción/artista>'];
+handler.help = ['play <nombre o enlace de YouTube>'];
 
 export default handler;
