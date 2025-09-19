@@ -15,82 +15,48 @@ const contextInfo = {
 };
 
 const handler = async (m, { conn, args, command, usedPrefix }) => {
-  const input = args.join(" ").trim();
-  if (!input) {
+  const text = args.join(" ").trim();
+  if (!text) {
     return conn.sendMessage(m.chat, {
-      text: `🌥️ ¿Qué deseas escuchar en SoundCloud?\n\n📌 Uso: ${usedPrefix + command} <nombre o enlace de playlist>`,
+      text: `🌥️ ¿Qué deseas escuchar en SoundCloud?\n\n📌 Uso: ${usedPrefix + command} <nombre de canción/artista>`,
       contextInfo
-    }, { quoted(m.chat, {
-    text: `🔎 Invocando ecos desde SoundCloud...\n🎵 Procesando: ${input}`,
+    }, { quoted: m });
+  }
+
+  await conn.sendMessage(m.chat, {
+    text: `🔎 Buscando en SoundCloud...\n🎵 Cargando resultados de ${text}`,
     contextInfo
   }, { quoted: m });
 
   try {
-    const isPlaylist = input.includes("soundcloud.com/") && input.includes("/sets/");
-    if (isPlaylist) {
-      // Modo playlist
-      const res = await fetch(`https://apis-starlights-team.koyeb.app/starlight/soundcloud-playlist?url=${encodeURIComponent(input)}`);
-      const json = await res.json();
+    const res = await fetch(`https://apis-starlights-team.koyeb.app/starlight/soundcloud-search?text=${encodeURIComponent(text)}`);
+    const json = await res.json();
 
-      if (!json.tracks || json.tracks.length === 0) {
-        return conn.sendMessage(m.chat, {
-          text: `❌ No se encontraron pistas en la playlist.`,
-          contextInfo
-        }, { quoted: m });
-      }
-
-      const caption = `
-🎼 Playlist: ${json.title}
-👤 Creador: ${json.owner}
-📅 Publicado: ${new Date(json.published).toLocaleDateString()}
-👥 Seguidores: ${json.followers.toLocaleString()}
-🔗 Enlace: ${json.url}
-`.trim();
-
-      await conn.sendMessage(m.chat, {
-        image: { url: json.thumb },
-        caption,
+    if (!Array.isArray(json) || json.length === 0) {
+      return conn.sendMessage(m.chat, {
+        text: `❌ No se encontraron resultados para "${text}".`,
         contextInfo
       }, { quoted: m });
+    }
 
-      for (const track of json.tracks) {
-        await conn.sendMessage(m.chat, {
-          audio: { url: track.url },
-          fileName: track.title + ".mp3",
-          mimetype: "audio/mp4",
-          ptt: false,
-          contextInfo
-        }, { quoted: m });
-      }
+    const track = json[0]; // Primer resultado
 
-    } else {
-      // Modo búsqueda
-      const res = await fetch(`https://apis-starlights-team.koyeb.app/starlight/soundcloud-search?text=${encodeURIComponent(input)}`);
-      const json = await res.json();
-
-      if (!Array.isArray(json) || json.length === 0) {
-        return conn.sendMessage(m.chat, {
-          text: `❌ No se encontraron resultados para "${input}".`,
-          contextInfo
-        }, { quoted: m });
-      }
-
-      const track = json[0]; // Primer resultado
-
-      const caption = `
+    const caption = `
 🎧 ${track.title}
 👤 Artista: ${track.artist}
 📈 Reproducciones: ${track.repro}
 ⏱️ Duración: ${track.duration}
-🔗 Enlace: ${track.url}
+🔗 SoundCloud: ${track.url}
 `.trim();
 
-      await conn.sendMessage(m.chat, {
-        image: { url: track.image },
-        caption,
-        contextInfo
-      }, { quoted: m });
-    }
+    await conn.sendMessage(m.chat, {
+      image: { url: track.image },
+      caption,
+      contextInfo
+    }, { quoted: m });
+
+    // Si quieres reproducir directamente el audio, puedes usar un convertidor externo aquí
+    // o simplemente dejar el enlace como ritual de acceso.
 
   } catch (e) {
     console.error("⚠️ Error en SoundCloud:", e);
@@ -103,6 +69,6 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
 handler.command = /^soundcloud$/i;
 handler.tags = ['soundcloud'];
-handler.help = ['soundcloud <nombre o enlace de playlist>'];
+handler.help = ['soundcloud <nombre de canción/artista>'];
 
 export default handler;
