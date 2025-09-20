@@ -47,24 +47,24 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       finalUrl = jsonSearch.result.search_data[0].song_link;
     }
 
-    // Descargar con Dorratz
-    const res = await fetch(`https://api.dorratz.com/spotifydl?url=${encodeURIComponent(finalUrl)}`);
+    // Descargar con Delirius
+    const res = await fetch(`https://delirius-apiofc.vercel.app/download/spotifydl?url=${encodeURIComponent(finalUrl)}`);
     const json = await res.json();
 
-    if (!json.download_url) {
+    if (!json.status || !json.data?.url) {
       return conn.sendMessage(m.chat, {
         text: `❌ No se pudo obtener el audio de: ${input}`,
         contextInfo
       }, { quoted: m });
     }
 
-    const data = json;
-    const durationMin = Math.floor(data.duration_ms / 60000);
-    const durationSec = Math.floor((data.duration_ms % 60000) / 1000).toString().padStart(2, '0');
+    const data = json.data;
+    const durationMin = Math.floor(data.duration / 60000);
+    const durationSec = Math.floor((data.duration % 60000) / 1000).toString().padStart(2, '0');
 
     const caption = `
-🎵 ${data.name}
-👤 Artista: ${data.artists}
+🎵 ${data.title}
+👤 Artista: ${data.author}
 📅 Lanzamiento: Desconocido
 ⏱️ Duración: ${durationMin}:${durationSec}
 🔗 Spotify: ${finalUrl}
@@ -77,8 +77,8 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     }, { quoted: m });
 
     await conn.sendMessage(m.chat, {
-      audio: { url: data.download_url },
-      fileName: `${data.name}.mp3`,
+      audio: { url: data.url },
+      fileName: `${data.title}.mp3`,
       mimetype: "audio/mp3",
       ptt: false,
       contextInfo
