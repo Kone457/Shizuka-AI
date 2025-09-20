@@ -32,7 +32,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     const isUrl = input.includes("spotify.com/track");
     let finalUrl = input;
 
-    // Si es texto, buscar canción
+    // Buscar canción si es texto
     if (!isUrl) {
       const search = await fetch(`https://api.vreden.my.id/api/v1/search/spotify?query=${encodeURIComponent(input)}&limit=1`);
       const jsonSearch = await search.json();
@@ -47,7 +47,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       finalUrl = jsonSearch.result.search_data[0].song_link;
     }
 
-    // Descargar canción con Dorratz
+    // Descargar con Dorratz
     const res = await fetch(`https://api.dorratz.com/spotifydl?url=${encodeURIComponent(finalUrl)}`);
     const json = await res.json();
 
