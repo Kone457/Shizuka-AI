@@ -34,7 +34,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     const caption = `
 🎉 *@${user.split('@')[0]} se ha unido a ${groupName}*  
 Bienvenido 🐾  
-Eres el miembro número ${miembro}
+> Eres el miembro número ${miembro}
 `.trim()
 
     await conn.sendMessage(m.chat, {
