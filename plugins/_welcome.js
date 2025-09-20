@@ -6,7 +6,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   const chat = global.db.data.chats[m.chat]
   const user = m.messageStubParameters[0]
   const nombre = await conn.getName(user) || 'Miembro'
-  const avatar = await conn.profilePictureUrl(user, 'image').catch(_ => 'https://cdn.discordapp.com/embed/avatars/0.png')
+  const avatar = await conn.profilePictureUrl(user, 'image').catch(_ => 'https://qu.ax/xuLKH.jpg')
   const groupName = groupMetadata.subject || 'el grupo'
 
   const fkontak = {
