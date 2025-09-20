@@ -27,7 +27,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   // 📥 BIENVENIDA
   if (chat.welcome && m.messageStubType == 27) {
     const miembro = participants.length + 1
-    const url = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(nombre)}&text2=${encodeURIComponent(`Bienvenido a ${groupName}`)}&text3=${encodeURIComponent(`Miembro ${miembro}`)}&avatar=${encodeURIComponent(avatar)}`
+    const url = `https://api.popcat.xyz/v2/welcomecard?background=https://qu.ax/WRqRM.jpg&text1=${encodeURIComponent(nombre)}&text2=${encodeURIComponent(`Bienvenido a ${groupName}`)}&text3=${encodeURIComponent(`Miembro ${miembro}`)}&avatar=${encodeURIComponent(avatar)}`
     const res = await fetch(url)
     const imgBienvenida = Buffer.from(await res.arrayBuffer())
 
