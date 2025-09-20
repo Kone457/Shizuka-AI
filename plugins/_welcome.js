@@ -47,7 +47,7 @@ Bienvenido 🐾
   // 📤 DESPEDIDA
   if (chat.welcome && (m.messageStubType == 28 || m.messageStubType == 32)) {
     const miembro = participants.length - 1
-    const url = `https://api.popcat.xyz/v2/welcomecard?background=https://qu.ax/ySpnn.jpg&text1=${encodeURIComponent(nombre)}&text2=${encodeURIComponent(`Ha salido de ${groupName}`)}&text3=${encodeURIComponent(`Quedan ${miembro} miembros`)}&avatar=${encodeURIComponent(avatar)}`
+    const url = `https://api.popcat.xyz/v2/welcomecard?background=https://qu.ax/SttTr.jpg&text1=${encodeURIComponent(nombre)}&text2=${encodeURIComponent(`Ha salido de ${groupName}`)}&text3=${encodeURIComponent(`Quedan ${miembro} miembros`)}&avatar=${encodeURIComponent(avatar)}`
     const res = await fetch(url)
     const imgDespedida = Buffer.from(await res.arrayBuffer())
 
