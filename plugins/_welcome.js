@@ -53,7 +53,7 @@ Bienvenido 🐾
 
     const caption = `
 👋 *@${user.split('@')[0]} ha salido de ${groupName}*  
-Nos despedimos con respeto 🐾  
+Nos despedimos con cariño 🐾  
 > Ahora somos ${miembro} miembros
 `.trim()
 
