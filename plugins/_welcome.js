@@ -54,7 +54,7 @@ Bienvenido 🐾
     const caption = `
 👋 *@${user.split('@')[0]} ha salido de ${groupName}*  
 Nos despedimos con respeto 🐾  
-Ahora somos ${miembro} miembros
+> Ahora somos ${miembro} miembros
 `.trim()
 
     await conn.sendMessage(m.chat, {
