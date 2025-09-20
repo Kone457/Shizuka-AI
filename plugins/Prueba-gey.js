@@ -35,7 +35,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
 
 handler.help = ['gey']
 handler.tags = ['maker']
-handler.command = ['gay', 'gey', 'oscar', 'rainbow']
+handler.command = ['gay', 'gey', 'rainbow']
 handler.register = true
 
 export default handler
