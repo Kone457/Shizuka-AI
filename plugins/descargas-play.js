@@ -47,39 +47,38 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       finalUrl = jsonSearch.result.search_data[0].song_link;
     }
 
-    // Descargar canción
-    const res = await fetch(`https://api.vreden.my.id/api/v1/download/spotify?url=${encodeURIComponent(finalUrl)}`);
+    // Descargar canción con Dorratz
+    const res = await fetch(`https://api.dorratz.com/spotifydl?url=${encodeURIComponent(finalUrl)}`);
     const json = await res.json();
 
-    if (!json.status || !json.result?.download) {
+    if (!json.download_url) {
       return conn.sendMessage(m.chat, {
         text: `❌ No se pudo obtener el audio de: ${input}`,
         contextInfo
       }, { quoted: m });
     }
 
-    const data = json.result;
+    const data = json;
     const durationMin = Math.floor(data.duration_ms / 60000);
     const durationSec = Math.floor((data.duration_ms % 60000) / 1000).toString().padStart(2, '0');
 
     const caption = `
-🎵 ${data.title}
+🎵 ${data.name}
 👤 Artista: ${data.artists}
-💿 Álbum: ${data.album}
-📅 Lanzamiento: ${data.release_date}
+📅 Lanzamiento: Desconocido
 ⏱️ Duración: ${durationMin}:${durationSec}
-🔗 Spotify: https://open.spotify.com/track/${data.id}
+🔗 Spotify: ${finalUrl}
 `.trim();
 
     await conn.sendMessage(m.chat, {
-      image: { url: data.cover_url },
+      image: { url: data.image },
       caption,
       contextInfo
     }, { quoted: m });
 
     await conn.sendMessage(m.chat, {
-      audio: { url: data.download },
-      fileName: `${data.title}.mp3`,
+      audio: { url: data.download_url },
+      fileName: `${data.name}.mp3`,
       mimetype: "audio/mp3",
       ptt: false,
       contextInfo
