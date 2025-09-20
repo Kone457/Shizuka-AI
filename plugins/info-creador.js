@@ -1,7 +1,6 @@
 let handler = async (m, { conn }) => {
   const suittag = '5355699866' // Número del creador
   const botname = 'Shizuka-AI'
-  const correo = 'c211762O@gmail.com'
   const github = 'https://github.com/Kone457/Shizuka-AI'
   const canal = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
   const packname = 'Shizuka-AI'
