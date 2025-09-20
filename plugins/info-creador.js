@@ -22,7 +22,6 @@ let handler = async (m, { conn }) => {
 │ 🧑‍💻 *Nombre:* ${dev}
 │ 📱 *Número:* ${numero}
 │ 🤖 *Bot:* ${botname}
-│ 📧 *Correo:* ${correo}
 │ 🌐 *GitHub:* ${github}
 │ 📣 *Canal:* ${canal}
 ╰──────────────────╯
