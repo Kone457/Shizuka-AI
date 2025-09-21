@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 const SEARCH_API = 'https://delirius-apiofc.vercel.app/search/ytsearch?q=';
-const DOWNLOAD_API = 'https://api.vreden.my.id/api/ytmp4?url=';
+const DOWNLOAD_API = 'https://api.vreden.my.id/api/v1/download/youtube/video?url=';
 const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
 
 const contextInfo = {
@@ -29,7 +29,7 @@ async function buscarVideo(query) {
 
 async function descargarVideo(videoUrl) {
   try {
-    const res = await fetch(DOWNLOAD_API + encodeURIComponent(videoUrl));
+    const res = await fetch(`${DOWNLOAD_API}${encodeURIComponent(videoUrl)}&quality=360`);
     if (!res.ok) return null;
     const json = await res.json();
     return json.result?.download?.status ? json.result : null;
