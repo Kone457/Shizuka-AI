@@ -6,7 +6,7 @@ const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
 
 const contextInfo = {
   externalAdReply: {
-    title: "uka",
+    title: "Shizuka",
     body: "Transmisión escénica desde el imperio digital...",
     mediaType: 1,
     previewType: 0,
