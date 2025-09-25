@@ -92,5 +92,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = ['fb', 'fbritual', 'shizukafb'];
+handler.command = ['fb', 'facebook', 'shizukafb'];
 export default handler;
