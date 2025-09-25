@@ -35,7 +35,7 @@ let handler = async (m, { conn, participants, isBotAdmin, isAdmin }) => {
       contextInfo: {
         externalAdReply: {
           title: '💣 Ruleta Total',
-          body: 'Purga emocional desde NagiBot',
+          body: 'Purga Completada',
           thumbnailUrl: 'https://qu.ax/irETA.jpg',
           sourceUrl: 'https://nagi.bot',
           mediaType: 1,
