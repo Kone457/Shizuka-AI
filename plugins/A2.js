@@ -25,9 +25,9 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['canal']
+handler.help = ['canals']
 handler.tags = ['tools']
-handler.command = ['canal']
+handler.command = ['canals']
 handler.owner = true
 
 export default handler
