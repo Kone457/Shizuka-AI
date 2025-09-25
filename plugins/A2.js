@@ -1,26 +1,23 @@
-let handler = async (m, { conn, text, command, usedPrefix }) => {
-  
-  const canalID = '120363400241973967@newsletter'; // ← Reemplaza con el ID real de tu canal
-
-  if (!text) {
-    return m.reply(`❌ *Uso incorrecto:*\nEjemplo:\n${usedPrefix + command} Hola a todos  🎉`);
-  }
-
+let handler = async (m, { conn }) => {
   try {
-    await conn.sendMessage(canalID, {
-      text: text
-    });
+    const chats = await conn.chats.all(); // Obtiene todos los chats conocidos por el bot
+    const canales = chats.filter(c => c.id.endsWith('@newsletter'));
 
-    m.reply(`✅ *Mensaje enviado correctamente al canal.*`);
+    if (canales.length === 0) {
+      return m.reply('⚠️ El bot no está suscrito a ningún canal tipo newsletter.');
+    }
+
+    let lista = canales.map((c, i) => `${i + 1}. ${c.name || 'Sin nombre'}\nID: ${c.id}`).join('\n\n');
+    m.reply(`📢 *Canales disponibles:*\n\n${lista}`);
   } catch (e) {
     console.error(e);
-    m.reply(`⚠️ *Error al enviar el mensaje al canal.*\nVerifica que el ID del canal sea correcto y que el bot tenga permisos para enviar mensajes.`);
+    m.reply('❌ Error al obtener la lista de canales.');
   }
 };
 
-handler.help = ['canalmsg <mensaje>'];
+handler.help = ['listcanales'];
 handler.tags = ['tools'];
-handler.command = ['canalmsg', 'sendcanal']; 
-handler.owner = true; // Solo el owner puede usarlo
+handler.command = ['listcanales'];
+handler.owner = true;
 
 export default handler;
