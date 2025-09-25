@@ -33,6 +33,23 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
       chat.welcome = isEnable
       break  
       
+    //---------------------
+
+    case 'autosticker':
+    case 'autosticker2':
+      if (!m.isGroup) {
+        if (!isOwner) {
+          global.dfail('group', m, conn)
+          throw false
+        }
+      } else if (!isAdmin) {
+        global.dfail('admin', m, conn)
+        throw false
+      }
+      chat.autosticker = isEnable
+      break
+
+    //---------------------
     case 'antiprivado':
     case 'antiprivate':
       isAll = true
