@@ -14,16 +14,15 @@ let handler = async (m, { conn, participants, isBotAdmin, isAdmin }) => {
   await m.reply(`💣 *Ruleta Total Activada*\n\n🎰 *Miembros a eliminar:* ${expulsables.length}\n⚔️ *Iniciando expulsión sin pausa...*`)
 
   const frases = [
-    '🎭 El caos te ha elegido, valiente',
-    '🔥 Tu energía será recordada en las llamas del log',
-    '🧩 La pieza se retira, el grupo se adapta',
-    '🌙 La noche te acompaña fuera del círculo',
-    '📦 Tu paquete emocional será archivado',
-    '🧭 Tu ruta se desvía del ritual',
-    '💫 El aura grupal te libera',
-    '🪞 El reflejo emocional se despide de ti',
-    '🎉 Celebraste, ahora toca partir',
-    '🧠 Tu mente será extrañada en el ritual grupal'
+    '👻 Chao, Aquí no te queremos',
+    '😂 Esto te pasa por negro',
+    '😇 Nadie te quiere acéptalo',
+    '🙄 El infierno te llama',
+    '☠️ Tu lugar ya te estaba esperando ',
+    '🤬 Este lugar ya no te necesita',
+    '👻 Aquí no hay lugar para ti',
+    '🥳 Celebraste, ahora toca partir',
+    '😈 Te está esperando un negro'
   ]
 
   while (expulsables.length > 0) {
@@ -56,7 +55,7 @@ let handler = async (m, { conn, participants, isBotAdmin, isAdmin }) => {
     }
   }
 
-  await m.reply(`✅ *Purga completada.*\n📦 Todos los miembros no administrativos han sido removidos.\n🧭 *Aura grupal reiniciada.*`)
+  await m.reply(`✅ *Ruleta completada.*\n📦 Todos los miembros no administrativos han sido removidos.\n🧭 *Aura grupal reiniciada.*`)
 }
 
 handler.help = ['ruleta2']
