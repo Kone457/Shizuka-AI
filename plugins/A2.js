@@ -30,7 +30,7 @@ let handler = async (m, { conn, participants, isBotAdmin, isAdmin }) => {
     const frase = frases[Math.floor(Math.random() * frases.length)]
 
     await conn.sendMessage(m.chat, {
-      text: `🎯 *Seleccionado:* @${elegido.split('@')[0]}\n💬 *Mensaje ritualizado:* ${frase}\n⚔️ *Ejecutando expulsión...*`,
+      text: `🎯 *Seleccionado:* @${elegido.split('@')[0]}\n💬 *Mensaje para ti:* ${frase}\n⚔️ *Ejecutando expulsión...*`,
       mentions: [elegido],
       contextInfo: {
         externalAdReply: {
