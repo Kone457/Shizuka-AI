@@ -22,8 +22,8 @@ let handler = async (m, { conn: _envio, command, usedPrefix, args, text, isOwner
     end: '┗━━━━━━━━━━━━━━━━━━━━━━━'
   };
 
-  // Límite máximo de Sub-Bots que se pueden conectar
-  const MAX_BOTS = 20; // Puedes cambiar este valor según lo necesites.
+  
+  const MAX_BOTS = 20;
 
   /**
    * Envía un mensaje de error detallado en caso de fallo.
