@@ -1,23 +1,24 @@
 let handler = async (m, { conn }) => {
   try {
-    const chats = await conn.chats.all(); // Obtiene todos los chats conocidos por el bot
-    const canales = chats.filter(c => c.id.endsWith('@newsletter'));
+    const chats = Object.entries(conn.chats)
+      .map(([id, data]) => ({ id, name: data.name || 'Sin nombre' }))
+      .filter(c => c.id.endsWith('@newsletter'));
 
-    if (canales.length === 0) {
-      return m.reply('⚠️ El bot no está suscrito a ningún canal tipo newsletter.');
+    if (chats.length === 0) {
+      return m.reply('⚠️ El bot no tiene registrado ningún canal tipo newsletter.');
     }
 
-    let lista = canales.map((c, i) => `${i + 1}. ${c.name || 'Sin nombre'}\nID: ${c.id}`).join('\n\n');
-    m.reply(`📢 *Canales disponibles:*\n\n${lista}`);
+    let lista = chats.map((c, i) => `${i + 1}. ${c.name}\nID: ${c.id}`).join('\n\n');
+    m.reply(`📢 *Canales detectados:*\n\n${lista}`);
   } catch (e) {
     console.error(e);
-    m.reply('❌ Error al obtener la lista de canales.');
+    m.reply('❌ Error al acceder a los chats del bot.');
   }
 };
 
-handler.help = ['listcanales'];
+handler.help = ['canales'];
 handler.tags = ['tools'];
-handler.command = ['listcanales'];
+handler.command = ['canales'];
 handler.owner = true;
 
 export default handler;
