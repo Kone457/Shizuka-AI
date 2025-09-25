@@ -22,6 +22,9 @@ let handler = async (m, { conn: _envio, command, usedPrefix, args, text, isOwner
     end: '┗━━━━━━━━━━━━━━━━━━━━━━━'
   };
 
+  // Límite máximo de Sub-Bots que se pueden conectar
+  const MAX_BOTS = 5; // Puedes cambiar este valor según lo necesites.
+
   /**
    * Envía un mensaje de error detallado en caso de fallo.
    * @param {Error} e - El objeto de error.
@@ -169,11 +172,11 @@ ${emojis.robot} *ESTADO DE SUB-BOTS*
     
 *Información del Servidor:*
 - ${emojis.info} *RAM Utilizada:* ${usedMemory} GB / ${totalMemory} GB
-- ${emojis.info} *Sub-Bots Conectados:* ${totalBots}
+- ${emojis.info} *Sub-Bots Conectados:* ${totalBots}/${MAX_BOTS}
 
 ${'-'.repeat(30)}
 
-${emojis.robot} *LISTA DE SUB-BOTS ACTIVOS (${totalBots}):*
+${emojis.robot} *LISTA DE SUB-BOTS ACTIVOS (${totalBots}/${MAX_BOTS}):*
 ${botList || `${emojis.x} No hay Sub-Bots disponibles en este momento. Intente más tarde.`}
 
 ${'-'.repeat(30)}
