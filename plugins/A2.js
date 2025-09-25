@@ -1,5 +1,5 @@
 let handler = async (m, { conn }) => {
-  const canalID = '120363417186717632@newsletter'; // ← ID detectado
+  const canalID = '120363417186717632@newsletter'; 
 
   try {
     await conn.sendMessage(canalID, {
@@ -13,9 +13,9 @@ let handler = async (m, { conn }) => {
   }
 };
 
-handler.help = ['probarcanal'];
+handler.help = ['canal'];
 handler.tags = ['tools'];
-handler.command = ['probarcanal'];
+handler.command = ['canal'];
 handler.owner = true;
 
 export default handler;
