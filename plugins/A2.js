@@ -37,7 +37,7 @@ let handler = async (m, { conn, participants, isBotAdmin, isAdmin }) => {
           title: '💣 Ruleta Total',
           body: 'Purga Completada',
           thumbnailUrl: 'https://qu.ax/irETA.jpg',
-          sourceUrl: 'https://nagi.bot',
+          sourceUrl: 'https://Shizuka.AI',
           mediaType: 1,
           renderLargerThumbnail: false,
           showAdAttribution: false
