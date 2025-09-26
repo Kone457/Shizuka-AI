@@ -33,18 +33,6 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
       chat.welcome = isEnable
       break  
       
-    //-------------
-    case 'subbots':
-  isAll = true
-  if (!isOwner) {
-    global.dfail('rowner', m, conn)
-    throw false
-  }
-  bot.subbotsEnabled = isEnable
-  break
-
-
-    //-------------
     case 'autosticker':
     case 'autosticker2':
       if (!m.isGroup) {
