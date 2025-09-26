@@ -51,7 +51,8 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 ┆🎟️ 12 Tokens
 
 🔮 Usa *#perfil* para ver tu carta astral.
-✨ Que tus datos conecten con emociones.
+✨ Que tus datos conecten con emociones.\n\n
+https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
 `
 
   // Mensaje privado con imagen personalizada
