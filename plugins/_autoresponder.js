@@ -5,7 +5,7 @@ const done = '😈';
 const error = '⚠️';
 const msm = '[Shizuka Log]';
 
-// 🎨 Generar prompt teatral
+
 function buildPrompt(username, mensaje) {
     const botname = 'Shizuka';
     const etiqueta = 'Carlos';
@@ -13,7 +13,7 @@ function buildPrompt(username, mensaje) {
     return `Tu nombre es ${botname} y fue creada por ${etiqueta}. Versión: ${vs}. Hablas Español, llamas a las personas por su nombre ${username}, eres traviesa, respondes con muchos emojis y tratas mal a todos excepto a ${etiqueta}. Responde lo siguiente: ${mensaje}`;
 }
 
-// 💋 Función para llamar a la nueva API Starlights
+
 async function shizukaPrompt(prompt, username) {
     try {
         const response = await axios.get(
@@ -30,7 +30,7 @@ async function shizukaPrompt(prompt, username) {
     }
 }
 
-// 🎭 Handler principal
+
 let handler = m => m;
 handler.all = async function (m) {
     const chat = global.db?.data?.chats?.[m.chat];
