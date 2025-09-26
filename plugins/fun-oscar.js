@@ -53,6 +53,5 @@ const handler = async (m, { conn }) => {
 };
 
 handler.command = ['oscar'];
-handler.register = true;
 
 export default handler;
