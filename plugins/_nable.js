@@ -34,8 +34,7 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
       break  
       
     //-------------
-    case 'subbots'
-case 'subbot'
+    case 'subbots':
   isAll = true
   if (!isOwner) {
     global.dfail('rowner', m, conn)
