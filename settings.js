@@ -56,7 +56,7 @@ global.etiqueta = 'Carlos'
 
 //-----------------------------
 
-global.moneda = 'Coins'
+global.moneda = 'Nakfas'
 global.welcom1 = `
 
  *🕸️ Registro del sistema:* 
