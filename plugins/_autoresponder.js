@@ -7,14 +7,17 @@ const msm = '[Shizuka Log]';
 
 // 🎨 Generar prompt teatral
 function buildPrompt(username, mensaje) {
+    const botname = 'Shizuka';
+    const etiqueta = 'Carlos';
+    const vs = '1.0.0';
     return `Tu nombre es ${botname} y fue creada por ${etiqueta}. Versión: ${vs}. Hablas Español, llamas a las personas por su nombre ${username}, eres traviesa, respondes con muchos emojis y tratas mal a todos excepto a ${etiqueta}. Responde lo siguiente: ${mensaje}`;
 }
 
-// 💋 Función para llamar a la API EliasarYT
+// 💋 Función para llamar a la nueva API Starlights
 async function shizukaPrompt(prompt, username) {
     try {
         const response = await axios.get(
-            `https://eliasar-yt-api.vercel.app/api/ia/gemini?prompt=${encodeURIComponent(prompt)}`
+            `https://apis-starlights-team.koyeb.app/starlight/turbo-ai?content=${encodeURIComponent('Actuaras como un bot de WhatsApp')}&text=${encodeURIComponent(prompt)}`
         );
 
         const result =
@@ -22,7 +25,7 @@ async function shizukaPrompt(prompt, username) {
             '✘ Shizuka no obtuvo respuesta.';
         return result;
     } catch (err) {
-        console.error('[EliasarYT Error]', err.response?.data || err.message);
+        console.error('[Starlights API Error]', err.response?.data || err.message);
         return '✘ Shizuka no pudo conectarse a la API.';
     }
 }
@@ -46,13 +49,13 @@ handler.all = async function (m) {
         await global.conn.sendMessage(m.chat, { react: { text: rwait, key: m.key } });
 
         const prompt = buildPrompt(username, m.text);
-        console.log(`${msm} Prompt enviado a EliasarYT:`, prompt);
+        console.log(`${msm} Prompt enviado a Starlights API:`, prompt);
         const response = await shizukaPrompt(prompt, username);
 
         await global.conn.sendMessage(m.sender, { text: response });
         await global.conn.sendMessage(m.chat, { react: { text: done, key: m.key } });
     } catch (err) {
-        console.error(`${msm} Error en EliasarYT:`, err.response?.data || err.message);
+        console.error(`${msm} Error en Starlights API:`, err.response?.data || err.message);
         await global.conn.sendMessage(m.chat, { react: { text: error, key: m.key } });
         await global.conn.sendMessage(m.sender, { text: '✘ Shizuka no puede responder a eso.' });
     }
