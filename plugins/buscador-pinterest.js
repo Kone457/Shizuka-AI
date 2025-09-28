@@ -48,7 +48,6 @@ const pinterest = async (m, { conn, text, usedPrefix, command }) => {
 
     await m.react('🕒');
 
-    // Cargar miniatura personalizada desde la URL
     const thumbnail = await fetch('https://qu.ax/GoxWU.jpg').then(res => res.buffer());
 
     conn.reply(m.chat, '⌛ *Explorando Pinterest para ti...*', m, {
@@ -67,16 +66,16 @@ const pinterest = async (m, { conn, text, usedPrefix, command }) => {
     });
 
     try {
-        const res = await fetch(`https://api.dorratz.com/v2/pinterest?q=${encodeURIComponent(text)}`);
-        const data = await res.json();
+        const res = await fetch(`https://delirius-apiofc.vercel.app/search/pinterest?text=${encodeURIComponent(text)}`);
+        const json = await res.json();
 
-        if (!Array.isArray(data) || data.length < 2) {
+        if (!json.status || !Array.isArray(json.results) || json.results.length < 2) {
             return conn.reply(m.chat, '📭 *No encontré suficientes resultados visuales para mostrarte un álbum.* Intenta con otra búsqueda más específica.', m);
         }
 
-        const images = data.slice(0, 10).map(img => ({
+        const images = json.results.slice(0, 10).map(url => ({
             type: 'image',
-            data: { url: img.image_large_url }
+            data: { url }
         }));
 
         const caption = `*Resultados de búsqueda para:* "${text}"`;
