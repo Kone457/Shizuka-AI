@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 const SEARCH_API = 'https://delirius-apiofc.vercel.app/search/ytsearch?q=';
-const DOWNLOAD_API = 'https://api-adonix.ultraplus.click/download/ytmp4?apikey=Carlosx200&url=';
+const DOWNLOAD_API = 'https://api.stellarwa.xyz/dow/ytmp4?apikey=Carlos&url=';
 const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
 
 const contextInfo = {
@@ -32,14 +32,15 @@ async function descargarVideo(videoUrl) {
     const res = await fetch(`${DOWNLOAD_API}${encodeURIComponent(videoUrl)}`);
     if (!res.ok) return null;
     const json = await res.json();
-    if (!json.status || !json.data?.url) return null;
+    if (!json.status || !json.data?.dl) return null;
 
     return {
       metadata: {
-        title: json.data.title
+        title: json.data.title,
+        author: json.data.author
       },
       download: {
-        url: json.data.url,
+        url: json.data.dl,
         filename: `${json.data.title}.mp4`
       }
     };
