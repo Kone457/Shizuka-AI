@@ -13,8 +13,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 
 ▄︻デ══━► *𝕲𝖗𝖚𝖕𝖔𝖘 𝕺𝖋𝖎𝖈𝖎𝖆𝖑𝖊𝖘* ◄══━デ︻▄
 > 🕸️ ${namegrupo}
-> https://chat.whatsapp.com/G5PblfIsVaT5ixPp0PAgzm
-
+> https://chat.whatsapp.com/CgQSUIsZe5HFzsrrz2XKpt
 
 ▄︻デ══━► *𝕾𝖔𝖕𝖔𝖗𝖙𝖊 𝕯𝖆𝖗𝖐* ◄══━デ︻▄
 > 🕸️ Soporte 
