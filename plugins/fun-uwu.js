@@ -1,7 +1,7 @@
 const handler = async (m, { conn }) => {
   const texto = (m.text || '').trim().toUpperCase();
 
-  if (texto !== 'A') return;
+  if (texto !== 'uwu') return;
 
   const imageUrl = 'https://qu.ax/iGmLj.jpg';
 
