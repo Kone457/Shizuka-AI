@@ -1,5 +1,5 @@
 const handler = async (m, { conn }) => {
-  const texto = (m.text || '').trim().toUpperCase();
+  const texto = (m.text || '').trim().toLowerCase();
 
   if (texto !== 'uwu') return;
 
@@ -11,7 +11,7 @@ const handler = async (m, { conn }) => {
 };
 
 handler.customPrefix = /^uwu$/i; 
-handler.command = new RegExp(); 
+handler.command = new RegExp();  
 handler.group = false;
 handler.admin = false;
 handler.botAdmin = false;
