@@ -7,7 +7,7 @@ const handler = async (m, { conn }) => {
 
   await conn.sendMessage(m.chat, {
     image: { url: imageUrl },
-    caption: 'Es mío zorra'
+    caption: '> Es mío zorra'
   }, { quoted: m });
 };
 
