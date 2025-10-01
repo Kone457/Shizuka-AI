@@ -9,7 +9,13 @@ const require = createRequire(__dirname)
 
 let handler = async (m, _2) => {
   let { conn, isOwner, usedPrefix, noPrefix, args, groupMetadata } = _2
+
+  // ❌ Bloquea si el mensaje lo envió el propio bot
+  if (m.sender === conn.user.jid) return;
+
+  // ❌ Bloquea si no es el owner
   if (!isOwner) return;
+
   let _return
   let _syntax = ''
   let _text = (/^=/.test(usedPrefix) ? 'return ' : '') + noPrefix
@@ -29,15 +35,16 @@ let handler = async (m, _2) => {
     let err = syntaxerror(_text, 'Execution Function', {
       allowReturnOutsideFunction: true,
       allowAwaitOutsideFunction: true,
-        sourceType: 'module'
+      sourceType: 'module'
     })
     if (err) _syntax = '```' + err + '```\n\n'
     _return = e
   } finally {
-   conn.reply(m.chat, _syntax + format(_return), m)
+    conn.reply(m.chat, _syntax + format(_return), m)
     m.exp = old
   }
 }
+
 handler.help = ['> ', '=> ']
 handler.tags = ['owner']
 handler.customPrefix = /^=?> /
