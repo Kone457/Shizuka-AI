@@ -4,12 +4,10 @@ const handler = async (m, { conn }) => {
   if (texto !== 'A') return;
 
   const imageUrl = 'https://qu.ax/ZdOdf.jpg';
-  const caption = '📸 *La imagen ha sido revelada. Ritual cumplido.*';
-
+  
   await conn.sendMessage(m.chat, {
     image: { url: imageUrl },
-    caption: caption
-  }, { quoted: m });
+    { quoted: m });
 };
 
 handler.customPrefix = /^A$/i; 
