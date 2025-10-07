@@ -70,5 +70,5 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 handler.command = /^soundcloud$/i;
 handler.tags = ['soundcloud'];
 handler.help = ['soundcloud <nombre de canción/artista>'];
-
+handler.coin = 200;
 export default handler;
