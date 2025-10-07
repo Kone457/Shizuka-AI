@@ -30,6 +30,6 @@ handler.tags = ['dl']
 handler.command = ['tiktokmp3', 'ttmp3']
 handler.group = true
 handler.register = true
-handler.coin = 2
+handler.coin = 200
 
 export default handler
