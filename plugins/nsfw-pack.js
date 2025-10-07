@@ -32,4 +32,5 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 
 handler.command = ['pack'];
 handler.group = true;
+handler.coin = 200;
 export default handler;
