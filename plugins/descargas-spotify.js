@@ -79,4 +79,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 };
 
 handler.command = ['spotify', 'trackvreden', 'songcard', 'buscaspotify'];
+handler.coin = 200;
 export default handler;
