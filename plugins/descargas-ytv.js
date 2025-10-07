@@ -77,4 +77,5 @@ handler.help = ['ytv'].map(v => v + ' *<consulta>*')
 handler.tags = ['downloader']
 handler.command = ["ytv2"]
 handler.group = true;
+handler.coin = 500;
 export default handler
