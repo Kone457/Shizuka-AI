@@ -14,7 +14,7 @@ const handler = async (m, { isPrems, conn }) => {
   }
 
   const img = 'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1745557947304.jpeg';
-  const dia = Math.floor(Math.random() * 100);
+  const dia = Math.floor(Math.random() * 1000);
   const tok = Math.floor(Math.random() * 10);
   const ai = Math.floor(Math.random() * 40);
   const expp = Math.floor(Math.random() * 5000);
