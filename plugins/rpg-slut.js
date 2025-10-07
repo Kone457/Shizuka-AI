@@ -17,8 +17,8 @@ let randomUserId = Object.keys(users)[Math.floor(Math.random() * Object.keys(use
 while (randomUserId === senderId) {
 randomUserId = Object.keys(users)[Math.floor(Math.random() * Object.keys(users).length)]}
 let randomUserCoin = users[randomUserId].coin || 0
-let minAmount = 15
-let maxAmount = 50
+let minAmount = 150
+let maxAmount = 500
 let amountTaken = Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount
 let randomOption = Math.floor(Math.random() * 3)
 switch (randomOption) {
