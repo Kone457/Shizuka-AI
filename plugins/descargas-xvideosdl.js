@@ -24,7 +24,7 @@ if (!db.data.chats[m.chat].nsfw && m.isGroup) {
 handler.command = ['xvideosdl'];
 handler.register = true;
 handler.group = false;
-handler.coin = 10;
+handler.coin = 1000;
 
 export default handler;
 
