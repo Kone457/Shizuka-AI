@@ -43,6 +43,6 @@ handler.tags = ['descargas']
 handler.command = ['gitclone']
 handler.group = true
 handler.register = true
-handler.coin = 3
+handler.coin = 200
 
 export default handler
