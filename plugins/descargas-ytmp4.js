@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 const SEARCH_API = 'https://delirius-apiofc.vercel.app/search/ytsearch?q=';
 const DOWNLOAD_API = 'https://api.stellarwa.xyz/dow/ytmp4?apikey=Carlos&url=';
-const MINIATURA_SHIZUKA = 'https://qu.ax/sxscp.jpg';
+const MINIATURA_SHIZUKA = 'https://qu.ax/JxHiM.jpg';
 
 const contextInfo = {
   externalAdReply: {
