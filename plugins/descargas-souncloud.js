@@ -33,7 +33,7 @@ handler.tags = ['descargas'];
 handler.command = ['soundcloud', 'scdl'];
 handler.group = true;
 handler.register = true;
-handler.coin = 2;
+handler.coin = 200;
 handler.limit = true;
 
 export default handler;
