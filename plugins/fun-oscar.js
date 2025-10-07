@@ -11,7 +11,7 @@ const handler = async (m, { conn }) => {
   const objetivo = mencionado || autor;
   const nombre = `@${objetivo.split('@')[0]}`;
 
-  const imageUrl = 'https://qu.ax/GNebj.jpg';
+  const imageUrl = 'https://qu.ax/YZFob.jpg';
   const thumbnailUrl = 'https://qu.ax/RTYxO.jpg';
 
   const contextInfo = {
