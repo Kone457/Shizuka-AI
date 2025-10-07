@@ -93,4 +93,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 };
 
 handler.command = ['fb', 'facebook', 'shizukafb'];
+handler.coin = 200;
 export default handler;
