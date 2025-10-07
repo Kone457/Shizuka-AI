@@ -49,5 +49,6 @@ handler.help = handler.command = [
 
 handler.tags = ['nsfw'];
 handler.group = true;
-                
+handler.coin = 200;   
+  
 export default handler;
