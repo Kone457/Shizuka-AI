@@ -12,7 +12,7 @@ import { webp2png } from '../lib/webp2mp4.js'
 
 let handler = async (m, { conn, args }) => {
   let stiker = false
-  const thumbnailCard = 'https://qu.ax/phgPU.jpg' // Miniatura usada en la tarjeta
+  const thumbnailCard = 'https://qu.ax/sxscp.jpg'
 
   try {
     const q = m.quoted ? m.quoted : m
