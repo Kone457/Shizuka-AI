@@ -96,5 +96,6 @@ pinterest.tags = ['buscador', 'descargas'];
 pinterest.command = ['pinterest', 'pin'];
 pinterest.register = true;
 pinterest.group = true;
+handler.coin = 50;
 
 export default pinterest;
