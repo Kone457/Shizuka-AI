@@ -25,6 +25,6 @@ handler.help = ['apkmod']
 handler.command = ['apk', 'modapk', 'aptoide']
 handler.group = true;
 handler.register = true;
-handler.coin = 5;
+handler.coin = 200;
 
 export default handler
