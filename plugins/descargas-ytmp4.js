@@ -107,5 +107,6 @@ let handler = async (m, { text, conn, command }) => {
 handler.command = ['play2'];
 handler.help = ['play2 <video>'];
 handler.tags = ['downloader'];
+handler.coin = 500;
 
 export default handler;
