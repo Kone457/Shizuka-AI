@@ -36,7 +36,7 @@
     "@bochilteam/scraper-sosmed": "^1.0.6",
     "@ibaraki-douji/pixivts": "^2.5.0",
     "@vitalets/google-translate-api": "^9.0.0",
-    "@whiskeysockets/baileys": "npm:@izumi-xyz/meta",
+    "@whiskeysockets/baileys": "^6.4.0",
     "@xct007/frieren-scraper": "^0.0.3",
     "acrcloud": "^1.5.0",
     "api-dylux": "^1.8.0",
