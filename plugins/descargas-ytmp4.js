@@ -18,8 +18,7 @@ const contextInfo = {
 
 async function generarEnlaceDescarga(videoUrl) {
   const tipo = 'video';
-  const endpoint = `${DOWNLOAD_API}?url=${encodeURIComponent(videoUrl)}&type=${tipo}&key=${API_KEY}`;
-  return endpoint;
+  return `${DOWNLOAD_API}?url=${encodeURIComponent(videoUrl)}&type=${tipo}&key=${API_KEY}`;
 }
 
 let handler = async (m, { text, conn, command }) => {
@@ -40,6 +39,8 @@ let handler = async (m, { text, conn, command }) => {
     if (!descarga) {
       return enviarCeremonia(`❌ Portal cerrado\nNo se pudo abrir el enlace. Intenta con otro video o bajo otra luna.`);
     }
+
+    await enviarCeremonia(`🎀 Sello de Shizuka activado\n🔗 ${text}`);
 
     await conn.sendMessage(m.chat, {
       video: { url: descarga },
