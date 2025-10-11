@@ -87,7 +87,7 @@ let handler = async (m, { text, conn, command }) => {
     }, { quoted: m });
 
   } catch (e) {
-    console.error(e);
+    console.error("⚠️ Error en el flujo ceremonial:", e);
     return enviarCeremonia(`💥 Error ritual\nHubo una interrupción en el flujo ceremonial. Reintenta la invocación con energía renovada.`);
   }
 };
