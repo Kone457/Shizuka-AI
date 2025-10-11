@@ -39,7 +39,8 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       const jsonSearch = await search.json();
       if (!jsonSearch.status || !jsonSearch.data?.length) {
         return conn.sendMessage(m.chat, {
-          text: `❌ No se encontraron resultados para contextInfo
+          text: `❌ No se encontraron resultados para ${input}.`,
+          contextInfo
         }, { quoted: m });
       }
       finalUrl = jsonSearch.data[0].url;
@@ -73,7 +74,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
 handler.command = /^play$/i;
 handler.tags = ['descargas'];
-<nombre o enlace de YouTube>'];
+handler.help = ['play <nombre o enlace de YouTube>'];
 handler.coin = 250;
 
 export default handler;
