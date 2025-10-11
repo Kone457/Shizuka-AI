@@ -1,8 +1,9 @@
 import fetch from 'node-fetch';
 
 const SEARCH_API = 'https://delirius-apiofc.vercel.app/search/ytsearch?q=';
-const DOWNLOAD_API = 'https://api.vreden.my.id/api/v1/download/youtube/video?url=';
+const DOWNLOAD_API = 'https://api-nv.ultraplus.click/api/dl/yt-direct';
 const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
+const API_KEY = 'rmF1oUJI529jzux8';
 
 const contextInfo = {
   externalAdReply: {
@@ -28,14 +29,9 @@ async function buscarVideo(query) {
 }
 
 async function descargarVideo(videoUrl) {
-  try {
-    const res = await fetch(`${DOWNLOAD_API}${encodeURIComponent(videoUrl)}&quality=360`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.result?.download?.status ? json.result : null;
-  } catch {
-    return null;
-  }
+  const tipo = 'video';
+  const endpoint = `${DOWNLOAD_API}?url=${encodeURIComponent(videoUrl)}&type=${tipo}&key=${API_KEY}`;
+  return endpoint; // Devuelve directamente la URL del video
 }
 
 let handler = async (m, { text, conn, command }) => {
@@ -72,18 +68,15 @@ let handler = async (m, { text, conn, command }) => {
     await enviarCeremonia(mensajeCeremonial);
 
     const descarga = await descargarVideo(url);
-    if (!descarga || !descarga.download?.url) {
+    if (!descarga) {
       return enviarCeremonia(`❌ Portal cerrado\nLa conversión de 『${title}』 falló. Intenta nuevamente bajo otra luna.`);
     }
 
-    const meta = descarga.metadata;
-    const dl = descarga.download;
-
     await conn.sendMessage(m.chat, {
-      video: { url: dl.url },
+      video: { url: descarga },
       mimetype: 'video/mp4',
-      fileName: dl.filename || `${meta.title}.mp4`,
-      caption: `🎬 ${meta.title}`,
+      fileName: `${title}.mp4`,
+      caption: `🎬 ${title}`,
       contextInfo
     }, { quoted: m });
 
