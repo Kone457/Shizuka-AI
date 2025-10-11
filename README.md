@@ -41,7 +41,7 @@ Si disfrutas de las funcionalidades y la experiencia que Shizuka ofrece en Whats
 
 ## Despliegue en BoxMineWorld  
 
-[![Logo BoxMineWorld](https://boxmineworld.com/img/Logo.png)](https://boxmineworld.com)
+[![Logo BoxMineWorld](https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Im%C3%A1genes/BoxMine.jpg)](https://boxmineworld.com)
 
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=25&duration=3000&pause=1000&color=FF69B4&center=true&vCenter=true&width=500&lines=¡El+hogar+perfecto+para+tu+bot!;Servidores+potentes+⚡;Soporte+24⁄7+💙;Instalación+automática+🚀" alt="Features BoxMineWorld">
