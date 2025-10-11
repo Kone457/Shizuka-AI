@@ -1,13 +1,13 @@
 import fetch from 'node-fetch';
 
-const SEARCH_API = 'https://delirius-apiofc.vercel.app/search/ytsearch?q=';
-const DOWNLOAD_API = 'https://api.stellarwa.xyz/dow/ytmp4?apikey=Carlos&url=';
-const MINIATURA_SHIZUKA = 'https://qu.ax/JxHiM.jpg';
+const DOWNLOAD_API = 'https://api-nv.ultraplus.click/api/dl/yt-direct';
+const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
+const API_KEY = 'rmF1oUJI529jzux8';
 
 const contextInfo = {
   externalAdReply: {
     title: "Shizuka",
-    body: "Transmisión escénica desde el imperio digital...",
+    body: "Descarga directa desde el imperio digital...",
     mediaType: 1,
     previewType: 0,
     mediaUrl: "https://youtube.com",
@@ -16,37 +16,10 @@ const contextInfo = {
   }
 };
 
-async function buscarVideo(query) {
-  try {
-    const res = await fetch(SEARCH_API + encodeURIComponent(query));
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.status && json.data && json.data.length > 0 ? json.data[0] : null;
-  } catch {
-    return null;
-  }
-}
-
-async function descargarVideo(videoUrl) {
-  try {
-    const res = await fetch(`${DOWNLOAD_API}${encodeURIComponent(videoUrl)}`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    if (!json.status || !json.data?.dl) return null;
-
-    return {
-      metadata: {
-        title: json.data.title,
-        author: json.data.author
-      },
-      download: {
-        url: json.data.dl,
-        filename: `${json.data.title}.mp4`
-      }
-    };
-  } catch {
-    return null;
-  }
+async function generarEnlaceDescarga(videoUrl) {
+  const tipo = 'video';
+  const endpoint = `${DOWNLOAD_API}?url=${encodeURIComponent(videoUrl)}&type=${tipo}&key=${API_KEY}`;
+  return endpoint;
 }
 
 let handler = async (m, { text, conn, command }) => {
@@ -58,43 +31,21 @@ let handler = async (m, { text, conn, command }) => {
     }, { quoted: m });
   };
 
-  if (!text) {
-    return enviarCeremonia(`🔮 Invocación incompleta\nEscribe el nombre del video que deseas conjurar.\nEjemplo: .${command} Ambatukam Termuwani`);
+  if (!text || !text.includes('youtube.com') && !text.includes('youtu.be')) {
+    return enviarCeremonia(`🔗 Enlace faltante\nEnvía un link válido de YouTube para abrir el portal.\nEjemplo: .${command} https://youtu.be/Q1Hta4K6qVM`);
   }
 
   try {
-    const vision = await buscarVideo(text);
-    if (!vision) {
-      return enviarCeremonia(`⚠️ Visión fallida\nNo se encontraron portales abiertos para tu búsqueda.`);
+    const descarga = await generarEnlaceDescarga(text);
+    if (!descarga) {
+      return enviarCeremonia(`❌ Portal cerrado\nNo se pudo abrir el enlace. Intenta con otro video o bajo otra luna.`);
     }
-
-    const { title, url, duration, views, author } = vision;
-    const nombreAutor = author?.name || "Desconocido";
-
-    const mensajeCeremonial = `
-🎀 Sello de Shizuka activado
-
-🎬 『${title}』
-⏱️ ${duration} | 👁️ ${views.toLocaleString()}
-🧑‍🎤 ${nombreAutor}
-🔗 ${url}
-    `.trim();
-
-    await enviarCeremonia(mensajeCeremonial);
-
-    const descarga = await descargarVideo(url);
-    if (!descarga || !descarga.download?.url) {
-      return enviarCeremonia(`❌ Portal cerrado\nLa conversión de 『${title}』 falló. Intenta nuevamente bajo otra luna.`);
-    }
-
-    const meta = descarga.metadata;
-    const dl = descarga.download;
 
     await conn.sendMessage(m.chat, {
-      video: { url: dl.url },
+      video: { url: descarga },
       mimetype: 'video/mp4',
-      fileName: dl.filename || `${meta.title}.mp4`,
-      caption: `🎬 ${meta.title}`,
+      fileName: 'Shizuka-Invocación.mp4',
+      caption: `🎬 Invocación directa desde el imperio digital`,
       contextInfo
     }, { quoted: m });
 
@@ -104,9 +55,9 @@ let handler = async (m, { text, conn, command }) => {
   }
 };
 
-handler.command = ['play3'];
-handler.help = ['play3 <video>'];
+handler.command = ['ytmp4'];
+handler.help = ['ytmp4 <link de YouTube>'];
 handler.tags = ['downloader'];
-handler.coin = 500;
+handler.coin = 300;
 
 export default handler;
