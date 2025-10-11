@@ -53,7 +53,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     );
 
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
-    const buffer = await res.arrayBuffer();
+    const buffer = await res.buffer(); // ← buffer válido para Node.js
 
     await conn.sendMessage(m.chat, {
       audio: { buffer },
