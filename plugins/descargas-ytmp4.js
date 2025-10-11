@@ -56,7 +56,7 @@ let handler = async (m, { text, conn, command }) => {
   }
 };
 
-handler.command = ['ytmp4'];
+handler.command = ['ytmp4', 'mp4'];
 handler.help = ['ytmp4 <link de YouTube>'];
 handler.tags = ['downloader'];
 handler.coin = 300;
