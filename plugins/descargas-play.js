@@ -39,46 +39,25 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       const jsonSearch = await search.json();
       if (!jsonSearch.status || !jsonSearch.data?.length) {
         return conn.sendMessage(m.chat, {
-          text: `❌ No se encontraron resultados para ${input}.`,
-          contextInfo
+          text: `❌ No se encontraron resultados para contextInfo
         }, { quoted: m });
       }
       finalUrl = jsonSearch.data[0].url;
     }
 
-    // 🎶 Descargar audio con la API de Vreden
+    // 🎶 Descargar audio con la nueva API directa
+    const apiKey = 'rmF1oUJI529jzux8';
     const res = await fetch(
-      `https://api.vreden.my.id/api/v1/download/youtube/audio?url=${encodeURIComponent(finalUrl)}&quality=128`
+      `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(finalUrl)}&type=audio&key=${apiKey}`
     );
-    const jsonDl = await res.json();
-    if (!jsonDl.status || !jsonDl.result?.download?.url) {
-      return conn.sendMessage(m.chat, {
-        text: `❌ No se pudo obtener el audio de ${input}.`,
-        contextInfo
-      }, { quoted: m });
-    }
 
-    const { metadata, download } = jsonDl.result;
-
-    const caption = `
-🎬 ${metadata.title}
-👤 Canal: ${metadata.author.name}
-📺 Vistas: ${metadata.views.toLocaleString()}
-⏱️ Duración: ${metadata.timestamp}
-🎵 Calidad: ${download.quality}
-🔗 YouTube: ${metadata.url}
-    `.trim();
+    if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
+    const buffer = await res.arrayBuffer();
 
     await conn.sendMessage(m.chat, {
-      image: { url: metadata.thumbnail },
-      caption,
-      contextInfo
-    }, { quoted: m });
-
-    await conn.sendMessage(m.chat, {
-      audio: { url: download.url },
-      fileName: download.filename,
-      mimetype: "audio/mp4",
+      audio: { buffer },
+      fileName: 'Shizuka-Audio.mp3',
+      mimetype: 'audio/mp4',
       ptt: false,
       contextInfo
     }, { quoted: m });
@@ -94,7 +73,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
 handler.command = /^play$/i;
 handler.tags = ['descargas'];
-handler.help = ['play <nombre o enlace de YouTube>'];
+<nombre o enlace de YouTube>'];
 handler.coin = 250;
 
 export default handler;
