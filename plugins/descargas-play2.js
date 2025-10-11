@@ -86,8 +86,8 @@ let handler = async (m, { text, conn, command }) => {
   }
 };
 
-handler.command = ['play3'];
-handler.help = ['play3 <video>'];
+handler.command = ['play2'];
+handler.help = ['play2 <video>'];
 handler.tags = ['downloader'];
 handler.coin = 500;
 
