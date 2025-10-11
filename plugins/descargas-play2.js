@@ -1,9 +1,9 @@
 import fetch from 'node-fetch';
 
 const SEARCH_API = 'https://delirius-apiofc.vercel.app/search/ytsearch?q=';
-const DOWNLOAD_API = 'https://api-nv.ultraplus.click/api/dl/yt-direct';
+const DOWNLOAD_API = 'https://api.stellarwa.xyz/dow/ytmp4';
 const MINIATURA_SHIZUKA = 'https://qu.ax/phgPU.jpg';
-const API_KEY = 'rmF1oUJI529jzux8';
+const API_KEY = 'stellar-MUdpZwW6';
 
 const contextInfo = {
   externalAdReply: {
@@ -29,9 +29,15 @@ async function buscarVideo(query) {
 }
 
 async function descargarVideo(videoUrl) {
-  const tipo = 'video';
-  const endpoint = `${DOWNLOAD_API}?url=${encodeURIComponent(videoUrl)}&type=${tipo}&key=${API_KEY}`;
-  return endpoint; // Devuelve directamente la URL del video
+  const endpoint = `${DOWNLOAD_API}?url=${encodeURIComponent(videoUrl)}&apikey=${API_KEY}`;
+  try {
+    const res = await fetch(endpoint);
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.status && json.data?.dl ? json.data : null;
+  } catch {
+    return null;
+  }
 }
 
 let handler = async (m, { text, conn, command }) => {
@@ -73,10 +79,10 @@ let handler = async (m, { text, conn, command }) => {
     }
 
     await conn.sendMessage(m.chat, {
-      video: { url: descarga },
+      video: { url: descarga.dl },
       mimetype: 'video/mp4',
-      fileName: `${title}.mp4`,
-      caption: `🎬 ${title}`,
+      fileName: `${descarga.title || title}.mp4`,
+      caption: `🎬 ${descarga.title || title}`,
       contextInfo
     }, { quoted: m });
 
