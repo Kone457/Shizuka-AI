@@ -34,19 +34,19 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
     if (!isUrl) {
       const search = await fetch(
-        `https://delirius-apiofc.vercel.app/search/ytsearch?q=${encodeURIComponent(input)}`
+        `https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(input)}`
       );
       const jsonSearch = await search.json();
-      if (!jsonSearch.status || !jsonSearch.data?.length) {
+      if (!jsonSearch.status || !jsonSearch.result?.length) {
         return conn.sendMessage(m.chat, {
           text: `❌ No se encontraron resultados para ${input}.`,
           contextInfo
         }, { quoted: m });
       }
-      finalUrl = jsonSearch.data[0].url;
+      finalUrl = jsonSearch.result[0].link;
     }
 
-    
+    // Usamos la API de Adonix para obtener el enlace de descarga
     const apiKey = 'AdonixKey66b2xl3900';
     const res = await fetch(
       `https://api-adonix.ultraplus.click/download/ytmp3?apikey=${apiKey}&url=${encodeURIComponent(finalUrl)}`
@@ -56,7 +56,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     const jsonResponse = await res.json();
 
     if (jsonResponse.status !== "true" || !jsonResponse.data?.url) {
-      throw new Error('No se pudo obtener el archivo de audio. Verifique el enlace o intente nuevamente.');
+      throw new Error('No se pudo obtener. Verifique el enlace o intente nuevamente.');
     }
 
     const audioUrl = jsonResponse.data.url;
