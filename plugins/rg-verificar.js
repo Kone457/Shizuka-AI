@@ -106,7 +106,7 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
     }
   }, { quoted: null })
 
-  // Ahora enviar el mensaje al canal
+  // Ahora enviar el mensaje al canal con la imagen del usuario
   const canalMessage = `
 🎉 *Nuevo Registro en Shizuka* 🎉
 
@@ -119,8 +119,21 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
 `
 
   try {
-    await conn.sendMessage(CANAL_ID, { text: canalMessage })
-    console.log("Mensaje enviado al canal correctamente.")
+    await conn.sendMessage(CANAL_ID, {
+      text: canalMessage,
+      contextInfo: {
+        externalAdReply: {
+          title: '📌 NUEVO REGISTRO',
+          body: '💫 Un nuevo usuario se une a Shizuka.',
+          thumbnailUrl: perfilImg, // Enviamos la foto de perfil del usuario
+          sourceUrl: 'https://shizuka.bot/perfil',
+          mediaType: 1,
+          showAdAttribution: false,
+          renderLargerThumbnail: true
+        }
+      }
+    })
+    console.log("Mensaje con imagen enviado al canal correctamente.")
   } catch (e) {
     console.error("Error al enviar el mensaje al canal:", e)
   }
