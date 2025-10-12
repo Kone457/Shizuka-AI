@@ -2,6 +2,7 @@ import { createHash } from 'crypto'
 
 const Reg = /\|?(.*)([.|] *?)([0-9]*)$/i
 const AVISOS_GROUP_JID = '120363402449121688@g.us' // Grupo de avisos
+const CANAL_ID = '120363400241973967@newsletter' // Canal al que se enviará el mensaje
 
 let handler = async function (m, { conn, text, usedPrefix, command }) {
   const user = global.db.data.users[m.sender]
@@ -104,6 +105,25 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
       }
     }
   }, { quoted: null })
+
+  // Ahora enviar el mensaje al canal
+  const canalMessage = `
+🎉 *Nuevo Registro en Shizuka* 🎉
+
+🖋️ *Usuario:* ${m.pushName || 'Anónimo'}
+📖 *Nombre:* ${user.name}
+🎂 *Edad:* ${user.age} años
+📝 *ID de Usuario:* ${sn}
+
+🌸 ¡Bienvenid@ al sistema de Shizuka! 🌸
+`
+
+  try {
+    await conn.sendMessage(CANAL_ID, { text: canalMessage })
+    console.log("Mensaje enviado al canal correctamente.")
+  } catch (e) {
+    console.error("Error al enviar el mensaje al canal:", e)
+  }
 }
 
 handler.help = ['register']
