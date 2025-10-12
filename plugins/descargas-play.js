@@ -46,13 +46,23 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       const first = jsonSearch.result[0];
       finalUrl = first.link;
 
-      await conn.sendMessage(m.chat, {
-        text: `🎶 Resultado encontrado:\n\n📌 *${first.title}*\n🕒 Duración: ${first.duration}\n📺 Canal: ${first.channel}`,
-        contextInfo
-      }, { quoted: m });
+      const caption = `✨ *${first.title}* ✨\n🎤 Canal: ${first.channel}\n⏱️ Duración: ${first.duration}\n🔗 Enlace: ${first.link}`;
+
+      if (first.imageUrl) {
+        await conn.sendMessage(m.chat, {
+          image: { url: first.imageUrl },
+          caption,
+          contextInfo
+        }, { quoted: m });
+      } else {
+        await conn.sendMessage(m.chat, {
+          text: caption,
+          contextInfo
+        }, { quoted: m });
+      }
     }
 
-    // Descarga con Adonix
+    
     const apiKey = 'AdonixKey66b2xl3900';
     const res = await fetch(`https://api-adonix.ultraplus.click/download/ytmp3?apikey=${apiKey}&url=${encodeURIComponent(finalUrl)}`);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
