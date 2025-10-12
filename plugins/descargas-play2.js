@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const thumbnailUrl = 'https://qu.ax/QuwNu.jpg';
+const thumbnailUrl = 'https://qu.ax/Asbfq.jpg';
 
 const contextInfo = {
   externalAdReply: {
@@ -62,7 +62,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-    // Descarga con Neveloopp
+    
     const apiKey = 'rmF1oUJI529jzux8';
     const res = await fetch(`https://api-nv.ultraplus.click/api/youtube/v2?url=${encodeURIComponent(finalUrl)}&format=video&key=${apiKey}`);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
