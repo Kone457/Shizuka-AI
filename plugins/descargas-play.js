@@ -24,39 +24,42 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }
 
   await conn.sendMessage(m.chat, {
-    text: `🔎 Procesando tu petición...\n🎵 Cargando resultados de ${input}`,
+    text: `🔎 Procesando tu petición...\n🎵 Buscando: ${input}`,
     contextInfo
   }, { quoted: m });
 
   try {
     const isUrl = input.includes("youtu");
-    let finalUrl = isUrl ? input : null;
+    let finalUrl = input;
 
     if (!isUrl) {
-      const search = await fetch(
-        `https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(input)}`
-      );
+      const search = await fetch(`https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(input)}`);
       const jsonSearch = await search.json();
+
       if (!jsonSearch.status || !jsonSearch.result?.length) {
         return conn.sendMessage(m.chat, {
-          text: `❌ No se encontraron resultados para ${input}.`,
+          text: `❌ No se encontraron resultados para: ${input}`,
           contextInfo
         }, { quoted: m });
       }
-      finalUrl = jsonSearch.result[0].link;
+
+      const first = jsonSearch.result[0];
+      finalUrl = first.link;
+
+      await conn.sendMessage(m.chat, {
+        text: `🎶 Resultado encontrado:\n\n📌 *${first.title}*\n🕒 Duración: ${first.duration}\n📺 Canal: ${first.channel}`,
+        contextInfo
+      }, { quoted: m });
     }
 
-    // Usamos la API de Adonix para obtener el enlace de descarga
+    // Descarga con Adonix
     const apiKey = 'AdonixKey66b2xl3900';
-    const res = await fetch(
-      `https://api-adonix.ultraplus.click/download/ytmp3?apikey=${apiKey}&url=${encodeURIComponent(finalUrl)}`
-    );
-
+    const res = await fetch(`https://api-adonix.ultraplus.click/download/ytmp3?apikey=${apiKey}&url=${encodeURIComponent(finalUrl)}`);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
-    const jsonResponse = await res.json();
 
+    const jsonResponse = await res.json();
     if (jsonResponse.status !== "true" || !jsonResponse.data?.url) {
-      throw new Error('No se pudo obtener. Verifique el enlace o intente nuevamente.');
+      throw new Error('No se pudo obtener el archivo de audio. Verifique el enlace o intente nuevamente.');
     }
 
     const audioUrl = jsonResponse.data.url;
