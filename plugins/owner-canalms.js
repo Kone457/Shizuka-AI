@@ -1,16 +1,24 @@
 let handler = async (m, { conn, text, command, usedPrefix }) => {
-  // 🆔 ID FIJO del canal de WhatsApp (asegúrate que sea correcto)
   const canalID = '120363400241973967@newsletter'; // ← Reemplaza con el ID real de tu canal
 
+  // Si se responde a un mensaje (foto, audio, etc.)
+  if (m.quoted) {
+    try {
+      await conn.forwardMessage(canalID, m.quoted.fakeObj || m.quoted, false);
+      return m.reply(`✅ *Mensaje reenviado correctamente al canal.*`);
+    } catch (e) {
+      console.error(e);
+      return m.reply(`⚠️ *Error al reenviar el mensaje al canal.*\nVerifica que el ID del canal sea correcto y que el bot tenga permisos para reenviar mensajes.`);
+    }
+  }
+
+  // Si se envía texto directamente
   if (!text) {
-    return m.reply(`❌ *Uso incorrecto:*\nEjemplo:\n${usedPrefix + command} Hola a todos 🎉`);
+    return m.reply(`❌ *Uso incorrecto:*\nPuedes responder a un mensaje multimedia o enviar texto directamente.\nEjemplo:\n${usedPrefix + command} Hola a todos 🎉`);
   }
 
   try {
-    await conn.sendMessage(canalID, {
-      text: text
-    });
-
+    await conn.sendMessage(canalID, { text });
     m.reply(`✅ *Mensaje enviado correctamente al canal.*`);
   } catch (e) {
     console.error(e);
@@ -20,7 +28,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
 
 handler.help = ['canalmsg <mensaje>'];
 handler.tags = ['tools'];
-handler.command = ['canalmsg', 'sendcanal']; 
-handler.owner = true; // Solo el owner puede usarlo
+handler.command = ['canalmsg', 'sendcanal'];
+handler.owner = true;
 
 export default handler;
