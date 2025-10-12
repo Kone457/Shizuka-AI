@@ -55,13 +55,12 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
     const jsonResponse = await res.json();
 
-    if (!jsonResponse.status) {
-      throw new Error('No se pudo obtener el archivo de audio.');
+    // Validamos que la respuesta tenga el formato esperado
+    if (!jsonResponse.status || !jsonResponse.result || !jsonResponse.result.dl) {
+      throw new Error('No se pudo obtener el archivo de audio. Verifique el enlace o intente nuevamente.');
     }
 
     const audioUrl = jsonResponse.result.dl;
-
-    // Descargar el audio
     const audioRes = await fetch(audioUrl);
     if (!audioRes.ok) throw new Error(`Código HTTP ${audioRes.status}`);
     const buffer = await audioRes.buffer();
