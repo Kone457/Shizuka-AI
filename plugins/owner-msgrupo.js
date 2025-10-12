@@ -15,14 +15,8 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
     return m.reply(`❌ *Falta el mensaje:*\nPuedes responder a un mensaje multimedia o escribir uno directamente.\nEjemplo:\n${usedPrefix + command} ¡Hola a todos! Espero que estén bien 😊`);
   }
 
-  const mensajeDecorado = `┌───〔 Mensaje de Shizuka-AI 〕───┐
-│
-│ ${text}
-│
-└─────────────────────────────┘`;
-
   try {
-    await conn.sendMessage(grupoID, { text: mensajeDecorado });
+    await conn.sendMessage(grupoID, { text });
     m.reply(`✅ Tu mensaje ha sido enviado al grupo con éxito.`);
   } catch (e) {
     console.error(e);
