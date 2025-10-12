@@ -46,28 +46,27 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       finalUrl = jsonSearch.data[0].url;
     }
 
-    // Usamos la nueva API para obtener el enlace de descarga
-    const apiKey = 'rmF1oUJI529jzux8';
+    
+    const apiKey = 'AdonixKey66b2xl3900';
     const res = await fetch(
-      `https://api-nv.ultraplus.click/api/youtube/v2?url=${encodeURIComponent(finalUrl)}&format=audio&key=${apiKey}`
+      `https://api-adonix.ultraplus.click/download/ytmp3?apikey=${apiKey}&url=${encodeURIComponent(finalUrl)}`
     );
 
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
     const jsonResponse = await res.json();
 
-    // Validamos que la respuesta tenga el formato esperado
-    if (!jsonResponse.status || !jsonResponse.result || !jsonResponse.result.dl) {
+    if (jsonResponse.status !== "true" || !jsonResponse.data?.url) {
       throw new Error('No se pudo obtener el archivo de audio. Verifique el enlace o intente nuevamente.');
     }
 
-    const audioUrl = jsonResponse.result.dl;
+    const audioUrl = jsonResponse.data.url;
     const audioRes = await fetch(audioUrl);
     if (!audioRes.ok) throw new Error(`Código HTTP ${audioRes.status}`);
     const buffer = await audioRes.buffer();
 
     await conn.sendMessage(m.chat, {
       audio: { buffer },
-      fileName: jsonResponse.result.title || 'audio.mp3',
+      fileName: jsonResponse.data.title || 'audio.mp3',
       mimetype: 'audio/mp4',
       ptt: false,
       contextInfo
