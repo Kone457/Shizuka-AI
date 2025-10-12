@@ -46,18 +46,29 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       finalUrl = jsonSearch.data[0].url;
     }
 
-    // 🎶 Descargar audio con la nueva API directa
+    // Usamos la nueva API para obtener el enlace de descarga
     const apiKey = 'rmF1oUJI529jzux8';
     const res = await fetch(
-      `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(finalUrl)}&type=audio&key=${apiKey}`
+      `https://api-nv.ultraplus.click/api/youtube/v2?url=${encodeURIComponent(finalUrl)}&format=audio&key=${apiKey}`
     );
 
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
-    const buffer = await res.buffer(); // ← buffer válido para Node.js
+    const jsonResponse = await res.json();
+
+    if (!jsonResponse.status) {
+      throw new Error('No se pudo obtener el archivo de audio.');
+    }
+
+    const audioUrl = jsonResponse.result.dl;
+
+    // Descargar el audio
+    const audioRes = await fetch(audioUrl);
+    if (!audioRes.ok) throw new Error(`Código HTTP ${audioRes.status}`);
+    const buffer = await audioRes.buffer();
 
     await conn.sendMessage(m.chat, {
       audio: { buffer },
-      fileName: 'Shizuka-Audio.mp3',
+      fileName: jsonResponse.result.title || 'audio.mp3',
       mimetype: 'audio/mp4',
       ptt: false,
       contextInfo
