@@ -142,5 +142,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = ['playvideo', 'play2'];
+handler.command = ['playvideo'];
 export default handler;
