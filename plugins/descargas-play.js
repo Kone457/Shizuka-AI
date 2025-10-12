@@ -68,9 +68,9 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     const buffer = await audioRes.buffer();
 
     await conn.sendMessage(m.chat, {
-      audio: { buffer },
+      audio: buffer,
+      mimetype: 'audio/mpeg',
       fileName: jsonResponse.data.title || 'audio.mp3',
-      mimetype: 'audio/mp4',
       ptt: false,
       contextInfo
     }, { quoted: m });
