@@ -1,6 +1,6 @@
 let handler = async (m, { conn, text, command, usedPrefix }) => {
   // 🆔 ID FIJO del canal de WhatsApp (asegúrate que sea correcto)
-  const canalID = '120363419009027760@newsletter'; // ← Reemplaza con el ID real de tu canal
+  const canalID = '120363400241973967@newsletter'; // ← Reemplaza con el ID real de tu canal
 
   if (!text) {
     return m.reply(`❌ *Uso incorrecto:*\nEjemplo:\n${usedPrefix + command} Hola a todos 🎉`);
