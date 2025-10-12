@@ -56,7 +56,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
 https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
 `
 
-  // Mensaje privado con imagen personalizada
+  // Mensaje privado
   await conn.sendMessage(m.chat, {
     text: regbot,
     contextInfo: {
@@ -74,7 +74,7 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
 
   await m.react('📪')
 
-  // Mensaje al grupo de avisos usando la foto de perfil del usuario
+  // Mensaje al grupo de avisos
   const channelMessage = `
 ╭━🌟 𝓢𝓱𝓲𝔃𝓾𝓴𝓪 𝓝𝓸𝓽𝓲𝓯𝓲𝓬𝓪𝓬𝓲𝓸𝓷  ━╮
 ┃ 🆕 *¡Nueva alma conectada al sistema...!*
@@ -106,7 +106,7 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
     }
   }, { quoted: null })
 
-  // Ahora enviar el mensaje al canal con la imagen del usuario
+  // Mensaje al canal
   const canalMessage = `
 🎉 *Nuevo Registro en Shizuka* 🎉
 
@@ -125,7 +125,7 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
         externalAdReply: {
           title: '📌 NUEVO REGISTRO',
           body: '💫 Un nuevo usuario se une a Shizuka.',
-          thumbnailUrl: perfilImg, // Enviamos la foto de perfil del usuario
+          thumbnailUrl: perfilImg, 
           sourceUrl: 'https://shizuka.bot/perfil',
           mediaType: 1,
           showAdAttribution: false,
