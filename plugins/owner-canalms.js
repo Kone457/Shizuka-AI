@@ -1,10 +1,10 @@
 let handler = async (m, { conn, text, command, usedPrefix }) => {
   const canalID = '120363400241973967@newsletter'; // ← Reemplaza con el ID real de tu canal
 
-  // Si se responde a un mensaje (foto, audio, etc.)
+  // 🌀 Si se responde a un mensaje (texto, imagen, audio, etc.)
   if (m.quoted) {
     try {
-      await conn.forwardMessage(canalID, m.quoted.fakeObj || m.quoted, false);
+      await conn.copyNForward(canalID, m.quoted.fakeObj || m.quoted, true);
       return m.reply(`✅ *Mensaje reenviado correctamente al canal.*`);
     } catch (e) {
       console.error(e);
@@ -12,7 +12,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
     }
   }
 
-  // Si se envía texto directamente
+  // 📝 Si se envía texto directamente
   if (!text) {
     return m.reply(`❌ *Uso incorrecto:*\nPuedes responder a un mensaje multimedia o enviar texto directamente.\nEjemplo:\n${usedPrefix + command} Hola a todos 🎉`);
   }
