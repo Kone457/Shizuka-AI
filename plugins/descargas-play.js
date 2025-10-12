@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const thumbnailUrl = 'https://qu.ax/QuwNu.jpg'; // Miniatura oficial
+const thumbnailUrl = 'https://qu.ax/Asbfq.jpg'; // Miniatura oficial
 
 const contextInfo = {
   externalAdReply: {
