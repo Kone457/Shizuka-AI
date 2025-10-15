@@ -7,7 +7,7 @@ const handler = async (m, { conn, usedPrefix }) => {
   // --- Configuración ---
   const botname = 'Shizuka-AI';
   const textbot = 'Asistente virtual de WhatsApp';
-  const banner = 'https://qu.ax/AbouB.jpg';
+  const banner = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/v2.jpg';
   const redes = 'https://chat.whatsapp.com/G5v3lHn3w0x04kP2b39q31';
 
   const categoryMap = {
