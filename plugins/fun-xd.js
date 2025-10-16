@@ -10,7 +10,7 @@ const handler = async (m, { conn }) => {
   }, { quoted: m });
 };
 
-handler.customPrefix = /^uwu$/i; 
+handler.customPrefix = /^xd$/i; 
 handler.command = new RegExp();  
 handler.group = false;
 handler.admin = false;
