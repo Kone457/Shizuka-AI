@@ -16,6 +16,6 @@ handler.group = false;
 handler.admin = false;
 handler.botAdmin = false;
 handler.tags = ['imagen'];
-handler.help = ['uwu'];
+handler.help = ['xd'];
 
 export default handler;
