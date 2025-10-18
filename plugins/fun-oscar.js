@@ -53,5 +53,6 @@ const handler = async (m, { conn }) => {
 };
 
 handler.command = ['oscar'];
+handler.premium = true
 
 export default handler;
