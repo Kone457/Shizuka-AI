@@ -1,146 +1,66 @@
 import fetch from 'node-fetch';
 
-// 🔍 Búsqueda con múltiples APIs en cascada
-const getVideoResult = async (query) => {
-  // EliasarYT
-  try {
-    const res = await fetch(`https://eliasar-yt-api.vercel.app/api/search/youtube?query=${encodeURIComponent(query)}`);
-    const json = await res.json();
-    const list = json?.results?.resultado;
-    if (list?.length) return list[0];
-  } catch (err) {
-    console.warn('⚠️ EliasarYT falló:', err.message);
-  }
+const thumbnailUrl = 'https://qu.ax/Asbfq.jpg'; // Miniatura oficial
 
-  // Dorratz
-  try {
-    const res = await fetch(`https://api.dorratz.com/v3/yt-search?query=${encodeURIComponent(query)}`);
-    const json = await res.json();
-    const list = json?.data || json?.result?.all;
-    if (list?.length) return list[0];
-  } catch (err) {
-    console.warn('⚠️ Dorratz falló:', err.message);
+const contextInfo = {
+  externalAdReply: {
+    title: "🎬 YouTube Video",
+    body: "Transmisión visual desde el universo musical...",
+    mediaType: 1,
+    previewType: 0,
+    mediaUrl: "https://youtube.com",
+    sourceUrl: "https://youtube.com",
+    thumbnailUrl
   }
-
-  // Starlight Team
-  try {
-    const res = await fetch(`https://apis-starlights-team.koyeb.app/starlight/youtube-search?text=${encodeURIComponent(query)}`);
-    const json = await res.json();
-    const list = json?.results;
-    if (list?.length) return list[0];
-  } catch (err) {
-    console.warn('⚠️ Starlight API falló:', err.message);
-  }
-
-  // Delirius
-  try {
-    const res = await fetch(`https://delirius-apiofc.vercel.app/search/ytsearch?q=${encodeURIComponent(query)}`);
-    const json = await res.json();
-    const list = json?.data;
-    if (list?.length) return list[0];
-  } catch (err) {
-    console.warn('⚠️ Delirius API falló:', err.message);
-  }
-
-  // Sylphy
-  try {
-    const res = await fetch(`https://api.sylphy.xyz/search/youtube?q=${encodeURIComponent(query)}`);
-    const json = await res.json();
-    const list = json?.res;
-    if (list?.length) return list[0];
-  } catch (err) {
-    console.warn('⚠️ Sylphy API falló:', err.message);
-  }
-
-  return null;
 };
 
-// 🔧 Comando principal
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-  const thumbnailCard = 'https://qu.ax/phgPU.jpg';
-
-  if (!text) {
-    await conn.sendMessage(m.chat, {
-      text: `🔎 *Escribe el nombre de un video para buscar en YouTube.*\nEjemplo:\n${usedPrefix + command} Empire funk`,
-      footer: '📺 Búsqueda con múltiples APIs',
-      contextInfo: {
-        externalAdReply: {
-          title: 'YouTube MP4 Downloader',
-          body: 'Busca y descarga videos fácilmente',
-          thumbnailUrl: thumbnailCard,
-          sourceUrl: 'https://api.vreden.my.id'
-        }
-      }
+const handler = async (m, { conn, args, command, usedPrefix }) => {
+  const input = args.join(" ").trim();
+  if (!input) {
+    return conn.sendMessage(m.chat, {
+      text: `📺 ¿Qué video deseas recibir desde YouTube?\n\n📌 Uso: ${usedPrefix + command} <nombre o enlace>`,
+      contextInfo
     }, { quoted: m });
-    return;
   }
 
   await conn.sendMessage(m.chat, {
-    text: '⏳ *Buscando tu video...*\n🔍 Probando múltiples fuentes hasta encontrar el mejor resultado.',
-    footer: '🧩 Preparando tu contenido con estilo',
-    contextInfo: {
-      externalAdReply: {
-        title: 'Buscando en YouTube...',
-        body: 'Esto tomará solo unos segundos',
-        thumbnailUrl: thumbnailCard,
-        sourceUrl: 'https://api.vreden.my.id'
-      }
-    }
+    text: `🔍 Invocando el ritual visual...\n🎥 Buscando: ${input}`,
+    contextInfo
   }, { quoted: m });
 
-  const selected = await getVideoResult(text);
-  if (!selected) {
-    return m.reply(`❌ No se encontró ningún video para: ${text}\n📛 Intenta con otro término.`);
-  }
-
   try {
-    // 🎥 Descarga vía Vreden
-    const downloadRes = await fetch(`https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(selected.url)}`);
-    const downloadJson = await downloadRes.json();
-    const result = downloadJson?.result;
-    const meta = result?.metadata;
-    const dl = result?.download;
+    const res = await fetch(`https://api.vreden.my.id/api/v1/download/play/video?query=${encodeURIComponent(input)}`);
+    if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
 
-    if (!result?.status || !dl?.url) {
-      return m.reply(`⚠️ No se pudo obtener el enlace de descarga para: ${selected.title}`);
+    const json = await res.json();
+    const result = json.result;
+
+    if (!json.status || !result?.download?.url) {
+      throw new Error('No se pudo obtener el archivo de video. Verifica el nombre o intenta nuevamente.');
     }
 
-    const caption = `
-🎬 *${meta.title}*
-🎙️ Autor: ${meta.author.name}
-📅 Publicado: ${meta.ago}
-⏱️ Duración: ${meta.timestamp}
-👁️ Vistas: ${meta.views.toLocaleString()}
-📝 ${meta.description.slice(0, 160)}...
-📥 Calidad: ${dl.quality}
-📄 Archivo: ${dl.filename}
-`;
+    const caption = `✨ *${result.metadata.title}* ✨\n🎤 Autor: ${result.metadata.author.name}\n⏱️ Duración: ${result.metadata.timestamp}\n📅 Publicado: ${result.metadata.ago}\n👁️ Vistas: ${result.metadata.views.toLocaleString()}\n🔗 Enlace: ${result.metadata.url}`;
 
     await conn.sendMessage(m.chat, {
-      image: { url: meta.image || meta.thumbnail || thumbnailCard },
+      video: { url: result.download.url },
       caption,
-      footer: '🎥 Video obtenido vía Vreden API',
-      contextInfo: {
-        externalAdReply: {
-          title: meta.title,
-          body: 'Click para ver o descargar',
-          thumbnailUrl: meta.thumbnail || thumbnailCard,
-          sourceUrl: selected.url
-        }
-      }
-    }, { quoted: m });
-
-    await conn.sendMessage(m.chat, {
-      video: { url: dl.url },
       mimetype: 'video/mp4',
-      fileName: dl.filename || 'video.mp4'
+      fileName: result.download.filename || 'video.mp4',
+      contextInfo
     }, { quoted: m });
 
-  } catch (error) {
-    console.error('💥 Error en YouTube plugin:', error);
-    m.reply(`❌ Ocurrió un error al procesar tu solicitud.\n📛 ${error.message}`);
+  } catch (e) {
+    console.error("⚠️ Error en YouTube Video Downloader:", e);
+    await conn.sendMessage(m.chat, {
+      text: `🎭 El telón no se levantó...\n\n🛠️ ${e.message}`,
+      contextInfo
+    }, { quoted: m });
   }
 };
 
-handler.command = ['playvideo'];
+handler.command = /^playvideo$/i;
+handler.tags = ['descargas'];
+handler.help = ['playvideo <nombre o enlace de YouTube>'];
+handler.coin = 350;
+
 export default handler;
