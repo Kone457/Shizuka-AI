@@ -66,7 +66,7 @@ let handler = async (m, { text, conn, command }) => {
   }
 };
 
-handler.command = ['mediafire', 'mf', 'descargamf'];
+handler.command = ['mediafire2', 'mf2', 'descargamf2'];
 handler.help = ['mediafire <link>'];
 handler.tags = ['downloader'];
 
