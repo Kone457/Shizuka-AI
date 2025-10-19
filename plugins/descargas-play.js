@@ -62,17 +62,17 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-    
-    const apiKey = 'AdonixKey66b2xl3900';
-    const res = await fetch(`https://api-adonix.ultraplus.click/download/ytmp3?apikey=${apiKey}&url=${encodeURIComponent(finalUrl)}`);
+    const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/audio?url=${encodeURIComponent(finalUrl)}&quality=128`);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
 
     const jsonResponse = await res.json();
-    if (jsonResponse.status !== "true" || !jsonResponse.data?.url) {
+    const result = jsonResponse.result;
+
+    if (!jsonResponse.status || !result?.download?.url) {
       throw new Error('No se pudo obtener el archivo de audio. Verifique el enlace o intente nuevamente.');
     }
 
-    const audioUrl = jsonResponse.data.url;
+    const audioUrl = result.download.url;
     const audioRes = await fetch(audioUrl);
     if (!audioRes.ok) throw new Error(`Código HTTP ${audioRes.status}`);
     const buffer = await audioRes.buffer();
@@ -80,7 +80,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     await conn.sendMessage(m.chat, {
       audio: buffer,
       mimetype: 'audio/mpeg',
-      fileName: jsonResponse.data.title || 'audio.mp3',
+      fileName: result.download.filename || 'audio.mp3',
       ptt: false,
       contextInfo
     }, { quoted: m });
