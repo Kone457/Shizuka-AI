@@ -1,4 +1,3 @@
-
 import fetch from 'node-fetch';
 
 const MEDIAFIRE_API = 'https://api-nv.ultraplus.click/api/download/mediafire?key=rmF1oUJI529jzux8&url=';
@@ -14,7 +13,7 @@ async function fetchMediafire(url) {
 
     return {
       title: result.title,
-      fileName: result.fileName,
+      fileName: result.fileName.replace(/[^a-zA-Z0-9.\-_ ]/g, ''), // limpieza básica
       fileType: result.fileType,
       size: result.size,
       uploaded: result.uploaded,
