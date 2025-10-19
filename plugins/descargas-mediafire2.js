@@ -1,3 +1,4 @@
+
 import fetch from 'node-fetch';
 
 const MEDIAFIRE_API = 'https://api-nv.ultraplus.click/api/download/mediafire?key=rmF1oUJI529jzux8&url=';
@@ -56,6 +57,15 @@ let handler = async (m, { text, conn, command }) => {
 `.trim();
 
     await conn.sendMessage(m.chat, { text: msgInfo }, { quoted: m });
+
+    await conn.sendMessage(m.chat, { react: { text: '📥', key: m.key } });
+
+    await conn.sendMessage(m.chat, {
+      document: { url: file.dl_url },
+      mimetype: 'application/octet-stream',
+      fileName: file.fileName,
+      caption: `📁 ${file.title}`
+    }, { quoted: m });
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
