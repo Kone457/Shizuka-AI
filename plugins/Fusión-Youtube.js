@@ -29,7 +29,40 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }, { quoted: m });
 
   try {
-    const res = await fetch(`https://api.vreden.my.id/api/v1/download/play/video?query=${encodeURIComponent(input)}`);
+    const isUrl = input.includes("youtu");
+    let finalQuery = input;
+
+    if (!isUrl) {
+      const search = await fetch(`https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(input)}`);
+      const jsonSearch = await search.json();
+
+      if (!jsonSearch.status || !jsonSearch.result?.length) {
+        return conn.sendMessage(m.chat, {
+          text: `❌ No se encontraron resultados para: ${input}`,
+          contextInfo
+        }, { quoted: m });
+      }
+
+      const first = jsonSearch.result[0];
+      finalQuery = first.title;
+
+      const caption = `✨ *${first.title}* ✨\n🎤 Canal: ${first.channel}\n⏱️ Duración: ${first.duration}\n🔗 Enlace: ${first.link}`;
+
+      if (first.imageUrl) {
+        await conn.sendMessage(m.chat, {
+          image: { url: first.imageUrl },
+          caption,
+          contextInfo
+        }, { quoted: m });
+      } else {
+        await conn.sendMessage(m.chat, {
+          text: caption,
+          contextInfo
+        }, { quoted: m });
+      }
+    }
+
+    const res = await fetch(`https://api.vreden.my.id/api/v1/download/play/video?query=${encodeURIComponent(finalQuery)}`);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
 
     const json = await res.json();
