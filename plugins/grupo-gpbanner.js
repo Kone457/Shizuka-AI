@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+/* import sharp from 'sharp';
 
 let handler = async (m, { conn }) => {
   const q = m.quoted ? m.quoted : m;
@@ -30,4 +30,4 @@ handler.group = true;
 handler.admin = true;
 handler.botAdmin = true;
 
-export default handler;
+export default handler; */
