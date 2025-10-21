@@ -36,11 +36,11 @@ const handler = async (m, { conn, usedPrefix }) => {
 
   // --- Fecha, hora y saludo ---
   const date = new Date();
-  const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Mexico_City' };
+  const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Havana' };
   const fecha = date.toLocaleDateString('es-ES', options);
-  const hora = date.toLocaleTimeString('es-ES', { timeZone: 'America/Mexico_City' });
+  const hora = date.toLocaleTimeString('es-ES', { timeZone: 'America/Havana' });
 
-  const hour = date.getHours();
+  const hour = new Date().toLocaleString('en-US', { hour: 'numeric', hour12: false, timeZone: 'America/Havana' });
   let saludo = hour >= 5 && hour < 12 ? 'Buenos días' : hour >= 12 && hour < 19 ? 'Buenas tardes' : 'Buenas noches';
 
   const _uptime = process.uptime() * 1000;
@@ -91,20 +91,12 @@ const handler = async (m, { conn, usedPrefix }) => {
   }
   menu += '> Creado por Carlos';
 
-  // --- Botones ---
-  let buttons = [
-    { buttonId: `${usedPrefix}code`, buttonText: { displayText: "💻 Code" }, type: 1 },
-    { buttonId: `${usedPrefix}owner`, buttonText: { displayText: "👑 Creador" }, type: 1 },
-    { buttonId: `${usedPrefix}grupos`, buttonText: { displayText: "👥 Grupo Oficial" }, type: 1 }
-  ];
-
-  // --- Enviar mensaje con botones ---
+  // --- Enviar mensaje sin botones ---
   await conn.sendMessage(
     m.chat,
     {
       image: { url: banner },
       caption: menu,
-      buttons: buttons,
       footer: "Shizuka-AI • Asistente de WhatsApp",
       viewOnce: false,
       mentions: [m.sender]
