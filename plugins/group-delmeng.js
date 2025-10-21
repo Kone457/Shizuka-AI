@@ -45,9 +45,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
   }
 };
 
-handler.help = ['delete *@user*'];
+handler.help = ['delms *@user*'];
 handler.tags = ['group'];
-handler.command = /^del(ete)?$/i;
+handler.command = /^del(ms)?$/i;
 handler.group = true; 
 handler.admin = true; 
 handler.botAdmin = true; 
