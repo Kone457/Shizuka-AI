@@ -94,9 +94,9 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   }
 };
 
-handler.command = /^play2$/i;
+handler.command = /^play3$/i;
 handler.tags = ['descargas'];
-handler.help = ['play2 <nombre o enlace de YouTube>'];
+handler.help = ['play3 <nombre o enlace de YouTube>'];
 handler.coin = 300;
 
 export default handler;
