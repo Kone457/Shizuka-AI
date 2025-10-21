@@ -1,5 +1,5 @@
 let handler = async (m, { conn, command }) => {
-if (!m.quoted) return m.reply(`⚠️ Responde a un mensaje para ${command === 'pin' ? 'fijarlo' : 'desfijarlo'}.`);
+if (!m.quoted) return m.reply(`⚠️ Responde a un mensaje para ${command === 'fijar' ? 'fijarlo' : 'desfijarlo'}.`);
 try {
 let messageKey = {remoteJid: m.chat,
 fromMe: m.quoted.fromMe,
@@ -7,7 +7,7 @@ id: m.quoted.id,
 participant: m.quoted.sender
 };
 
-if (command === 'pin') {
+if (command === 'fijar') {
 await conn.sendMessage(m.chat, { pin: messageKey,type: 1, time: 604800 })
 //conn.sendMessage(m.chat, {pin: {type: 1, time: 604800, key: messageKey }});
 m.react("✅️")
