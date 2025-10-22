@@ -3,7 +3,7 @@ const handler = async (m, { conn }) => {
 
   if (texto !== 'A') return;
 
-  const imageUrl = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Ruta-(1)/A.png';
+  const imageUrl = ['https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Ruta-(1)/A.png','https://qu.ax/fYNwJ.png'];
 
   await conn.sendMessage(m.chat, {
     image: { url: imageUrl }
