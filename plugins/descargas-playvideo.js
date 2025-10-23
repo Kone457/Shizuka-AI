@@ -63,7 +63,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     }
 
     const apiKey = 'rmF1oUJI529jzux8';
-    const res = await fetch(`https://api-nv.ultraplus.click/api/youtube/v4?url=${encodeURIComponent(finalUrl)}&key=${apiKey}`);
+    const res = await fetch(`https://.click/api/youtube/v4?url=${encodeURIComponent(finalUrl)}&key=${apiKey}`);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
 
     const json = await res.json();
@@ -71,8 +71,8 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       throw new Error('No se pudo obtener el archivo de video.');
     }
 
-    const format360 = json.result.formats.find(f => f.type === 'video' && f.quality === '360p');
-    if (!format360?.url) throw new Error('No se encontró formato 360p.');
+    const format360 = json.result.formats.find(f => f.type === 'video' && f.quality === '360p' && f.url);
+    if (!format360) throw new Error('No se encontró formato 360p válido.');
 
     await conn.sendMessage(m.chat, {
       video: { url: format360.url },
