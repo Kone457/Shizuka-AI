@@ -62,18 +62,19 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-    
     const apiKey = 'rmF1oUJI529jzux8';
-    const res = await fetch(`https://api-nv.ultraplus.click/api/youtube/v2?url=${encodeURIComponent(finalUrl)}&format=video&key=${apiKey}`);
+    const res = await fetch(`https://api-nv.ultraplus.click/api/youtube/v4?url=${encodeURIComponent(finalUrl)}&key=${apiKey}`);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
 
     const jsonResponse = await res.json();
-    if (!jsonResponse.status || !jsonResponse.result?.dl) {
+    if (!jsonResponse.status || !jsonResponse.result?.formats?.length) {
       throw new Error('No se pudo obtener el archivo de video. Verifique el enlace o intente nuevamente.');
     }
 
-    const videoUrl = jsonResponse.result.dl;
-    const videoRes = await fetch(videoUrl);
+    const videoFormat = jsonResponse.result.formats.find(f => f.type === 'video' && f.url);
+    if (!videoFormat) throw new Error('No se encontró un formato de video válido.');
+
+    const videoRes = await fetch(videoFormat.url);
     if (!videoRes.ok) throw new Error(`Código HTTP ${videoRes.status}`);
     const buffer = await videoRes.buffer();
 
