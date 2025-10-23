@@ -30,10 +30,10 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
   try {
     const isUrl = input.includes("youtu");
-    let finalUrl = input;
+    let finalUrl = input.trim();
 
     if (!isUrl) {
-      const search = await fetch(`https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(input)}`);
+      const search = await fetch(`https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(finalUrl)}`);
       const jsonSearch = await search.json();
 
       if (!jsonSearch.status || !jsonSearch.result?.length) {
@@ -62,8 +62,13 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
+    if (!finalUrl || !finalUrl.includes("youtu")) {
+      throw new Error("URL de YouTube inválida o no detectada.");
+    }
+
     const apiKey = 'rmF1oUJI529jzux8';
-    const res = await fetch(`https://.click/api/youtube/v4?url=${encodeURIComponent(finalUrl)}&key=${apiKey}`);
+    const apiUrl = `https://api-nv.ultraplus.click/api/youtube/v4?url=${encodeURIComponent(finalUrl)}&key=${apiKey}`;
+    const res = await fetch(apiUrl);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
 
     const json = await res.json();
