@@ -64,50 +64,40 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-    // Llamada a la API para obtener el enlace directo con resolución 360p
+    // Llamada a la nueva API para obtener los enlaces de video
     const apiKey = 'rmF1oUJI529jzux8';
-    const directUrl = `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(videoUrl)}&type=video&key=${apiKey}&quality=360p`;
+    const apiUrl = `https://api-nv.ultraplus.click/api/youtube/v4?url=${encodeURIComponent(videoUrl)}&key=${apiKey}`;
+    
+    const apiResponse = await fetch(apiUrl);
+    const apiData = await apiResponse.json();
 
-    // Hacer la llamada a la API
-    const videoResponse = await fetch(directUrl);
-
-    // Verificar el tipo de contenido de la respuesta
-    const contentType = videoResponse.headers.get('content-type');
-
-    if (contentType && contentType.includes('application/json')) {
-      // Si la respuesta es JSON
-      const videoData = await videoResponse.json();
-
-      if (videoData.status !== 'success' || !videoData.video_url) {
-        throw new Error('No se pudo obtener el video directamente desde la API o no se encontró la resolución 360p.');
-      }
-
-      // Preparar el video para enviarlo
-      const caption = `✨ *${title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
-
-      await conn.sendMessage(m.chat, {
-        video: { url: videoData.video_url }, // Aquí estamos usando el video_url obtenido desde la API
-        caption,
-        mimetype: 'video/mp4',
-        fileName: 'video.mp4',
-        contextInfo
-      }, { quoted: m });
-
-    } else {
-      // Si la respuesta es un archivo binario (como un video)
-      const videoBuffer = await videoResponse.buffer(); // Obtener el buffer del video
-      const videoUrl = `data:video/mp4;base64,${videoBuffer.toString('base64')}`; // Convertir a URL de base64
-
-      const caption = `✨ *${title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
-
-      await conn.sendMessage(m.chat, {
-        video: { url: videoUrl },
-        caption,
-        mimetype: 'video/mp4',
-        fileName: 'video.mp4',
+    if (!apiData.status || !apiData.result) {
+      return conn.sendMessage(m.chat, {
+        text: `❌ No se pudo obtener información del video desde la API.`,
         contextInfo
       }, { quoted: m });
     }
+
+    const videoData = apiData.result;
+    const formats = videoData.formats.filter(format => format.type === 'video' && format.quality === '360p');
+
+    if (formats.length === 0) {
+      return conn.sendMessage(m.chat, {
+        text: `❌ No se encontraron videos en calidad 360p.`,
+        contextInfo
+      }, { quoted: m });
+    }
+
+    const directVideoUrl = formats[0].url;  // Tomamos el primer enlace de video 360p
+    const caption = `✨ *${videoData.title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
+
+    await conn.sendMessage(m.chat, {
+      video: { url: directVideoUrl }, // Enlace directo al video en calidad 360p
+      caption,
+      mimetype: 'video/mp4',
+      fileName: 'video.mp4',
+      contextInfo
+    }, { quoted: m });
 
   } catch (e) {
     console.error("⚠️ Error en YouTube Video Downloader:", e);
