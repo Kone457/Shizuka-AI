@@ -68,24 +68,46 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     const apiKey = 'rmF1oUJI529jzux8';
     const directUrl = `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(videoUrl)}&type=video&key=${apiKey}&quality=360p`;
 
-    // Hacer una llamada a la API para verificar el enlace directo
+    // Hacer la llamada a la API
     const videoResponse = await fetch(directUrl);
-    const videoData = await videoResponse.json();
 
-    if (videoData.status !== 'success' || !videoData.video_url) {
-      throw new Error('No se pudo obtener el video directamente desde la API o no se encontró la resolución 360p.');
+    // Verificar el tipo de contenido de la respuesta
+    const contentType = videoResponse.headers.get('content-type');
+
+    if (contentType && contentType.includes('application/json')) {
+      // Si la respuesta es JSON
+      const videoData = await videoResponse.json();
+
+      if (videoData.status !== 'success' || !videoData.video_url) {
+        throw new Error('No se pudo obtener el video directamente desde la API o no se encontró la resolución 360p.');
+      }
+
+      // Preparar el video para enviarlo
+      const caption = `✨ *${title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
+
+      await conn.sendMessage(m.chat, {
+        video: { url: videoData.video_url }, // Aquí estamos usando el video_url obtenido desde la API
+        caption,
+        mimetype: 'video/mp4',
+        fileName: 'video.mp4',
+        contextInfo
+      }, { quoted: m });
+
+    } else {
+      // Si la respuesta es un archivo binario (como un video)
+      const videoBuffer = await videoResponse.buffer(); // Obtener el buffer del video
+      const videoUrl = `data:video/mp4;base64,${videoBuffer.toString('base64')}`; // Convertir a URL de base64
+
+      const caption = `✨ *${title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
+
+      await conn.sendMessage(m.chat, {
+        video: { url: videoUrl },
+        caption,
+        mimetype: 'video/mp4',
+        fileName: 'video.mp4',
+        contextInfo
+      }, { quoted: m });
     }
-
-    // Preparar el video para enviarlo
-    const caption = `✨ *${title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
-
-    await conn.sendMessage(m.chat, {
-      video: { url: videoData.video_url }, // Aquí estamos usando el video_url obtenido desde la API
-      caption,
-      mimetype: 'video/mp4',
-      fileName: 'video.mp4',
-      contextInfo
-    }, { quoted: m });
 
   } catch (e) {
     console.error("⚠️ Error en YouTube Video Downloader:", e);
