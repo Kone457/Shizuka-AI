@@ -18,7 +18,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   const input = args.join(" ").trim();
   if (!input) {
     return conn.sendMessage(m.chat, {
-      text: `📺 ¿Qué video deseas recibir desde YouTube?\n\n📌 Uso: ${usedPrefix + command} <nombre o enlace>`,
+      text: `📺 ¿Qué video deseas recibir desde YouTube?\n\n📌 Uso command} <nombre o enlace>`,
       contextInfo
     }, { quoted: m });
   }
@@ -31,6 +31,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
   try {
     const isUrl = input.includes("youtu");
     let finalQuery = input;
+    let videoUrl = input;
 
     if (!isUrl) {
       const search = await fetch(`https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(input)}`);
@@ -45,6 +46,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 
       const first = jsonSearch.result[0];
       finalQuery = first.title;
+      videoUrl = first.link;
 
       const caption = `✨ *${first.title}* ✨\n🎤 Canal: ${first.channel}\n⏱️ Duración: ${first.duration}\n🔗 Enlace: ${first.link}`;
 
@@ -62,23 +64,29 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-    const res = await fetch(`https://api.vreden.my.id/api/v1/download/play/video?query=${encodeURIComponent(finalQuery)}`);
+    const apiKey = 'rmF1oUJI529jzux8';
+    const res = await fetch(`https://api-nv.ultraplus.click/api/youtube/v4?url=${encodeURIComponent(videoUrl)}&key=${apiKey}`);
     if (!res.ok) throw new Error(`Código HTTP ${res.status}`);
 
     const json = await res.json();
     const result = json.result;
 
-    if (!json.status || !result?.download?.url) {
-      throw new Error('No se pudo obtener el archivo de video. Verifica el nombre o intenta nuevamente.');
+    if (!json.status || !result?.formats?.length) {
+      throw new Error('No se pudo obtener el archivo de video. Verifica el enlace o intenta nuevamente.');
     }
 
-    const caption = `✨ *${result.metadata.title}* ✨\n🎤 Autor: ${result.metadata.author.name}\n⏱️ Duración: ${result.metadata.timestamp}\n📅 Publicado: ${result.metadata.ago}\n👁️ Vistas: ${result.metadata.views.toLocaleString()}\n🔗 Enlace: ${result.metadata.url}`;
+    const videoFormat = result.formats.find(f => f.type === 'video' && f.url);
+    if (!videoFormat) {
+      throw new Error('No se encontró un formato de video válido.');
+    }
+
+    const caption = `✨ *${result.title}* ✨\n🎬 Fuente: Neveloopp\n🔗 Enlace directo: ${videoUrl}`;
 
     await conn.sendMessage(m.chat, {
-      video: { url: result.download.url },
+      video: { url: videoFormat.url },
       caption,
       mimetype: 'video/mp4',
-      fileName: result.download.filename || 'video.mp4',
+      fileName: 'video.mp4',
       contextInfo
     }, { quoted: m });
 
