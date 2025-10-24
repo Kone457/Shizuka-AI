@@ -33,6 +33,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     let videoUrl = input;
     let title = input;
 
+    // Si no es una URL, buscar el video
     if (!isUrl) {
       const search = await fetch(`https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(input)}`);
       const jsonSearch = await search.json();
@@ -64,35 +65,33 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-    // Llamada a la nueva API para obtener los enlaces de video
+    // Llamada a la API para obtener los enlaces de descarga
     const apiKey = 'rmF1oUJI529jzux8';
     const apiUrl = `https://api-nv.ultraplus.click/api/youtube/v4?url=${encodeURIComponent(videoUrl)}&key=${apiKey}`;
-    
+
+    console.log("API Request URL:", apiUrl); // Agregar log para depurar
+
+    // Realizamos la solicitud a la API de descarga
     const apiResponse = await fetch(apiUrl);
     const apiData = await apiResponse.json();
 
-    if (!apiData.status || !apiData.result) {
-      return conn.sendMessage(m.chat, {
-        text: `❌ No se pudo obtener información del video desde la API.`,
-        contextInfo
-      }, { quoted: m });
+    // Verificamos la respuesta de la API
+    if (!apiData.status) {
+      throw new Error('No se pudo obtener el video o el enlace está roto.');
     }
 
-    const videoData = apiData.result;
-    const formats = videoData.formats.filter(format => format.type === 'video' && format.quality === '360p');
+    // Obtenemos el enlace de descarga (360p)
+    const videoData = apiData.result.formats.find(f => f.quality === '360p' && f.type === 'video');
 
-    if (formats.length === 0) {
-      return conn.sendMessage(m.chat, {
-        text: `❌ No se encontraron videos en calidad 360p.`,
-        contextInfo
-      }, { quoted: m });
+    if (!videoData) {
+      throw new Error('No se encontró una opción de descarga en 360p.');
     }
 
-    const directVideoUrl = formats[0].url;  // Tomamos el primer enlace de video 360p
-    const caption = `✨ *${videoData.title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
+    // Preparamos el mensaje con la URL de descarga
+    const caption = `✨ *${title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
 
     await conn.sendMessage(m.chat, {
-      video: { url: directVideoUrl }, // Enlace directo al video en calidad 360p
+      video: { url: videoData.url }, // Aquí usamos el enlace de descarga en 360p
       caption,
       mimetype: 'video/mp4',
       fileName: 'video.mp4',
