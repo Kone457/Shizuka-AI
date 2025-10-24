@@ -64,16 +64,16 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
-    // Llamada a la API para obtener el enlace directo
+    // Llamada a la API para obtener el enlace directo con resolución 360p
     const apiKey = 'rmF1oUJI529jzux8';
-    const directUrl = `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(videoUrl)}&type=video&key=${apiKey}`;
+    const directUrl = `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(videoUrl)}&type=video&key=${apiKey}&quality=360p`;
 
     // Hacer una llamada a la API para verificar el enlace directo
     const videoResponse = await fetch(directUrl);
     const videoData = await videoResponse.json();
 
     if (videoData.status !== 'success' || !videoData.video_url) {
-      throw new Error('No se pudo obtener el video directamente desde la API.');
+      throw new Error('No se pudo obtener el video directamente desde la API o no se encontró la resolución 360p.');
     }
 
     // Preparar el video para enviarlo
