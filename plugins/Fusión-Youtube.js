@@ -64,13 +64,23 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
       }
     }
 
+    // Llamada a la API para obtener el enlace directo
     const apiKey = 'rmF1oUJI529jzux8';
     const directUrl = `https://api-nv.ultraplus.click/api/dl/yt-direct?url=${encodeURIComponent(videoUrl)}&type=video&key=${apiKey}`;
 
+    // Hacer una llamada a la API para verificar el enlace directo
+    const videoResponse = await fetch(directUrl);
+    const videoData = await videoResponse.json();
+
+    if (videoData.status !== 'success' || !videoData.video_url) {
+      throw new Error('No se pudo obtener el video directamente desde la API.');
+    }
+
+    // Preparar el video para enviarlo
     const caption = `✨ *${title}* ✨\n📡 Fuente directa: Neveloopp\n🔗 Enlace original: ${videoUrl}`;
 
     await conn.sendMessage(m.chat, {
-      video: { url: directUrl },
+      video: { url: videoData.video_url }, // Aquí estamos usando el video_url obtenido desde la API
       caption,
       mimetype: 'video/mp4',
       fileName: 'video.mp4',
