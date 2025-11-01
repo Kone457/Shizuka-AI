@@ -6,7 +6,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   const chat = global.db.data.chats[m.chat]
   const user = m.messageStubParameters[0]
   const nombre = await conn.getName(user) || 'Miembro'
-  const avatar = await conn.profilePictureUrl(user, 'image').catch(_ => 'https://qu.ax/xuLKH.jpg')
+  const avatar = await conn.profilePictureUrl(user, 'image').catch(_ => 'https://qu.ax/lwOtz.jpg')
   const groupName = groupMetadata.subject || 'el grupo'
 
   const fkontak = {
@@ -27,7 +27,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   // 📥 BIENVENIDA
   if (chat.welcome && m.messageStubType == 27) {
     const miembro = participants.length + 1
-    const url = `https://api.popcat.xyz/v2/welcomecard?background=https://qu.ax/WRqRM.jpg&text1=${encodeURIComponent(nombre)}&text2=${encodeURIComponent(`Bienvenido a ${groupName}`)}&text3=${encodeURIComponent(`Miembro ${miembro}`)}&avatar=${encodeURIComponent(avatar)}`
+    const url = `https://api.popcat.xyz/v2/welcomecard?background=https://qu.ax/szsCV.jpg&text1=${encodeURIComponent(nombre)}&text2=${encodeURIComponent(`Bienvenido a ${groupName}`)}&text3=${encodeURIComponent(`Miembro ${miembro}`)}&avatar=${encodeURIComponent(avatar)}`
     const res = await fetch(url)
     const imgBienvenida = Buffer.from(await res.arrayBuffer())
 
