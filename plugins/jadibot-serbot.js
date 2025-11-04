@@ -1,16 +1,3 @@
-/*⚠ PROHIBIDO EDITAR ⚠
-Este codigo fue modificado, adaptado y mejorado por
-- ReyEndymion >> https://github.com/ReyEndymion
-El codigo de este archivo esta inspirado en el codigo original de:
-- Aiden_NotLogic >> https://github.com/ferhacks
-*El archivo original del MysticBot-MD fue liberado en mayo del 2024 aceptando su liberacion*
-El codigo de este archivo fue parchado en su momento por:
-- BrunoSobrino >> https://github.com/BrunoSobrino
-Contenido adaptado por:
-- GataNina-Li >> https://github.com/GataNina-Li
-- elrebelde21 >> https://github.com/elrebelde21
-*/
-
 const { useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore, fetchLatestBaileysVersion} = (await import("@whiskeysockets/baileys"));
 import qrcode from "qrcode"
 import NodeCache from "node-cache"
@@ -30,50 +17,49 @@ let crm3 = "SBpbmZvLWRvbmFyLmpz"
 let crm4 = "IF9hdXRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
 let drm1 = ""
 let drm2 = ""
-let rtx = "𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄\n✐ Cσɳҽxισɳ SυႦ-Bσƚ Mσԃҽ QR\n\n✰ Con otro celular o en la PC escanea este QR para convertirte en un *Sub-Bot* Temporal.\n\n\`1\` » Haga clic en los tres puntos en la esquina superior derecha\n\n\`2\` » Toque dispositivos vinculados\n\n\`3\` » Escanee este codigo QR para iniciar sesion con el bot\n\n✧ ¡Este código QR expira en 45 segundos!."
-let rtx2 = "𝙎𝙝𝙞𝙯𝙪𝙠𝙖-𝘼𝙄\n\n 𝘾𝙤𝙣𝙚𝙭𝙞𝙤𝙣 𝙨𝙪𝙗-𝙗𝙤𝙩𝙨 𝙢𝙚𝙙𝙞𝙖𝙣𝙩𝙚 𝘾𝙤𝙙𝙚 \n\n 𝑆𝑖𝑔𝑢𝑒 𝑒𝑠𝑡𝑜𝑠 𝑝𝑎𝑠𝑜𝑠 𝑝𝑎𝑟𝑎 𝑐𝑜𝑛𝑣𝑒𝑟𝑡𝑖𝑟𝑡𝑒 𝑒𝑛 𝑠𝑢𝑏-𝑏𝑜𝑡𝑠 .\n\n\`🌟\` 𝓗𝓪𝓰𝓪 𝓬𝓵𝓲𝓬 𝓮𝓷 𝓵𝓸𝓼 𝓽𝓻𝓮𝓼 𝓹𝓾𝓷𝓽𝓸𝓼 𝓮𝓷 𝓵𝓪 𝓮𝓼𝓺𝓾𝓲𝓷𝓪 𝓼𝓾𝓹𝓮𝓻𝓲𝓸𝓻 𝓭𝓮𝓻𝓮𝓬𝓱𝓪\n\n\`🌟\` » 𝓣𝓸𝓺𝓾𝓮 𝓭𝓲𝓼𝓹𝓸𝓼𝓲𝓽𝓲𝓿𝓸𝓼 𝓿𝓲𝓷𝓬𝓾𝓵𝓪𝓭𝓸𝓼\n\n\`🌟\` » 𝓢𝓮𝓵𝓮𝓬𝓬𝓲𝓸𝓷𝓪 𝓥𝓲𝓷𝓬𝓾𝓵𝓪𝓻 𝓬𝓸𝓷 𝓮𝓵 𝓷𝓾𝓶𝓮𝓻𝓸 𝓭𝓮 𝓽𝓮𝓵𝓮𝓯𝓸𝓷𝓸\n\n\`🌟\` » 𝓔𝓼𝓬𝓻𝓲𝓫𝓪 𝓮𝓵 𝓒𝓸𝓭𝓲𝓰𝓸 𝓹𝓪𝓻𝓪 𝓲𝓷𝓲𝓬𝓲𝓪𝓻 𝓼𝓮𝓼𝓲𝓸𝓷 𝓬𝓸𝓷 𝓮𝓵 𝓫𝓸𝓽."
+let rtx = "𝗘𝗻𝘃𝗶𝗮𝗻𝗱𝗼 𝗲𝗹 𝗰𝗼𝗱𝗲 𝗱𝗲 𝘃𝗶𝗻𝗰𝘂𝗹𝗮𝘃𝗶𝗼𝗻\n𝗦𝗶𝗴𝘂𝗲 𝗲𝗹 𝗰𝗮𝗻𝗮𝗹 𝗽𝗮𝗿𝗮 𝘀𝗮𝗯𝗲𝗿 𝗺𝗮𝘀 𝗱𝗲 𝗯𝗼𝘁\nhttps://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v"
+let rtx2 = "\`sᴇ ᴇsᴛᴀ ᴇɴᴠɪᴀᴅᴏ ᴇʟ ᴄᴏᴅᴇ ᴅᴇ ᴠɪɴᴄᴜʟᴀᴄɪᴏ́ɴ sɪɢᴜᴇ ᴇʟ ᴄᴀɴᴀʟ ᴘᴏʀǫᴜᴇ ᴀᴠᴇᴄᴇs ᴇʟ ʙᴏᴛ ᴄᴀᴍʙɪᴀ ᴅᴇ ɴᴜ́ᴍᴇʀᴏ ʏ ᴛᴇ ᴇsᴛᴀʀᴇᴍᴏs ᴀᴠɪsᴀɴᴅᴏ ᴇɴ ᴇʟ ᴇᴄᴀɴᴀʟ\`\n*link* https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const yukiJBOptions = {}
+const blackJBOptions = {}
 if (global.conns instanceof Array) console.log()
 else global.conns = []
 let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
 //if (!globalThis.db.data.settings[conn.user.jid].jadibotmd) return m.reply(`♡ Comando desactivado temporalmente.`)
-let time = global.db.data.users[m.sender].Subs + 120000
-if (new Date - global.db.data.users[m.sender].Subs < 120000) return conn.reply(m.chat, `${emoji} Debes esperar ${msToTime(time - new Date())} para volver a vincular un *Sub-Bot.*`, m)
+let time = global.db.data.users[m.sender].Subs + 10000
+if (new Date - global.db.data.users[m.sender].Subs < 10000) return conn.reply(m.chat, `${emoji} Debes esperar ${msToTime(time - new Date())} para volver a vincular un *Sub-Bot.*`, m)
 const subBots = [...new Set([...global.conns.filter((conn) => conn.user && conn.ws.socket && conn.ws.socket.readyState !== ws.CLOSED).map((conn) => conn)])]
 const subBotsCount = subBots.length
-if (subBotsCount === 20) {
+if (subBotsCount === 10) {
 return m.reply(`${emoji2} No se han encontrado espacios para *Sub-Bots* disponibles.`)
 }
-/*if (Object.values(global.conns).length === 30) {
+/*if (Object.values(global.conns).length === 40) {
 return m.reply(`${emoji2} No se han encontrado espacios para *Sub-Bots* disponibles.`)
 }*/
 let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
 let id = `${who.split`@`[0]}`  //conn.getName(who)
-let pathYukiJadiBot = path.join(`./${jadi}/`, id)
-if (!fs.existsSync(pathYukiJadiBot)){
-fs.mkdirSync(pathYukiJadiBot, { recursive: true })
+let pathblackJadiBot = path.join(`./${jadi}/`, id)
+if (!fs.existsSync(pathblackJadiBot)){
+fs.mkdirSync(pathblackJadiBot, { recursive: true })
 }
-yukiJBOptions.pathYukiJadiBot = pathYukiJadiBot
-yukiJBOptions.m = m
-yukiJBOptions.conn = conn
-yukiJBOptions.args = args
-yukiJBOptions.usedPrefix = usedPrefix
-yukiJBOptions.command = command
-yukiJBOptions.fromCommand = true
-yukiJadiBot(yukiJBOptions)
+blackJBOptions.pathblackJadiBot = pathblackJadiBot
+blackJBOptions.m = m
+blackJBOptions.conn = conn
+blackJBOptions.args = args
+blackJBOptions.usedPrefix = usedPrefix
+blackJBOptions.command = command
+blackJBOptions.fromCommand = true
+blackJadiBot(blackJBOptions)
 global.db.data.users[m.sender].Subs = new Date * 1
 } 
 handler.help = ['qr', 'code']
 handler.tags = ['serbot']
 handler.command = ['qr', 'code']
-handler.owner = true
 export default handler 
 
-export async function yukiJadiBot(options) {
-let { pathYukiJadiBot, m, conn, args, usedPrefix, command } = options
+export async function blackJadiBot(options) {
+let { pathblackJadiBot, m, conn, args, usedPrefix, command } = options
 if (command === 'code') {
 command = 'qr'; 
 args.unshift('code')}
@@ -84,9 +70,9 @@ args[0] = args[0].replace(/^--code$|^code$/, "").trim()
 if (args[1]) args[1] = args[1].replace(/^--code$|^code$/, "").trim()
 if (args[0] == "") args[0] = undefined
 }
-const pathCreds = path.join(pathYukiJadiBot, "creds.json")
-if (!fs.existsSync(pathYukiJadiBot)){
-fs.mkdirSync(pathYukiJadiBot, { recursive: true })}
+const pathCreds = path.join(pathblackJadiBot, "creds.json")
+if (!fs.existsSync(pathblackJadiBot)){
+fs.mkdirSync(pathblackJadiBot, { recursive: true })}
 try {
 args[0] && args[0] != undefined ? fs.writeFileSync(pathCreds, JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, '\t')) : ""
 } catch {
@@ -101,7 +87,7 @@ const drmer = Buffer.from(drm1 + drm2, `base64`)
 let { version, isLatest } = await fetchLatestBaileysVersion()
 const msgRetry = (MessageRetryMap) => { }
 const msgRetryCache = new NodeCache()
-const { state, saveState, saveCreds } = await useMultiFileAuthState(pathYukiJadiBot)
+const { state, saveState, saveCreds } = await useMultiFileAuthState(pathblackJadiBot)
 
 const connectionOptions = {
 logger: pino({ level: "fatal" }),
@@ -109,7 +95,7 @@ printQRInTerminal: false,
 auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
 msgRetry,
 msgRetryCache,
-browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Yuki-Suou (Sub Bot)', 'Chrome','2.0.0'],
+browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Shizuka-AI (Sub Bot)', 'Chrome','2.0.0'],
 version: version,
 generateHighQualityLinkPreview: true
 };
@@ -122,14 +108,14 @@ msgRetry,
 msgRetryCache,
 version: [2, 3000, 1015901307],
 syncFullHistory: true,
-browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Yuki-Suou-Bot (Sub Bot)', 'Chrome','2.0.0'],
+browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['black-clover-Bot (Sub Bot)', 'Chrome','2.0.0'],
 defaultQueryTimeoutMs: undefined,
 getMessage: async (key) => {
 if (store) {
 //const msg = store.loadMessage(key.remoteJid, key.id)
 //return msg.message && undefined
 } return {
-conversation: 'Yuki-Suou-Bot',
+conversation: 'black-clover-Bot',
 }}}*/
 
 let sock = makeWASocket(connectionOptions)
@@ -183,55 +169,54 @@ global.conns.splice(i, 1)
 const reason = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode
 if (connection === 'close') {
 if (reason === 428) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La conexión (+${path.basename(pathYukiJadiBot)}) fue cerrada inesperadamente. Intentando reconectar...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La conexión (+${path.basename(pathblackJadiBot)}) fue cerrada inesperadamente. Intentando reconectar...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
 await creloadHandler(true).catch(console.error)
 }
 if (reason === 408) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La conexión (+${path.basename(pathYukiJadiBot)}) se perdió o expiró. Razón: ${reason}. Intentando reconectar...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La conexión (+${path.basename(pathblackJadiBot)}) se perdió o expiró. Razón: ${reason}. Intentando reconectar...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
 await creloadHandler(true).catch(console.error)
 }
 if (reason === 440) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La conexión (+${path.basename(pathYukiJadiBot)}) fue reemplazada por otra sesión activa.\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La conexión (+${path.basename(pathblackJadiBot)}) fue reemplazada por otra sesión activa.\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
 try {
-if (options.fromCommand) m?.chat ? await conn.sendMessage(`${path.basename(pathYukiJadiBot)}@s.whatsapp.net`, {text : '*HEMOS DETECTADO UNA NUEVA SESIÓN, BORRE LA NUEVA SESIÓN PARA CONTINUAR*\n\n> *SI HAY ALGÚN PROBLEMA VUELVA A CONECTARSE*' }, { quoted: m || null }) : ""
+if (options.fromCommand) m?.chat ? await conn.sendMessage(`${path.basename(pathblackJadiBot)}@s.whatsapp.net`, {text : '*HEMOS DETECTADO UNA NUEVA SESIÓN, BORRE LA NUEVA SESIÓN PARA CONTINUAR*\n\n> *SI HAY ALGÚN PROBLEMA VUELVA A CONECTARSE*' }, { quoted: m || null }) : ""
 } catch (error) {
-console.error(chalk.bold.yellow(`Error 440 no se pudo enviar mensaje a: +${path.basename(pathYukiJadiBot)}`))
+console.error(chalk.bold.yellow(`Error 440 no se pudo enviar mensaje a: +${path.basename(pathblackJadiBot)}`))
 }}
 if (reason == 405 || reason == 401) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La sesión (+${path.basename(pathYukiJadiBot)}) fue cerrada. Credenciales no válidas o dispositivo desconectado manualmente.\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La sesión (+${path.basename(pathblackJadiBot)}) fue cerrada. Credenciales no válidas o dispositivo desconectado manualmente.\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
 try {
-if (options.fromCommand) m?.chat ? await conn.sendMessage(`${path.basename(pathYukiJadiBot)}@s.whatsapp.net`, {text : '*SESIÓN PENDIENTE*\n\n> *INTENTÉ NUEVAMENTE VOLVER A SER SUB-BOT*' }, { quoted: m || null }) : ""
+if (options.fromCommand) m?.chat ? await conn.sendMessage(`${path.basename(pathblackJadiBot)}@s.whatsapp.net`, {text : '*SESIÓN PENDIENTE*\n\n> *INTENTÉ NUEVAMENTE VOLVER A SER SUB-BOT*' }, { quoted: m || null }) : ""
 } catch (error) {
-console.error(chalk.bold.yellow(`Error 405 no se pudo enviar mensaje a: +${path.basename(pathYukiJadiBot)}`))
+console.error(chalk.bold.yellow(`Error 405 no se pudo enviar mensaje a: +${path.basename(pathblackJadiBot)}`))
 }
-fs.rmdirSync(pathYukiJadiBot, { recursive: true })
+fs.rmdirSync(pathblackJadiBot, { recursive: true })
 }
 if (reason === 500) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Conexión perdida en la sesión (+${path.basename(pathYukiJadiBot)}). Borrando datos...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
-if (options.fromCommand) m?.chat ? await conn.sendMessage(`${path.basename(pathYukiJadiBot)}@s.whatsapp.net`, {text : '*CONEXIÓN PÉRDIDA*\n\n> *INTENTÉ MANUALMENTE VOLVER A SER SUB-BOT*' }, { quoted: m || null }) : ""
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Conexión perdida en la sesión (+${path.basename(pathblackJadiBot)}). Borrando datos...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+if (options.fromCommand) m?.chat ? await conn.sendMessage(`${path.basename(pathblackJadiBot)}@s.whatsapp.net`, {text : '*CONEXIÓN PÉRDIDA*\n\n> *INTENTÉ MANUALMENTE VOLVER A SER SUB-BOT*' }, { quoted: m || null }) : ""
 return creloadHandler(true).catch(console.error)
-//fs.rmdirSync(pathYukiJadiBot, { recursive: true })
+//fs.rmdirSync(pathblackJadiBot, { recursive: true })
 }
 if (reason === 515) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Reinicio automático para la sesión (+${path.basename(pathYukiJadiBot)}).\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Reinicio automático para la sesión (+${path.basename(pathblackJadiBot)}).\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
 await creloadHandler(true).catch(console.error)
 }
 if (reason === 403) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Sesión cerrada o cuenta en soporte para la sesión (+${path.basename(pathYukiJadiBot)}).\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
-fs.rmdirSync(pathYukiJadiBot, { recursive: true })
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Sesión cerrada o cuenta en soporte para la sesión (+${path.basename(pathblackJadiBot)}).\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+fs.rmdirSync(pathblackJadiBot, { recursive: true })
 }}
 if (global.db.data == null) loadDatabase()
 if (connection == `open`) {
 if (!global.db.data?.users) loadDatabase()
 let userName, userJid 
 userName = sock.authState.creds.me.name || 'Anónimo'
-userJid = sock.authState.creds.me.jid || `${path.basename(pathYukiJadiBot)}@s.whatsapp.net`
-console.log(chalk.bold.cyanBright(`\n❒⸺⸺⸺⸺【• SUB-BOT •】⸺⸺⸺⸺❒\n│\n│ 🟢 ${userName} (+${path.basename(pathYukiJadiBot)}) conectado exitosamente.\n│\n❒⸺⸺⸺【• CONECTADO •】⸺⸺⸺❒`))
+userJid = sock.authState.creds.me.jid || `${path.basename(pathblackJadiBot)}@s.whatsapp.net`
+console.log(chalk.bold.cyanBright(`\n❒⸺⸺⸺⸺【• SUB-BOT •】⸺⸺⸺⸺❒\n│\n│ 🟢 ${userName} (+${path.basename(pathblackJadiBot)}) conectado exitosamente.\n│\n❒⸺⸺⸺【• CONECTADO •】⸺⸺⸺❒`))
 sock.isInit = true
 global.conns.push(sock)
-await joinChannels(sock)
 
-m?.chat ? await conn.sendMessage(m.chat, {text: args[0] ? `@${m.sender.split('@')[0]}, ya estás conectado, leyendo mensajes entrantes...` : `@${m.sender.split('@')[0]}, genial ya eres parte de nuestra familia de Sub-Bots.`, mentions: [m.sender]}, { quoted: m }) : ''
+m?.chat ? await conn.sendMessage(m.chat, {text: args[0] ? `@${m.sender.split('@')[0]}, ya estás conectado, leyendo mensajes entrantes...` : `@${m.sender.split('@')[0]}, 𝚐𝚎𝚗𝚒𝚊𝚕 𝚢𝚊 𝚎𝚛𝚎𝚜 𝚙𝚊𝚛𝚝𝚎 𝚍𝚎 𝚕𝚊 𝚏𝚊𝚖𝚒𝚕𝚒𝚊 roxy𝙱𝚘𝚝  𝚂𝚞𝚋-𝙱𝚘𝚝𝚜`, mentions: [m.sender]}, { quoted: m }) : ''
 
 }}
 setInterval(async () => {
@@ -294,8 +279,3 @@ minutes = (minutes < 10) ? '0' + minutes : minutes
 seconds = (seconds < 10) ? '0' + seconds : seconds
 return minutes + ' m y ' + seconds + ' s '
 }
-
-async function joinChannels(conn) {
-for (const channelId of Object.values(global.ch)) {
-await conn.newsletterFollow(channelId).catch(() => {})
-}}
