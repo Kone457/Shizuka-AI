@@ -1,4 +1,3 @@
-## Sagari Bot
 
 <table>
   <tr>
