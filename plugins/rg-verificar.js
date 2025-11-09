@@ -83,7 +83,7 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
 🎂 *Edad:* ${user.age} años
 📝 *ID de Usuario:* ${sn}
 
-🌸 ¡Bienvenid@ al sistema de Shizuka! 🌸
+🌸 ¡Bienvenid@ al sistema! 🌸
 `
 
   try {
@@ -114,7 +114,7 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
       body: JSON.stringify({
         embeds: [
           {
-            title: "Nuevo registro en Shizuka 🎉",
+            title: "Nuevo registro  🎉",
             color: 16711680, // rojo
             fields: [
               { name: "Usuario", value: m.pushName || 'Anónimo', inline: true },
