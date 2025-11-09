@@ -12,28 +12,25 @@ let handler = async (m, { conn, text }) => {
   }
 
   try {
-    // 🚀 Envío del mensaje al webhook
+    // 🚀 Envío del mensaje al webhook (sin cambiar nombre ni foto)
     const res = await fetch(DISCORD_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        content: text,
-        username: 'Shizuka Bot ✨',
-        avatar_url: 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png'
+        content: text
       })
     })
 
-    // 🧩 Manejo de errores HTTP
     if (!res.ok) {
       const txt = await res.text()
       throw new Error(`HTTP ${res.status} → ${txt}`)
     }
 
-    // ✅ Confirmación al remitente
+    // ✅ Confirmación en WhatsApp
     await conn.reply(
       m.chat,
       `📨 *Mensaje enviado correctamente al Webhook de Discord.*\n` +
-      `🪷 *Shizuka ha compartido tu voz con las estrellas.*`,
+      `🪷 *Shizuka ha compartido tu voz con el universo.*`,
       m
     )
 
@@ -48,10 +45,10 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-// 🧾 Propiedades del comando
+// 🧾 Configuración del comando
 handler.help = ['postdiscord <mensaje>']
 handler.tags = ['tools']
 handler.command = ['postdiscord', 'discord', 'senddiscord']
-handler.rowner = true  // Solo el dueño del bot puede usarlo
+handler.rowner = true 
 
 export default handler
