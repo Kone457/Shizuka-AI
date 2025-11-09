@@ -19,7 +19,7 @@ let handler = async (m, { conn, text }) => {
 
   if (!contentToSend && !filePath) {
     return m.reply(
-      `🌙 *Debes escribir un mensaje o responder a un mensaje con imagen para enviarlo al Webhook de Discord.*\n` +
+      `🌙 *Debes escribir un mensaje para enviarlo al Webhook de Discord.*\n` +
       `📎 Ejemplo: #postdiscord Las estrellas susurran buenas noticias.`
     )
   }
