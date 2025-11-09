@@ -113,7 +113,7 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         content: `
-**Nuevo registro en Shizuka** 🎉
+**Nuevo registro** 🎉
 
 - Usuario: ${m.pushName || 'Anónimo'}
 - Nombre: ${user.name}
