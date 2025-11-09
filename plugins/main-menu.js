@@ -1,10 +1,10 @@
 const handler = async (m, { conn, usedPrefix }) => {
-  // Reacción inicial
+  
   await conn.sendMessage(m.chat, { react: { text: '🧨', key: m.key } });
 
   const plugins = Object.values(global.plugins || {}).filter(p => !p?.disabled);
 
-  // --- Configuración ---
+  
   const botname = 'Shizuka-AI';
   const textbot = 'Asistente virtual de WhatsApp';
   const banner = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/v2.jpg';
@@ -34,7 +34,7 @@ const handler = async (m, { conn, usedPrefix }) => {
     owner: '👑 𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀 𝗱𝗲 𝗣𝗿𝗼𝗽𝗶𝗲𝘁𝗮𝗿𝗶𝗼',
   };
 
-  // --- Fecha, hora y saludo ---
+  
   const date = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Havana' };
   const fecha = date.toLocaleDateString('es-ES', options);
@@ -48,7 +48,7 @@ const handler = async (m, { conn, usedPrefix }) => {
   const totalreg = Object.keys(global.db.data.users).length;
   let totalCommands = 0;
 
-  // --- Agrupar comandos ---
+  
   const categoryCommands = {};
   for (let plugin of plugins) {
     const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : []);
@@ -62,7 +62,7 @@ const handler = async (m, { conn, usedPrefix }) => {
     }
   }
 
-  // --- Texto del menú ---
+  
   let menu = `
 ╭━━━❪ ✨ 𝑺𝒉𝒊𝒛𝒖𝒌𝒂-𝑨𝑰 ✨ ❫━━━╮
 │ 🤖 Versión: v1.0.0
