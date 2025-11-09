@@ -106,24 +106,30 @@ https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v
     console.error("Error al enviar el mensaje al canal:", e)
   }
 
-  // 🌐 Enviar registro al webhook de Discord
+  // 🌐 Enviar registro al webhook de Discord con embed rojo
   try {
     await fetch(DISCORD_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        content: `
-**Nuevo registro** 🎉
-
-- Usuario: ${m.pushName || 'Anónimo'}
-- Nombre: ${user.name}
-- Edad: ${user.age}
-- ID: ${sn}
-- Descripción: ${user.descripcion || 'Sin descripción'}
-`
+        embeds: [
+          {
+            title: "Nuevo registro en Shizuka 🎉",
+            color: 16711680, // rojo
+            fields: [
+              { name: "Usuario", value: m.pushName || 'Anónimo', inline: true },
+              { name: "Nombre", value: user.name, inline: true },
+              { name: "Edad", value: String(user.age), inline: true },
+              { name: "ID", value: sn, inline: true },
+              { name: "Descripción", value: user.descripcion || 'Sin descripción', inline: false }
+            ],
+            thumbnail: { url: perfilImg },
+            timestamp: new Date()
+          }
+        ]
       })
     })
-    console.log("Registro enviado al webhook de Discord correctamente.")
+    console.log("Registro enviado al webhook de Discord correctamente (embed rojo).")
   } catch (e) {
     console.error("❌ Error al enviar registro al webhook:", e)
   }
