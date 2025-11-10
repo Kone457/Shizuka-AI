@@ -8,7 +8,7 @@ let handler = async (m, { conn, text }) => {
     // Detectar mención real
     let mentioned = m.mentionedJid?.[0];
 
-    // Fallback: buscar @user en el texto si no se detectó mención
+    // Fallback si hay @ pero no se detectó mención
     if (!mentioned && text.includes('@')) {
       const mentionFallback = conn.parseMention(text)?.[0];
       if (mentionFallback) mentioned = mentionFallback;
@@ -22,7 +22,11 @@ let handler = async (m, { conn, text }) => {
     if (!mentioned || mentioned === sender) {
       caption = `💋 ${senderName} se dio un beso a sí mismo... qué tierno 😳`;
     } else {
-      const targetName = await conn.getName(mentioned);
+      let targetName = await conn.getName(mentioned);
+      if (!targetName) {
+        // Fallback al número si no hay nombre
+        targetName = '@' + mentioned.split('@')[0];
+      }
       caption = `💞 ${senderName} le dio un beso a ${targetName} 💋`;
     }
 
@@ -30,7 +34,8 @@ let handler = async (m, { conn, text }) => {
       m.chat,
       {
         image: { url: imageUrl },
-        caption
+        caption,
+        mentions: mentioned ? [mentioned] : []
       },
       { quoted: m }
     );
