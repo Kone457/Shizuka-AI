@@ -74,7 +74,7 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-handler.help = ['userig <texto>']
+handler.help = ['userig']
 handler.tags = ['buscadores']
 handler.command = ['igsearch', 'instasearch', 'userig']
 
