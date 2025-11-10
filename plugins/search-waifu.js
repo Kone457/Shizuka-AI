@@ -9,7 +9,7 @@ let handler = async (m, { conn, text }) => {
     const json = await res.json();
     const imageUrl = json.url;
 
-    const caption = `💗 Aquí tienes${senderName}...\n> ¿te enamoraste? ✨`;
+    const caption = `💗 Aquí tienes ${senderName}...\n> ¿te enamoraste? ✨`;
 
     await conn.sendMessage(
       m.chat,
