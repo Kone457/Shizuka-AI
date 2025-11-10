@@ -40,7 +40,7 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['cry @usuario'];
+handler.help = ['cry'];
 handler.tags = ['anime'];
 handler.command = ['cry'];
 
