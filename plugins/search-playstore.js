@@ -74,7 +74,7 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-handler.help = ['playstore <texto>']
+handler.help = ['playstore']
 handler.tags = ['buscadores']
 handler.command = ['playstore', 'apk']
 
