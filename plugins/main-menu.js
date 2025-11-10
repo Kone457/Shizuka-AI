@@ -31,7 +31,7 @@ let handler = async (m, { conn, args, usedPrefix }) => {
       imagen: { title: '🖼️ Generador de Imágenes', img: 'https://files.catbox.moe/d54tip.jpg' },
       fun: { title: '🎉 Diversión y Juegos', img: 'https://files.catbox.moe/33loc9.jpg' },
       game: { title: '🎮 Juegos', img: 'https://files.catbox.moe/33loc9.jpg' },
-      anime: { title: '🎌 Anime', img: 'https://files.catbox.moe/d54tip.jpg' },
+      anime: { title: '🎌 Anime', img: 'https://files.catbox.moe/ig4t79.jpg' },
       grupo: { title: '👥 Comandos de Grupo', img: 'https://files.catbox.moe/c48cdj.jpg' },
       text: { title: '✒️ Efectos de Texto', img: 'https://files.catbox.moe/ijvbo7.jpg' },
       rpg: { title: '🪄 RPG y Economía', img: 'https://files.catbox.moe/lv6zym.jpg' },
