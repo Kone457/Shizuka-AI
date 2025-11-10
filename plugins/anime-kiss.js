@@ -1,20 +1,20 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, args, command }) => {
+let handler = async (m, { conn, participants, command }) => {
   try {
-    const mentionedJid = m.mentionedJid?.[0];
     const sender = m.sender;
-    const senderName = conn.getName(sender);
-    const targetName = mentionedJid ? conn.getName(mentionedJid) : null;
+    const senderName = await conn.getName(sender);
+    const mentioned = m.mentionedJid?.[0];
 
     const res = await fetch('https://api.waifu.pics/sfw/kiss');
     const json = await res.json();
     const imageUrl = json.url;
 
     let text;
-    if (!mentionedJid || mentionedJid === sender) {
+    if (!mentioned || mentioned === sender) {
       text = `💋 ${senderName} se dio un beso a sí mismo... qué tierno 😳`;
     } else {
+      const targetName = await conn.getName(mentioned);
       text = `💞 ${senderName} le dio un beso a ${targetName} 💋`;
     }
 
@@ -33,8 +33,8 @@ let handler = async (m, { conn, args, command }) => {
   }
 };
 
-handler.help = ['kiss'];
-handler.tags = ['anime'];
-handler.command = ['kiss', 'besar'];
+handler.help = ['kiss @usuario'];
+handler.tags = ['reacciones'];
+handler.command = ['kiss'];
 
 export default handler;
