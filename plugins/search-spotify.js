@@ -78,7 +78,7 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-handler.help = ['spotify <texto>']
+handler.help = ['spotify']
 handler.tags = ['buscadores']
 handler.command = ['spotify', 'spot']
 
