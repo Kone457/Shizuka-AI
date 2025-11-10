@@ -65,7 +65,7 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-handler.help = ['pinterest <texto>']
+handler.help = ['pinterest']
 handler.tags = ['buscadores']
 handler.command = ['pinterest', 'pin']
 
