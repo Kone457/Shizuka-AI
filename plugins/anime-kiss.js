@@ -46,8 +46,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['kiss @usuario'];
-handler.tags = ['reacciones'];
+handler.help = ['kiss'];
+handler.tags = ['anime'];
 handler.command = ['kiss'];
 
 export default handler;
