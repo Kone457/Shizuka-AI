@@ -21,7 +21,7 @@ let handler = async (m, { conn, text }) => {
     } else {
       let targetName = await conn.getName(mentioned);
       if (!targetName) targetName = '@' + mentioned.split('@')[0];
-      caption = `🧸 ${senderName} está acurrucándose con ${targetName} ¡qué ternura! 💞`;
+      caption = `🧸 ${senderName} está acurrucándose con ${targetName} 💞`;
     }
 
     await conn.sendMessage(
