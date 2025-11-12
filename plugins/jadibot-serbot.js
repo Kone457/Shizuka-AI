@@ -88,7 +88,7 @@ printQRInTerminal: false,
 auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
 msgRetry,
 msgRetryCache, 
-browser: ['Windows', 'Firefox'],
+browser: ['Ubuntu', 'Chrome'],
 version: version,
 generateHighQualityLinkPreview: true
 }
