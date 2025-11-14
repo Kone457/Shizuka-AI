@@ -1,107 +1,24 @@
-import fetch from 'node-fetch'
-const footer = '≡ ✨ Powered by Carlos';
-const logo = 'https://i.imgur.com/abcd123.png'; 
+let handler = async (m, { text }) => {
+  if (!text) return m.reply('🌷 Ejemplo de uso:\n.inspect https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v')
 
+  if (text.includes('https://whatsapp.com/channel/')) {
+    // Extraer el slug del enlace
+    const match = text.match(/channel\/([0-9A-Za-z]+)/i)
+    if (!match) return m.reply('❌ Enlace inválido.')
 
-let handler = async (m, { conn, text }) => {
-  try {
-    if (!text) {
-      return conn.reply(
-        m.chat,
-        `🌷 Ejemplo de uso:\n.inspect https://whatsapp.com/channel/0029Vb63Kf9KwqSQLOQOtk3N`,
-        m
-      )
-    }
+    // Construir el JID
+    const channelJid = match[1] + '@newsletter'
 
-    if (text.includes('https://whatsapp.com/channel/')) {
-      let i = await getInfo(conn, text)
-
-      // Mensaje con atmósfera
-      await conn.relayMessage(
-        m.chat,
-        {
-          extendedTextMessage: {
-            text: i.inf,
-            contextInfo: {
-              mentionedJid: conn.parseMention(i.inf),
-              externalAdReply: {
-                title: wm, // tu watermark global
-                mediaType: 1,
-                previewType: 0,
-                renderLargerThumbnail: true,
-                thumbnail: await (await fetch(logo)).buffer(), // tu logo global
-                sourceUrl: `https://whatsapp.com/channel/${i.id.replace('@newsletter', '')}`
-              }
-            }
-          }
-        },
-        { quoted: m }
-      )
-
-      // Responder con el JID puro
-      await m.reply(i.id)
-      m.react('☑️')
-    } else {
-      return conn.reply(m.chat, `🌱 Ingresa un link válido.`, m)
-    }
-  } catch (error) {
-    console.error(error)
-    await conn.reply(
-      m.chat,
-      `❌ Error al obtener la información del canal:\n> ${error.message}`,
-      m
-    )
+    // Enviar solo el JID
+    await m.reply(channelJid)
+  } else {
+    return m.reply('🌱 Ingresa un link válido.')
   }
 }
 
-handler.command = ['inspector', 'inspect', 'id']
+handler.command = ['inspect']
 handler.help = ['inspect <url>']
 handler.tags = ['tools']
+handler.owner = true
+
 export default handler
-
-async function getInfo(conn, url) {
-  const match = url.match(/https:\/\/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i)
-  if (!match)
-    throw new Error(
-      'El enlace proporcionado no es válido o no pertenece a un canal de WhatsApp.'
-    )
-
-  const channelId = match[1]
-
-  try {
-    const info = await conn.newsletterMetadata('invite', channelId)
-    const fecha = new Date(info.creation_time * 1000)
-    const fechaFormato = fecha.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-
-    let txt = `
-◜ *Channel - Info* ◞
-
-≡ 🌴 *Nombre:* ${info.name}
-≡ 🌿 *ID:* ${info.id}
-≡ 🌾 *Estado:* ${info.state}
-≡ 📅 *Creado:* ${fechaFormato}
-
-≡ 🗃️ *Enlace:*
-- https://whatsapp.com/channel/${info.invite}
-
-≡ 🍄 *Seguidores:* ${info.subscribers}
-≡ 🎍 *Verificación:* ${info.verified ? '✅ Sí' : '❌ No'}
-
-≡ 🌷 *Descripción:* 
-${info.description || 'Sin descripción'}
-
-${footer}
-    `.trim()
-
-    return {
-      id: info.id, // JID real del canal
-      inf: txt
-    }
-  } catch (error) {
-    throw new Error(`No se pudo obtener la información del canal: ${error.message}`)
-  }
-}
