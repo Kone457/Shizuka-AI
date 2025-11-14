@@ -11,12 +11,12 @@ let handler = async (m, { conn, text }) => {
     if (text.includes('https://whatsapp.com/channel/')) {
       let i = await getInfo(conn, text)
 
-      // Mostrar info ritualizada
+      // Mostrar el JID directamente
       await conn.relayMessage(
         m.chat,
         {
           extendedTextMessage: {
-            text: i.id, // aquí solo mostramos el JID
+            text: i.id,
             contextInfo: {}
           }
         },
@@ -25,7 +25,9 @@ let handler = async (m, { conn, text }) => {
 
       // Responder con el JID puro
       await m.reply(i.id)
-      m.react('☑️')
+
+      // Reacción correcta (sin usar m.react)
+      await conn.sendMessage(m.chat, { react: { text: "☑️", key: m.key } })
     } else {
       return conn.reply(m.chat, `🌱 Ingresa un link válido.`, m)
     }
@@ -41,7 +43,9 @@ let handler = async (m, { conn, text }) => {
 
 handler.command = ['inspector', 'inspect', 'id']
 handler.help = ['inspect <url>']
-handler.tags = ['tools']
+handler.tags = ['owner']
+handler.owner = true
+
 export default handler
 
 async function getInfo(conn, url) {
