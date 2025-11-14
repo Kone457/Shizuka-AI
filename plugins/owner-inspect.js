@@ -3,7 +3,7 @@ let handler = async (m, { conn, text }) => {
     if (!text) {
       return conn.reply(
         m.chat,
-        `🌷 Ejemplo de uso:\n.inspect https://whatsapp.com/channel/0029Vb63Kf9KwqSQLOQOtk3N`,
+        `> Ejemplo de uso:\n.inspect https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v`,
         m
       )
     }
@@ -11,22 +11,10 @@ let handler = async (m, { conn, text }) => {
     if (text.includes('https://whatsapp.com/channel/')) {
       let i = await getInfo(conn, text)
 
-      // Mostrar el JID directamente
-      await conn.relayMessage(
-        m.chat,
-        {
-          extendedTextMessage: {
-            text: i.id,
-            contextInfo: {}
-          }
-        },
-        { quoted: m }
-      )
-
-      // Responder con el JID puro
+      // Solo enviar el JID una vez
       await m.reply(i.id)
 
-      // Reacción correcta (sin usar m.react)
+      // Reacción correcta
       await conn.sendMessage(m.chat, { react: { text: "☑️", key: m.key } })
     } else {
       return conn.reply(m.chat, `🌱 Ingresa un link válido.`, m)
@@ -43,7 +31,7 @@ let handler = async (m, { conn, text }) => {
 
 handler.command = ['inspector', 'inspect', 'id']
 handler.help = ['inspect <url>']
-handler.tags = ['owner']
+handler.tags = ['tools']
 handler.owner = true
 
 export default handler
@@ -59,11 +47,7 @@ async function getInfo(conn, url) {
 
   try {
     const info = await conn.newsletterMetadata('invite', channelId)
-
-    // Solo devolvemos el JID real
-    return {
-      id: info.id
-    }
+    return { id: info.id } // JID real
   } catch (error) {
     throw new Error(`No se pudo obtener la información del canal: ${error.message}`)
   }
