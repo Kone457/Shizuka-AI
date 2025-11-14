@@ -5,7 +5,8 @@ import { fileURLToPath } from "url"
 global.botNumber = ""
 
 global.owner = [
-  ["5355699866", "Carlos 👑", true]
+  ["5355699866", "Carlos 👑", true],
+  ["595975677765", "David", true]
 ]
 
 global.botname = '🍃 Shizuka-AI'
