@@ -1,4 +1,5 @@
 import fetch from 'node-fetch'
+const footer = '≡ ✨ Powered by Carlos';
 
 let handler = async (m, { conn, text }) => {
   try {
