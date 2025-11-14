@@ -1,5 +1,7 @@
 import fetch from 'node-fetch'
 const footer = '≡ ✨ Powered by Carlos';
+const logo = 'https://i.imgur.com/abcd123.png'; 
+
 
 let handler = async (m, { conn, text }) => {
   try {
