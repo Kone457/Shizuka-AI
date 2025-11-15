@@ -1,9 +1,19 @@
+
+let lastChannelMsg = {}
+
+export async function before(m, { conn }) {
+  // Cada vez que llega un mensaje de un canal lo guardamos
+  if (m.chat.endsWith('@newsletter')) {
+    lastChannelMsg[m.chat] = m
+  }
+}
+
 let handler = async (m, { conn, text }) => {
   try {
     if (!text) {
       return conn.reply(
         m.chat,
-        `> Ejemplo de uso:\n.react https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v 🥺`,
+        `🌷 Ejemplo de uso:\n.react https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v 🥺`,
         m
       )
     }
@@ -19,20 +29,15 @@ let handler = async (m, { conn, text }) => {
     if (!match) return conn.reply(m.chat, '❌ Enlace inválido.', m)
 
     const channelId = match[1]
+    const jid = channelId + '@newsletter'
 
-    // Obtener metadata del canal
-    const info = await conn.newsletterMetadata('invite', channelId)
-    const jid = info.id // JID real del canal, ej: 120363400241973967@newsletter
-
-    // Obtener últimos mensajes del canal
-    const msgs = await conn.fetchNewsletterMessages(jid, { limit: 1 })
-    if (!msgs || msgs.length === 0) {
-      return conn.reply(m.chat, '❌ No se encontraron mensajes en el canal.', m)
+    // Verificar si tenemos un mensaje guardado de ese canal
+    const lastMsg = lastChannelMsg[jid]
+    if (!lastMsg) {
+      return conn.reply(m.chat, '❌ No tengo registrado ningún mensaje reciente de ese canal.', m)
     }
 
-    const lastMsg = msgs[0]
-
-    // Reaccionar al último mensaje
+    // Reaccionar al último mensaje guardado
     await conn.sendMessage(jid, { react: { text: emoji, key: lastMsg.key } })
 
     await m.reply(`☑️ Reaccioné con ${emoji} al último mensaje del canal.`)
