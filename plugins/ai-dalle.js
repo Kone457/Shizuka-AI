@@ -1,33 +1,22 @@
 import fetch from 'node-fetch';
 
-const GEMINI_API_KEY = 'AIzaSyDRdEvBR4_9bj3159KsDlgJxux9R-5CMwA';
-
 let handler = async (m, { conn, text }) => {
   try {
     const sender = m.sender;
     const senderName = await conn.getName(sender);
 
-    if (!text) return m.reply('🎨 Escribe la descripción de la imagen. Ejemplo: *.gemimg un gato cósmico*');
+    if (!text) return m.reply('🎨 Ingresa un prompt. Ejemplo: *.dalle islas mágicas*');
 
-    
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateImage?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt: {
-          text: text
-        }
-      })
-    });
-
+    // Construir la URL con el prompt
+    const endpoint = `https://api.vreden.my.id/api/v1/artificial/text2img?prompt=${encodeURIComponent(text)}`;
+    const res = await fetch(endpoint);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const json = await res.json();
 
-    // Extraer URL de la imagen generada
-    const imageUrl = data?.candidates?.[0]?.content?.parts?.[0]?.imageUrl;
+    const imageUrl = json?.result?.download;
     if (!imageUrl) return m.reply('✨ No se pudo generar la imagen.');
 
-    const caption = `🎨 Imagen generada por Gemini\n✨ Para ${senderName}`;
+    const caption = `🎨 Imagen generada por dalle\n🖋 Prompt: ${json.result.prompt}\n✨ Para ${senderName}`;
 
     await conn.sendMessage(
       m.chat,
@@ -40,13 +29,13 @@ let handler = async (m, { conn, text }) => {
     );
 
   } catch (error) {
-    console.error(error);
-    m.reply('> *Error al generar la imagen con Gemini.* Intenta nuevamente más tarde.');
+    console.error('❌ Error en vreden-img:', error);
+    m.reply('> *Error al generar la imagen con dalle.* Intenta nuevamente más tarde.');
   }
 };
 
 handler.help = ['dalle'];
 handler.tags = ['ai'];
-handler.command = ['dalle', 'imagen'];
+handler.command = ['dalle'];
 
 export default handler;
