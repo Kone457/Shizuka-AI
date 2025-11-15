@@ -2,7 +2,7 @@
 let lastChannelMsg = {}
 
 export async function before(m, { conn }) {
-  // Cada vez que llega un mensaje de un canal lo guardamos
+  
   if (m.chat.endsWith('@newsletter')) {
     lastChannelMsg[m.chat] = m
   }
