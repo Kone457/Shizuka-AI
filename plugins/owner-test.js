@@ -2,7 +2,6 @@
 let lastChannelMsg = {}
 
 export async function before(m, { conn }) {
-  
   if (m.chat.endsWith('@newsletter')) {
     lastChannelMsg[m.chat] = m
   }
@@ -18,36 +17,26 @@ let handler = async (m, { conn, text }) => {
       )
     }
 
-    // Separar URL y emoji
     const [url, emoji] = text.split(/\s+/)
-    if (!url || !emoji) {
-      return conn.reply(m.chat, '🌱 Ingresa un link válido y un emoji.', m)
-    }
+    if (!url || !emoji) return conn.reply(m.chat, '🌱 Ingresa un link válido y un emoji.', m)
 
-    // Extraer ID del canal
     const match = url.match(/channel\/([0-9A-Za-z]+)/i)
     if (!match) return conn.reply(m.chat, '❌ Enlace inválido.', m)
 
     const channelId = match[1]
     const jid = channelId + '@newsletter'
 
-    // Verificar si tenemos un mensaje guardado de ese canal
     const lastMsg = lastChannelMsg[jid]
     if (!lastMsg) {
       return conn.reply(m.chat, '❌ No tengo registrado ningún mensaje reciente de ese canal.', m)
     }
 
-    // Reaccionar al último mensaje guardado
     await conn.sendMessage(jid, { react: { text: emoji, key: lastMsg.key } })
-
     await m.reply(`☑️ Reaccioné con ${emoji} al último mensaje del canal.`)
+
   } catch (error) {
     console.error(error)
-    await conn.reply(
-      m.chat,
-      `❌ Error al reaccionar:\n> ${error.message}`,
-      m
-    )
+    await conn.reply(m.chat, `❌ Error al reaccionar:\n> ${error.message}`, m)
   }
 }
 
