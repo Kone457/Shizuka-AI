@@ -3,7 +3,7 @@ let handler = async (m, { conn, command }) => {
     let groupMetadata = await conn.groupMetadata(m.chat);
     let groupAnnouncement = groupMetadata.announce;
 
-    if (command === 'closet') {
+    if (command === 'close') {
       if (groupAnnouncement === true) {
         return conn.reply(m.chat, `> El grupo ya está cerrado.`, m);
       }
@@ -30,9 +30,9 @@ let handler = async (m, { conn, command }) => {
   }
 };
 
-handler.help = ['closet', 'open'];
+handler.help = ['close', 'open'];
 handler.tags = ['grupo'];
-handler.command = ['closet', 'open'];
+handler.command = ['close', 'open'];
 handler.admin = true;
 handler.botAdmin = true;
 
