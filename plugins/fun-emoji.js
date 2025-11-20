@@ -1,5 +1,5 @@
 let handler = async (m, { conn }) => {
-  // Verificamos si el mensaje contiene exactamente el emoji ❗
+  
   if (m.text === '❗') {
     await conn.reply(
       m.chat, 
@@ -10,7 +10,7 @@ let handler = async (m, { conn }) => {
 }
 
 handler.customPrefix = /^❗$/i
-handler.command = new RegExp // no necesita comando, solo el emoji
+handler.command = new RegExp  
 handler.tags = ['fun']
 
 export default handler
