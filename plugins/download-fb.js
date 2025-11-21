@@ -1,11 +1,10 @@
-
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
+let handler = async (m, { conn, args }) => {
   try {
     if (!args[0]) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply(`⚠️ Ingresa un enlace de un video de *Facebook*`);
+      return m.reply('⚠️ Ingresa un enlace de un video de *Facebook*');
     }
 
     if (!args[0].match(/facebook\.com|fb\.watch|video\.fb\.com/)) {
@@ -13,21 +12,19 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       return m.reply('❌ El enlace no parece *válido*. Asegúrate de que sea de *Facebook*');
     }
 
-    
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://api.vreden.my.id/api/v1/download/facebook?url=${args[0]}`);
+    const res = await fetch(`https://sylphy.xyz/download/facebook?url=${args[0]}`);
     const json = await res.json();
 
-    if (!json.status || !json.result?.download?.hd) {
+    if (!json.status || !json.result?.title) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
     }
 
-    const videoUrl = json.result.download.hd;
-    const caption = `𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload\n\n🫗 *Enlace:* ${args[0]}`;
+    const videoUrl = json.result.url || json.result.data?.[0]?.url;
+    const caption = `𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload\n\n🎬 *Título:* ${json.result.title}\n🕒 *Duración:* ${json.result.duration}\n🫗 *Enlace:* ${args[0]}`;
 
-    
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
     await conn.sendMessage(
@@ -36,7 +33,8 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         video: { url: videoUrl },
         caption,
         mimetype: 'video/mp4',
-        fileName: 'fb.mp4'
+        fileName: 'fb.mp4',
+        thumbnail: json.result.thumb ? await (await fetch(json.result.thumb)).buffer() : null
       },
       { quoted: m }
     );
