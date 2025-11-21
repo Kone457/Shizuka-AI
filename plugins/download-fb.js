@@ -17,12 +17,12 @@ let handler = async (m, { conn, args }) => {
     const res = await fetch(`https://sylphy.xyz/download/facebook?url=${args[0]}`);
     const json = await res.json();
 
-    if (!json.status || !json.result?.title) {
+    if (!json.status || (!json.result?.sd && !json.result?.hd)) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
     }
 
-    const videoUrl = json.result.url || json.result.data?.[0]?.url;
+    const videoUrl = json.result.hd || json.result.sd;
     const caption = `𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload\n\n🎬 *Título:* ${json.result.title}\n🕒 *Duración:* ${json.result.duration}\n🫗 *Enlace:* ${args[0]}`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
@@ -33,7 +33,7 @@ let handler = async (m, { conn, args }) => {
         video: { url: videoUrl },
         caption,
         mimetype: 'video/mp4',
-        fileName: 'fb.mp4',
+        fileName: json.result.hd ? 'fb_hd.mp4' : 'fb_sd.mp4',
         thumbnail: json.result.thumb ? await (await fetch(json.result.thumb)).buffer() : null
       },
       { quoted: m }
