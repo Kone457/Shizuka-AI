@@ -14,20 +14,22 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://carlos.wispbyte.app/search/tiktok?q=${encodeURIComponent(args[0])}`);
+    const res = await fetch(`https://carlos.wispbyte.app/download/tiktok?url=${encodeURIComponent(args[0])}`);
     const json = await res.json();
 
-    if (!json.status || !json.result?.[0]?.play) {
+    if (!json.status || !json.result?.data?.play) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
     }
 
-    const data = json.result[0];
-    const videoUrl = data.play || data.wmplay;
+    const data = json.result.data;
+
+    const videoUrl = data.hdplay || data.play || data.wmplay;
 
     const caption = `𖣣ֶㅤ֯⌗ 🅣𝖐 🅓ownload
 🎧 *Título:* ${data.title || 'Sin título'}
 ⏱️ *Duración:* ${data.duration || 'N/D'} seg
+👤 *Autor:* ${data.author?.nickname || 'Desconocido'}
 🫗 *Enlace:* ${args[0]}`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
