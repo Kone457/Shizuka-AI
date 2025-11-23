@@ -14,7 +14,6 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    // Usando tu API personalizada
     const res = await fetch(`https://carlos.wispbyte.app/search/tiktok?q=${encodeURIComponent(args[0])}`);
     const json = await res.json();
 
