@@ -14,17 +14,22 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://api.vreden.my.id/api/v1/download/tiktok?url=${args[0]}`);
+    // Usando tu API personalizada
+    const res = await fetch(`https://carlos.wispbyte.app/search/tiktok?q=${encodeURIComponent(args[0])}`);
     const json = await res.json();
 
-    if (!json.status || !json.result?.data?.[0]?.url) {
+    if (!json.status || !json.result?.[0]?.play) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
     }
 
-    const videoUrl = json.result.data.find(v => v.type === 'nowatermark_hd')?.url || json.result.data[0].url;
+    const data = json.result[0];
+    const videoUrl = data.play || data.wmplay;
 
-    const caption = `𖣣ֶㅤ֯⌗ 🅣𝖐 🅓ownload\n\n🎧 *Título:* ${json.result.title}\n🫗 *Enlace:* ${args[0]}`;
+    const caption = `𖣣ֶㅤ֯⌗ 🅣𝖐 🅓ownload
+🎧 *Título:* ${data.title || 'Sin título'}
+⏱️ *Duración:* ${data.duration || 'N/D'} seg
+🫗 *Enlace:* ${args[0]}`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -34,13 +39,14 @@ let handler = async (m, { conn, args }) => {
         video: { url: videoUrl },
         caption,
         mimetype: 'video/mp4',
-        fileName: 'tiktok.mp4'
+        fileName: 'tiktok.mp4',
+        thumbnail: data.cover ? { url: data.cover } : null
       },
       { quoted: m }
     );
 
   } catch (error) {
-    console.error(error);
+    console.error('Error TikTok:', error, 'URL:', args[0]);
     await conn.sendMessage(m.chat, { react: { text: '💥', key: m.key } });
     m.reply('💥 *Error al procesar el video.* Intenta nuevamente más tarde.');
   }
