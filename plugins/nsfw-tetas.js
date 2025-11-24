@@ -32,7 +32,7 @@ try {
                     buttonText: { displayText: 'Siguiente' }
                 }
             ],
-            viewOnce: false,
+            viewOnce: true,
             headerType: 4
         }, { quoted: m });
 
