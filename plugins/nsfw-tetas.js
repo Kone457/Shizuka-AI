@@ -1,4 +1,6 @@
 import axios from 'axios';
+const hotw = '⚠️ El contenido NSFW está desactivado en este grupo.';
+const dev = 'By Carlos'; 
 
 let handler = async (m, { conn, usedPrefix, command }) => {
 try {
