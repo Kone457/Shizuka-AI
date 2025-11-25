@@ -22,9 +22,9 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
     const background = encodeURIComponent('https://cdn.popcat.xyz/welcome-bg.png');
-    const text1 = encodeURIComponent(String(name));
+    const text1 = encodeURIComponent('');
     const text2 = encodeURIComponent(`Bienvenido a ${groupMetadata.subject}`);
-    const text3 = encodeURIComponent(`Miembro ${memberCount}`);
+    const text3 = encodeURIComponent(`Ahora somos ${memberCount} miembros`);
     const avatar = encodeURIComponent(ppUrl);
 
     const popcatUrl = `https://api.popcat.xyz/v2/welcomecard?background=${background}&text1=${text1}&text2=${text2}&text3=${text3}&avatar=${avatar}`;
@@ -37,7 +37,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (chat.welcome && [WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
     const background = encodeURIComponent('https://cdn.popcat.xyz/welcome-bg.png');
-    const text1 = encodeURIComponent(String(name));
+    const text1 = encodeURIComponent('');
     const text2 = encodeURIComponent(`Hasta pronto desde ${groupMetadata.subject}`);
     const text3 = encodeURIComponent(`Ahora somos ${memberCount} miembros`);
     const avatar = encodeURIComponent(ppUrl);
