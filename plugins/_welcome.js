@@ -1,4 +1,3 @@
-
 import { WAMessageStubType } from '@whiskeysockets/baileys';
 
 export async function before(m, { conn, participants, groupMetadata }) {
@@ -12,7 +11,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   const name = nombre || await conn.getName(userss);
 
   const ppUrl = await conn.profilePictureUrl(userss, 'image')
-    .catch(() => 'https://files.catbox.moe/l91dnk.jpg');
+    .catch(() => "https://files.catbox.moe/l91dnk.jpg");
 
   let memberCount = participants.length;
   if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) memberCount += 1;
@@ -21,6 +20,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   const mentions = [userss, m.key.participant].filter(Boolean);
   const fakeContext = { contextInfo: { mentionedJid: mentions } };
 
+  // Bienvenida
   if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
     const background = encodeURIComponent('https://cdn.popcat.xyz/welcome-bg.png');
     const text1 = encodeURIComponent('');
@@ -36,6 +36,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     );
   }
 
+  // Despedida
   if (chat.welcome && [WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
     const background = encodeURIComponent('https://cdn.popcat.xyz/welcome-bg.png');
     const text1 = encodeURIComponent('');
