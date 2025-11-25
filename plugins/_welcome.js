@@ -1,5 +1,5 @@
+
 import { WAMessageStubType } from '@whiskeysockets/baileys';
-import fs from 'fs';
 import knights from '@clayzaaubert/canvix';
 
 export async function before(m, { conn, participants, groupMetadata }) {
@@ -78,7 +78,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     }
   };
 
-  // === Generación de imagen con Canvix ===
+  // === Bienvenida con Canvix ===
   if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
     try {
       const image = await new knights.Welcome2()
@@ -89,17 +89,19 @@ export async function before(m, { conn, participants, groupMetadata }) {
         .setMember(memberCount.toString()) // número de miembros
         .toAttachment();
 
-      const data = image.toBuffer();
-      const filePath = './tmp/sewelkom2.png';
-      fs.writeFileSync(filePath, data);
+      const buffer = image.toBuffer();
 
-      await conn.sendMessage(m.chat, { image: { url: filePath }, caption: formatText(welcomeMessage), ...fakeContext });
+      await conn.sendMessage(
+        m.chat,
+        { image: buffer, caption: formatText(welcomeMessage), ...fakeContext }
+      );
     } catch (e) {
       // fallback si falla canvix
       await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: formatText(welcomeMessage), ...fakeContext });
     }
   }
 
+  // === Despedida (sin Canvix, solo foto) ===
   if (chat.welcome && [WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
     await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: formatText(byeMessage), ...fakeContext });
   }
