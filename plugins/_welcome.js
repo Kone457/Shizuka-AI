@@ -1,14 +1,19 @@
 import { WAMessageStubType } from '@whiskeysockets/baileys';
+import fs from 'fs';
+import knights from '@clayzaaubert/canvix';
 
 export async function before(m, { conn, participants, groupMetadata }) {
   if (!m.messageStubType || !m.isGroup) return true;
 
   const chat = globalThis.db.data.chats[m.chat];
-  const nombre = globalThis.db.data.users[m.messageStubParameters[0]]?.name || {};
-  const ppUrl = await conn.profilePictureUrl(m.messageStubParameters[0], 'image')
+  const userss = m.messageStubParameters[0];
+
+  // Datos básicos del usuario
+  const nombre = globalThis.db.data.users[userss]?.name || {};
+  const ppUrl = await conn.profilePictureUrl(userss, 'image')
     .catch(() => "https://files.catbox.moe/l91dnk.jpg");
 
-  const name = nombre || await conn.getName(m.messageStubParameters[0]);
+  const name = nombre || await conn.getName(userss);
   const actionUser = m.key.participant ? await conn.getName(m.key.participant) : null;
 
   const actionMessages = {
@@ -17,8 +22,32 @@ export async function before(m, { conn, participants, groupMetadata }) {
     [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]: '┊👋 *Se fue por decisión propia*'
   };
 
-  const userss = m.messageStubParameters[0];
-  const formatText = (template, memberCount) => {
+  // Conteo de miembros
+  let memberCount = participants.length;
+  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) memberCount += 1;
+  else if ([WAMessageStubType.GROUP_PARTICIPANT_REMOVE, WAMessageStubType.GROUP_PARTICIPANT_LEAVE].includes(m.messageStubType)) memberCount -= 1;
+
+  // Plantillas de texto
+  const welcomeMessage = chat.sWelcome || `\n
+╔═══✦ Bienvenido ✦═══╗
+🌸 Usuario: @user
+🏠 Grupo: @group
+📅 Fecha: @date
+─────────────────────
+✨ Usa /menu para ver los comandos.
+👥 Ahora somos @users miembros.
+╚═══════════════════╝`;
+
+  const byeMessage = chat.sBye || `\n
+╔═══✦ Hasta pronto ✦═══╗
+🌸 Usuario: @user
+📅 Fecha: @date
+─────────────────────
+💫 Esperamos que regrese pronto.
+👥 Ahora somos @users miembros.
+╚═══════════════════╝`;
+
+  const formatText = (template) => {
     return template
       .replace('@user', `@${userss.split`@`[0]}`)
       .replace('@group', groupMetadata.subject)
@@ -27,29 +56,6 @@ export async function before(m, { conn, participants, groupMetadata }) {
       .replace('@type', actionMessages[m.messageStubType])
       .replace('@desc', groupMetadata.desc?.toString() || '✿ Sin descripción ✿');
   };
-
-  let memberCount = participants.length;
-  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) memberCount += 1;
-  else if ([WAMessageStubType.GROUP_PARTICIPANT_REMOVE, WAMessageStubType.GROUP_PARTICIPANT_LEAVE].includes(m.messageStubType)) memberCount -= 1;
-
-  const welcomeMessage = formatText(chat.sWelcome || `\n
-╔═══✦ Bienvenido ✦═══╗
-🌸 Usuario: @user
-🏠 Grupo: @group
-📅 Fecha: @date
-─────────────────────
-✨ Usa /menu para ver los comandos.
-👥 Ahora somos @users miembros.
-╚═══════════════════╝`, memberCount);
-
-  const byeMessage = formatText(chat.sBye || `\n
-╔═══✦ Hasta pronto ✦═══╗
-🌸 Usuario: @user
-📅 Fecha: @date
-─────────────────────
-💫 Esperamos que regrese pronto.
-👥 Ahora somos @users miembros.
-╚═══════════════════╝`, memberCount);
 
   const mentions = [userss, m.key.participant];
 
@@ -72,15 +78,29 @@ export async function before(m, { conn, participants, groupMetadata }) {
     }
   };
 
+  // === Generación de imagen con Canvix ===
   if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-    await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: welcomeMessage, ...fakeContext });
+    try {
+      const image = await new knights.Welcome2()
+        .setAvatar(ppUrl) // avatar del nuevo usuario
+        .setUsername(name) // nombre del usuario
+        .setBg("https://files.catbox.moe/yourbackground.jpg") // fondo personalizado
+        .setGroupname(groupMetadata.subject) // nombre del grupo
+        .setMember(memberCount.toString()) // número de miembros
+        .toAttachment();
+
+      const data = image.toBuffer();
+      const filePath = './tmp/sewelkom2.png';
+      fs.writeFileSync(filePath, data);
+
+      await conn.sendMessage(m.chat, { image: { url: filePath }, caption: formatText(welcomeMessage), ...fakeContext });
+    } catch (e) {
+      // fallback si falla canvix
+      await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: formatText(welcomeMessage), ...fakeContext });
+    }
   }
 
-  if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
-    await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: byeMessage, ...fakeContext });
-  }
-
-  if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
-    await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: byeMessage, ...fakeContext });
+  if (chat.welcome && [WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
+    await conn.sendMessage(m.chat, { image: { url: ppUrl }, caption: formatText(byeMessage), ...fakeContext });
   }
 }
