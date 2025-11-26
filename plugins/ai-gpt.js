@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-const GEMINI_API_KEY = 'AIzaSyDRdEvBR4_9bj3159KsDlgJxux9R-5CMwA';
+const GEMINI_API_KEY = 'AIzaSyCoUt7z4Ai-nvD_rSYmAD5N930OUTQZVCY';
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 const GEMINI_PATH = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
