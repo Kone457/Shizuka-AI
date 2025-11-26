@@ -14,30 +14,16 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    // Nueva API
-    const res = await fetch(`https://api.starlights.uk/api/downloader/facebook?url=${encodeURIComponent(args[0])}`);
+    const res = await fetch(https://sylphy.xyz/download/facebook?url=${args[0]});
     const json = await res.json();
 
-    if (!json.status || !json.data?.result?.length) {
+    if (!json.status || (!json.result?.sd && !json.result?.hd)) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el video. Intenta con otro enlace.');
     }
 
-    // Parseamos los resultados
-    const results = json.data.result.map(r => JSON.parse(r));
-    const hd = results.find(r => r.quality === 'alta');
-    const sd = results.find(r => r.quality === 'baja');
-
-    const videoUrl = hd?.dl_url || sd?.dl_url;
-    if (!videoUrl) {
-      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply('⚠️ No se encontró un enlace válido de descarga.');
-    }
-
-    const caption = `𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload
-    
-🎬 Calidad: ${hd ? 'Alta' : 'Baja'}
-🫗 Enlace: ${args[0]}`;
+    const videoUrl = json.result.hd || json.result.sd;
+    const caption = 𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload\n\n🎬 Título: ${json.result.title}\n🕒 Duración: ${json.result.duration}\n🫗 Enlace: ${args[0]};
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -47,7 +33,8 @@ let handler = async (m, { conn, args }) => {
         video: { url: videoUrl },
         caption,
         mimetype: 'video/mp4',
-        fileName: hd ? 'fbhd.mp4' : 'fbsd.mp4'
+        fileName: json.result.hd ? 'fbhd.mp4' : 'fbsd.mp4',
+        thumbnail: json.result.thumb ? await (await fetch(json.result.thumb)).buffer() : null
       },
       { quoted: m }
     );
