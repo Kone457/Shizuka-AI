@@ -4,26 +4,40 @@ let handler = async (m, { conn, args }) => {
   try {
     if (!args[0]) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply('⚠️ Ingresa un enlace de un video de *Facebook*');
+      return m.reply('⚠️ Ingresa un enlace de un video de Facebook');
     }
 
     if (!args[0].match(/facebook\.com|fb\.watch|video\.fb\.com/)) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-      return m.reply('❌ El enlace no parece *válido*. Asegúrate de que sea de *Facebook*');
+      return m.reply('❌ El enlace no parece válido. Asegúrate de que sea de Facebook');
     }
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://sylphy.xyz/download/facebook?url=${args[0]}`);
+    // Nueva API
+    const res = await fetch(`https://api.starlights.uk/api/downloader/facebook?url=${encodeURIComponent(args[0])}`);
     const json = await res.json();
 
-    if (!json.status || (!json.result?.sd && !json.result?.hd)) {
+    if (!json.status || !json.data?.result?.length) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
+      return m.reply('⚠️ No se pudo obtener el video. Intenta con otro enlace.');
     }
 
-    const videoUrl = json.result.hd || json.result.sd;
-    const caption = `𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload\n\n🎬 *Título:* ${json.result.title}\n🕒 *Duración:* ${json.result.duration}\n🫗 *Enlace:* ${args[0]}`;
+    // Parseamos los resultados
+    const results = json.data.result.map(r => JSON.parse(r));
+    const hd = results.find(r => r.quality === 'alta');
+    const sd = results.find(r => r.quality === 'baja');
+
+    const videoUrl = hd?.dl_url || sd?.dl_url;
+    if (!videoUrl) {
+      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
+      return m.reply('⚠️ No se encontró un enlace válido de descarga.');
+    }
+
+    const caption = `𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload
+    
+🎬 Calidad: ${hd ? 'Alta' : 'Baja'}
+🫗 Enlace: ${args[0]}`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -33,8 +47,7 @@ let handler = async (m, { conn, args }) => {
         video: { url: videoUrl },
         caption,
         mimetype: 'video/mp4',
-        fileName: json.result.hd ? 'fb_hd.mp4' : 'fb_sd.mp4',
-        thumbnail: json.result.thumb ? await (await fetch(json.result.thumb)).buffer() : null
+        fileName: hd ? 'fbhd.mp4' : 'fbsd.mp4'
       },
       { quoted: m }
     );
@@ -42,7 +55,7 @@ let handler = async (m, { conn, args }) => {
   } catch (error) {
     console.error(error);
     await conn.sendMessage(m.chat, { react: { text: '💥', key: m.key } });
-    m.reply('💥 *Error al procesar el video.* Intenta nuevamente más tarde.');
+    m.reply('💥 Error al procesar el video. Intenta nuevamente más tarde.');
   }
 };
 
