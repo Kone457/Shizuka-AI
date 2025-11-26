@@ -11,7 +11,7 @@ let handler = async (m, { conn }) => {
   `;
 
   await conn.sendMessage(m.chat, {
-    image: { url: "https://files.catbox.moe/q459gs.jpg" }, 
+    image: { url: "https://files.catbox.moe/h4syyj.jpg" }, 
     caption
   }, { quoted: m });
 };
