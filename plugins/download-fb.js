@@ -1,57 +1,93 @@
+
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, args }) => {
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+  if (!global._processedMessages) global._processedMessages = new Set();
+  if (global._processedMessages.has(m.key.id)) return;
+  global._processedMessages.add(m.key.id);
+
+  const thumbnailCard = 'https://qu.ax/phgPU.jpg';
+
+  if (!text || !/(facebook\.com|fb\.watch)/.test(text)) {
+    return await conn.sendMessage(
+      m.chat,
+      {
+        text: `📥 *Proporciona un enlace válido de Facebook para invocar el video.*\nEjemplo:\n${usedPrefix + command} https://www.facebook.com/share/v/abc123`,
+        footer: '🔗 Ritual de descarga por Shizuka',
+        contextInfo: {
+          externalAdReply: {
+            title: 'Invocación desde Facebook',
+            body: 'Shizuka transforma enlaces en reliquias visuales',
+            thumbnailUrl: thumbnailCard,
+            sourceUrl: 'https://facebook.com'
+          }
+        }
+      },
+      { quoted: m }
+    );
+  }
+
   try {
-    if (!args[0]) {
-      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply('⚠️ Ingresa un enlace de un video de Facebook');
+    await m.react('🧨');
+
+    const apiRes = await fetch(
+      `https://api.starlights.uk/api/downloader/facebook?url=${encodeURIComponent(text)}`
+    );
+    const json = await apiRes.json();
+
+    if (!json.status || !json.data?.result) throw new Error('No se pudo obtener el video');
+
+    const videos = json.data.result.map(v => JSON.parse(v));
+
+    const chosen = videos.find(v => v.quality === 'alta') || videos[0];
+    if (!chosen || !chosen.dl_url) throw new Error('No se encontró un video válido');
+
+    const { quality, dl_url: videoUrl } = chosen;
+
+    let jpegThumbnail = null;
+    try {
+      jpegThumbnail = await conn.getBuffer(thumbnailCard);
+    } catch (e) {
+
     }
 
-    if (!args[0].match(/facebook\.com|fb\.watch|video\.fb\.com/)) {
-      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-      return m.reply('❌ El enlace no parece válido. Asegúrate de que sea de Facebook');
+    if (jpegThumbnail) {
+      await conn.sendMessage(
+        m.chat,
+        {
+          image: jpegThumbnail,
+          caption: '📸 Miniatura pequeña para tu contemplación ritual.'
+        },
+        { quoted: m }
+      );
     }
-
-    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-
-    const res = await fetch(`https://api.dorratz.com/fbvideo?url=${encodeURIComponent(args[0])}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-
-    const videoUrl = json?.url;
-    const thumbUrl = json?.thumbnail;
-    const resolution = json?.resolution;
-
-    if (!videoUrl) {
-      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply('⚠️ No se pudo obtener el video. Intenta con otro enlace.');
-    }
-
-    const caption = `𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload\n\n🎬 Resolución: ${resolution}\n🫗 Enlace: ${args[0]}`;
-
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
     await conn.sendMessage(
       m.chat,
       {
         video: { url: videoUrl },
-        caption,
-        mimetype: 'video/mp4',
-        fileName: resolution?.includes('HD') ? 'fbhd.mp4' : 'fbsd.mp4',
-        thumbnail: thumbUrl ? await (await fetch(thumbUrl)).buffer() : null
+        caption: `
+🎞️ Resolución: ${quality}
+📥 El archivo ha sido purificado y está listo para su contemplación ritual.
+        `.trim(),
+        jpegThumbnail
       },
       { quoted: m }
     );
 
-  } catch (error) {
-    console.error('[FB-Dorratz] Error:', error);
-    await conn.sendMessage(m.chat, { react: { text: '💥', key: m.key } });
-    m.reply('💥 Error al procesar el video. Intenta nuevamente más tarde.');
+    await m.react('✅');
+  } catch (err) {
+    console.error('Ritual fallido:', err);
+    await conn.sendMessage(
+      m.chat,
+      { text: `❌ *Ritual interrumpido.*\n📛 Detalles: ${err.message}` },
+      { quoted: m }
+    );
+    await m.react('⚠️');
   }
 };
 
-handler.help = ['fb', 'facebook'];
+handler.help = ['facebook *<url>*'];
 handler.tags = ['descargas'];
 handler.command = ['fb', 'facebook'];
-
 export default handler;
