@@ -1,12 +1,13 @@
-import axios from "axios"
-
 let handler = async (m, { conn, args }) => {
   try {
     const id = args?.[0]?.match(/\d+\-\d+@g.us/)?.[0] || m.chat
     const metadata = await conn.groupMetadata(id)
-    const admins = metadata.participants.filter(p => p.admin).map(p => p.id)
 
-    const mensajes = Object.values(conn.chats[id]?.messages || {})
+    const admins = metadata.participants
+      .filter(p => p.admin === 'admin' || p.admin === 'superadmin' || p.admin === true)
+      .map(p => p.id)
+
+    const mensajes = Object.values(conn.chats?.[id]?.messages || {})
     const participantesUnicos = mensajes
       .map(msg => msg?.key?.participant)
       .filter((v, i, a) => v && a.indexOf(v) === i)
@@ -45,7 +46,7 @@ let handler = async (m, { conn, args }) => {
       { quoted: m }
     )
 
-    await m.react("🌸")
+    if (m.react) await m.react("🌸")
   } catch (error) {
     console.error(error)
     await m.reply(
