@@ -7,7 +7,7 @@ let handler = async (m, { conn, args }) => {
     const emogis = args.slice(1).join(" ")
 
     if (!url || !emogis) {
-      return m.reply("🚩 Uso correcto: /react https://whatsapp.com/channel/0029VbApwZ9ISTkEBb6ttS3F/01918 🍃, 🌱, 🥳, 🤣")
+      return m.reply("🚩 Uso correcto: /react https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v 🍃, 🌱, 🥳, 🤣")
     }
 
     const lista = emogis.split(",").map(e => e.trim()).filter(e => e)
