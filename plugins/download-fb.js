@@ -14,16 +14,20 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(https://sylphy.xyz/download/facebook?url=${args[0]});
+    const res = await fetch(`https://api.dorratz.com/fbvideo?url=${encodeURIComponent(args[0])}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
 
-    if (!json.status || (!json.result?.sd && !json.result?.hd)) {
+    const videoUrl = json?.url;
+    const thumbUrl = json?.thumbnail;
+    const resolution = json?.resolution;
+
+    if (!videoUrl) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el video. Intenta con otro enlace.');
     }
 
-    const videoUrl = json.result.hd || json.result.sd;
-    const caption = 𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload\n\n🎬 Título: ${json.result.title}\n🕒 Duración: ${json.result.duration}\n🫗 Enlace: ${args[0]};
+    const caption = `𖣣ֶㅤ֯⌗ 🅕𝖡 🅓ownload\n\n🎬 Resolución: ${resolution}\n🫗 Enlace: ${args[0]}`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -33,14 +37,14 @@ let handler = async (m, { conn, args }) => {
         video: { url: videoUrl },
         caption,
         mimetype: 'video/mp4',
-        fileName: json.result.hd ? 'fbhd.mp4' : 'fbsd.mp4',
-        thumbnail: json.result.thumb ? await (await fetch(json.result.thumb)).buffer() : null
+        fileName: resolution?.includes('HD') ? 'fbhd.mp4' : 'fbsd.mp4',
+        thumbnail: thumbUrl ? await (await fetch(thumbUrl)).buffer() : null
       },
       { quoted: m }
     );
 
   } catch (error) {
-    console.error(error);
+    console.error('[FB-Dorratz] Error:', error);
     await conn.sendMessage(m.chat, { react: { text: '💥', key: m.key } });
     m.reply('💥 Error al procesar el video. Intenta nuevamente más tarde.');
   }
