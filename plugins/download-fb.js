@@ -1,4 +1,3 @@
-
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
@@ -28,7 +27,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 
   try {
-    await m.react('🧨');
+    await conn.sendMessage(m.chat, { react: { text: '🧨', key: m.key } });
 
     const apiRes = await fetch(
       `https://api.starlights.uk/api/downloader/facebook?url=${encodeURIComponent(text)}`
@@ -47,9 +46,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     let jpegThumbnail = null;
     try {
       jpegThumbnail = await conn.getBuffer(thumbnailCard);
-    } catch (e) {
-
-    }
+    } catch (e) {}
 
     if (jpegThumbnail) {
       await conn.sendMessage(
@@ -75,7 +72,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       { quoted: m }
     );
 
-    await m.react('✅');
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
   } catch (err) {
     console.error('Ritual fallido:', err);
     await conn.sendMessage(
@@ -83,7 +80,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       { text: `❌ *Ritual interrumpido.*\n📛 Detalles: ${err.message}` },
       { quoted: m }
     );
-    await m.react('⚠️');
+    await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
   }
 };
 
