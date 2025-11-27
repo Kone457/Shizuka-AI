@@ -43,8 +43,8 @@ let handler = async (m, { conn, args }) => {
 }
 
 handler.help = ['react']
-handler.tags = ['fun']
+handler.tags = ['owner']
 handler.command = ['react']
-handler.owner = false
+handler.owner = true
 
 export default handler
