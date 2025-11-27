@@ -36,6 +36,6 @@ let handler = async (m, { args, text, command, conn }) => {
         return m.reply("No se pudo enviar la reacción. Asegúrese de que el enlace y el texto sean válidos: " + e);
     }
 };
-handler.help = handler.command = ["react"]
+handler.help = handler.command = ["react2"]
 handler.tags = ["tools"]
 export default handler
