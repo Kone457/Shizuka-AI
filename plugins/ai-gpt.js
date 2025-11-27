@@ -2,9 +2,7 @@ import fetch from 'node-fetch';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-const GEMINI_API_KEY = 'AIzaSyCoUt7z4Ai-nvD_rSYmAD5N930OUTQZVCY';
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
-const GEMINI_PATH = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const DORRATZ_API = 'https://api.dorratz.com/ai/gpt';
 
 const SHIZUKA_ROLE = [
   "Eres Shizuka y respondes con ternura y muchos emojis en tus respuestas.",
@@ -48,32 +46,21 @@ let handler = async (m, { conn, args }) => {
 
     const rows = await db.all(`SELECT role, text FROM memory WHERE chatId = ? ORDER BY timestamp ASC`, [chatId]);
 
-    const payload = {
-      contents: [
-        {
-          parts: [
-            { text: SHIZUKA_ROLE },
-            ...rows.map(msg => ({ text: msg.text }))
-          ]
-        }
-      ]
-    };
+    // Construimos el prompt concatenando el rol + historial + texto del usuario
+    const prompt = [
+      SHIZUKA_ROLE,
+      ...rows.map(msg => `${msg.role}: ${msg.text}`)
+    ].join('\n');
 
-    const res = await fetch(GEMINI_PATH, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
+    // Llamada a la API de Dorratz
+    const res = await fetch(`${DORRATZ_API}?prompt=${encodeURIComponent(prompt)}&country=venezuela`);
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
       throw new Error(`HTTP ${res.status}: ${errText || 'Error en la solicitud'}`);
     }
 
     const json = await res.json();
-    const candidate = json?.candidates?.[0];
-    const parts = candidate?.content?.parts || [];
-    const response = parts.map(p => p.text || '').join('\n').trim();
+    const response = (json?.result || '').trim();
 
     if (!response) {
       await conn.sendMessage(chatId, { text: '> No se obtuvo una *respuesta* válida.', edit: key });
@@ -89,8 +76,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['ia', 'gemini'];
+handler.help = ['ia', 'gpt'];
 handler.tags = ['ia'];
-handler.command = ['ia', 'gemini'];
+handler.command = ['ia', 'gpt'];
 
 export default handler;
