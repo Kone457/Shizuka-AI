@@ -7,16 +7,16 @@ let handler = async (m, { conn, text }) => {
 
     if (!text) return m.reply('🎨 Ingresa un prompt. Ejemplo: *.dalle islas mágicas*');
 
-    // Construir la URL con el prompt
-    const endpoint = `https://api.vreden.my.id/api/v1/artificial/text2img?prompt=${encodeURIComponent(text)}`;
+   
+    const endpoint = `https://api.dorratz.com/v3/ai-image?prompt=${encodeURIComponent(text)}&ratio=9:19`;
     const res = await fetch(endpoint);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
 
-    const imageUrl = json?.result?.download;
+    const imageUrl = json?.data?.image_link;
     if (!imageUrl) return m.reply('✨ No se pudo generar la imagen.');
 
-    const caption = `🎨 Imagen generada por dalle\n🖋 Prompt: ${json.result.prompt}\n✨ Para ${senderName}`;
+    const caption = `🎨 Imagen generada \n🖋 Prompt: ${text}\n✨ Para ${senderName}`;
 
     await conn.sendMessage(
       m.chat,
@@ -29,13 +29,13 @@ let handler = async (m, { conn, text }) => {
     );
 
   } catch (error) {
-    console.error('❌ Error en vreden-img:', error);
-    m.reply('> *Error al generar la imagen con dalle.* Intenta nuevamente más tarde.');
+    console.error('❌ Error en dorratz-img:', error);
+    m.reply('> *Error al generar la imagen con Dorratz.* Intenta nuevamente más tarde.');
   }
 };
 
-handler.help = ['dalle'];
+handler.help = ['dalle', 'aiimg'];
 handler.tags = ['ai'];
-handler.command = ['dalle'];
+handler.command = ['dalle', 'aiimg'];
 
 export default handler;
