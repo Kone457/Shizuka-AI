@@ -1,52 +1,44 @@
-import fetch from 'node-fetch';
+import { igdl } from 'ruhend-scraper';
 
-let handler = async (m, { conn, args }) => {
-  try {
-    if (!args[0]) {
-      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply('⚠️ Ingresa un enlace de un video de *Instagram*');
-    }
-
-    if (!args[0].match(/instagram\.com\/(reel|p|tv)\//)) {
-      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-      return m.reply('❌ El enlace no parece *válido*. Asegúrate de que sea de *Instagram*');
-    }
-
-    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-
-    const res = await fetch(`https://api.vreden.my.id/api/v1/download/instagram?url=${args[0]}`);
-    const json = await res.json();
-
-    if (!json.status || !json.result?.data?.[0]?.url) {
-      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
-    }
-
-    const videoUrl = json.result.data[0].url;
-    const caption = `𖣣ֶㅤ֯⌗ 🅘𝖌 🅓ownload\n\n🫗 *Enlace:* ${args[0]}`;
-
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
-
-    await conn.sendMessage(
+const handler = async (m, { args, conn }) => {
+  if (!args[0]) {
+    return conn.sendMessage(
       m.chat,
-      {
-        video: { url: videoUrl },
-        caption,
-        mimetype: 'video/mp4',
-        fileName: 'ig.mp4'
-      },
+      { text: '⬛ Ingresa un enlace válido de Instagram.' },
       { quoted: m }
     );
+  }
 
-  } catch (error) {
-    console.error(error);
-    await conn.sendMessage(m.chat, { react: { text: '💥', key: m.key } });
-    m.reply('💥 *Error al procesar el video.* Intenta nuevamente más tarde.');
+  try {
+    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+
+    const res = await igdl(args[0]);
+    const data = res.data;
+
+    for (let media of data) {
+      await conn.sendFile(
+        m.chat,
+        media.url,
+        'instagram.mp4',
+        '⬛ Aquí tienes.',
+        m
+      );
+    }
+
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+  } catch (e) {
+    await conn.sendMessage(
+      m.chat,
+      { text: `⬛ Error.\n⬛ Detalles: ${e.message}` },
+      { quoted: m }
+    );
+    await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
   }
 };
 
-handler.help = ['ig', 'instagram'];
+handler.command = ['instagram', 'ig'];
 handler.tags = ['descargas'];
-handler.command = ['ig', 'instagram'];
+handler.help = ['instagram', 'ig'];
+handler.group = true;
 
 export default handler;
