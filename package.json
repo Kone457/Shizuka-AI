@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/Kone457/Shizuka-AI",
   "dependencies": {
-    "@whiskeysockets/baileys": "github:Kone457/bails",
+    "@whiskeysockets/baileys": "github:this-xyz/baileys",
     "@bochilteam/scraper": "^4.2.4",
     "@xct007/frieren-scraper": "^0.0.2",
     "acrcloud": "^1.4.0",
