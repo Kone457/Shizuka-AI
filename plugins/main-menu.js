@@ -49,10 +49,11 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     let menuTexto = `✦━━━━━━━━━━━━━━━✦\n`
     menuTexto += `   ${ucapan}, ${m.pushName || 'Usuario'} ✨\n`
-    menuTexto += `   ❖ Menú del Bot ❖\n`
     menuTexto += `   Comandos activos: ${pluginsCount}\n`
     menuTexto += `   📅 Fecha: ${fecha} \n   🕒 Hora: ${hora}\n`
     menuTexto += `✦━━━━━━━━━━━━━━━✦\n\n`
+
+    menuTexto += `   ❖ Menú del Bot ❖\n`
 
     for (const tag of Object.keys(CATEGORY_META)) {
       const set = byTag[tag]
