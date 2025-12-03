@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const GEMINI_API_KEY = 'AIzaSyDRdEvBR4_9bj3159KsDlgJxux9R-5CMwA';
+const GEMINI_API_KEY = 'AIzaSyDuu2NkongSA1xhgWaw-o2pUlC5FHhpEqc';
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 const GEMINI_PATH = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
