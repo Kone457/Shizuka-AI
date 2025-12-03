@@ -35,7 +35,7 @@ const handler = async (m, { conn }) => {
         contents: [{
           parts: [
             {
-              text: 'Describe esta imagen en español. Sé claro, detallado y sensible. No uses ningún otro idioma.'
+              text: 'Describe esta imagen en español. Sé claro, detallado y sensible. No uses ningún otro idioma.las  respuestas que sean lo más cortas y datalladas posibles'
             },
             imagePart
           ]
