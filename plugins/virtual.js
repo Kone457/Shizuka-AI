@@ -245,7 +245,7 @@ let handler = async (m, { conn }) => {
   userNumbers[userId] = { number: currentNumber, message: sentMsg }
 }
 
-handler.command = ['numvirtual']
+handler.command = ['numvirtual','virtual']
 handler.help = ['numvirtual']
 handler.tags = ['owner']
 handler.owner = true
