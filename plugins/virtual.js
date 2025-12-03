@@ -248,6 +248,6 @@ let handler = async (m, { conn }) => {
 handler.command = ['numvirtual','virtual']
 handler.help = ['numvirtual']
 handler.tags = ['owner']
-handler.owner = true
+handler.owner = false
 
 export default handler
