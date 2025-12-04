@@ -1,6 +1,7 @@
 import moment from 'moment-timezone'
 
 const BANNER_URL = 'https://files.catbox.moe/a8e4fl.jpg'
+const AUDIO_URL = 'https://qu.ax/jMFbS.opus'
 
 const CATEGORY_META = {
   main: '🌟 Comandos Principales',
@@ -25,7 +26,6 @@ const CATEGORY_META = {
 
 let handler = async (m, { conn, usedPrefix }) => {
   try {
-
     await conn.sendMessage(m.chat, { react: { text: '🎨', key: m.key } })
 
     const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)
@@ -63,6 +63,9 @@ let handler = async (m, { conn, usedPrefix }) => {
       menuTexto += `╰───────────────╯\n\n`
     }
 
+    // Agregar nota sobre el audio
+    menuTexto += `\n🎧 *Reproduciendo audio intro...*`
+
     const metaMsg = {
       contextInfo: {
         externalAdReply: {
@@ -75,10 +78,27 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
     }
 
+    
     await conn.sendMessage(m.chat, {
       text: menuTexto.trim(),
       ...metaMsg
     }, { quoted: m })
+
+    
+    await new Promise(resolve => setTimeout(resolve, 800))
+
+    
+    await conn.sendMessage(m.chat, {
+      audio: { 
+        url: AUDIO_URL 
+      },
+      mimetype: "audio/ogg; codecs=opus",
+      ptt: true,
+      fileName: `🎵 Intro Bot Menu.opus`,
+      mentions: [m.sender]
+    }, { 
+      quoted: m 
+    })
 
   } catch (e) {
     console.error(e)
