@@ -1,7 +1,8 @@
 import moment from 'moment-timezone'
 
 const BANNER_URL = 'https://files.catbox.moe/a8e4fl.jpg'
-const AUDIO_URL = 'https://qu.ax/jMFbS.opus' 
+
+const AUDIO_URL = 'https://raw.githubusercontent.com/Kone457/Nexus/main/Audios/Audio.mp3'
 
 const CATEGORY_META = {
   main: '🌟 Comandos Principales',
@@ -75,7 +76,6 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
     }
 
-    
     await conn.sendMessage(m.chat, {
       text: menuTexto.trim(),
       ...metaMsg
@@ -85,22 +85,32 @@ let handler = async (m, { conn, usedPrefix }) => {
     try {
       await conn.sendMessage(m.chat, {
         audio: {
-          url: 'https://qu.ax/jMFbS.opus'
+          url: AUDIO_URL
         },
-        mimetype: "audio/ogg; codecs=opus",
-        ptt: true, 
-
+        mimetype: "audio/mpeg", // MP3 format
+        ptt: false, // Enviar como archivo normal (no nota de voz)
+        fileName: "🎵 Audio Intro.mp3",
+        caption: "🎧 *Audio de presentación*",
         mentions: [m.sender]
       }, {
-        quoted: m 
-
+        quoted: m
       });
     } catch (err) {
       console.error("⚠️ Audio falló:", err.message);
-     
-      await conn.sendMessage(m.chat, { 
-        text: '🎵 *Audio temporalmente no disponible*' 
-      }, { quoted: m });
+      
+      
+      try {
+        await conn.sendMessage(m.chat, {
+          audio: {
+            url: 'https://github.com/Kone457/Nexus/raw/main/Audios/Audio.mp3'
+          },
+          mimetype: "audio/mpeg",
+          fileName: "intro.mp3",
+          caption: "🎵 Audio intro"
+        }, { quoted: m });
+      } catch (secondErr) {
+        console.error("⚠️ Audio alternativo también falló:", secondErr.message);
+      }
     }
 
   } catch (e) {
