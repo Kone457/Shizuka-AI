@@ -1,7 +1,7 @@
 import moment from 'moment-timezone'
 
 const BANNER_URL = 'https://files.catbox.moe/a8e4fl.jpg'
-const AUDIO_URL = 'https://qu.ax/jMFbS.opus' // Esta URL SÍ funciona
+const AUDIO_URL = 'https://qu.ax/jMFbS.opus' 
 
 const CATEGORY_META = {
   main: '🌟 Comandos Principales',
