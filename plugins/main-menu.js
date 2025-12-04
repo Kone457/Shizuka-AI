@@ -63,9 +63,6 @@ let handler = async (m, { conn, usedPrefix }) => {
       menuTexto += `╰───────────────╯\n\n`
     }
 
-    // Agregar nota sobre el audio
-    menuTexto += `\n🎧 *Reproduciendo audio intro...*`
-
     const metaMsg = {
       contextInfo: {
         externalAdReply: {
@@ -85,17 +82,16 @@ let handler = async (m, { conn, usedPrefix }) => {
     }, { quoted: m })
 
     
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    
     await conn.sendMessage(m.chat, {
       audio: { 
         url: AUDIO_URL 
       },
       mimetype: "audio/ogg; codecs=opus",
-      ptt: true,
+     
       fileName: `🎵 Intro Bot Menu.opus`,
-      mentions: [m.sender]
+      contextInfo: {
+        mentionedJid: [m.sender]
+      }
     }, { 
       quoted: m 
     })
