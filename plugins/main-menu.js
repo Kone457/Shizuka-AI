@@ -1,7 +1,7 @@
 import moment from 'moment-timezone'
+import fetch from 'node-fetch'
 
 const BANNER_URL = 'https://files.catbox.moe/a8e4fl.jpg'
-
 const AUDIO_URL = 'https://raw.githubusercontent.com/Kone457/Nexus/main/Audios/Audio.mp3'
 
 const CATEGORY_META = {
@@ -76,46 +76,74 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
     }
 
+    // 1. PRIMERO enviar el menú
     await conn.sendMessage(m.chat, {
       text: menuTexto.trim(),
       ...metaMsg
     }, { quoted: m })
 
-    
+    // Pequeño delay
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // 2. DESPUÉS intentar enviar el audio de diferentes formas
     try {
+      // Primero probar con URL directa
       await conn.sendMessage(m.chat, {
-        audio: {
-          url: AUDIO_URL
-        },
-        mimetype: "audio/mpeg", // MP3 format
-        ptt: false, // Enviar como archivo normal (no nota de voz)
-        fileName: "🎵 Audio Intro.mp3",
-        caption: "🎧 *Audio de presentación*",
-        mentions: [m.sender]
-      }, {
-        quoted: m
-      });
-    } catch (err) {
-      console.error("⚠️ Audio falló:", err.message);
+        audio: { url: AUDIO_URL },
+        mimetype: 'audio/mpeg',
+        fileName: 'intro_menu.mp3',
+        caption: '🎧 *Audio de presentación*',
+        ptt: false
+      }, { quoted: m })
       
+    } catch (err) {
+      console.log('❌ Método 1 falló:', err.message)
       
       try {
+        // Método 2: Usar audio alternativo MP3 que SÍ funciona
         await conn.sendMessage(m.chat, {
-          audio: {
-            url: 'https://github.com/Kone457/Nexus/raw/main/Audios/Audio.mp3'
-          },
-          mimetype: "audio/mpeg",
-          fileName: "intro.mp3",
-          caption: "🎵 Audio intro"
-        }, { quoted: m });
-      } catch (secondErr) {
-        console.error("⚠️ Audio alternativo también falló:", secondErr.message);
+          audio: { url: 'https://files.catbox.moe/znfd0w.mp3' },
+          mimetype: 'audio/mpeg',
+          fileName: 'intro_bot.mp3',
+          caption: '🎵 *Audio intro*',
+          ptt: false
+        }, { quoted: m })
+        
+      } catch (err2) {
+        console.log('❌ Método 2 falló:', err2.message)
+        
+        try {
+          // Método 3: Descargar el audio primero y enviarlo como buffer
+          const response = await fetch('https://files.catbox.moe/znfd0w.mp3')
+          const audioBuffer = await response.buffer()
+          
+          await conn.sendMessage(m.chat, {
+            audio: audioBuffer,
+            mimetype: 'audio/mpeg',
+            fileName: 'audio_menu.mp3',
+            caption: '🔊 *Audio descargado*',
+            ptt: false
+          }, { quoted: m })
+          
+        } catch (err3) {
+          console.log('❌ Método 3 falló:', err3.message)
+          
+          // Método 4: Enviar como documento si todo falla
+          await conn.sendMessage(m.chat, {
+            document: { url: 'https://files.catbox.moe/znfd0w.mp3' },
+            fileName: 'audio_intro.mp3',
+            mimetype: 'audio/mpeg',
+            caption: '📁 *Audio (descargar para escuchar)*'
+          }, { quoted: m })
+        }
       }
     }
 
   } catch (e) {
-    console.error("❌ Error en menú:", e)
-    await conn.sendMessage(m.chat, { text: `🕸 Error [${e.message || e}]` }, { quoted: m })
+    console.error("❌ Error general en menú:", e)
+    await conn.sendMessage(m.chat, { 
+      text: `⚠️ Error: ${e.message || 'Desconocido'}` 
+    }, { quoted: m })
   }
 }
 
