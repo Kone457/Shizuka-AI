@@ -75,26 +75,27 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
     }
 
-    
     await conn.sendMessage(m.chat, {
       text: menuTexto.trim(),
       ...metaMsg
     }, { quoted: m })
 
-    
-    await conn.sendMessage(m.chat, {
-      audio: { 
-        url: AUDIO_URL 
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        audio: { url: AUDIO_URL },
+        mimetype: 'audio/mp4',
+        fileName: `🎵 Intro Bot Menu.mp3`,
+        caption: `🎧 *Audio de Presentación*\n\n` +
+                `👋 ${ucapan}, ${m.pushName || 'Usuario'}!\n` +
+                `🎵 *Título:* Intro del Bot Shizuku-ai\n` +
+                `📊 *Comandos disponibles:* ${pluginsCount}\n` +
+                `📅 *Fecha:* ${fecha} ${hora}\n\n` +
+                `_Presiona el archivo para reproducir_`
       },
-      mimetype: "audio/ogg; codecs=opus",
-     
-      fileName: `🎵 Intro Bot Menu.opus`,
-      contextInfo: {
-        mentionedJid: [m.sender]
-      }
-    }, { 
-      quoted: m 
-    })
+      { quoted: m }
+    )
 
   } catch (e) {
     console.error(e)
