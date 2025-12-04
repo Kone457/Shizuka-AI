@@ -1,7 +1,7 @@
 import moment from 'moment-timezone'
 
 const BANNER_URL = 'https://files.catbox.moe/a8e4fl.jpg'
-const AUDIO_URL = 'https://qu.ax/jMFbS.opus'
+const AUDIO_URL = 'https://qu.ax/jMFbS.opus' // Esta URL SÍ funciona
 
 const CATEGORY_META = {
   main: '🌟 Comandos Principales',
@@ -75,30 +75,36 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
     }
 
+    
     await conn.sendMessage(m.chat, {
       text: menuTexto.trim(),
       ...metaMsg
     }, { quoted: m })
 
+    
+    try {
+      await conn.sendMessage(m.chat, {
+        audio: {
+          url: 'https://qu.ax/jMFbS.opus'
+        },
+        mimetype: "audio/ogg; codecs=opus",
+        ptt: true, 
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        audio: { url: AUDIO_URL },
-        mimetype: 'audio/mp4',
-        fileName: `🎵 Intro Bot Menu.mp3`,
-        caption: `🎧 *Audio de Presentación*\n\n` +
-                `👋 ${ucapan}, ${m.pushName || 'Usuario'}!\n` +
-                `🎵 *Título:* Intro del Bot Shizuku-ai\n` +
-                `📊 *Comandos disponibles:* ${pluginsCount}\n` +
-                `📅 *Fecha:* ${fecha} ${hora}\n\n` +
-                `_Presiona el archivo para reproducir_`
-      },
-      { quoted: m }
-    )
+        mentions: [m.sender]
+      }, {
+        quoted: m 
+
+      });
+    } catch (err) {
+      console.error("⚠️ Audio falló:", err.message);
+     
+      await conn.sendMessage(m.chat, { 
+        text: '🎵 *Audio temporalmente no disponible*' 
+      }, { quoted: m });
+    }
 
   } catch (e) {
-    console.error(e)
+    console.error("❌ Error en menú:", e)
     await conn.sendMessage(m.chat, { text: `🕸 Error [${e.message || e}]` }, { quoted: m })
   }
 }
