@@ -23,20 +23,20 @@ const handler = async (m, { conn, text }) => {
     const info = `
 ˚∩　ׅ　🅨𝗈𝗎𝖳𝗎𝖻𝖾 🅟𝗅𝖺𝗒　ׄᰙ　ׅ
 
-> 🕸̴𖫲᮫ִ۫𝆬  Descargando › *${title}*
+> 🕸̴𖫲᮫ִ۫𝆬  Resultado › *${title}*
 
-𖣣ֶㅤ֯⌗ 🐤 ׄ ⬭ Canal › *${channel}*
-𖣣ֶㅤ֯⌗ 🌿 ׄ ⬭ Duración › *${duration}*
-𖣣ֶㅤ֯⌗ 🥙 ׄ ⬭ Enlace › *${link}*
+𖣣ֶㅤ֯⌗ 🐤 Canal › *${channel}*
+𖣣ֶㅤ֯⌗ 🌿 Duración › *${duration}*
+𖣣ֶㅤ֯⌗ 🥙 Enlace › *${link}*
 `.trim();
 
     const thumb = await (await fetch(imageUrl)).arrayBuffer();
 
-    
+    // Mostrar resultado + botones
     await conn.sendMessage(m.chat, {
       image: Buffer.from(thumb),
       caption: info,
-      footer: 'Elige una opción:',
+      footer: 'Elige cómo quieres descargarlo:',
       buttons: [
         { buttonId: `audio_${link}`, buttonText: { displayText: '🎵 Descargar Audio' }, type: 1 },
         { buttonId: `video_${link}`, buttonText: { displayText: '🎬 Descargar Video' }, type: 1 }
@@ -51,7 +51,7 @@ const handler = async (m, { conn, text }) => {
   }
 };
 
-
+// Captura la respuesta de los botones
 handler.before = async (m, { conn }) => {
   const id = m.message?.buttonsResponseMessage?.selectedButtonId;
   if (!id) return;
@@ -104,8 +104,8 @@ handler.before = async (m, { conn }) => {
   }
 };
 
-handler.command = ['play3'];
+handler.command = ['play'];
 handler.tags = ['descargas'];
-handler.help = ['play3 <nombre>'];
+handler.help = ['play <nombre>'];
 
-;
+export default handler;
