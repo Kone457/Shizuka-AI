@@ -16,66 +16,65 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
   try {
     if (!args[0]) {
       return m.reply(
-        `> Ingresa un enlace de un apk de mediafire o un titulo.`
+        `> Ingresa un enlace de un archivo de mediafire.`
       );
     }
 
     const input = args.join(' ');
     const isValidUrl = isValidMediafireUrl(input);
 
-    // await conn.sendMessage(m.chat, { text: '⏳ *Procesando solicitud...*' }, { quoted: m });
-
-    let mediafireUrl = input;
-
     if (!isValidUrl) {
-      const searchRes = await axios.get(`${api.url}/search/mediafire?query=${encodeURIComponent(input)}&apikey=${api.key}`);
-      const searchData = searchRes.data;
-
-      if (!searchData.status || !searchData.results?.length) {
-        return m.reply('> No se encontraron resultados para tu búsqueda.');
-      }
-
-      const result = searchData.results[Math.floor(Math.random() * searchData.results.length)];
-      mediafireUrl = result.url;
+      return m.reply('> Por favor, ingresa un enlace válido de MediaFire.');
     }
 
-    const response = await axios.get(`${api.url}/dow/mediafire?url=${mediafireUrl}&apikey=${api.key}`);
+    const mediafireUrl = input;
+
+    // Enviar mensaje de procesamiento
+    await conn.sendMessage(m.chat, { text: '⏳ *Procesando solicitud...*' }, { quoted: m });
+
+    // Usar la nueva API
+    const response = await axios.get(`https://api.nekolabs.web.id/downloader/mediafire?url=${encodeURIComponent(mediafireUrl)}`);
     const data = response.data;
 
-    if (!data.status || !data.data) {
-      return m.reply('️> No se pudo procesar el enlace.');
+    if (!data.success || !data.result) {
+      return m.reply('️> No se pudo procesar el enlace. Verifica que sea válido.');
     }
 
-    const { title, peso, fecha, tipo, dl } = data.data;
+    const { filename, filesize, mimetype, uploaded, download_url } = data.result;
+
+    // Formatear el peso para validación
+    const sizeInMB = parseFloat(filesize);
+    const isLargeFile = filesize.includes('GB') || sizeInMB > 1000;
 
     const info = `> 📦 *Archivo encontrado:*\n\n` +
-      `> 📄 *Nombre:* ${title}\n` +
-      `> 📦 *Peso:* ${peso}\n` +
-      `> 📅 *Fecha:* ${fecha}\n` +
-      `> 📁 *Tipo:* ${tipo}\n\n` +
-      `> 🔗 *Enlace directo:* ${dl}`;
+      `> 📄 *Nombre:* ${filename}\n` +
+      `> 📦 *Peso:* ${filesize}\n` +
+      `> 📅 *Subido:* ${uploaded}\n` +
+      `> 📁 *Tipo:* ${mimetype}\n\n` +
+      `> 🔗 *Enlace directo:* ${download_url}`;
 
-    await conn.sendMessage(m.chat, { text: info, ...fake }, { quoted: m });
+    await conn.sendMessage(m.chat, { text: info }, { quoted: m });
 
-    if (!/GB|gb/.test(peso)) {
+    // Enviar el archivo si no es muy grande
+    if (!isLargeFile) {
       await conn.sendMessage(
         m.chat,
         {
-          document: { url: dl },
-          mimetype: tipo,
-          fileName: title,
+          document: { url: download_url },
+          mimetype: mimetype,
+          fileName: filename,
         },
         { quoted: m }
       );
     } else {
       await conn.sendMessage(m.chat, {
-        text: `> *El archivo supera el límite permitido para envío directo.*`
+        text: `> *El archivo es muy grande (${filesize}). Descárgalo manualmente desde el enlace proporcionado.*`
       }, { quoted: m });
     }
 
   } catch (error) {
-    // console.error(error);
-    m.reply('> No se puede realizar la descarga. Intenta nuevamente.')
+    console.error(error);
+    m.reply('> ❌ Error al procesar el enlace. Verifica que sea válido o inténtalo nuevamente.')
   }
 };
 
