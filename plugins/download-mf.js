@@ -48,7 +48,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
       `> 📦 *Peso:* ${filesize}\n` +
       `> 📅 *Subido:* ${uploaded}\n` +
       `> 📁 *Tipo:* ${mimetype}\n\n` +
-      `> 📂 *Enviando archivo...`;
+      `> 📂 *Enviando archivo...*`;
 
     await conn.sendMessage(m.chat, { text: info }, { quoted: m });
 
