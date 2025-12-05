@@ -1,20 +1,48 @@
+import { proto, generateWAMessageFromContent } from '@whiskeysockets/baileys'
+
 let handler = async (m, { conn }) => {
-  let mensaje = `
+  const mensaje = `
 👥 *Equipo de รɧıʑนʞศ*
 
 🌟 *Gracias por usar la bot* 🌟
-  `.trim();
+  `.trim()
 
-  await conn.sendMessage(m.chat, {
-    image: { url: 'https://ik.imagekit.io/ybi6xmp5g/Dev.png' },
-    caption: mensaje,
-    footer: 'Pulsa un botón para abrir el enlace',
-    buttons: [
-      { buttonId: 'id1', buttonText: { displayText: '📲 Carlos' }, type: 1, url: 'https://wa.me/5355699866' },
-      { buttonId: 'id2', buttonText: { displayText: '📲 David' }, type: 1, url: 'https://wa.me/595975677765' }
-    ],
-    headerType: 4
-  }, { quoted: m });
+  const interactive = proto.Message.InteractiveMessage.fromObject({
+    body: proto.Message.InteractiveMessage.Body.create({ text: mensaje }),
+    footer: proto.Message.InteractiveMessage.Footer.create({ text: 'Pulsa un botón para abrir el enlace' }),
+    header: proto.Message.InteractiveMessage.Header.create({ hasMediaAttachment: true }),
+    nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+      buttons: [
+        {
+          name: 'cta_url',
+          buttonParamsJson: JSON.stringify({
+            display_text: '📲 Carlos',
+            url: 'https://wa.me/5355699866',
+            merchant_url: 'https://wa.me/5355699866'
+          })
+        },
+        {
+          name: 'cta_url',
+          buttonParamsJson: JSON.stringify({
+            display_text: '📲 David',
+            url: 'https://wa.me/595975677765',
+            merchant_url: 'https://wa.me/595975677765'
+          })
+        }
+      ]
+    })
+  })
+
+  const msg = generateWAMessageFromContent(m.chat, {
+    viewOnceMessage: {
+      message: {
+        messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
+        interactiveMessage: interactive
+      }
+    }
+  }, { quoted: m })
+
+  await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
 }
 
 handler.help = ['creador']
