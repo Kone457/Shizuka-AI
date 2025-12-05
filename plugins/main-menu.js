@@ -1,7 +1,7 @@
 
 import moment from 'moment-timezone'
 
-const BANNER_URL = 'https://files.catbox.moe/a8e4fl.jpg'
+const BANNER_URL = 'https://ik.imagekit.io/ybi6xmp5g/Bot.jpg'
 
 const CATEGORY_META = {
   main: '🌟 Comandos Principales',
