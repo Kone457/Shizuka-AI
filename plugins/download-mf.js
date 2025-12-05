@@ -29,10 +29,8 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     const mediafireUrl = input;
 
-    // Enviar mensaje de procesamiento
     await conn.sendMessage(m.chat, { text: '⏳ *Procesando solicitud...*' }, { quoted: m });
 
-    // Usar la nueva API
     const response = await axios.get(`https://api.nekolabs.web.id/downloader/mediafire?url=${encodeURIComponent(mediafireUrl)}`);
     const data = response.data;
 
@@ -42,20 +40,18 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     const { filename, filesize, mimetype, uploaded, download_url } = data.result;
 
-    // Formatear el peso para validación
     const sizeInMB = parseFloat(filesize);
-    const isLargeFile = filesize.includes('GB') || sizeInMB > 1000;
+    const isLargeFile = filesize.includes('GB') || sizeInMB > 500;
 
     const info = `> 📦 *Archivo encontrado:*\n\n` +
       `> 📄 *Nombre:* ${filename}\n` +
       `> 📦 *Peso:* ${filesize}\n` +
       `> 📅 *Subido:* ${uploaded}\n` +
       `> 📁 *Tipo:* ${mimetype}\n\n` +
-      `> 🔗 *Enlace directo:* ${download_url}`;
+      `> 📂 *Enviando archivo...`;
 
     await conn.sendMessage(m.chat, { text: info }, { quoted: m });
 
-    // Enviar el archivo si no es muy grande
     if (!isLargeFile) {
       await conn.sendMessage(
         m.chat,
