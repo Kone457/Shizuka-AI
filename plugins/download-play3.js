@@ -104,8 +104,8 @@ handler.before = async (m, { conn }) => {
   }
 };
 
-handler.command = ['play3'];
+handler.command = ['play'];
 handler.tags = ['descargas'];
-handler.help = ['play3 <nombre>'];
+handler.help = ['play <nombre>'];
 
 export default handler;
