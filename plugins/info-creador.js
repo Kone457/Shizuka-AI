@@ -1,48 +1,29 @@
-import { proto, generateWAMessageFromContent } from '@whiskeysockets/baileys'
-
 let handler = async (m, { conn }) => {
-  const mensaje = `
+  let mensaje = `
 👥 *Equipo de รɧıʑนʞศ*
 
 🌟 *Gracias por usar la bot* 🌟
-  `.trim()
+  `.trim();
 
-  const interactive = proto.Message.InteractiveMessage.fromObject({
-    body: proto.Message.InteractiveMessage.Body.create({ text: mensaje }),
-    footer: proto.Message.InteractiveMessage.Footer.create({ text: 'Pulsa un botón para abrir el enlace' }),
-    header: proto.Message.InteractiveMessage.Header.create({ hasMediaAttachment: true }),
-    nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-      buttons: [
-        {
-          name: 'cta_url',
-          buttonParamsJson: JSON.stringify({
-            display_text: '📲 Carlos',
-            url: 'https://wa.me/5355699866',
-            merchant_url: 'https://wa.me/5355699866'
-          })
-        },
-        {
-          name: 'cta_url',
-          buttonParamsJson: JSON.stringify({
-            display_text: '📲 David',
-            url: 'https://wa.me/595975677765',
-            merchant_url: 'https://wa.me/595975677765'
-          })
-        }
-      ]
-    })
-  })
+  await conn.sendMessage(m.chat, {
+    image: { url: 'https://ik.imagekit.io/ybi6xmp5g/Dev.png' },
+    caption: mensaje,
+    footer: 'Pulsa un botón para obtener el enlace',
+    buttons: [
+      { buttonId: 'carlos', buttonText: { displayText: '📲 Carlos' }, type: 1 },
+      { buttonId: 'david', buttonText: { displayText: '📲 David' }, type: 1 }
+    ],
+    headerType: 4
+  }, { quoted: m });
+}
 
-  const msg = generateWAMessageFromContent(m.chat, {
-    viewOnceMessage: {
-      message: {
-        messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
-        interactiveMessage: interactive
-      }
-    }
-  }, { quoted: m })
-
-  await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
+handler.before = async (m, { conn }) => {
+  if (m.message?.buttonsResponseMessage?.selectedButtonId === 'carlos') {
+    await conn.sendMessage(m.chat, { text: '👉 https://wa.me/5355699866' }, { quoted: m })
+  }
+  if (m.message?.buttonsResponseMessage?.selectedButtonId === 'david') {
+    await conn.sendMessage(m.chat, { text: '👉 https://wa.me/595975677765' }, { quoted: m })
+  }
 }
 
 handler.help = ['creador']
