@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+/* import fetch from 'node-fetch';
 
 const handler = async (m, { conn, text, command }) => {
   if (!text) {
@@ -93,3 +93,4 @@ handler.tags = ['descargas'];
 handler.help = ['play', 'play2'];
 
 export default handler;
+*/
