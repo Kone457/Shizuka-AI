@@ -32,7 +32,6 @@ const handler = async (m, { conn, text }) => {
 
     const thumb = await (await fetch(imageUrl)).arrayBuffer();
 
-    // Mostrar resultado + botones
     await conn.sendMessage(m.chat, {
       image: Buffer.from(thumb),
       caption: info,
@@ -51,7 +50,6 @@ const handler = async (m, { conn, text }) => {
   }
 };
 
-// Captura la respuesta de los botones
 handler.before = async (m, { conn }) => {
   const id = m.message?.buttonsResponseMessage?.selectedButtonId;
   if (!id) return;
@@ -61,7 +59,7 @@ handler.before = async (m, { conn }) => {
       const link = id.replace('audio_', '');
       await conn.sendMessage(m.chat, { react: { text: '🎵', key: m.key } });
 
-      const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/audio?url=${link}&quality=128`);
+      const res = awaitapi.vreden.my.id/api/v1/download/youtube/audio?url=${link}&quality=128`);
       const json = await res.json();
 
       if (!json.status || !json.result?.download?.url) {
@@ -70,9 +68,8 @@ handler.before = async (m, { conn }) => {
 
       await conn.sendMessage(m.chat, {
         audio: { url: json.result.download.url },
-        fileName: `audio.mp3`,
-        mimetype: 'audio/mpeg',
-        ptt: true
+        fileName: `audio.mp3`,       // ahora se envía como archivo .mp3
+        mimetype: 'audio/mpeg'
       }, { quoted: m });
 
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
