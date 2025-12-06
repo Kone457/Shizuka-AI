@@ -32,6 +32,7 @@ const handler = async (m, { conn, text }) => {
 
     const thumb = await (await fetch(imageUrl)).arrayBuffer();
 
+    // Mostrar resultado + botones
     await conn.sendMessage(m.chat, {
       image: Buffer.from(thumb),
       caption: info,
@@ -50,6 +51,7 @@ const handler = async (m, { conn, text }) => {
   }
 };
 
+// Captura la respuesta de los botones
 handler.before = async (m, { conn }) => {
   const id = m.message?.buttonsResponseMessage?.selectedButtonId;
   if (!id) return;
@@ -59,20 +61,29 @@ handler.before = async (m, { conn }) => {
       const link = id.replace('audio_', '');
       await conn.sendMessage(m.chat, { react: { text: '🎵', key: m.key } });
 
-      const res = awaitapi.vreden.my.id/api/v1/download/youtube/audio?url=${link}&quality=128`);
+      const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/audio?url=${link}&quality=128`);
       const json = await res.json();
 
       if (!json.status || !json.result?.download?.url) {
         return m.reply('⚠️ No se pudo obtener el *audio*. Intenta con otro enlace.');
       }
 
-      await conn.sendMessage(m.chat, {
-        audio: { url: json.result.download.url },
-        fileName: `audio.mp3`,       // ahora se envía como archivo .mp3
-        mimetype: 'audio/mpeg'
-      }, { quoted: m });
+      const audioUrl = json.result.download.url;
+      const title = json.result.metadata?.title || 'audio';
+      const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅜𝟑\n\n🎶 *Título:* ${title}\n🫗 *Enlace:* ${link}`;
 
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+
+      await conn.sendMessage(
+        m.chat,
+        {
+          audio: { url: audioUrl },
+          mimetype: 'audio/mp4',
+          fileName: `${title}.mp3`,
+          caption
+        },
+        { quoted: m }
+      );
     }
 
     if (id.startsWith('video_')) {
