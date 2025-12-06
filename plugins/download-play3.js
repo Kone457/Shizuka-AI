@@ -32,7 +32,6 @@ const handler = async (m, { conn, text }) => {
 
     const thumb = await (await fetch(imageUrl)).arrayBuffer();
 
-    // Mostrar resultado + botones
     await conn.sendMessage(m.chat, {
       image: Buffer.from(thumb),
       caption: info,
@@ -51,7 +50,6 @@ const handler = async (m, { conn, text }) => {
   }
 };
 
-// Captura la respuesta de los botones
 handler.before = async (m, { conn }) => {
   const id = m.message?.buttonsResponseMessage?.selectedButtonId;
   if (!id) return;
