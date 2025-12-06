@@ -16,7 +16,7 @@ let handler = async (m, { conn, args }) => {
     await conn.sendMessage(m.chat, { react: { text: '🔎', key: m.key } });
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const url = `${ADONIX_PATH}?apikey=${ADONIX_API_KEY}&q=${encodeURIComponent(text)}&voice=Jorge`;
+    const url = `${ADONIX_PATH}?apikey=${ADONIX_API_KEY}&q=${encodeURIComponent(text)}&voice=Carmen`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
