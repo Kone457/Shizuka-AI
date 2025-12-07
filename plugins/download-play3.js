@@ -38,7 +38,7 @@ const handler = async (m, { conn, text }) => {
       footer: 'Elige cómo quieres descargarlo:',
       buttons: [
         { buttonId: `audio_${link}`, buttonText: { displayText: '🎵 Descargar Audio' }, type: 1 },
-        { buttonId: `video_${link}`, buttonText: { displayText: '🎬 Descargar Video (360p)' }, type: 1 }
+        { buttonId: `video_${link}`, buttonText: { displayText: '🎬 Descargar Video' }, type: 1 }
       ],
       headerType: 4
     }, { quoted: m });
