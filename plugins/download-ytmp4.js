@@ -14,17 +14,19 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/video?url=${args[0]}&quality=360`);
+    const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(args[0])}&format=360`);
     const json = await res.json();
 
-    if (!json.status || !json.result?.download?.url) {
+    if (!json.success || !json.result?.downloadUrl) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
     }
 
-    const videoUrl = json.result.download.url;
-    const title = json.result.metadata?.title || 'video';
-    const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅓ownload\n\n🎬 *Título:* ${title}\n🫗 *Enlace:* ${args[0]}`;
+    const videoUrl = json.result.downloadUrl;
+    const title = json.result.title || 'video';
+    const duration = json.result.duration || 'Desconocida';
+    const quality = json.result.quality || '360p';
+    const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅥ideo\n\n🎬 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n📊 *Calidad:* ${quality}`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -34,7 +36,7 @@ let handler = async (m, { conn, args }) => {
         video: { url: videoUrl },
         caption,
         mimetype: 'video/mp4',
-        fileName: `${title} (360p).mp4`
+        fileName: `${title.replace(/[^\w\s]/gi, '')} (${quality}).mp4`
       },
       { quoted: m }
     );
@@ -48,6 +50,6 @@ let handler = async (m, { conn, args }) => {
 
 handler.help = ['ytmp4'];
 handler.tags = ['descargas'];
-handler.command = ['ytmp4'];
+handler.command = ['ytmp4', 'mp4'];
 
 export default handler;
