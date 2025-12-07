@@ -48,7 +48,7 @@ handler.before = async (m, { conn }) => {
   if (!id) return;
 
   try {
-    const [action, command] = id.split('_'); // Extraer la acción y el comando del buttonId
+    const [action, command] = id.split('_'); 
 
     if (action === 'random') {
       
