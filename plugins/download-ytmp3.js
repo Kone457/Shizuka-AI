@@ -14,17 +14,19 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/audio?url=${args[0]}&quality=128`);
+    const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(args[0])}&format=mp3`);
     const json = await res.json();
 
-    if (!json.status || !json.result?.download?.url) {
+    if (!json.success || !json.result?.downloadUrl) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el *audio*. Intenta con otro enlace.');
     }
 
-    const audioUrl = json.result.download.url;
-    const title = json.result.metadata?.title || 'audio';
-    const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅜𝟑\n\n🎶 *Título:* ${title}\n🫗 *Enlace:* ${args[0]}`;
+    const audioUrl = json.result.downloadUrl;
+    const title = json.result.title || 'audio';
+    const duration = json.result.duration || 'Desconocida';
+    const quality = json.result.quality || '128 kbps';
+    const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅜𝟑\n\n🎶 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n📊 *Calidad:* ${quality}`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -32,8 +34,8 @@ let handler = async (m, { conn, args }) => {
       m.chat,
       {
         audio: { url: audioUrl },
-        mimetype: 'audio/mp4',
-        fileName: `${title}.mp3`,
+        mimetype: 'audio/mpeg',
+        fileName: `${title.replace(/[^\w\s]/gi, '')}.mp3`,
         caption
       },
       { quoted: m }
@@ -48,6 +50,6 @@ let handler = async (m, { conn, args }) => {
 
 handler.help = ['ytmp3'];
 handler.tags = ['descargas'];
-handler.command = ['ytmp3'];
+handler.command = ['ytmp3', 'mp3'];
 
 export default handler;
