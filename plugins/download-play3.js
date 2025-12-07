@@ -59,16 +59,17 @@ handler.before = async (m, { conn }) => {
       const link = id.replace('audio_', '');
       await conn.sendMessage(m.chat, { react: { text: '🎵', key: m.key } });
 
-      const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/audio?url=${link}&quality=128`);
+      const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(link)}`);
       const json = await res.json();
 
-      if (!json.status || !json.result?.download?.url) {
+      if (!json.success || !json.result?.downloadUrl) {
         return m.reply('⚠️ No se pudo obtener el *audio*. Intenta con otro enlace.');
       }
 
-      const audioUrl = json.result.download.url;
-      const title = json.result.metadata?.title || 'audio';
-      const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅜𝟑\n\n🎶 *Título:* ${title}\n🫗 *Enlace:* ${link}`;
+      const audioUrl = json.result.downloadUrl;
+      const title = json.result.title || 'audio';
+      const duration = json.result.duration || 'Desconocida';
+      const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅐🅤🅓🅘🅞\n\n🎶 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n🫗 *Formato:* MP3`;
 
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -76,8 +77,8 @@ handler.before = async (m, { conn }) => {
         m.chat,
         {
           audio: { url: audioUrl },
-          mimetype: 'audio/mp4',
-          fileName: `${title}.mp3`,
+          mimetype: 'audio/mpeg',
+          fileName: `${title.replace(/[^\w\s]/gi, '')}.mp3`,
           caption
         },
         { quoted: m }
@@ -88,18 +89,31 @@ handler.before = async (m, { conn }) => {
       const link = id.replace('video_', '');
       await conn.sendMessage(m.chat, { react: { text: '🎬', key: m.key } });
 
-      const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/video?url=${link}&quality=360`);
+      const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v4?url=${encodeURIComponent(link)}`);
       const json = await res.json();
 
-      if (!json.status || !json.result?.download?.url) {
+      if (!json.success || !json.result?.medias?.length) {
         return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
       }
 
+      const videoMedia = json.result.medias.find(media => 
+        media.type === 'video' && (media.quality.includes('360p') || media.ext === 'mp4')
+      ) || json.result.medias[0];
+
+      if (!videoMedia?.url) {
+        return m.reply('⚠️ No se encontró un formato de video válido.');
+      }
+
+      const title = json.result.title || 'video';
+      const quality = videoMedia.quality || 'Desconocida';
+      const duration = videoMedia.duration ? `${videoMedia.duration}s` : 'Desconocida';
+      const caption = `🎬 *Título:* ${title}\n📊 *Calidad:* ${quality}\n⏱️ *Duración:* ${duration}`;
+
       await conn.sendMessage(m.chat, {
-        video: { url: json.result.download.url },
-        fileName: `video (360p).mp4`,
+        video: { url: videoMedia.url },
+        fileName: `${title.replace(/[^\w\s]/gi, '')} (${quality}).mp4`,
         mimetype: 'video/mp4',
-        caption: '🎬 Aquí está tu video'
+        caption
       }, { quoted: m });
 
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
