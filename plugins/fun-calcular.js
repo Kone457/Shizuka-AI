@@ -21,8 +21,6 @@ const handler = async (m, { conn }) => {
 𖣣ֶㅤ֯⌗ A › *${options[0]}*
 𖣣ֶㅤ֯⌗ B › *${options[1]}*
 𖣣ֶㅤ֯⌗ C › *${options[2]}*
-
-⏳ Tienes *1 minuto* para responder.
 `.trim()
 
   await conn.sendMessage(m.chat, {
@@ -36,18 +34,10 @@ const handler = async (m, { conn }) => {
     headerType: 1
   }, { quoted: m })
 
-  const timeoutId = setTimeout(async () => {
-    const state = conn.mathGames.get(m.chat)
-    if (!state || state.answered || state.gameId !== gameId) return
-    await conn.sendMessage(m.chat, { text: `⌛ Se acabó el tiempo. La respuesta correcta era *${correct}*.` })
-    conn.mathGames.delete(m.chat)
-  }, 60 * 1000)
-
   conn.mathGames.set(m.chat, {
     gameId,
     correct,
-    answered: false,
-    timeoutId
+    answered: false
   })
 }
 
@@ -67,7 +57,6 @@ handler.before = async (m, { conn }) => {
   if (state.gameId !== gameId) return
 
   state.answered = true
-  clearTimeout(state.timeoutId)
   conn.mathGames.delete(m.chat)
 
   if (chosen === state.correct) {
