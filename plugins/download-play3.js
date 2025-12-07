@@ -99,15 +99,11 @@ handler.before = async (m, { conn }) => {
 
       const videoUrl = json.result.downloadUrl;
       const title = json.result.title || 'video';
-      const duration = json.result.duration || 'Desconocida';
-      const quality = json.result.quality || '360p';
-      const caption = `🎬 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n📊 *Calidad:* ${quality}\n🫗 *Formato:* MP4`;
-
+      
       await conn.sendMessage(m.chat, {
         video: { url: videoUrl },
-        fileName: `${title.replace(/[^\w\s]/gi, '')} (${quality}).mp4`,
-        mimetype: 'video/mp4',
-        caption
+        fileName: `${title.replace(/[^\w\s]/gi, '')} (360p).mp4`,
+        mimetype: 'video/mp4'
       }, { quoted: m });
 
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
