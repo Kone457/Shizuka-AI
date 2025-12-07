@@ -49,40 +49,56 @@ handler.before = async (m, { conn }) => {
 
   try {
     const [action, command] = id.split('_'); // Extraer la acción y el comando del buttonId
-    const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${command}.json`;
 
-    const { data: res } = await axios.get(url, { timeout: 5000 });
+    if (action === 'random') {
+      // Si es el botón "Aleatorio", seleccionamos un comando aleatorio de la lista
+      const randomCommand = handler.command[Math.floor(Math.random() * handler.command.length)];
+      const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${randomCommand}.json`;
 
-    // Validar que el JSON contenga datos
-    if (!Array.isArray(res) || res.length === 0)
-      throw '⚠️ No se encontró contenido para este comando.';
+      const { data: res } = await axios.get(url, { timeout: 5000 });
 
-    const randomImage = res[Math.floor(Math.random() * res.length)];
+      // Validar que el JSON contenga datos
+      if (!Array.isArray(res) || res.length === 0)
+        throw '⚠️ No se encontró contenido para este comando.';
 
-    // Responder con la imagen nueva al presionar el botón
-    if (action === 'next') {
+      const randomImage = res[Math.floor(Math.random() * res.length)];
+
+      // Responder con la imagen aleatoria de cualquier comando NSFW
       await conn.sendMessage(m.chat, {
         image: { url: randomImage },
-        caption: `🥵 ${command}`,
+        caption: `🥵 ${randomCommand}`,
         footer: dev,
         buttons: [
-          { buttonId: `next_${command}`, buttonText: { displayText: 'Siguiente' }, type: 1 },
-          { buttonId: `random_${command}`, buttonText: { displayText: 'Aleatorio' }, type: 1 }
+          { buttonId: `next_${randomCommand}`, buttonText: { displayText: 'Siguiente' }, type: 1 },
+          { buttonId: `random_${randomCommand}`, buttonText: { displayText: 'Aleatorio' }, type: 1 }
         ],
         headerType: 4
       }, { quoted: m });
-    } else if (action === 'random') {
-      // Enviar una imagen aleatoria (lo mismo que el "next" pero con diferente lógica si es necesario)
-      await conn.sendMessage(m.chat, {
-        image: { url: randomImage },
-        caption: `🥵 ${command}`,
-        footer: dev,
-        buttons: [
-          { buttonId: `next_${command}`, buttonText: { displayText: 'Siguiente' }, type: 1 },
-          { buttonId: `random_${command}`, buttonText: { displayText: 'Aleatorio' }, type: 1 }
-        ],
-        headerType: 4
-      }, { quoted: m });
+
+    } else {
+      const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${command}.json`;
+
+      const { data: res } = await axios.get(url, { timeout: 5000 });
+
+      // Validar que el JSON contenga datos
+      if (!Array.isArray(res) || res.length === 0)
+        throw '⚠️ No se encontró contenido para este comando.';
+
+      const randomImage = res[Math.floor(Math.random() * res.length)];
+
+      // Responder con la imagen nueva al presionar el botón
+      if (action === 'next') {
+        await conn.sendMessage(m.chat, {
+          image: { url: randomImage },
+          caption: `🥵 ${command}`,
+          footer: dev,
+          buttons: [
+            { buttonId: `next_${command}`, buttonText: { displayText: 'Siguiente' }, type: 1 },
+            { buttonId: `random_${command}`, buttonText: { displayText: 'Aleatorio' }, type: 1 }
+          ],
+          headerType: 4
+        }, { quoted: m });
+      }
     }
   } catch (err) {
     console.error('[NSFW-Buttons] Error:', err.message);
