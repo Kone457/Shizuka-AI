@@ -2,7 +2,6 @@ const uid = () => Math.random().toString(36).slice(2, 8)
 
 const handler = async (m, { conn }) => {
   conn.mathGames = conn.mathGames || new Map()
-  conn.processedIds = conn.processedIds || new Set()
 
   const num = () => Math.floor(Math.random() * 50) + 10
   const a = num(), b = num(), c = num()
@@ -43,20 +42,16 @@ const handler = async (m, { conn }) => {
 
 handler.before = async (m, { conn }) => {
   const id = m.message?.buttonsResponseMessage?.selectedButtonId
-  const msgKeyId = m.key?.id
-  conn.processedIds = conn.processedIds || new Set()
-  if (msgKeyId && conn.processedIds.has(msgKeyId)) return
-  if (msgKeyId) conn.processedIds.add(msgKeyId)
   if (!id || !id.startsWith('eq|')) return
 
   const [_, gameId, chosenStr] = id.split('|')
   const chosen = parseInt(chosenStr)
   const state = conn.mathGames?.get(m.chat)
   if (!state) return
-  if (state.answered) return
+  if (state.answered) return   
   if (state.gameId !== gameId) return
 
-  state.answered = true
+  state.answered = true        
   conn.mathGames.delete(m.chat)
 
   if (chosen === state.correct) {
