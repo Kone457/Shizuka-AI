@@ -38,7 +38,7 @@ const handler = async (m, { conn, text }) => {
       footer: 'Elige cómo quieres descargarlo:',
       buttons: [
         { buttonId: `audio_${link}`, buttonText: { displayText: '🎵 Descargar Audio' }, type: 1 },
-        { buttonId: `video_${link}`, buttonText: { displayText: '🎬 Descargar Video' }, type: 1 }
+        { buttonId: `video_${link}`, buttonText: { displayText: '🎬 Descargar Video (360p)' }, type: 1 }
       ],
       headerType: 4
     }, { quoted: m });
@@ -59,7 +59,7 @@ handler.before = async (m, { conn }) => {
       const link = id.replace('audio_', '');
       await conn.sendMessage(m.chat, { react: { text: '🎵', key: m.key } });
 
-      const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(link)}`);
+      const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(link)}&format=mp3`);
       const json = await res.json();
 
       if (!json.success || !json.result?.downloadUrl) {
@@ -69,7 +69,8 @@ handler.before = async (m, { conn }) => {
       const audioUrl = json.result.downloadUrl;
       const title = json.result.title || 'audio';
       const duration = json.result.duration || 'Desconocida';
-      const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅐🅤🅓🅘🅞\n\n🎶 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n🫗 *Formato:* MP3`;
+      const quality = json.result.quality || '128 kbps';
+      const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅐🅤🅓🅘🅞\n\n🎶 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n📊 *Calidad:* ${quality}\n🫗 *Formato:* MP3`;
 
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -89,28 +90,21 @@ handler.before = async (m, { conn }) => {
       const link = id.replace('video_', '');
       await conn.sendMessage(m.chat, { react: { text: '🎬', key: m.key } });
 
-      const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v4?url=${encodeURIComponent(link)}`);
+      const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(link)}&format=360`);
       const json = await res.json();
 
-      if (!json.success || !json.result?.medias?.length) {
+      if (!json.success || !json.result?.downloadUrl) {
         return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
       }
 
-      const videoMedia = json.result.medias.find(media => 
-        media.type === 'video' && (media.quality.includes('360p') || media.ext === 'mp4')
-      ) || json.result.medias[0];
-
-      if (!videoMedia?.url) {
-        return m.reply('⚠️ No se encontró un formato de video válido.');
-      }
-
+      const videoUrl = json.result.downloadUrl;
       const title = json.result.title || 'video';
-      const quality = videoMedia.quality || 'Desconocida';
-      const duration = videoMedia.duration ? `${videoMedia.duration}s` : 'Desconocida';
-      const caption = `🎬 *Título:* ${title}\n📊 *Calidad:* ${quality}\n⏱️ *Duración:* ${duration}`;
+      const duration = json.result.duration || 'Desconocida';
+      const quality = json.result.quality || '360p';
+      const caption = `🎬 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n📊 *Calidad:* ${quality}\n🫗 *Formato:* MP4`;
 
       await conn.sendMessage(m.chat, {
-        video: { url: videoMedia.url },
+        video: { url: videoUrl },
         fileName: `${title.replace(/[^\w\s]/gi, '')} (${quality}).mp4`,
         mimetype: 'video/mp4',
         caption
