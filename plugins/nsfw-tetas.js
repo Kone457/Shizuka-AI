@@ -1,12 +1,20 @@
-/* import axios from 'axios';
+import axios from 'axios';
 
 const hotw = '⚠️ El contenido NSFW está desactivado en este grupo.';
 const dev = 'By Carlos';
 
+const NSFW_COMMANDS = [
+  'tetas', 'pechos', 'nsfwloli', 'nsfwfoot', 'nsfwass', 'nsfwbdsm', 'nsfwcum', 'nsfwero', 
+  'nsfwfemdom', 'nsfwglass', 'nsfworgy', 'yuri', 'yuri2', 'yaoi', 'yaoi2', 
+  'panties', 'booty', 'ecchi', 'furro', 'hentai', 'trapito', 
+  'imagenlesbians', 'pene', 'porno', 'randomxxx'
+];
+
 let handler = async (m, { conn, usedPrefix, command }) => {
   try {
     
-    if (!db.data.chats[m.chat].nsfw && m.isGroup) {
+    // Asumiendo que 'db' está globalmente disponible en tu entorno
+    if (!global.db.data.chats[m.chat].nsfw && m.isGroup) {
       return m.reply(hotw);
     }
 
@@ -52,7 +60,17 @@ handler.before = async (m, { conn }) => {
 
     if (action === 'random') {
       
-      const randomCommand = handler.command[Math.floor(Math.random() * handler.command.length)];
+      // 🐛 CORRECCIÓN: Usar la constante globalmente accesible para obtener comandos.
+      const commandsArray = NSFW_COMMANDS; 
+
+      if (!Array.isArray(commandsArray) || commandsArray.length === 0) {
+           
+           throw new Error('⚠️ La lista de comandos NSFW no está disponible para selección aleatoria.');
+      }
+      
+      const randomCommand = commandsArray[Math.floor(Math.random() * commandsArray.length)];
+      
+ 
       const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${randomCommand}.json`;
 
       const { data: res } = await axios.get(url, { timeout: 5000 });
@@ -74,6 +92,7 @@ handler.before = async (m, { conn }) => {
       }, { quoted: m });
 
     } else {
+      // Manejo de 'next'
       const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${command}.json`;
 
       const { data: res } = await axios.get(url, { timeout: 5000 });
@@ -100,19 +119,14 @@ handler.before = async (m, { conn }) => {
     }
   } catch (err) {
     console.error('[NSFW-Buttons] Error:', err.message);
-    m.reply('💥 *Error al procesar tu solicitud.*');
+    m.reply('💥 *Error al procesar tu solicitud por botón.*'); // Mensaje más específico
   }
 };
 
-handler.help = handler.command = [
-  'tetas', 'pechos', 'nsfwloli', 'nsfwfoot', 'nsfwass', 'nsfwbdsm', 'nsfwcum', 'nsfwero', 
-  'nsfwfemdom', 'nsfwglass', 'nsfworgy', 'yuri', 'yuri2', 'yaoi', 'yaoi2', 
-  'panties', 'booty', 'ecchi', 'furro', 'hentai', 'trapito', 
-  'imagenlesbians', 'pene', 'porno', 'randomxxx'
-];
+// Asignar el array de comandos a handler.command usando la constante
+handler.help = handler.command = NSFW_COMMANDS;
 
 handler.tags = ['nsfw'];
 handler.group = true;
 
 export default handler;
-*/
