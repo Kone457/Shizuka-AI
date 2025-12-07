@@ -1,4 +1,4 @@
-import axios from 'axios';
+/* import axios from 'axios';
 
 const hotw = '⚠️ El contenido NSFW está desactivado en este grupo.';
 const dev = 'By Carlos';
@@ -130,3 +130,4 @@ handler.tags = ['nsfw'];
 handler.group = true;
 
 export default handler;
+*/
