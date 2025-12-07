@@ -15,7 +15,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Obtener datos del JSON
+    
     const { data: res } = await axios.get(url, { timeout: 5000 });
 
     
