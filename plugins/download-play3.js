@@ -9,7 +9,7 @@ const handler = async (m, { conn, text }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '🔎', key: m.key } });
 
-    const searchRes = await fetch(`https://sky-api-ashy.vercel.app/search/youtube?q=${encodeURIComponent(text)}`);
+    const searchRes = await fetch(`https://carlos.wispbyte.app/search/youtube?q=${encodeURIComponent(text)}`);
     const searchJson = await searchRes.json();
 
     if (!searchJson.status || !searchJson.result?.length) {
