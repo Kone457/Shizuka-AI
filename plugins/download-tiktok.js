@@ -14,7 +14,7 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://sky-api-ashy.vercel.app/download/tiktok?url=${encodeURIComponent(args[0])}`);
+    const res = await fetch(`https://carlos.wispbyte.app/download/tiktok?url=${encodeURIComponent(args[0])}`);
     const json = await res.json();
 
     if (!json.status || !json.result?.data?.play) {
