@@ -32,11 +32,6 @@ let handler = async (m, { command, usedPrefix, conn, text, args }) => {
             let episodes = await lang(info.episodes);
 
             const gen = genres.join(', ');
-            let eps = episodes.map(e => {
-                const epNum = e.ep;
-                return `• Episodio ${epNum} (${e.lang.includes('sub') ? 'SUB' : ''}${e.lang.includes('dub') ? (e.lang.includes('sub') ? ' & ' : '') + 'DUB' : ''})`;
-            }).join('\n');
-
             let cap = `
 乂 \`\`\`ANIME - DOWNLOAD\`\`\`
 
@@ -46,16 +41,25 @@ let handler = async (m, { command, usedPrefix, conn, text, args }) => {
 ≡ ❦ \`Rating :\` ${rating}
 ≡ ❦ \`Géneros :\` ${gen}
 ≡ ❦ \`Episodios totales :\` ${total}
-≡ ❦ \`Episodios disponibles :\`
-
-${eps}
-
-> Responde a este mensaje con el número del episodio y el idioma. Ejemplo: 1 sub, 3 dub
 `.trim();
 
+            // Generar botones dinámicos para cada episodio/idioma
+            let buttons = episodes.map(e => {
+                let langs = [];
+                if (e.lang.includes('sub')) langs.push({ buttonId: `ep_${e.ep}_sub`, buttonText: { displayText: `Episodio ${e.ep} SUB` }, type: 1 });
+                if (e.lang.includes('dub')) langs.push({ buttonId: `ep_${e.ep}_dub`, buttonText: { displayText: `Episodio ${e.ep} DUB` }, type: 1 });
+                return langs;
+            }).flat();
+
             let buffer = await (await fetch(cover)).arrayBuffer();
-            let sent = await conn.sendMessage(m.chat, { image: Buffer.from(buffer), caption: cap }, m)
-            
+            let sent = await conn.sendMessage(m.chat, {
+                image: Buffer.from(buffer),
+                caption: cap,
+                footer: "Selecciona el episodio y el idioma",
+                buttons,
+                headerType: 4
+            }, { quoted: m });
+
             conn.anime = conn.anime || {};
             conn.anime[m.sender] = {
                 title,
@@ -88,27 +92,23 @@ ${eps}
 handler.before = async (m, { conn }) => {
     conn.anime = conn.anime || {};
     const session = conn.anime[m.sender];
-    // 🔧 Corrección: usar m.quoted.key.id en vez de m.quoted.id
-    if (!session || !m.quoted || m.quoted.key?.id !== session.key?.id) return;
+    if (!session) return;
+
+    // Detectar respuesta de botón
+    const btnId = m.message?.buttonsResponseMessage?.selectedButtonId;
+    if (!btnId) return;
+
+    // btnId tendrá formato "ep_3_sub" o "ep_5_dub"
+    let [_, epStr, lang] = btnId.split("_");
+    const epi = parseInt(epStr);
 
     if (session.downloading) return m.reply('⏳ Ya estás descargando un episodio. Espera a que termine.');
-
-    let [epStr, langInput] = m.text.trim().split(/\s+/);
-    const epi = parseInt(epStr);
-    let lang = langInput?.toLowerCase();
-
-    if (isNaN(epi)) return m.reply('Número de episodio no válido.');
 
     const episode = session.episodes.find(e => parseInt(e.ep) === epi);
     if (!episode) return m.reply(`Episodio ${epi} no encontrado.`);
 
     const inf = await download(episode.link);
-    const availableLangs = Object.keys(inf.dl || {});
-    if (!availableLangs.length) return m.reply(`No hay idiomas disponibles para el episodio ${epi}.`);
-
-    if (!lang || !availableLangs.includes(lang)) {
-        lang = availableLangs[0];
-    }
+    if (!inf.dl[lang]) return m.reply(`Ese idioma no está disponible para el episodio ${epi}.`);
 
     const idiomaLabel = lang === 'sub' ? 'sub español' : 'español latino';
     await m.reply(`Descargando ${session.title} - cap ${epi} ${idiomaLabel}`);
