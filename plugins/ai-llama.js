@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const LLAMA_PATH = 'https://sky-api-ashy.vercel.app/ai/llama';
+const LLAMA_PATH = 'https://carlos.wispbyte.app/ai/llama';
 
 let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
