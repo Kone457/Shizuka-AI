@@ -130,8 +130,8 @@ handler.before = async (m, { conn }) => {
     delete conn.anime[m.sender];
 };
 
-handler.command = ["anime", "animedl", "animes"];
+handler.command = ["anime2"];
 handler.tags = ['download'];
-handler.help = ["animedl"];
+handler.help = ["anime2"];
 
 export default handler;
