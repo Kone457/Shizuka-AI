@@ -18,7 +18,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '💀', key: m.key } });
 
-    // Usando la nueva API
     const apiRes = await fetch(
       `https://api.vreden.my.id/api/v1/download/facebook?url=${encodeURIComponent(text)}`
     );
