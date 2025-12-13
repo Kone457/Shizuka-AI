@@ -18,34 +18,35 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '💀', key: m.key } });
 
+    // Usando la nueva API
     const apiRes = await fetch(
-      `https://api.starlights.uk/api/downloader/facebook?url=${encodeURIComponent(text)}`
+      `https://api.vreden.my.id/api/v1/download/facebook?url=${encodeURIComponent(text)}`
     );
     const json = await apiRes.json();
 
-    if (!json.status || !json.data?.result) throw new Error('No se pudo obtener el video');
+    
+    if (!json.status || !json.result?.download?.hd) {
+      throw new Error('No se pudo obtener el video o no hay enlace HD disponible');
+    }
 
-    const videos = json.data.result.map(v => JSON.parse(v));
-    const chosen = videos.find(v => v.quality === 'alta') || videos[0];
-    if (!chosen || !chosen.dl_url) throw new Error('No se encontró un video válido');
-
-    const { quality, dl_url: videoUrl } = chosen;
+    const { title, thumbnail, durasi, download } = json.result;
+    const videoUrl = download.hd; 
 
     await conn.sendMessage(
       m.chat,
       {
         video: { url: videoUrl },
-        caption: `⬛ Calidad: ${quality}\n⬛ Descarga completada.`
+        caption: `📹 *${title || 'Video de Facebook'}*\n🕒 Duración: ${durasi || 'Desconocida'}\n⬛ Descarga completada.`
       },
       { quoted: m }
     );
 
     await conn.sendMessage(m.chat, { react: { text: '☠️', key: m.key } });
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Error en el plugin de Facebook:', err);
     await conn.sendMessage(
       m.chat,
-      { text: `⬛ Error.\n⬛ Detalles: ${err.message}` },
+      { text: `⬛ Error al procesar la solicitud.\n⬛ Detalles: ${err.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
