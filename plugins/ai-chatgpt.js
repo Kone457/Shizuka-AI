@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const CHATGPT_PATH = 'https://sky-api-ashy.vercel.app/ai/chatgpt';
+const CHATGPT_PATH = 'https://carlos.wispbyte.app/ai/chatgpt';
 
 let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
