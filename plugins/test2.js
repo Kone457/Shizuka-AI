@@ -1,6 +1,5 @@
 import { download, detail, search } from "../lib/anime.js";
 
-
 async function react(conn, m, emoji) {
     await conn.sendMessage(m.chat, { react: { text: emoji, key: m.key } });
 }
@@ -45,7 +44,7 @@ let handler = async (m, { command, usedPrefix, conn, text, args }) => {
 ≡ ❦ \`Votos :\` ${votes}
 ≡ ❦ \`Rating :\` ${rating}
 ≡ ❦ \`Géneros :\` ${gen}
-≡ ❦ \`Episodtotal}
+≡ ❦ \`Episodios totales :\` ${total}
 ≡ ❦ \`Episodios disponibles :\`
 
 ${eps}
@@ -76,22 +75,7 @@ ${eps}
                 cap += `\n\`${index + 1}\`\n≡ ❦ \`Title :\` ${res.title}\n≡ ❦ \`Link :\` ${res.link}\n`;
             });
 
-            let buffer = await (await fetch(logo)).arrayBuffer();
-            conn.relayMessage(m.chat, {
-                extendedTextMessage: {
-                    text: cap,
-                    contextInfo: {
-                        externalAdReply: {
-                            title: wm,
-                            mediaType: 1,
-                            previewType: 0,
-                            renderLargerThumbnail: true,
-                            thumbnail: Buffer.from(buffer),
-                            sourceUrl: ''
-                        }
-                    }, mentions: [m.sender]
-                }
-            }, {});
+            await conn.sendMessage(m.chat, { text: cap }, { quoted: m });
             await react(conn, m, "❦");
         }
     } catch (error) {
@@ -146,8 +130,8 @@ handler.before = async (m, { conn }) => {
     delete conn.anime[m.sender];
 };
 
-handler.command = ["anime2"];
+handler.command = ["anime", "animedl", "animes"];
 handler.tags = ['download'];
-handler.help = ["anime2"];
+handler.help = ["animedl"];
 
 export default handler;
