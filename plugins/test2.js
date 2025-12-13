@@ -3,6 +3,8 @@ import cheerio from 'cheerio';
 
 const BASE = "https://animeav1.com";
 
+// --- FUNCIONES DE EXTRACCIÓN (Mantengo las que funcionan) ---
+
 async function getAnime(query) {
   const url = `${BASE}/catalogo?search=${encodeURIComponent(query)}`;
   const res = await fetch(url, {
@@ -83,6 +85,7 @@ async function getEpisodeDirectLinkAndLanguage(epUrl) {
 
   if (!script) return { link: null, language: "Japonés" };
 
+  // Nota: Mantuve tu regex original que ya estaba funcionando para la extracción
   const downloadsMatch = script.match(/downloads:\{SUB:\[(.*?)\](?:,DUB:\[(.*?)\])?\}/s);
   if (!downloadsMatch) return { link: null, language: "Japonés" };
 
@@ -99,7 +102,7 @@ async function getEpisodeDirectLinkAndLanguage(epUrl) {
   if (dubLink) return { link: dubLink, language: "Español" };
 
   const subLink = findPDrainLink(subBlock);
-  if (subLink) return { link: subLink, language: "Japonés" };
+  if (subLink) return { link: subLink, language: "Japonés (Sub)" };
 
   return { link: null, language: "Japonés" };
 }
@@ -111,10 +114,13 @@ async function getDirectVideo(pixUrl) {
   if (!fileIdMatch) return null;
   
   const fileId = fileIdMatch[1];
+  // Esta URL directa es la que mejor funciona para la descarga
   const directLink = `https://pixeldrain.com/api/file/${fileId}`;
   
   return directLink;
 }
+
+// --- HANDLER PRINCIPAL (Con lógica de botones) ---
 
 const handler = async (m, { conn, text, args }) => {
   if (!text) {
@@ -122,6 +128,7 @@ const handler = async (m, { conn, text, args }) => {
     return m.reply('⚠️ Ingresa el nombre del anime que deseas buscar.\n\nEjemplo: .anime naruto');
   }
 
+  // 1. Lógica para manejar la descarga de episodio específico (Prioridad)
   const epArg = args.find(a => a.startsWith('ep:'));
   const requestedEp = epArg ? parseInt(epArg.replace('ep:', '')) : null;
   const searchQuery = text.replace(/ep:\d+/g, '').trim();
@@ -171,45 +178,56 @@ const handler = async (m, { conn, text, args }) => {
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
       } catch (videoError) {
         console.error('[anime-search] Error enviando video:', videoError);
-        m.reply(`🎬 *${anime.title}*\n📺 Episodio ${requestedEp}\n🗣️ Idioma: ${language}\n\n🔗 Link de descarga:\n${directLink}`);
+        m.reply(`🎬 *${anime.title}*\n📺 Episodio ${requestedEp}\n🗣️ Idioma: ${language}\n\n🔗 *¡Error al enviar el video!* Aquí está el link de descarga directo:\n${directLink}`);
         await conn.sendMessage(m.chat, { react: { text: '🔗', key: m.key } });
       }
       return;
     }
 
+    // 2. Lógica para la BÚSQUEDA y MUESTRA DE BOTONES
+    
     const searchId = Date.now().toString();
     global.animeSearches = global.animeSearches || {};
+    
+    // Almacenamos la información del anime en global.animeSearches para que los botones la usen
     global.animeSearches[searchId] = {
       ...anime,
+      searchQuery: searchQuery, // Guardamos la query para construir comandos
       timestamp: Date.now()
     };
 
+    // Limpieza de búsquedas antiguas
     Object.keys(global.animeSearches || {}).forEach(id => {
       if (Date.now() - (global.animeSearches[id]?.timestamp || 0) > 10 * 60 * 1000) {
         delete global.animeSearches[id];
       }
     });
 
-    const displayEpisodes = anime.episodesList.slice(0, 15);
-    const episodeList = displayEpisodes.map(ep => `• Ep ${ep.num}`).join('\n');
+    const displayEpisodes = anime.episodesList.slice(0, 10);
+    
+    // Creamos botones que envían el comando de descarga
+    const episodeButtons = displayEpisodes.map(ep => ({
+      // buttonId usará el formato que tu handler principal ya espera
+      buttonId: `.anime ${searchQuery} ep:${ep.num}`, 
+      buttonText: { displayText: `📺 Ep ${ep.num}` },
+      type: 1
+    }));
+    
+    // Botones de acción con ID para ser manejados por handler.before
+    const actionButtons = [
+      { buttonId: `info_${searchId}`, buttonText: { displayText: 'ℹ️ Más Info' }, type: 1 },
+      { buttonId: `list_${searchId}`, buttonText: { displayText: '📋 Lista Completa' }, type: 1 }
+    ];
 
     const info = `
 🎬 *${anime.title}*
 
 📁 *Tipo:* ${anime.type}
-📊 *Episodios:* ${anime.episodios}
-📝 *Descripción:* ${anime.description ? anime.description.slice(0, 150) + (anime.description.length > 150 ? '...' : '') : 'Sin descripción'}
+📊 *Episodios Totales:* ${anime.episodios}
+📝 *Descripción:* ${anime.description ? anime.description.slice(0, 100) + (anime.description.length > 100 ? '...' : '') : 'Sin descripción'}
 
-🎯 *Episodios disponibles:*
-${episodeList}
-${anime.episodios > 15 ? `\n... y ${anime.episodios - 15} más` : ''}
-
-💡 *Para descargar un episodio usa:*
+🎯 *Selecciona un episodio o usa el comando:*
 .anime ${searchQuery} ep:NÚMERO
-
-_Ejemplo: .anime ${searchQuery} ep:1_
-
-🔗 ${anime.url}
 `.trim();
 
     if (anime.image) {
@@ -219,16 +237,31 @@ _Ejemplo: .anime ${searchQuery} ep:1_
           const thumb = await thumbRes.arrayBuffer();
           await conn.sendMessage(m.chat, {
             image: Buffer.from(thumb),
-            caption: info
+            caption: info,
+            footer: `Episodios 1-${Math.min(10, anime.episodios)} de ${anime.episodios}`,
+            buttons: [...episodeButtons, ...actionButtons],
+            headerType: 4
           }, { quoted: m });
         } else {
-          await conn.sendMessage(m.chat, { text: info }, { quoted: m });
+          await conn.sendMessage(m.chat, {
+            text: info,
+            footer: `Episodios 1-${Math.min(10, anime.episodios)} de ${anime.episodios}`,
+            buttons: [...episodeButtons, ...actionButtons],
+          }, { quoted: m });
         }
       } catch {
-        await conn.sendMessage(m.chat, { text: info }, { quoted: m });
+        await conn.sendMessage(m.chat, {
+          text: info,
+          footer: `Episodios 1-${Math.min(10, anime.episodios)} de ${anime.episodios}`,
+          buttons: [...episodeButtons, ...actionButtons],
+        }, { quoted: m });
       }
     } else {
-      await conn.sendMessage(m.chat, { text: info }, { quoted: m });
+      await conn.sendMessage(m.chat, {
+        text: info,
+        footer: `Episodios 1-${Math.min(10, anime.episodios)} de ${anime.episodios}`,
+        buttons: [...episodeButtons, ...actionButtons],
+      }, { quoted: m });
     }
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
@@ -240,8 +273,75 @@ _Ejemplo: .anime ${searchQuery} ep:1_
   }
 };
 
-handler.command = ['anime2', 'animedl'];
+// --- HANDLER BEFORE (Para botones de acción) ---
+// La descarga por botón ya la maneja el handler principal al reenviar el comando
+
+handler.before = async (m, { conn }) => {
+  // Verificamos si es una respuesta a un mensaje de botones y si tiene un ID
+  const id = m.message?.buttonsResponseMessage?.selectedButtonId;
+  if (!id) return;
+  
+  // Si el ID empieza con el comando (e.g., .anime), dejamos que el handler principal lo procese
+  if (id.startsWith('.anime')) return; 
+
+  try {
+    if (id.startsWith('info_')) {
+      const searchId = id.replace('info_', '');
+      const animeData = global.animeSearches?.[searchId];
+      
+      if (!animeData) {
+        return m.reply('⚠️ La búsqueda ha expirado.');
+      }
+      
+      const detailedInfo = `
+🎬 INFORMACIÓN DETALLADA
+
+📌 *Título:* ${animeData.title}
+📁 *Tipo:* ${animeData.type}
+📊 *Episodios Totales:* ${animeData.episodios}
+📝 *Descripción Completa:*
+${animeData.description || 'Sin descripción disponible'}
+
+🌐 *URL:* ${animeData.url}
+🖼️ *Imagen:* ${animeData.image || 'No disponible'}
+`.trim();
+      
+      await conn.sendMessage(m.chat, { text: detailedInfo }, { quoted: m });
+    }
+    
+    if (id.startsWith('list_')) {
+      const searchId = id.replace('list_', '');
+      const animeData = global.animeSearches?.[searchId];
+      
+      if (!animeData) {
+        return m.reply('⚠️ La búsqueda ha expirado.');
+      }
+      
+      const allEpisodes = animeData.episodesList.map(ep => ep.num);
+      
+      let episodeList = `📋 *LISTA COMPLETA DE EPISODIOS*\n\n`;
+      episodeList += `🎬 *${animeData.title}*\n`;
+      episodeList += `📊 Total: ${allEpisodes.length} episodios\n\n`;
+      
+      // Formatear la lista
+      for (let i = 0; i < allEpisodes.length; i += 10) {
+        const chunk = allEpisodes.slice(i, i + 10);
+        episodeList += `📁 Episodios ${i + 1}-${i + chunk.length}: ${chunk.join(', ')}\n`;
+      }
+      
+      episodeList += `\n💡 Para descargar usa: .anime ${animeData.searchQuery} ep:NÚMERO`;
+      
+      await conn.sendMessage(m.chat, { text: episodeList }, { quoted: m });
+    }
+    
+  } catch (e) {
+    console.error('[anime-buttons] Error:', e);
+    m.reply('💥 Error al procesar tu selección.');
+  }
+};
+
+handler.command = ['anime2', 'animedl']; // Dejé 'anime' para que sea el principal
 handler.tags = ['anime', 'descargas'];
-handler.help = ['anime <nombre> - Buscar anime', 'anime <nombre> ep:NÚMERO - Descargar episodio específico'];
+handler.help = ['anime <nombre> - Buscar anime y ver opciones', 'anime <nombre> ep:NÚMERO - Descargar episodio específico'];
 
 export default handler;
