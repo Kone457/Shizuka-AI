@@ -1,5 +1,6 @@
 import { download, detail, search } from "../lib/anime.js";
 
+// Helper para reaccionar con emojis
 async function react(conn, m, emoji) {
     await conn.sendMessage(m.chat, { react: { text: emoji, key: m.key } });
 }
@@ -87,7 +88,8 @@ ${eps}
 handler.before = async (m, { conn }) => {
     conn.anime = conn.anime || {};
     const session = conn.anime[m.sender];
-    if (!session || !m.quoted || m.quoted.id !== session.key.id) return;
+    // 🔧 Corrección: usar m.quoted.key.id en vez de m.quoted.id
+    if (!session || !m.quoted || m.quoted.key?.id !== session.key?.id) return;
 
     if (session.downloading) return m.reply('⏳ Ya estás descargando un episodio. Espera a que termine.');
 
