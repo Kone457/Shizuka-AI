@@ -76,6 +76,6 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['tiktoksearch']
 handler.tags = ['buscadores']
-handler.command = ['tiktoksearch', 'ttsearch', 'tik']
+handler.command = ['tiktoksearch', 'ttsearch']
 
 export default handler
