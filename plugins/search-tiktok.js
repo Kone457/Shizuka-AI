@@ -98,8 +98,8 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
   }
 };
 
-handler.help = ['tiks'];
+handler.help = ['tik'];
 handler.tags = ['descargas'];
-handler.command = ['tiks', 'tiktoksearch'];
+handler.command = ['tik', 'tiktoksearch'];
 
 export default handler;
