@@ -1,5 +1,3 @@
-import fetch from 'node-fetch'
-
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) {
     return conn.sendMessage(
@@ -12,16 +10,29 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: "🕒", key: m.key } })
 
-    let ouh = await fetch(`https://api.agatz.xyz/api/pinterest?url=${encodeURIComponent(text)}`)
-    let gyh = await ouh.json()
+    let apiUrl = `https://api.vreden.my.id/api/v1/download/pinterest?url=${encodeURIComponent(text)}`
+    let response = await fetch(apiUrl)
+    let data = await response.json()
 
-    if (!gyh?.data?.result) throw new Error('No se pudo obtener el recurso')
+    
+    if (!data?.status || !data?.result) {
+      throw new Error('La API no devolvió datos válidos.')
+    }
 
+    
+    let mediaArray = data.result.media_urls
+    let bestQualityMedia = mediaArray.find(m => m.quality === 'original') || mediaArray[0]
+
+    if (!bestQualityMedia?.url) {
+      throw new Error('No se encontró un enlace de descarga en la respuesta.')
+    }
+
+    
     await conn.sendFile(
       m.chat,
-      gyh.data.result,
-      'pinvideobykeni.mp4',
-      `⬛ Url: ${gyh.data.url}`,
+      bestQualityMedia.url, // URL del recurso
+      `pinterest.${bestQualityMedia.type === 'video' ? 'mp4' : 'jpg'}`, // Nombre dinámico
+      `⬛ Título: ${data.result.title || 'Sin título'}\n⬛ Subido por: ${data.result.uploader?.full_name || 'Desconocido'}`,
       m
     )
 
@@ -30,7 +41,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     console.error('Error Pinterest:', e)
     await conn.sendMessage(
       m.chat,
-      { text: `⬛ Error.\n⬛ Detalles: ${e.message}` },
+      { text: `⬛ Error al procesar el link.\n⬛ Detalles: ${e.message}` },
       { quoted: m }
     )
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
@@ -39,7 +50,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.help = ['pinvid *<link>*']
 handler.tags = ['descargas']
-handler.command = ['pinvideo', 'pinvid']
+handler.command = ['pinvideo', 'pinvid', 'pindl']
 handler.premium = false
 handler.group = true
 
