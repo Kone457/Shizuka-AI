@@ -17,12 +17,7 @@ if (!img) return conn.reply(m.chat, `> *_La conversión ha fallado, intenta envi
 
 let out
 try {
-
-stiker = await sticker(img, false, global.wm, global.author, { 
-forwardingScore: 0, 
-isForwarded: false,
-...m
-})
+stiker = await sticker(img, false, global.wm, global.author)
 } catch (e) {
 console.error(e)
 } finally {
@@ -31,18 +26,10 @@ if (/webp/g.test(mime)) out = await webp2png(img)
 else if (/image/g.test(mime)) out = await uploadImage(img)
 else if (/video/g.test(mime)) out = await uploadFile(img)
 if (typeof out !== 'string') out = await uploadImage(img)
-stiker = await sticker(false, out, global.wm, global.author, { 
-forwardingScore: 0, 
-isForwarded: false,
-...m
-})
+stiker = await sticker(false, out, global.wm, global.author)
 }}
 } else if (args[0]) {
-if (isUrl(args[0])) stiker = await sticker(false, args[0], global.wm, global.author, { 
-forwardingScore: 0, 
-isForwarded: false,
-...m
-})
+if (isUrl(args[0])) stiker = await sticker(false, args[0], global.wm, global.author)
 
 else return m.reply(`> El url es incorrecto`)
 
@@ -52,11 +39,12 @@ console.error(e)
 if (!stiker) stiker = e
 } finally {
 if (stiker) {
-// Enviar el sticker sin información de reenvío
-await conn.sendFile(m.chat, stiker, 'sticker.webp', '', m, null, {
+
+await conn.sendMessage(m.chat, {
+sticker: stiker,
 forwardingScore: 0,
 isForwarded: false
-})
+}, { quoted: m })
 } else {
 return conn.reply(m.chat, '> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*', m)
 }
