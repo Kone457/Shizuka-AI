@@ -40,13 +40,15 @@ if (!stiker) stiker = e
 } finally {
 if (stiker) {
 
-await conn.sendMessage(m.chat, {
-sticker: stiker,
+await conn.sendMessage(m.chat, { 
+sticker: stiker 
+}, { 
+quoted: m,
 forwardingScore: 0,
-isForwarded: false
-}, { quoted: m })
+isForwarded: false 
+})
 } else {
-return conn.reply(m.chat, '> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*', m)
+return conn.reply(m.chat, '> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*', m, fake)
 }
 
 }}
