@@ -1,3 +1,5 @@
+import fetch from 'node-fetch'
+
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) {
     return conn.sendMessage(
@@ -10,29 +12,35 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: "🕒", key: m.key } })
 
-    let apiUrl = `https://api.vreden.my.id/api/v1/download/pinterest?url=${encodeURIComponent(text)}`
+    
+    const apiKey = 'rmF1oUJI529jzux8'
+    
+    
+    let apiUrl = `https://api-nv.ultraplus.click/api/video/dl/pinterest?url=${encodeURIComponent(text)}&key=${apiKey}`
+    console.log('Consultando API:', apiUrl)
+    
     let response = await fetch(apiUrl)
     let data = await response.json()
 
-    
     if (!data?.status || !data?.result) {
-      throw new Error('La API no devolvió datos válidos.')
+      throw new Error('La API no devolvió datos válidos')
     }
 
+    let downloadUrl = data.result.video_url || data.result.image_url
     
-    let mediaArray = data.result.media_urls
-    let bestQualityMedia = mediaArray.find(m => m.quality === 'original') || mediaArray[0]
-
-    if (!bestQualityMedia?.url) {
-      throw new Error('No se encontró un enlace de descarga en la respuesta.')
+    if (!downloadUrl) {
+      throw new Error('No se encontró contenido para descargar')
     }
 
-    
+    let isVideo = data.result.video_url ? true : false
+    let fileName = `pinterest_download.${isVideo ? 'mp4' : 'jpg'}`
+    let fileType = isVideo ? 'video' : 'imagen'
+
     await conn.sendFile(
       m.chat,
-      bestQualityMedia.url, // URL del recurso
-      `pinterest.${bestQualityMedia.type === 'video' ? 'mp4' : 'jpg'}`, // Nombre dinámico
-      `⬛ Título: ${data.result.title || 'Sin título'}\n⬛ Subido por: ${data.result.uploader?.full_name || 'Desconocido'}`,
+      downloadUrl,
+      fileName,
+      `⬛ Pinterest ${fileType} descargado\n⬛ Original: ${data.result.original_url}\n⬛ API: ${data.creador || 'Neveloopp'}`,
       m
     )
 
@@ -41,7 +49,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     console.error('Error Pinterest:', e)
     await conn.sendMessage(
       m.chat,
-      { text: `⬛ Error al procesar el link.\n⬛ Detalles: ${e.message}` },
+      { text: `⬛ Error al procesar el link.\n⬛ Detalles: ${e.message}\n⬛ Verifica que el enlace sea público y válido.` },
       { quoted: m }
     )
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
