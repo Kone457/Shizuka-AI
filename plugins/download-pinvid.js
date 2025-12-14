@@ -40,7 +40,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       m.chat,
       downloadUrl,
       fileName,
-      `⬛ Pinterest ${fileType} descargado\n⬛ Original: ${data.result.original_url}\n⬛ API: ${data.creador || 'Neveloopp'}`,
+      `⬛ Pinterest ${fileType} descargado\n⬛ Original: ${data.result.original_url}`,
       m
     )
 
