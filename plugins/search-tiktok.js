@@ -30,6 +30,9 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
     if (!conn.tiktokSearchResults) conn.tiktokSearchResults = {};
     conn.tiktokSearchResults[m.sender] = videos;
 
+    let videosProcessed = 0;
+    let videosFailed = 0;
+
     for (let i = 0; i < videos.length; i++) {
       const video = videos[i];
       
@@ -50,7 +53,7 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
         }
         
         if (!videoUrl) {
-          console.log(`No se pudo obtener URL para video ${i + 1}: ${video.video_id}`);
+          videosFailed++;
           continue;
         }
         
@@ -76,36 +79,17 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
           { quoted: i === 0 ? m : null }
         );
         
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        videosProcessed++;
+        
+        if (i < videos.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
         
       } catch (videoError) {
-        console.error(`Error procesando video ${i + 1}:`, videoError);
-        await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-        
-        await conn.sendMessage(
-          m.chat,
-          {
-            text: `⚠️ *No se pudo descargar el video ${i + 1}*\n\n` +
-                  `📌 *Título:* ${video.title || 'Sin título'}\n` +
-                  `👤 *Autor:* ${video.author?.nickname || 'Desconocido'}\n` +
-                  `❤️ *Likes:* ${video.digg_count?.toLocaleString() || '0'}\n\n` +
-                  `🔗 *ID del video:* ${video.video_id}`
-          },
-          { quoted: i === 0 ? m : null }
-        );
+        videosFailed++;
+        continue;
       }
     }
-    
-    await conn.sendMessage(
-      m.chat,
-      {
-        text: `✅ *Búsqueda completada*\n\n` +
-              `Se encontraron y procesaron ${videos.length} videos para:\n` +
-              `"*${text}*"\n\n` +
-              `🎵 *TikTok Search & Download*`
-      },
-      { quoted: m }
-    );
 
   } catch (error) {
     console.error('Error TikTok Search:', error, 'Query:', text);
