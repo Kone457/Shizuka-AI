@@ -6,7 +6,7 @@ let handler = async (m, { conn, text }) => {
     const senderName = await conn.getName(sender);
 
     
-    const imageUrl = 'https://carlos.wispbyte.app/random/ba';
+    const imageUrl = 'https://kurumi-apiz.vercel.app/random/ba';
 
     const caption = `🎭 Aquí tienes ${senderName} ✨`;
 
