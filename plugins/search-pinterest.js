@@ -57,10 +57,49 @@ let handler = async (m, { conn, text }) => {
       }
     }, { quoted: m })
 
-    await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
+    const sentMessage = await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
+    
+    const reactions = ['🕵️', '🔍', '📌', '📸', '🖼️', '🎨', '✨', '🌟', '💫', '🔥']
+    let reactionIndex = 0
+    
+    const reactionInterval = setInterval(async () => {
+      try {
+        await conn.sendMessage(m.chat, {
+          react: {
+            text: reactions[reactionIndex],
+            key: sentMessage
+          }
+        })
+        
+        reactionIndex = (reactionIndex + 1) % reactions.length
+      } catch {
+        clearInterval(reactionInterval)
+      }
+    }, 1000)
+    
+    setTimeout(() => {
+      clearInterval(reactionInterval)
+      
+      setTimeout(async () => {
+        try {
+          await conn.sendMessage(m.chat, {
+            react: {
+              text: '✅',
+              key: sentMessage
+            }
+          })
+        } catch {}
+      }, 500)
+    }, images.length * 1000)
 
   } catch (e) {
     console.error('[Pinterest Carrusel] Error:', e)
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '❌',
+        key: m.key
+      }
+    })
     await conn.sendMessage(m.chat, { text: `🕸 Error [${e.message || e}]` }, { quoted: m })
   }
 }
