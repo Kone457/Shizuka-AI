@@ -31,7 +31,7 @@
     "@whiskeysockets/baileys": "github:this-xyz/baileys",
     "@bochilteam/scraper": "^4.2.4",
     "@xct007/frieren-scraper": "^0.0.2",
-    "aptoide-scraper": "^1.0.1",
+    "aptoide-scraper": "github:DIEGO-OFC/dv-aptoide-scraper",
     "acrcloud": "^1.4.0",
     "api-dylux": "^1.5.5",
     "awesome-phonenumber": "^3.4.0",
