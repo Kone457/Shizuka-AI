@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const META_PATH = 'https://carlos.wispbyte.app/ai/meta';
+const META_PATH = 'https://kurumi-apiz.vercel.app/ai/meta';
 
 let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
