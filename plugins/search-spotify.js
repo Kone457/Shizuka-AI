@@ -6,10 +6,23 @@ let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('> Ingresa el nombre de una canción o artista para buscar en Spotify.')
 
   try {
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '⌛',
+        key: m.key
+      }
+    })
+
     const res = await fetch(`https://api.vreden.my.id/api/v1/search/spotify?query=${encodeURIComponent(text)}&limit=10`)
     const json = await res.json()
 
     if (!json.status || !json.result?.search_data?.length) {
+      await conn.sendMessage(m.chat, {
+        react: {
+          text: '❌',
+          key: m.key
+        }
+      })
       return m.reply('> No se encontraron resultados en Spotify.')
     }
 
@@ -70,10 +83,23 @@ let handler = async (m, { conn, text }) => {
       }
     }, { quoted: m })
 
-    await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
+    const sentMessage = await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
+
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '✅',
+        key: sentMessage
+      }
+    })
 
   } catch (e) {
     console.error('[Spotify Carrusel] Error:', e)
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '❌',
+        key: m.key
+      }
+    })
     await conn.sendMessage(m.chat, { text: `🕸 Error [${e.message || e}]` }, { quoted: m })
   }
 }
