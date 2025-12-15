@@ -1,70 +1,28 @@
-import { search, download } from 'aptoide-scraper';
+import { search, download } from 'aptoide-scraper'
 
-let handler = async(m, { conn, text }) => {
-    if (!text) return m.reply('❦ Por favor, proporciona el nombre de una aplicación');
+var handler = async (m, {conn, usedPrefix, command, text}) => {
+if (!text) return conn.reply(m.chat, ` Por favor, ingrese el nombre de la apk para descargarlo.`, m)
+try {
+await m.react(rwait)
+conn.reply(m.chat, ` Descargando su aplicación, espere un momento...`, m)
+let searchA = await search(text)
+let data5 = await download(searchA[0].id)
+let txt = `*乂  APTOIDE - DESCARGAS* 乂\n\n`
+txt += `☁️ *Nombre* : ${data5.name}\n`
+txt += `🔖 *Package* : ${data5.package}\n`
+txt += `🚩 *Update* : ${data5.lastup}\n`
+txt += `⚖ *Peso* :  ${data5.size}`
+await conn.sendFile(m.chat, data5.icon, 'thumbnail.jpg', txt, m) 
+await m.react(done)  
+if (data5.size.includes('GB') || data5.size.replace(' MB', '') > 999) {
+return await conn.reply(m.chat, `${emoji2} El archivo es demaciado pesado.`, m)}
+await conn.sendMessage(m.chat, {document: {url: data5.dllink}, mimetype: 'application/vnd.android.package-archive', fileName: data5.name + '.apk', caption: null}, {quoted: fkontak})
+} catch {
+return conn.reply(m.chat, `${msm} Ocurrió un fallo...`, m)}}
 
-    try {
-        let dta = await conn.reply(m.chat, `Buscando la aplicación . . .`, m);
-        let results = await search(text);
+handler.tags = ['descargas']
+handler.help = ['apkmod']
+handler.command = ['apk', 'modapk', 'aptoide']
+handler.group = true;
 
-        if (!results || results.length === 0) {
-            return conn.sendMessage(m.chat, {
-                text: "No se encontraron resultados.",
-                edit: dta.key   
-            }, {
-                quoted: m
-            });
-        }
-        let appInfo = results[0];
-        let apkInfo = await download(appInfo.id);
-
-        if (!apkInfo) {
-            return conn.sendMessage(m.chat, {
-                text: "No se pudo obtener la información de la aplicación.",
-                edit: dta.key   
-            }, {
-                quoted: m
-            });
-        }
-
-        const { name, package: id, size, icon: image, dllink: downloadUrl, lastup } = apkInfo;
-
-        let caption = `    乂 \`ᗩᑭK - ᗪOᗯᑎᒪOᗩᗪᗴᖇ\`\n\n`
-        caption += `≡ Nombre : ${name}\n`
-        caption += `≡ ID : ${id}\n`
-        caption += `≡ Tamaño : ${size}\n`
-        caption += `≡ Última Actualización : ${lastup}\n\n`
-        caption += footer
-        
-            await conn.sendMessage(m.chat, {
-                image: { url: image },
-                caption: caption
-            }, {
-                quoted: m
-            });
-
-        const sizeBytes = parseFloat(size) * 1024 * 1024; 
-
-        if (sizeBytes > 524288000) {
-            return conn.sendMessage(m.chat, {
-                text: `\`El archivo es demasiado grande (${size})\`\n` +
-                    `\`Descárgalo directamente desde aquí :\`\n${downloadUrl}`
-            }, { quoted: m });
-        }
-
-        await conn.sendMessage(m.chat, {
-            document: {
-                url: downloadUrl
-            },
-            fileName: `${name}.apk`,
-            mimetype: 'application/vnd.android.package-archive'
-        }, { quoted: m });
-
-    } catch (error) {
-        console.error(error);
-        m.reply(`Ocurrió un error al procesar la solicitud. Por favor, intenta de nuevo :\n\n` + error);
-    }
-}
-handler.command = handler.help = ["apk"]
-handler.tags = ["descargas"]
 export default handler
