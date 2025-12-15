@@ -110,6 +110,6 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['playstore']
 handler.tags = ['buscadores']
-handler.command = ['playstore', 'apk']
+handler.command = ['playstore']
 
 export default handler
