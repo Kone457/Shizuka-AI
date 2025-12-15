@@ -6,10 +6,23 @@ let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('> Ingresa una palabra clave para buscar en Pinterest.')
 
   try {
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '⌛',
+        key: m.key
+      }
+    })
+
     const res = await fetch(`https://api.vreden.my.id/api/v1/search/pinterest?query=${encodeURIComponent(text)}`)
     const json = await res.json()
 
     if (!json.status || !json.result?.search_data?.length) {
+      await conn.sendMessage(m.chat, {
+        react: {
+          text: '❌',
+          key: m.key
+        }
+      })
       return m.reply('> No se encontraron resultados para tu búsqueda.')
     }
 
@@ -58,39 +71,13 @@ let handler = async (m, { conn, text }) => {
     }, { quoted: m })
 
     const sentMessage = await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
-    
-    const reactions = ['🕵️', '🔍', '📌', '📸', '🖼️', '🎨', '✨', '🌟', '💫', '🔥']
-    let reactionIndex = 0
-    
-    const reactionInterval = setInterval(async () => {
-      try {
-        await conn.sendMessage(m.chat, {
-          react: {
-            text: reactions[reactionIndex],
-            key: sentMessage
-          }
-        })
-        
-        reactionIndex = (reactionIndex + 1) % reactions.length
-      } catch {
-        clearInterval(reactionInterval)
+
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '✅',
+        key: sentMessage
       }
-    }, 1000)
-    
-    setTimeout(() => {
-      clearInterval(reactionInterval)
-      
-      setTimeout(async () => {
-        try {
-          await conn.sendMessage(m.chat, {
-            react: {
-              text: '✅',
-              key: sentMessage
-            }
-          })
-        } catch {}
-      }, 500)
-    }, images.length * 1000)
+    })
 
   } catch (e) {
     console.error('[Pinterest Carrusel] Error:', e)
