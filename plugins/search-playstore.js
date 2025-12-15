@@ -5,10 +5,23 @@ let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('> Ingresa el nombre de una app para buscar en Play Store.')
 
   try {
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '⌛',
+        key: m.key
+      }
+    })
+
     const res = await fetch(`https://api.vreden.my.id/api/v1/search/google/play?query=${encodeURIComponent(text)}`)
     const json = await res.json()
 
     if (!json.status || !json.result?.search_data?.length) {
+      await conn.sendMessage(m.chat, {
+        react: {
+          text: '❌',
+          key: m.key
+        }
+      })
       return m.reply('> No se encontraron aplicaciones para tu búsqueda.')
     }
 
@@ -66,10 +79,23 @@ let handler = async (m, { conn, text }) => {
       }
     }, { quoted: m })
 
-    await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
+    const sentMessage = await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
+
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '✅',
+        key: sentMessage
+      }
+    })
 
   } catch (e) {
     console.error('[Play Store Carrusel] Error:', e)
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '❌',
+        key: m.key
+      }
+    })
     await conn.sendMessage(m.chat, { text: `🕸 Error [${e.message || e}]` }, { quoted: m })
   }
 }
