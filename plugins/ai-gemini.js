@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const GEMINI_PATH = 'https://carlos.wispbyte.app/ai/gemini';
+const GEMINI_PATH = 'https://kurumi-apiz.vercel.app/ai/gemini';
 
 let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
