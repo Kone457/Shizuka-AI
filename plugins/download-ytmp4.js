@@ -26,7 +26,11 @@ const ytdl = {
                 downloads.push({
                     type: item.type,
                     link: item.url,
-                    quality: item.label
+                    quality: item.label,
+                    // Extraer el formato real del string
+                    format: item.type.includes('mp4') || item.type.includes('webm') || item.type.includes('m4a') || item.type.includes('opus') 
+                        ? item.type.split(' ').pop() 
+                        : item.type
                 });
             }
 
@@ -68,50 +72,85 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     const videoData = response.result;
     
-    // Buscar primero en 720p
-    let selectedVideo = videoData.dl.find(item => 
-      item.type === 'mp4' && 
-      (item.quality.toLowerCase().includes('720p') || 
-       item.quality.toLowerCase().includes('hd') ||
-       item.quality === '720p')
+    // Función para extraer número de calidad
+    const extractQualityNumber = (qualityString) => {
+      const match = qualityString.match(/(\d+)p/);
+      return match ? parseInt(match[1]) : 0;
+    };
+    
+    // Filtrar solo videos con audio (mp4) en orden de calidad
+    const videoWithAudio = videoData.dl.filter(item => 
+      item.type === 'VIDEO_WITH_AUDIO' || 
+      (item.type.includes('VIDEO') && (item.format === 'mp4' || item.quality.includes('mp4')))
     );
     
-    // Si no hay 720p, buscar en 360p
+    // Ordenar por calidad (mayor a menor)
+    videoWithAudio.sort((a, b) => {
+      const qualityA = extractQualityNumber(a.quality);
+      const qualityB = extractQualityNumber(b.quality);
+      return qualityB - qualityA;
+    });
+    
+    // Buscar específicamente 720p con audio
+    let selectedVideo = videoWithAudio.find(item => 
+      item.quality.includes('720p') && 
+      (item.type === 'VIDEO_WITH_AUDIO' || item.format === 'mp4')
+    );
+    
+    // Si no hay 720p, buscar 360p con audio
     if (!selectedVideo) {
-      selectedVideo = videoData.dl.find(item => 
-        item.type === 'mp4' && 
-        (item.quality.toLowerCase().includes('360p') ||
-         item.quality === '360p')
+      selectedVideo = videoWithAudio.find(item => 
+        item.quality.includes('360p') && 
+        (item.type === 'VIDEO_WITH_AUDIO' || item.format === 'mp4')
       );
     }
     
-    // Si no hay 360p, buscar cualquier MP4 disponible
+    // Si aún no hay, tomar el mejor video con audio disponible
+    if (!selectedVideo && videoWithAudio.length > 0) {
+      selectedVideo = videoWithAudio[0];
+    }
+    
+    // Si no hay videos con audio, buscar cualquier video mp4
     if (!selectedVideo) {
-      selectedVideo = videoData.dl.find(item => item.type === 'mp4');
+      const anyMp4 = videoData.dl.find(item => 
+        item.format === 'mp4' || 
+        item.quality.includes('mp4') ||
+        item.type.includes('mp4')
+      );
+      selectedVideo = anyMp4;
     }
     
     if (!selectedVideo) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       
       let availableFormats = videoData.dl.map(item => 
-        `• ${item.type.toUpperCase()} - ${item.quality || 'Sin calidad'}`
+        `• ${item.type} - ${item.quality || item.format || 'Sin calidad'}`
       ).join('\n');
       
-      return m.reply(`⚠️ No hay MP4 disponible\n\n📋 Formatos disponibles:\n${availableFormats}`);
+      return m.reply(`⚠️ No se encontró formato MP4 compatible\n\n📋 Formatos disponibles:\n${availableFormats}`);
     }
 
     const videoUrl = selectedVideo.link;
     const title = videoData.title || 'Video YouTube';
-    const quality = selectedVideo.quality || 'Desconocida';
+    const quality = selectedVideo.quality || selectedVideo.format || 'Desconocida';
+    const formatType = selectedVideo.type;
+    
+    // Determinar mensaje según calidad
+    let qualityMsg = '';
+    if (quality.includes('720p') || quality.includes('720')) {
+      qualityMsg = '✅ Descargado en 720p';
+    } else if (quality.includes('360p') || quality.includes('360')) {
+      qualityMsg = quality.includes('720p') ? '✅ Descargado en 720p' : 'ℹ️ Descargado en 360p (720p no disponible)';
+    } else {
+      qualityMsg = `⚠️ Descargado en calidad disponible: ${quality}`;
+    }
     
     const caption = `🎬 *YouTube Video*\n
 📌 *Título:* ${title}
 📊 *Calidad:* ${quality}
-🔗 *Formato:* MP4
+🔗 *Formato:* ${formatType === 'VIDEO_WITH_AUDIO' ? 'MP4 con Audio' : formatType || 'MP4'}
 
-${quality.includes('720') ? '✅ Descargado en 720p' : 
-  quality.includes('360') ? 'ℹ️ Descargado en 360p (720p no disponible)' : 
-  '⚠️ Descargado en calidad disponible'}
+${qualityMsg}
 `;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
