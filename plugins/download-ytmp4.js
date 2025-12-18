@@ -26,7 +26,11 @@ const ytdl = {
                 downloads.push({
                     type: item.type,
                     link: item.url,
-                    quality: item.label
+                    quality: item.label,
+                    format: item.type.includes('mp4') ? 'mp4' : 
+                           item.type.includes('webm') ? 'webm' : 
+                           item.type.includes('m4a') ? 'm4a' : 
+                           item.type.includes('opus') ? 'opus' : item.type
                 });
             }
 
@@ -68,41 +72,55 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     const videoData = response.result;
     
-    const videoQualities = ['1080p', '720p', '480p', '360p', '240p', '144p'];
-    let selectedVideo = null;
-    
-    for (const quality of videoQualities) {
-      const found = videoData.dl.find(item => 
-        item.type === 'mp4' && 
-        item.quality.toLowerCase().includes(quality)
+    // Filtrar solo videos con audio (mp4 que contengan VIDEO_WITH_AUDIO o mp4 normal)
+    const videoFormats = videoData.dl.filter(item => {
+      // Incluir formatos de video con audio
+      return (
+        (item.type.includes('VIDEO_WITH_AUDIO') && item.type.includes('mp4')) ||
+        (item.type.includes('VIDEO') && (item.type.includes('mp4') || item.format === 'mp4')) ||
+        (item.format === 'mp4' && !item.type.includes('AUDIO'))
       );
-      if (found) {
-        selectedVideo = found;
-        break;
+    });
+
+    if (videoFormats.length === 0) {
+      // Si no hay mp4 con audio, buscar cualquier mp4
+      const anyMp4 = videoData.dl.find(item => 
+        item.type.includes('mp4') || item.format === 'mp4'
+      );
+      
+      if (!anyMp4) {
+        await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
+        
+        let availableFormats = videoData.dl.map(item => 
+          `• ${item.quality || 'Sin calidad'} - ${item.format || item.type}`
+        ).join('\n');
+        
+        return m.reply(`⚠️ No se encontró formato compatible\n\n📋 Formatos disponibles:\n${availableFormats}`);
       }
-    }
-    
-    if (!selectedVideo) {
-      selectedVideo = videoData.dl.find(item => item.type === 'mp4');
-    }
-    
-    if (!selectedVideo) {
-      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       
-      let availableFormats = videoData.dl.map(item => 
-        `• ${item.type.toUpperCase()} - ${item.quality || 'Sin calidad'}`
-      ).join('\n');
-      
-      return m.reply(`⚠️ No hay MP4 disponible\n\n📋 Formatos:\n${availableFormats}`);
+      videoFormats.push(anyMp4);
     }
 
+    // Ordenar por calidad (de mayor a menor)
+    const qualityOrder = ['1080p', '720p', '480p', '360p', '240p', '144p'];
+    videoFormats.sort((a, b) => {
+      const aIndex = qualityOrder.findIndex(q => a.quality.includes(q));
+      const bIndex = qualityOrder.findIndex(q => b.quality.includes(q));
+      return aIndex - bIndex; // Menor índice = mejor calidad
+    });
+
+    // Tomar el mejor formato disponible
+    const selectedVideo = videoFormats[0];
+    
     const videoUrl = selectedVideo.link;
     const title = videoData.title || 'Video YouTube';
     const quality = selectedVideo.quality || 'Desconocida';
+    const hasAudio = selectedVideo.type.includes('VIDEO_WITH_AUDIO') ? 'Con audio' : 'Solo video';
     
     const caption = `🎬 *YouTube Video*\n
 📌 *Título:* ${title}
 📊 *Calidad:* ${quality}
+🔊 *Audio:* ${hasAudio}
 🔗 *Formato:* MP4
 `;
 
@@ -114,7 +132,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         video: { url: videoUrl },
         caption: caption,
         mimetype: 'video/mp4',
-        fileName: `${title.substring(0, 100).replace(/[^\w\s]/gi, '')}.mp4`
+        fileName: `${title.substring(0, 100).replace(/[^\w\s]/gi, '')}_${quality}.mp4`
       },
       { quoted: m }
     );
@@ -128,7 +146,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
 handler.help = ['ytmp4 <url>'];
 handler.tags = ['descargas'];
-handler.command = ['ytmp4', 'mp4'];
+handler.command = ['ytmp4', 'mp4', 'ytv'];
 handler.limit = true;
 
 export default handler;
