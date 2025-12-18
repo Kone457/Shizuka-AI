@@ -40,6 +40,8 @@ const ytdl = {
                 result: {
                     title: info.title,
                     img: info.cover,
+                    duration: info.duration || 'Desconocida',
+                    channel: info.author || 'Desconocido',
                     dl: downloads
                 }
             };
@@ -49,11 +51,11 @@ const ytdl = {
     }
 };
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
+let handler = async (m, { conn, args, usedPrefix }) => {
   try {
     if (!args[0]) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply(`⚠️ Ingresa un enlace de YouTube\n\nEjemplo: *${usedPrefix + command} https://youtu.be/ejemplo*`);
+      return m.reply(`⚠️ Ingresa un enlace de YouTube\n\nEjemplo: *${usedPrefix}ytmp4 https://youtu.be/ejemplo*`);
     }
 
     if (!args[0].match(/youtube\.com|youtu\.be/)) {
@@ -72,75 +74,167 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     const videoData = response.result;
     
-    // Filtrar solo videos con audio (mp4 que contengan VIDEO_WITH_AUDIO o mp4 normal)
-    const videoFormats = videoData.dl.filter(item => {
-      // Incluir formatos de video con audio
-      return (
-        (item.type.includes('VIDEO_WITH_AUDIO') && item.type.includes('mp4')) ||
-        (item.type.includes('VIDEO') && (item.type.includes('mp4') || item.format === 'mp4')) ||
-        (item.format === 'mp4' && !item.type.includes('AUDIO'))
-      );
-    });
+    // Obtener todas las calidades de video disponibles
+    const videoQualities = videoData.dl
+      .filter(item => item.type.includes('VIDEO') || item.format === 'mp4' || item.format === 'webm')
+      .filter(item => !item.type.includes('AUDIO'))
+      .map(item => {
+        const qualityMatch = item.quality.match(/\d+/);
+        return {
+          quality: qualityMatch ? `${qualityMatch[0]}p` : item.quality,
+          link: item.link,
+          format: item.format,
+          rawQuality: item.quality
+        };
+      })
+      .filter((item, index, self) => 
+        index === self.findIndex(t => t.quality === item.quality)
+      )
+      .sort((a, b) => {
+        const aNum = parseInt(a.quality) || 0;
+        const bNum = parseInt(b.quality) || 0;
+        return bNum - aNum; // Ordenar de mayor a menor calidad
+      });
 
-    if (videoFormats.length === 0) {
-      // Si no hay mp4 con audio, buscar cualquier mp4
-      const anyMp4 = videoData.dl.find(item => 
-        item.type.includes('mp4') || item.format === 'mp4'
-      );
-      
-      if (!anyMp4) {
-        await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-        
-        let availableFormats = videoData.dl.map(item => 
-          `• ${item.quality || 'Sin calidad'} - ${item.format || item.type}`
-        ).join('\n');
-        
-        return m.reply(`⚠️ No se encontró formato compatible\n\n📋 Formatos disponibles:\n${availableFormats}`);
-      }
-      
-      videoFormats.push(anyMp4);
+    if (videoQualities.length === 0) {
+      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
+      return m.reply('⚠️ No se encontraron calidades de video disponibles');
     }
 
-    // Ordenar por calidad (de mayor a menor)
-    const qualityOrder = ['1080p', '720p', '480p', '360p', '240p', '144p'];
-    videoFormats.sort((a, b) => {
-      const aIndex = qualityOrder.findIndex(q => a.quality.includes(q));
-      const bIndex = qualityOrder.findIndex(q => b.quality.includes(q));
-      return aIndex - bIndex; // Menor índice = mejor calidad
-    });
+    // Crear botones dinámicos según las calidades disponibles
+    const buttons = videoQualities.map((item, index) => ({
+      buttonId: `quality_${index}`,
+      buttonText: { displayText: `🎬 ${item.quality}` },
+      type: 1
+    }));
 
-    // Tomar el mejor formato disponible
-    const selectedVideo = videoFormats[0];
-    
-    const videoUrl = selectedVideo.link;
-    const title = videoData.title || 'Video YouTube';
-    const quality = selectedVideo.quality || 'Desconocida';
-    const hasAudio = selectedVideo.type.includes('VIDEO_WITH_AUDIO') ? 'Con audio' : 'Solo video';
-    
-    const caption = `🎬 *YouTube Video*\n
-📌 *Título:* ${title}
-📊 *Calidad:* ${quality}
-🔊 *Audio:* ${hasAudio}
-🔗 *Formato:* MP4
-`;
+    // Añadir botón de audio si está disponible
+    const audioExists = videoData.dl.some(item => item.type.includes('AUDIO') || item.format.includes('m4a') || item.format.includes('opus'));
+    if (audioExists) {
+      buttons.push({
+        buttonId: 'audio',
+        buttonText: { displayText: '🎵 Audio MP3' },
+        type: 1
+      });
+    }
 
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+    const info = `
+˚∩　ׅ　🅨𝗈𝗎𝖳𝗎𝖻𝖾 🅥𝗂𝖽𝖾𝗈　ׄᰙ　ׅ
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        video: { url: videoUrl },
-        caption: caption,
-        mimetype: 'video/mp4',
-        fileName: `${title.substring(0, 100).replace(/[^\w\s]/gi, '')}_${quality}.mp4`
-      },
-      { quoted: m }
-    );
+> 🕸̴𖫲᮫ִ۫𝆬  Título › *${videoData.title}*
+
+𖣣ֶㅤ֯⌗ 🐤 Canal › *${videoData.channel}*
+𖣣ֶㅤ֯⌗ 🌿 Duración › *${videoData.duration}*
+𖣣ֶㅤ֯⌗ 📊 Calidades › *${videoQualities.length} disponibles*
+`.trim();
+
+    // Guardar datos en una variable global temporal
+    if (!global.ytmp4Data) global.ytmp4Data = {};
+    global.ytmp4Data[m.sender] = {
+      qualities: videoQualities,
+      videoData: videoData,
+      url: args[0],
+      timestamp: Date.now()
+    };
+
+    // Limpiar datos antiguos después de 5 minutos
+    setTimeout(() => {
+      if (global.ytmp4Data[m.sender]) {
+        delete global.ytmp4Data[m.sender];
+      }
+    }, 5 * 60 * 1000);
+
+    await conn.sendMessage(m.chat, {
+      image: { url: videoData.img },
+      caption: info,
+      footer: 'Elige la calidad que deseas descargar:',
+      buttons: buttons,
+      headerType: 4
+    }, { quoted: m });
 
   } catch (error) {
     console.error('Error:', error);
     await conn.sendMessage(m.chat, { react: { text: '💥', key: m.key } });
     return m.reply('💥 Error interno');
+  }
+};
+
+// Manejar la respuesta de los botones
+handler.before = async (m, { conn }) => {
+  const id = m.message?.buttonsResponseMessage?.selectedButtonId;
+  if (!id || !global.ytmp4Data?.[m.sender]) return;
+
+  try {
+    const userData = global.ytmp4Data[m.sender];
+    const { qualities, videoData, url } = userData;
+
+    if (id === 'audio') {
+      await conn.sendMessage(m.chat, { react: { text: '🎵', key: m.key } });
+      
+      // Buscar el mejor audio disponible
+      const audioItems = (await ytdl.get(url)).result.dl.filter(item => 
+        item.type.includes('AUDIO') || item.format.includes('m4a') || item.format.includes('opus')
+      );
+      
+      if (audioItems.length === 0) {
+        return m.reply('⚠️ No se encontró audio disponible');
+      }
+
+      const bestAudio = audioItems.sort((a, b) => {
+        const aBitrate = parseInt(a.quality) || 0;
+        const bBitrate = parseInt(b.quality) || 0;
+        return bBitrate - aBitrate;
+      })[0];
+
+      const caption = `🎵 *YouTube Audio*\n\n📌 *Título:* ${videoData.title}\n📊 *Calidad:* ${bestAudio.quality}\n🔗 *Formato:* MP3`;
+
+      await conn.sendMessage(
+        m.chat,
+        {
+          audio: { url: bestAudio.link },
+          mimetype: 'audio/mpeg',
+          fileName: `${videoData.title.substring(0, 100).replace(/[^\w\s]/gi, '')}.mp3`,
+          caption
+        },
+        { quoted: m }
+      );
+
+      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+      delete global.ytmp4Data[m.sender];
+      return;
+    }
+
+    if (id.startsWith('quality_')) {
+      const index = parseInt(id.replace('quality_', ''));
+      if (isNaN(index) || index < 0 || index >= qualities.length) {
+        return m.reply('⚠️ Calidad no válida');
+      }
+
+      await conn.sendMessage(m.chat, { react: { text: '⏬', key: m.key } });
+
+      const selected = qualities[index];
+      const caption = `🎬 *YouTube Video*\n\n📌 *Título:* ${videoData.title}\n📊 *Calidad:* ${selected.quality}\n🔗 *Formato:* MP4`;
+
+      await conn.sendMessage(
+        m.chat,
+        {
+          video: { url: selected.link },
+          caption: caption,
+          mimetype: 'video/mp4',
+          fileName: `${videoData.title.substring(0, 100).replace(/[^\w\s]/gi, '')}_${selected.quality}.mp4`
+        },
+        { quoted: m }
+      );
+
+      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+      delete global.ytmp4Data[m.sender];
+    }
+
+  } catch (error) {
+    console.error('Error en botones:', error);
+    await conn.sendMessage(m.chat, { react: { text: '💥', key: m.key } });
+    m.reply('💥 Error al descargar');
+    delete global.ytmp4Data[m.sender];
   }
 };
 
