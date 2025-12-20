@@ -80,6 +80,6 @@ handler.help = ['on', 'off'];
 handler.tags = ['grupo'];
 handler.command = ['on', 'off'];
 handler.admin = true;
-handler.botAdmin = true;
+handler.botAdmin = false;
 
 export default handler;
