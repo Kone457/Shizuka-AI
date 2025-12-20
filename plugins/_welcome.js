@@ -1,56 +1,64 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys';
+import fetch from 'node-fetch'
 
 export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.messageStubType || !m.isGroup) return true;
+  if (!m.messageStubType || !m.isGroup) return
 
-  const chat = globalThis.db.data.chats[m.chat];
-  const userss = m.messageStubParameters?.[0];
-  if (!userss) return true;
+  const chat = global.db.data.chats[m.chat]
+  const user = m.messageStubParameters[0]
+  const nombre = await conn.getName(user) || 'Miembro'
+  const avatar = await conn.profilePictureUrl(user, 'image').catch(_ => 'https://files.catbox.moe/1vcl0u.jpg')
+  const groupName = groupMetadata.subject || 'el grupo'
 
-  const nombre = globalThis.db.data.users[userss]?.name || {};
-  const name = nombre || await conn.getName(userss);
-
-  const ppUrl = await conn.profilePictureUrl(userss, 'image')
-    .catch(() => "https://files.catbox.moe/l91dnk.jpg");
-
-  let memberCount = participants.length;
-  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) memberCount += 1;
-  else if ([WAMessageStubType.GROUP_PARTICIPANT_REMOVE, WAMessageStubType.GROUP_PARTICIPANT_LEAVE].includes(m.messageStubType)) memberCount -= 1;
-
-  const mentions = [userss, m.key.participant].filter(Boolean);
-  const fakeContext = { contextInfo: { mentionedJid: mentions } };
-
-  // Bienvenida
-  if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-    const background = encodeURIComponent('https://cdn.popcat.xyz/welcome-bg.png');
-    const text1 = encodeURIComponent('');
-    const text2 = encodeURIComponent(`Bienvenido a ${groupMetadata.subject}`);
-    const text3 = encodeURIComponent(`Ahora somos ${memberCount} miembros`);
-    const avatar = encodeURIComponent(ppUrl);
-
-    const popcatUrl = `https://api.popcat.xyz/v2/welcomecard?background=${background}&text1=${text1}&text2=${text2}&text3=${text3}&avatar=${avatar}`;
-
-    await conn.sendMessage(
-      m.chat,
-      { image: { url: popcatUrl }, caption: `🌸 Bienvenido @${userss.split('@')[0]}!\n👥 Ahora somos ${memberCount} miembros.`, ...fakeContext }
-    );
+  const fkontak = {
+    key: {
+      participants: "0@s.whatsapp.net",
+      remoteJid: "status@broadcast",
+      fromMe: false,
+      id: "Halo"
+    },
+    message: {
+      contactMessage: {
+        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
+      }
+    },
+    participant: "0@s.whatsapp.net"
   }
 
-  // Despedida
-  if (chat.welcome && [WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
-    const background = encodeURIComponent('https://cdn.popcat.xyz/welcome-bg.png');
-    const text1 = encodeURIComponent('');
-    const text2 = encodeURIComponent(`Hasta pronto desde ${groupMetadata.subject}`);
-    const text3 = encodeURIComponent(`Ahora somos ${memberCount} miembros`);
-    const avatar = encodeURIComponent(ppUrl);
+  if (chat.welcome && m.messageStubType == 27) {
+    const miembro = participants.length + 1
+    const url = `https://api.popcat.xyz/v2/welcomecard?background=https://files.catbox.moe/ld3axv.jpg&text1=${encodeURIComponent(nombre)}&text2=${encodeURIComponent(`Bienvenido a ${groupName}`)}&text3=${encodeURIComponent(`Miembro ${miembro}`)}&avatar=${encodeURIComponent(avatar)}`
+    const res = await fetch(url)
+    const imgBienvenida = Buffer.from(await res.arrayBuffer())
 
-    const popcatUrl = `https://api.popcat.xyz/v2/welcomecard?background=${background}&text1=${text1}&text2=${text2}&text3=${text3}&avatar=${avatar}`;
+    const caption = `
+🎉 *@${user.split('@')[0]} se ha unido a ${groupName}*  
+Bienvenido 🐾  
+> Eres el miembro número ${miembro}
+`.trim()
 
-    await conn.sendMessage(
-      m.chat,
-      { image: { url: popcatUrl }, caption: `👋 Hasta pronto @${userss.split('@')[0]}!\n👥 Ahora somos ${memberCount} miembros.`, ...fakeContext }
-    );
+    await conn.sendMessage(m.chat, {
+      image: imgBienvenida,
+      caption,
+      contextInfo: { mentionedJid: [user] }
+    }, { quoted: fkontak })
   }
 
-  return true;
+  if (chat.welcome && (m.messageStubType == 28 || m.messageStubType == 32)) {
+    const miembro = participants.length - 1
+    const url = `https://api.popcat.xyz/v2/welcomecard?background=https://files.catbox.moe/ld3axv.jpg&text1=${encodeURIComponent(nombre)}&text2=${encodeURIComponent(`Ha salido de ${groupName}`)}&text3=${encodeURIComponent(`Quedan ${miembro} miembros`)}&avatar=${encodeURIComponent(avatar)}`
+    const res = await fetch(url)
+    const imgDespedida = Buffer.from(await res.arrayBuffer())
+
+    const caption = `
+👋 *@${user.split('@')[0]} ha salido de ${groupName}*  
+Nos despedimos con cariño 🐾  
+> Ahora somos ${miembro} miembros
+`.trim()
+
+    await conn.sendMessage(m.chat, {
+      image: imgDespedida,
+      caption,
+      contextInfo: { mentionedJid: [user] }
+    }, { quoted: fkontak })
+  }
 }
