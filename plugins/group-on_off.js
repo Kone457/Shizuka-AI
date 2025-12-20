@@ -1,6 +1,7 @@
-let handler = async (m, { conn, args, command }) => {
+let handler = async (m, { conn, args, command, isOwner }) => {
   const setting = args[0]?.toLowerCase();
   const chatData = global.db.data.chats[m.chat];
+  const botSettings = global.db.data.settings[conn.user.jid];
 
   if (!setting) {
     return m.reply(
@@ -10,7 +11,7 @@ let handler = async (m, { conn, args, command }) => {
 
   const status = command === 'on';
   const reply = (name) =>
-    m.reply(`> La función *${name}* ha sido *${status ? 'activada' : 'desactivada'}* en este grupo.`);
+    m.reply(`> La función *${name}* ha sido *${status ? 'activada' : 'desactivada'}* ${['serbot', 'jadibot', 'subbots'].includes(setting) ? 'en el sistema' : 'en este grupo'}.`);
 
   switch (setting) {
     case 'antilinks':
@@ -47,8 +48,8 @@ let handler = async (m, { conn, args, command }) => {
       break;
 
     case 'reaction':
-      chatData.nsfw = status;
-      reply('reaction');
+      chatData.reaction = status;
+      reply('Reacciones');
       break;
 
     case 'alerts':
@@ -57,9 +58,19 @@ let handler = async (m, { conn, args, command }) => {
       reply('Alertas');
       break;
 
+    case 'serbot':
+    case 'jadibot':
+    case 'subbots':
+      if (!isOwner) return m.reply("> Esta función solo puede ser modificada por el *Creador*.");
+      if (botSettings) {
+        botSettings.jadibotmd = status;
+        reply('Subbots (JadiBot)');
+      }
+      break;
+
     default:
       m.reply(
-        `> Opción no *válida*\n\n> 📌 *Opciones disponibles:*\n> - welcome\n> - antienlaces\n> - economia\n> - gacha\n> - nsfw\n> - soloadmin\n> - alertas\n\n> *Ejemplo:* ${command} welcome`
+        `> Opción no *válida*\n\n> 📌 *Opciones disponibles:*\n> - welcome\n> - antienlaces\n> - economia\n> - gacha\n> - nsfw\n> - soloadmin\n> - alertas\n> - serbot\n\n> *Ejemplo:* ${command} serbot`
       );
       break;
   }
