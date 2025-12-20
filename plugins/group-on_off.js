@@ -20,6 +20,16 @@ let handler = async (m, { conn, args, command, isOwner }) => {
       reply('Anti Enlaces');
       break;
 
+     case 'antilink':
+      if (m.isGroup) {
+        if (!(isAdmin || isOwner)) {
+          global.dfail('admin', m, conn)
+          throw false
+        }
+      }
+      chat.antiLink = isEnable
+      break
+
     case 'rpg':
     case 'economia':
       chatData.rpg = status;
