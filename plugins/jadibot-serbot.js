@@ -12,12 +12,6 @@ const { CONNECTING } = ws
 import { makeWASocket } from '../lib/simple.js'
 import { fileURLToPath } from 'url'
 
-let crm1 = "Y2QgcGx1Z2lucy"
-let crm2 = "A7IG1kNXN1b"
-let crm3 = "SBpbmZvLWRvbmFyLmpz"
-let crm4 = "IF9hdXRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
-let drm1 = ""
-let drm2 = ""
 let rtx = `> *Vincula el subbot usando el código QR.*`.trim()
 let rtx2 = `> *Vincula el subbot usando el código de 8 dígitos.*`.trim()
 
@@ -93,23 +87,24 @@ export async function michiJadiBot(options) {
     if (qr && fromCommand && mcode) {
       let secret = await sock.requestPairingCode((m.sender.split`@`[0]))
       secret = secret.match(/.{1,4}/g)?.join("-")
-      conn.reply(m.chat, `${rtx2}\n\n*CÓDIGO:* ${secret}`, m)
+      await conn.reply(m.chat, rtx2, m)
+      await conn.reply(m.chat, secret, m)
     }
 
     if (connection === 'open') {
       sock.isInit = true
       if (!global.conns.includes(sock)) global.conns.push(sock)
-      console.log(chalk.cyanBright(`\nSub-Bot conectado: ${sock.user.id}`))
+      console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SUB-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
       if (fromCommand) conn.reply(m.chat, `*¡Conexión exitosa!*`, m)
     }
 
     if (connection === 'close') {
       if (statusCode !== DisconnectReason.loggedOut) {
-        console.log(chalk.yellow(`Reconectando subbot: ${path.basename(pathMichiJadiBot)}`))
+        console.log(chalk.yellow(`\n⚠️ Reconectando subbot: ${path.basename(pathMichiJadiBot)}`))
         michiJadiBot(options)
       } else {
-        console.log(chalk.red(`Sesión cerrada: ${path.basename(pathMichiJadiBot)}`))
-        fs.rmdirSync(pathMichiJadiBot, { recursive: true })
+        console.log(chalk.red(`\n❌ Sesión cerrada: ${path.basename(pathMichiJadiBot)}`))
+        if (fs.existsSync(pathMichiJadiBot)) fs.rmdirSync(pathMichiJadiBot, { recursive: true })
         let i = global.conns.indexOf(sock)
         if (i >= 0) global.conns.splice(i, 1)
       }
