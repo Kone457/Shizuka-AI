@@ -10,7 +10,7 @@ try {
 let q = m.quoted ? m.quoted : m
 let mime = (q.msg || q).mimetype || q.mediaType || ''
 if (/webp|image|video/g.test(mime)) {
-if (/video/g.test(mime)) if ((q.msg || q).seconds > 8) return m.reply(`> *¡El video no puede durar mas de 8 segundos!*`)
+if (/video/g.test(mime)) if ((q.msg || q).seconds > 80) return m.reply(`> *¡El video no puede durar mas de 80 segundos!*`)
 let img = await q.download?.()
 
 if (!img) return conn.reply(m.chat, `> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*`, m )
