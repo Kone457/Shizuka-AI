@@ -70,12 +70,12 @@ let handler = async (m, { conn, text }) => {
       }
     }, { quoted: m })
 
-    const sentMessage = await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
+    await conn.relayMessage(m.chat, messageContent.message, { messageId: messageContent.key.id })
 
     await conn.sendMessage(m.chat, {
       react: {
         text: '✅',
-        key: sentMessage
+        key: messageContent.key
       }
     })
 
