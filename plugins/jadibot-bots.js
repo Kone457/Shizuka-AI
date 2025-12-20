@@ -13,7 +13,7 @@ let handler = async (m, { conn }) => {
   })
 
   let totalUsers = uniqueUsers.size
-  let message = `❒⸺⸺⸺⸺【 *SUB-BOTS ACTIVOS* 】⸺⸺⸺⸺❒\n\n`
+  let message = `❒⸺【 *SUB-BOTS ACTIVOS* 】⸺❒\n\n`
 
   if (totalUsers === 0) {
     message += `> *No hay Sub-Bots conectados en este momento.*`
