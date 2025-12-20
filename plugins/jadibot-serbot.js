@@ -1,158 +1,129 @@
-import {
-  useMultiFileAuthState,
-  DisconnectReason,
-  makeCacheableSignalKeyStore,
-  fetchLatestBaileysVersion
-} from "@whiskeysockets/baileys";
-import qrcode from "qrcode";
-import nodeCache from "node-cache";
-import fs from "fs";
-import fetch from "node-fetch";
-import path from "path";
-import pino from "pino";
-import util from "util";
-import * as ws from "ws";
-const { child, spawn, exec } = await import("child_process");
-import { makeWASocket } from "../lib/simple.js";
+const { useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore, fetchLatestBaileysVersion, generateWAMessageFromContent, proto } = (await import("@whiskeysockets/baileys"));
+import qrcode from "qrcode"
+import NodeCache from "node-cache"
+import fs from "fs"
+import path from "path"
+import pino from 'pino'
+import chalk from 'chalk'
+import util from 'util' 
+import * as ws from 'ws'
+const { child, spawn, exec } = await import('child_process')
+const { CONNECTING } = ws
+import { makeWASocket } from '../lib/simple.js'
+import { fileURLToPath } from 'url'
 
-// Variables de entorno/comprobación (Se mantienen igual)
-let crm1 = "cd plugins", crm2 = "; md5sum", crm3 = "Sinfo-Donar.js", crm4 = " _autoresponder.js info-bot.js";
-let imgcode = 'https://files.catbox.moe/nig8ax.jpg';
+let crm1 = "Y2QgcGx1Z2lucy"
+let crm2 = "A7IG1kNXN1b"
+let crm3 = "SBpbmZvLWRvbmFyLmpz"
+let crm4 = "IF9hdXRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
+let drm1 = ""
+let drm2 = ""
+let rtx = `> *Vincula el subbot usando el código QR.*`.trim()
+let rtx2 = `> *Vincula el subbot usando el código de 8 dígitos.*`.trim()
 
-let fkontak = {
-    key: { participants: "0@s.whatsapp.net", remoteJid: "status@broadcast", fromMe: false, id: "Halo" },
-    message: {
-      locationMessage: {
-        name: "𝖲𝖴𝖡𝖡𝖮𝖳 𝖮𝖭𝖫𝖨𝖭𝖤 ✅",
-        jpegThumbnail: await (await fetch('https://files.catbox.moe/nig8ax.jpg')).buffer(),
-        vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:Unlimited\nEND:VCARD"
-      }
-    },
-    participant: "0@s.whatsapp.net"
-};
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const MAX_SUBBOTS = 10
 
-let rtx = "✿ Conexión Sub-Bot Modo QR\n\nEscanea este QR para convertirte en Subbot.";
-let rtx2 = "✿ Conexión Sub-Bot Modo Código\n\nUsa este Código para vincular.";
-
-if (!(global.conns instanceof Array)) global.conns = [];
-const MAX_SUBBOTS = 10;
+if (global.conns instanceof Array) console.log()
+else global.conns = []
 
 async function loadSubbots() {
-  const serbotFolders = fs.readdirSync('./' + global.jadi).filter(f => fs.statSync(`./${global.jadi}/${f}`).isDirectory());
-  let totalC = 0;
-
-  for (const folder of serbotFolders) {
-    if (global.conns.length >= MAX_SUBBOTS) {
-      console.log(`Límite de ${MAX_SUBBOTS} subbots alcanzado.`);
-      break;
+  if (!fs.existsSync(`./${global.jadi}`)) return
+  const folders = fs.readdirSync(`./${global.jadi}`)
+  for (const folder of folders) {
+    const pathJB = path.join(`./${global.jadi}/`, folder)
+    if (fs.statSync(pathJB).isDirectory() && fs.existsSync(path.join(pathJB, 'creds.json'))) {
+      michiJadiBot({ pathMichiJadiBot: pathJB, fromCommand: false })
     }
-
-    const folderPath = `./${global.jadi}/${folder}`;
-    const { state, saveCreds } = await useMultiFileAuthState(folderPath);
-    const { version } = await fetchLatestBaileysVersion();
-
-    const connectionOptions = {
-      version,
-      keepAliveIntervalMs: 30000,
-      printQRInTerminal: false,
-      logger: pino({ level: "fatal" }),
-      auth: state,
-      browser: ["Dylux", "IOS", "4.1.0"],
-    };
-
-    let conn = makeWASocket(connectionOptions);
-    let connected = false;
-    let recAtts = 0;
-
-    async function connectionUpdate(update) {
-      const { connection, lastDisconnect } = update;
-      if (connection === "open") {
-        connected = true;
-        global.conns.push(conn);
-        totalC++;
-      }
-      
-      if (connection === 'close') {
-        const code = lastDisconnect?.error?.output?.statusCode;
-        if (code !== DisconnectReason.loggedOut && recAtts < 3) {
-            recAtts++;
-            console.log(`Reintentando conexión para ${folder}...`);
-            setTimeout(() => loadSubbots(), 5000); 
-        } else {
-            fs.rmSync(folderPath, { recursive: true, force: true });
-        }
-      }
-    }
-    // ... (resto de la lógica de inicialización simplificada para evitar errores de anidación)
   }
 }
+loadSubbots().catch(console.error)
 
-let handler = async (msg, { conn, args, usedPrefix, command }) => {
-  if (!global.db.data.settings[conn.user.jid]?.jadibotmd) {
-    return conn.reply(msg.chat, "Este comando está deshabilitado.", msg);
+let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
+  if (!global.db.data.settings[conn.user.jid].jadibotmd) {
+    return m.reply(`*Este comando esta deshabilitado por mi creador.*`)
   }
 
-  if (global.conns.length >= MAX_SUBBOTS) {
-    return conn.reply(msg.chat, `Límite alcanzado: ${MAX_SUBBOTS} subbots.`, msg);
+  const activeConns = global.conns.filter(c => c.user && c.ws.socket && c.ws.socket.readyState !== ws.CLOSED)
+  if (activeConns.length >= MAX_SUBBOTS) {
+    return m.reply(`*Lo siento, se ha alcanzado el límite de ${MAX_SUBBOTS} subbots.*`)
   }
 
-  const isCode = command === "code" || (args[0] && /(--code|code)/.test(args[0]));
-  let userJid = msg.mentionedJid?.[0] || (msg.fromMe ? conn.user.jid : msg.sender);
-  let userName = userJid.split('@')[0];
-  let pathSubbot = `./${global.jadi}/${userName}`;
+  let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
+  let id = `${who.split`@`[0]}`
+  let pathMichiJadiBot = path.join(`./${jadi}/`, id)
 
-  if (!fs.existsSync(pathSubbot)) fs.mkdirSync(pathSubbot, { recursive: true });
+  michiJadiBot({ pathMichiJadiBot, m, conn, args, usedPrefix, command, fromCommand: true })
+} 
 
-  async function initSubBot() {
-    const { state, saveCreds } = await useMultiFileAuthState(pathSubbot);
-    const config = {
-      printQRInTerminal: false,
-      logger: pino({ level: "silent" }),
-      auth: state,
-      browser: ["MacOs", "Safari"],
-    };
+handler.help = ['qr', 'code']
+handler.tags = ['serbot']
+handler.command = ['qr', 'code']
+export default handler 
 
-    let subBot = makeWASocket(config);
+export async function michiJadiBot(options) {
+  let { pathMichiJadiBot, m, conn, args, usedPrefix, command, fromCommand } = options
+  let isInit = true
+  
+  if (!fs.existsSync(pathMichiJadiBot)) fs.mkdirSync(pathMichiJadiBot, { recursive: true })
 
-    subBot.ev.on('connection.update', async (update) => {
-      const { connection, lastDisconnect, qr } = update;
-      
-      if (qr && !isCode) {
-        await conn.sendMessage(msg.chat, { image: await qrcode.toBuffer(qr), caption: rtx }, { quoted: msg });
-      }
+  const mcode = fromCommand && (command === 'code' || args?.includes('code'))
+  const { state, saveCreds } = await useMultiFileAuthState(pathMichiJadiBot)
+  const { version } = await fetchLatestBaileysVersion()
 
-      if (qr && isCode) {
-        await conn.sendMessage(msg.chat, { image: { url: imgcode }, caption: rtx2 }, { quoted: msg });
-        await sleep(3000);
-        let codeP = await subBot.requestPairingCode(msg.sender.split('@')[0]);
-        await conn.sendMessage(msg.chat, { text: codeP }, { quoted: msg });
-      }
-
-      if (connection === "open") {
-        global.conns.push(subBot);
-        await conn.sendMessage(msg.chat, { text: "✅ Conexión exitosa." }, { quoted: fkontak });
-      }
-
-      if (connection === "close") {
-        const reason = lastDisconnect?.error?.output?.statusCode;
-        if (reason === DisconnectReason.loggedOut) {
-            fs.rmSync(pathSubbot, { recursive: true, force: true });
-        }
-      }
-    });
-
-    subBot.ev.on('creds.update', saveCreds);
+  const connectionOptions = {
+    logger: pino({ level: "silent" }),
+    printQRInTerminal: false,
+    auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
+    browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Shizuka Bot','Chrome','2.0.0'],
+    version
   }
 
-  initSubBot();
-};
+  let sock = makeWASocket(connectionOptions)
 
-handler.help = ["serbot", "code"];
-handler.tags = ["serbot"];
-handler.command = ["jadibot", "serbot", "code"];
+  async function connectionUpdate(update) {
+    const { connection, lastDisconnect, qr } = update
+    const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode
 
-export default handler;
+    if (qr && fromCommand && !mcode) {
+      conn.sendMessage(m.chat, { image: await qrcode.toBuffer(qr, { scale: 8 }), caption: rtx }, { quoted: m })
+    }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    if (qr && fromCommand && mcode) {
+      let secret = await sock.requestPairingCode((m.sender.split`@`[0]))
+      secret = secret.match(/.{1,4}/g)?.join("-")
+      conn.reply(m.chat, `${rtx2}\n\n*CÓDIGO:* ${secret}`, m)
+    }
+
+    if (connection === 'open') {
+      sock.isInit = true
+      if (!global.conns.includes(sock)) global.conns.push(sock)
+      console.log(chalk.cyanBright(`\nSub-Bot conectado: ${sock.user.id}`))
+      if (fromCommand) conn.reply(m.chat, `*¡Conexión exitosa!*`, m)
+    }
+
+    if (connection === 'close') {
+      if (statusCode !== DisconnectReason.loggedOut) {
+        console.log(chalk.yellow(`Reconectando subbot: ${path.basename(pathMichiJadiBot)}`))
+        michiJadiBot(options)
+      } else {
+        console.log(chalk.red(`Sesión cerrada: ${path.basename(pathMichiJadiBot)}`))
+        fs.rmdirSync(pathMichiJadiBot, { recursive: true })
+        let i = global.conns.indexOf(sock)
+        if (i >= 0) global.conns.splice(i, 1)
+      }
+    }
+  }
+
+  let handlerModule = await import('../handler.js')
+  sock.handler = handlerModule.handler.bind(sock)
+  sock.connectionUpdate = connectionUpdate.bind(sock)
+  sock.credsUpdate = saveCreds.bind(sock, true)
+
+  sock.ev.on("messages.upsert", sock.handler)
+  sock.ev.on("connection.update", sock.connectionUpdate)
+  sock.ev.on("creds.update", sock.credsUpdate)
+
+  return sock
 }
