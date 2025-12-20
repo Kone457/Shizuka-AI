@@ -43,7 +43,7 @@ let handler = async (m, { conn }) => {
       message += `│  ✩ *Nombre:* ${name}\n`
       message += `│  ✩ *Tiempo activo:* ${uptime}\n`
       message += `│  ✩ *Enlace:* wa.me/${user}\n`
-      message += `╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n\n`
+      message += `╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n\n`
       i++
     })
   }
