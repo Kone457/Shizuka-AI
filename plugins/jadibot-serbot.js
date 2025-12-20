@@ -109,7 +109,7 @@ let handler = async (msg, { conn, args, usedPrefix, command }) => {
       printQRInTerminal: false,
       logger: pino({ level: "silent" }),
       auth: state,
-      browser: isCode ? ["Ubuntu", "Chrome", "110.0.5585.95"] : ["Sub Bot", "Chrome", "2.0.0"],
+      browser: ["MacOs", "Safari"],
     };
 
     let subBot = makeWASocket(config);
