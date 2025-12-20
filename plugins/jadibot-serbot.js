@@ -26,9 +26,9 @@ async function loadSubbots() {
   if (!fs.existsSync(`./${global.jadi}`)) return
   const folders = fs.readdirSync(`./${global.jadi}`)
   for (const folder of folders) {
-    const pathJB = path.join(`./${global.jadi}/`, folder)
-    if (fs.statSync(pathJB).isDirectory() && fs.existsSync(path.join(pathJB, 'creds.json'))) {
-      michiJadiBot({ pathMichiJadiBot: pathJB, fromCommand: false })
+    const pathSkyJadiBot = path.join(`./${global.jadi}/`, folder)
+    if (fs.statSync(pathSkyJadiBot).isDirectory() && fs.existsSync(path.join(pathSkyJadiBot, 'creds.json'))) {
+      skyJadiBot({ pathSkyJadiBot, fromCommand: false })
     }
   }
 }
@@ -46,9 +46,9 @@ let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
 
   let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
   let id = `${who.split`@`[0]}`
-  let pathMichiJadiBot = path.join(`./${jadi}/`, id)
+  let pathSkyJadiBot = path.join(`./${jadi}/`, id)
 
-  michiJadiBot({ pathMichiJadiBot, m, conn, args, usedPrefix, command, fromCommand: true })
+  skyJadiBot({ pathSkyJadiBot, m, conn, args, usedPrefix, command, fromCommand: true })
 } 
 
 handler.help = ['qr', 'code']
@@ -56,22 +56,22 @@ handler.tags = ['serbot']
 handler.command = ['qr', 'code']
 export default handler 
 
-export async function michiJadiBot(options) {
-  let { pathMichiJadiBot, m, conn, args, usedPrefix, command, fromCommand } = options
+export async function skyJadiBot(options) {
+  let { pathSkyJadiBot, m, conn, args, usedPrefix, command, fromCommand } = options
   let isInit = true
   let isSent = false
   
-  if (!fs.existsSync(pathMichiJadiBot)) fs.mkdirSync(pathMichiJadiBot, { recursive: true })
+  if (!fs.existsSync(pathSkyJadiBot)) fs.mkdirSync(pathSkyJadiBot, { recursive: true })
 
   const mcode = fromCommand && (command === 'code' || args?.includes('code'))
-  const { state, saveCreds } = await useMultiFileAuthState(pathMichiJadiBot)
+  const { state, saveCreds } = await useMultiFileAuthState(pathSkyJadiBot)
   const { version } = await fetchLatestBaileysVersion()
 
   const connectionOptions = {
     logger: pino({ level: "silent" }),
     printQRInTerminal: false,
     auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
-    browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Shizuka Bot','Chrome','2.0.0'],
+    browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Sky Bot','Chrome','2.0.0'],
     version
   }
 
@@ -98,18 +98,18 @@ export async function michiJadiBot(options) {
       sock.isInit = true
       isSent = true
       if (!global.conns.includes(sock)) global.conns.push(sock)
-      console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SUB-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
+      console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
       if (fromCommand) conn.reply(m.chat, `*¡Conexión exitosa!*`, m)
     }
 
     if (connection === 'close') {
       isSent = false
       if (statusCode !== DisconnectReason.loggedOut) {
-        console.log(chalk.yellow(`\n⚠️ Reconectando subbot: ${path.basename(pathMichiJadiBot)}`))
-        michiJadiBot(options)
+        console.log(chalk.yellow(`\n⚠️ Reconectando subbot: ${path.basename(pathSkyJadiBot)}`))
+        skyJadiBot(options)
       } else {
-        console.log(chalk.red(`\n❌ Sesión cerrada: ${path.basename(pathMichiJadiBot)}`))
-        if (fs.existsSync(pathMichiJadiBot)) fs.rmSync(pathMichiJadiBot, { recursive: true, force: true })
+        console.log(chalk.red(`\n❌ Sesión cerrada: ${path.basename(pathSkyJadiBot)}`))
+        if (fs.existsSync(pathSkyJadiBot)) fs.rmdirSync(pathSkyJadiBot, { recursive: true, force: true })
         let i = global.conns.indexOf(sock)
         if (i >= 0) global.conns.splice(i, 1)
       }
