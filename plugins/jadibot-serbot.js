@@ -59,6 +59,7 @@ export default handler
 export async function michiJadiBot(options) {
   let { pathMichiJadiBot, m, conn, args, usedPrefix, command, fromCommand } = options
   let isInit = true
+  let isSent = false
   
   if (!fs.existsSync(pathMichiJadiBot)) fs.mkdirSync(pathMichiJadiBot, { recursive: true })
 
@@ -80,31 +81,35 @@ export async function michiJadiBot(options) {
     const { connection, lastDisconnect, qr } = update
     const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode
 
-    if (qr && fromCommand && !mcode) {
-      conn.sendMessage(m.chat, { image: await qrcode.toBuffer(qr, { scale: 8 }), caption: rtx }, { quoted: m })
+    if (qr && fromCommand && !mcode && !isSent) {
+      await conn.sendMessage(m.chat, { image: await qrcode.toBuffer(qr, { scale: 8 }), caption: rtx }, { quoted: m })
+      isSent = true
     }
 
-    if (qr && fromCommand && mcode) {
+    if (qr && fromCommand && mcode && !isSent) {
       let secret = await sock.requestPairingCode((m.sender.split`@`[0]))
       secret = secret.match(/.{1,4}/g)?.join("-")
       await conn.reply(m.chat, rtx2, m)
       await conn.reply(m.chat, secret, m)
+      isSent = true
     }
 
     if (connection === 'open') {
       sock.isInit = true
+      isSent = true
       if (!global.conns.includes(sock)) global.conns.push(sock)
       console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SUB-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
       if (fromCommand) conn.reply(m.chat, `*¡Conexión exitosa!*`, m)
     }
 
     if (connection === 'close') {
+      isSent = false
       if (statusCode !== DisconnectReason.loggedOut) {
         console.log(chalk.yellow(`\n⚠️ Reconectando subbot: ${path.basename(pathMichiJadiBot)}`))
         michiJadiBot(options)
       } else {
         console.log(chalk.red(`\n❌ Sesión cerrada: ${path.basename(pathMichiJadiBot)}`))
-        if (fs.existsSync(pathMichiJadiBot)) fs.rmdirSync(pathMichiJadiBot, { recursive: true })
+        if (fs.existsSync(pathMichiJadiBot)) fs.rmSync(pathMichiJadiBot, { recursive: true, force: true })
         let i = global.conns.indexOf(sock)
         if (i >= 0) global.conns.splice(i, 1)
       }
