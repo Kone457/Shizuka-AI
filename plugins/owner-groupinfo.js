@@ -11,14 +11,18 @@ let handler = async (m, { conn, text }) => {
     if (text.includes('https://chat.whatsapp.com/')) {
       let info = await getGroupInfoFromLink(conn, text)
 
-      let message = `📂 *Información del grupo*\n\n` +
+      let caption = `📂 *Información del grupo*\n\n` +
         `🏷️ Nombre: ${info.subject}\n` +
         `📝 Descripción: ${info.desc?.toString() || 'Sin descripción'}\n` +
         `👥 Participantes: ${info.participants.length}\n` +
-        `🆔 ID: ${info.id}\n` +
-        `📸 Foto: ${info.picture || 'No disponible'}\n`
+        `🆔 ID: ${info.id}\n`
 
-      await conn.reply(m.chat, message, m)
+      if (info.picture) {
+        await conn.sendMessage(m.chat, { image: { url: info.picture }, caption }, { quoted: m })
+      } else {
+        await conn.reply(m.chat, caption + `\n📸 Foto: No disponible`, m)
+      }
+
       await conn.sendMessage(m.chat, { react: { text: "☑️", key: m.key } })
     } else {
       return conn.reply(m.chat, `🌱 Ingresa un link válido de invitación.`, m)
