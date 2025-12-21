@@ -14,5 +14,6 @@ handler.command = ['autoadmin'];
 handler.rowner = true;
 handler.group = true;
 handler.botAdmin = true;
+handler.owner = true;
 
 export default handler;
