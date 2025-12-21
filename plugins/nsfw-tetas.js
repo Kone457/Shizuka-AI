@@ -1,4 +1,4 @@
-/* import axios from 'axios';
+import axios from 'axios';
 
 const hotw = '⚠️ El contenido NSFW está desactivado en este grupo.';
 const dev = 'By Carlos';
@@ -12,34 +12,26 @@ const NSFW_COMMANDS = [
 
 let handler = async (m, { conn, usedPrefix, command }) => {
   try {
-    
-    // Asumiendo que 'db' está globalmente disponible en tu entorno
     if (!global.db.data.chats[m.chat].nsfw && m.isGroup) {
       return m.reply(hotw);
     }
 
     const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${command}.json`;
-
     
     await new Promise(resolve => setTimeout(resolve, 1000));
-
-    
     const { data: res } = await axios.get(url, { timeout: 5000 });
 
-    
     if (!Array.isArray(res) || res.length === 0) 
       throw '⚠️ No se encontró contenido para este comando.';
 
     const randomImage = res[Math.floor(Math.random() * res.length)];
 
-    
     await conn.sendMessage(m.chat, {
       image: { url: randomImage },
       caption: `🥵 ${command}`,
       footer: dev,
       buttons: [
-        { buttonId: `next_${command}`, buttonText: { displayText: 'Siguiente' }, type: 1 },
-        { buttonId: `random_${command}`, buttonText: { displayText: 'Aleatorio' }, type: 1 }
+        { buttonId: `next_${command}`, buttonText: { displayText: 'Siguiente' }, type: 1 }
       ],
       headerType: 4
     }, { quoted: m });
@@ -50,7 +42,6 @@ let handler = async (m, { conn, usedPrefix, command }) => {
   }
 };
 
-
 handler.before = async (m, { conn }) => {
   const id = m.message?.buttonsResponseMessage?.selectedButtonId;
   if (!id) return;
@@ -58,76 +49,32 @@ handler.before = async (m, { conn }) => {
   try {
     const [action, command] = id.split('_'); 
 
-    if (action === 'random') {
-      
-      // 🐛 CORRECCIÓN: Usar la constante globalmente accesible para obtener comandos.
-      const commandsArray = NSFW_COMMANDS; 
-
-      if (!Array.isArray(commandsArray) || commandsArray.length === 0) {
-           
-           throw new Error('⚠️ La lista de comandos NSFW no está disponible para selección aleatoria.');
-      }
-      
-      const randomCommand = commandsArray[Math.floor(Math.random() * commandsArray.length)];
-      
- 
-      const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${randomCommand}.json`;
-
+    if (action === 'next') {
+      const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${command}.json`;
       const { data: res } = await axios.get(url, { timeout: 5000 });
 
       if (!Array.isArray(res) || res.length === 0)
-        throw '⚠️ No se encontró contenido para este comando.';
+        throw '⚠️ No se encontró contenido.';
 
       const randomImage = res[Math.floor(Math.random() * res.length)];
 
       await conn.sendMessage(m.chat, {
         image: { url: randomImage },
-        caption: `🥵 ${randomCommand}`,
+        caption: `🥵 ${command}`,
         footer: dev,
         buttons: [
-          { buttonId: `next_${randomCommand}`, buttonText: { displayText: 'Siguiente' }, type: 1 },
-          { buttonId: `random_${randomCommand}`, buttonText: { displayText: 'Aleatorio' }, type: 1 }
+          { buttonId: `next_${command}`, buttonText: { displayText: 'Siguiente' }, type: 1 }
         ],
         headerType: 4
       }, { quoted: m });
-
-    } else {
-      // Manejo de 'next'
-      const url = `https://raw.githubusercontent.com/CheirZ/HuTao-Proyect/master/src/JSON/${command}.json`;
-
-      const { data: res } = await axios.get(url, { timeout: 5000 });
-
-      
-      if (!Array.isArray(res) || res.length === 0)
-        throw '⚠️ No se encontró contenido para este comando.';
-
-      const randomImage = res[Math.floor(Math.random() * res.length)];
-
-      
-      if (action === 'next') {
-        await conn.sendMessage(m.chat, {
-          image: { url: randomImage },
-          caption: `🥵 ${command}`,
-          footer: dev,
-          buttons: [
-            { buttonId: `next_${command}`, buttonText: { displayText: 'Siguiente' }, type: 1 },
-            { buttonId: `random_${command}`, buttonText: { displayText: 'Aleatorio' }, type: 1 }
-          ],
-          headerType: 4
-        }, { quoted: m });
-      }
     }
   } catch (err) {
     console.error('[NSFW-Buttons] Error:', err.message);
-    m.reply('💥 *Error al procesar tu solicitud por botón.*'); // Mensaje más específico
   }
 };
 
-// Asignar el array de comandos a handler.command usando la constante
 handler.help = handler.command = NSFW_COMMANDS;
-
 handler.tags = ['nsfw'];
 handler.group = true;
 
 export default handler;
-*/
