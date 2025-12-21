@@ -13,9 +13,12 @@ let handler = async (m, { conn, text }) => {
 
       let caption = `📂 *Información del grupo*\n\n` +
         `🏷️ Nombre: ${info.subject}\n` +
-        `📝 Descripción: ${info.desc?.toString() || 'Sin descripción'}\n` +
-        `👥 Participantes: ${info.participants.length}\n` +
+        `📝 Descripción: ${info.desc || 'Sin descripción'}\n` +
         `🆔 ID: ${info.id}\n`
+
+      if (info.participants) {
+        caption += `👥 Participantes: ${info.participants.length}\n`
+      }
 
       if (info.picture) {
         await conn.sendMessage(m.chat, { image: { url: info.picture }, caption }, { quoted: m })
@@ -55,14 +58,22 @@ async function getGroupInfoFromLink(conn, url) {
     const invite = await conn.groupGetInviteInfo(inviteCode)
     const jid = invite.id
 
-    const metadata = await conn.groupMetadata(jid)
-    const picture = await conn.profilePictureUrl(jid, 'image').catch(() => null)
+    let metadata, participants
+    try {
+      metadata = await conn.groupMetadata(jid)
+      participants = metadata.participants
+    } catch {
+      metadata = invite
+      participants = null
+    }
+
+    const picture = await conn.profilePictureUrl(jid, 'image').catch(() => invite.picture || null)
 
     return {
       id: metadata.id,
       subject: metadata.subject,
       desc: metadata.desc,
-      participants: metadata.participants,
+      participants,
       picture
     }
   } catch (error) {
