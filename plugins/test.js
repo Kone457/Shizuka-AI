@@ -5,14 +5,15 @@ import path from 'path'
 let handler = async (m, { conn, text }) => {
   try {
     if (!text || !ytdl.validateURL(text)) {
-      return conn.reply(m.chat, `Ingresa un link válido de YouTube.`, m)
+      return conn.reply(m.chat, `🌱 Ingresa un link válido de YouTube.`, m)
     }
 
     let info = await ytdl.getInfo(text)
-    let title = info.videoDetails.title.replace(/[^\w\s]/gi, '') // limpiar caracteres raros
+    let title = info.videoDetails.title.replace(/[^\w\s]/gi, '')
     let filePath = path.join(process.cwd(), `${title}.mp4`)
 
-    let stream = ytdl(text, { quality: '18' }) // calidad mp4 360p
+    // Pedir el mejor formato disponible con video y audio
+    let stream = ytdl(text, { quality: 'highest', filter: 'videoandaudio' })
     let writeStream = fs.createWriteStream(filePath)
     stream.pipe(writeStream)
 
@@ -29,7 +30,7 @@ let handler = async (m, { conn, text }) => {
       )
 
       await conn.sendMessage(m.chat, { react: { text: "☑️", key: m.key } })
-      fs.unlinkSync(filePath) 
+      fs.unlinkSync(filePath)
     })
   } catch (error) {
     console.error(error)
