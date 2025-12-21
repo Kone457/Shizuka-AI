@@ -1,4 +1,4 @@
-const { useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore, fetchLatestBaileysVersion, generateWAMessageFromContent, proto } = (await import("@whiskeysockets/baileys"));
+import { useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore, fetchLatestBaileysVersion, generateWAMessageFromContent, proto } from "@whiskeysockets/baileys"
 import qrcode from "qrcode"
 import NodeCache from "node-cache"
 import fs from "fs"
@@ -72,7 +72,8 @@ export async function skyJadiBot(options) {
     printQRInTerminal: false,
     auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
     browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Sky Bot','Chrome','2.0.0'],
-    version
+    version,
+    msgRetryCounterCache: new NodeCache()
   }
 
   let sock = makeWASocket(connectionOptions)
@@ -99,17 +100,28 @@ export async function skyJadiBot(options) {
       isSent = true
       if (!global.conns.includes(sock)) global.conns.push(sock)
       console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
-      if (fromCommand) conn.reply(m.chat, `*¡Conexión exitosa!*`, m)
+      if (fromCommand) {
+        await conn.reply(m.chat, `*¡Conexión exitosa!*`, m)
+        options.fromCommand = false
+      }
     }
 
     if (connection === 'close') {
       isSent = false
       if (statusCode !== DisconnectReason.loggedOut) {
         console.log(chalk.yellow(`\n⚠️ Reconectando subbot: ${path.basename(pathSkyJadiBot)}`))
-        skyJadiBot(options)
+        setTimeout(() => {
+          skyJadiBot({ ...options, fromCommand: false })
+        }, 5000)
       } else {
         console.log(chalk.red(`\n❌ Sesión cerrada: ${path.basename(pathSkyJadiBot)}`))
-        if (fs.existsSync(pathSkyJadiBot)) fs.rmdirSync(pathSkyJadiBot, { recursive: true, force: true })
+        try {
+          if (fs.existsSync(pathSkyJadiBot)) {
+            fs.rmSync(pathSkyJadiBot, { recursive: true, force: true })
+          }
+        } catch (e) {
+          console.error(e)
+        }
         let i = global.conns.indexOf(sock)
         if (i >= 0) global.conns.splice(i, 1)
       }
