@@ -3,31 +3,26 @@ let handler = async (m, { conn, text }) => {
     if (!text) {
       return conn.reply(
         m.chat,
-        `> Ejemplo de uso:\n.groupinfo <jid del grupo>`,
+        `> Ejemplo de uso:\n.ginfo https://chat.whatsapp.com/JQfFmOLb8VcEPQNyZDH8dm`,
         m
       )
     }
 
-    
-    if (!text.endsWith('@g.us')) {
-      return conn.reply(m.chat, ` Ingresa un JID válido de grupo.`, m)
+    if (text.includes('https://chat.whatsapp.com/')) {
+      let info = await getGroupInfoFromLink(conn, text)
+
+      let message = `📂 *Información del grupo*\n\n` +
+        `🏷️ Nombre: ${info.subject}\n` +
+        `📝 Descripción: ${info.desc?.toString() || 'Sin descripción'}\n` +
+        `👥 Participantes: ${info.participants.length}\n` +
+        `🆔 ID: ${info.id}\n` +
+        `📸 Foto: ${info.picture || 'No disponible'}\n`
+
+      await conn.reply(m.chat, message, m)
+      await conn.sendMessage(m.chat, { react: { text: "☑️", key: m.key } })
+    } else {
+      return conn.reply(m.chat, `🌱 Ingresa un link válido de invitación.`, m)
     }
-
-    let info = await getGroupInfo(conn, text)
-
-    
-    let message = `📂 *Información del grupo*\n\n` +
-      `🏷️ Nombre: ${info.subject}\n` +
-      `📝 Descripción: ${info.desc?.toString() || 'Sin descripción'}\n` +
-      `👥 Participantes: ${info.participants.length}\n` +
-      `🆔 ID: ${info.id}\n` +
-      `📸 Foto: ${info.picture || 'No disponible'}\n`
-
-    await conn.reply(m.chat, message, m)
-
-    
-    await conn.sendMessage(m.chat, { react: { text: "☑️", key: m.key } })
-
   } catch (error) {
     console.error(error)
     await conn.reply(
@@ -39,14 +34,23 @@ let handler = async (m, { conn, text }) => {
 }
 
 handler.command = ['groupinfo', 'ginfo']
-handler.help = ['groupinfo <jid>']
+handler.help = ['ginfo <link>']
 handler.tags = ['tools']
 handler.owner = true
 
 export default handler
 
-async function getGroupInfo(conn, jid) {
+async function getGroupInfoFromLink(conn, url) {
+  const match = url.match(/https:\/\/chat\.whatsapp\.com\/([0-9A-Za-z]+)/i)
+  if (!match)
+    throw new Error('El enlace proporcionado no es válido o no pertenece a un grupo de WhatsApp.')
+
+  const inviteCode = match[1]
+
   try {
+    const invite = await conn.groupGetInviteInfo(inviteCode)
+    const jid = invite.id
+
     const metadata = await conn.groupMetadata(jid)
     const picture = await conn.profilePictureUrl(jid, 'image').catch(() => null)
 
