@@ -8,7 +8,7 @@ async function fetchWithRetry(url, options = {}, retries = 5, delay = 500) {
       return await res.json();
     } catch (err) {
       if (i === retries - 1) throw err; 
-      await new Promise(r => setTimeout(r, delay)); // espera antes de reintentar
+      await new Promise(r => setTimeout(r, delay)); 
     }
   }
 }
