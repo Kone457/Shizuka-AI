@@ -5,10 +5,17 @@ async function fetchWithRetry(url, options = {}, retries = 5, delay = 500) {
     try {
       const res = await fetch(url, options);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
+      const json = await res.json();
+
+      // 🔑 fuerza error si la respuesta no trae datos válidos
+      if (!json.status || !json.result?.data?.play) {
+        throw new Error('Respuesta inválida de la API');
+      }
+
+      return json; // si todo está bien, devuelve el JSON
     } catch (err) {
-      if (i === retries - 1) throw err; 
-      await new Promise(r => setTimeout(r, delay)); 
+      if (i === retries - 1) throw err; // último intento, lanza error
+      await new Promise(r => setTimeout(r, delay)); // espera antes de reintentar
     }
   }
 }
@@ -29,11 +36,6 @@ let handler = async (m, { conn, args }) => {
 
     const apiUrl = `https://kurumi-apiz.vercel.app/download/tiktok?url=${encodeURIComponent(args[0])}`;
     const json = await fetchWithRetry(apiUrl);
-
-    if (!json.status || !json.result?.data?.play) {
-      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
-      return m.reply('⚠️ No se pudo obtener el *video*. Intenta con otro enlace.');
-    }
 
     const data = json.result.data;
     const videoUrl = data.hdplay || data.play || data.wmplay;
