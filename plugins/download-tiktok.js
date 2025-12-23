@@ -1,5 +1,18 @@
 import fetch from 'node-fetch';
 
+async function fetchWithRetry(url, options = {}, retries = 5, delay = 500) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      if (i === retries - 1) throw err; // último intento, lanza error
+      await new Promise(r => setTimeout(r, delay)); // espera antes de reintentar
+    }
+  }
+}
+
 let handler = async (m, { conn, args }) => {
   try {
     if (!args[0]) {
@@ -14,8 +27,8 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://kurumi-apiz.vercel.app/download/tiktok?url=${encodeURIComponent(args[0])}`);
-    const json = await res.json();
+    const apiUrl = `https://kurumi-apiz.vercel.app/download/tiktok?url=${encodeURIComponent(args[0])}`;
+    const json = await fetchWithRetry(apiUrl);
 
     if (!json.status || !json.result?.data?.play) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
@@ -23,7 +36,6 @@ let handler = async (m, { conn, args }) => {
     }
 
     const data = json.result.data;
-
     const videoUrl = data.hdplay || data.play || data.wmplay;
 
     const caption = `𖣣ֶㅤ֯⌗ 🅣𝖐 🅓ownload
