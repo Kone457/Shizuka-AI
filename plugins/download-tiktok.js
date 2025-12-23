@@ -7,15 +7,15 @@ async function fetchWithRetry(url, options = {}, retries = 5, delay = 500) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
-      // 🔑 fuerza error si la respuesta no trae datos válidos
+      
       if (!json.status || !json.result?.data?.play) {
         throw new Error('Respuesta inválida de la API');
       }
 
-      return json; // si todo está bien, devuelve el JSON
+      return json; 
     } catch (err) {
-      if (i === retries - 1) throw err; // último intento, lanza error
-      await new Promise(r => setTimeout(r, delay)); // espera antes de reintentar
+      if (i === retries - 1) throw err; 
+      await new Promise(r => setTimeout(r, delay)); 
     }
   }
 }
