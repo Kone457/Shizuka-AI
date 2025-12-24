@@ -17,7 +17,7 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '🔍', key: m.key } });
     
-    const searchRes = await fetch(`https://nexapi.onrender.com/search/tiktok?q=${encodeURIComponent(text)}`);
+    const searchRes = await fetch(`https://kurumi-apiz.vercel.app/search/tiktok?q=${encodeURIComponent(text)}`);
     const searchJson = await searchRes.json();
 
     if (!searchJson.status || !searchJson.result || searchJson.result.length === 0) {
@@ -39,7 +39,7 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
       try {
         await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
         
-        const videoRes = await fetch(`https://nexapi.onrender.com/download/tiktok?url=https://www.tiktok.com/@user/video/${video.video_id}`);
+        const videoRes = await fetch(`https://kurumi-apiz.vercel.app/download/tiktok?url=https://www.tiktok.com/@user/video/${video.video_id}`);
         const videoJson = await videoRes.json();
         
         let videoUrl, videoData;
