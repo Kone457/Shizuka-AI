@@ -7,7 +7,7 @@ let handler = async (m, { conn, text }) => {
 
     if (!text) return m.reply('🎨 Ingresa un prompt. Ejemplo: *.dalle islas mágicas*');
 
-    // Mensaje de espera
+    
     const { key } = await conn.sendMessage(
       m.chat,
       { text: '> 🎨 *Estoy* generando tu imagen, espera un momento...' },
@@ -15,23 +15,19 @@ let handler = async (m, { conn, text }) => {
     );
 
     
-    const endpoint = `https://api.dorratz.com/v3/ai-image?prompt=${encodeURIComponent(text)}&ratio=9:19`;
+    const endpoint = `https://api-faa.my.id/faa/ai-text2img-pro?prompt=${encodeURIComponent(text)}`;
     const res = await fetch(endpoint);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
 
-    const imageUrl = json?.data?.image_link;
-    if (!imageUrl) {
-      await conn.sendMessage(m.chat, { text: '✨ No se pudo generar la imagen.', edit: key });
-      return;
-    }
+    
+    const buffer = await res.buffer();
 
     const caption = `🎨 Imagen generada\n🖋 Prompt: ${text}\n✨ Para ${senderName}`;
 
     await conn.sendMessage(
       m.chat,
       {
-        image: { url: imageUrl },
+        image: buffer,
         caption,
         mentions: [sender]
       },
@@ -39,13 +35,13 @@ let handler = async (m, { conn, text }) => {
     );
 
   } catch (error) {
-    console.error('❌ Error en dorratz-img:', error);
+    console.error('❌ Error en faa-img:', error);
     m.reply('> *Error al generar la imagen.* Intenta nuevamente más tarde.');
   }
 };
 
-handler.help = ['dalle', 'aiimg'];
+handler.help = ['dalle'];
 handler.tags = ['ai'];
-handler.command = ['dalle', 'aiimg'];
+handler.command = ['dalle'];
 
 export default handler;
