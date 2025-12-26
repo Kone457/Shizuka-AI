@@ -1,34 +1,50 @@
-import axios from 'axios';
+import fetch from 'node-fetch';
 
-let handler = async (m, { conn, text, command }) => {
-  if (!text) return m.reply(`> Escribe el texto.\n\n*Ejemplo:* .${command} Hola`);
+const ANYABRAT_API_PATH = 'https://api-faa.my.id/faa/anyabrat-vid';
+
+let handler = async (m, { conn, args }) => {
+  const text = args.join(' ').trim();
+
+  if (!text) {
+    return m.reply('> Escribe una *petición* para generar el vídeo.');
+  }
 
   try {
-    await m.react('⏳');
-    
-    const apiUrl = `https://api-faa.my.id/faa/anyabrat-vid?text=${encodeURIComponent(text)}`;
-
-    const response = await axios.get(apiUrl, { responseType: 'arraybuffer' });
-    const buffer = Buffer.from(response.data, 'binary');
-
-    await conn.sendMessage(
-      m.chat, 
-      { 
-        sticker: buffer 
-      }, 
+    const { key } = await conn.sendMessage(
+      m.chat,
+      { text: '> Generando vídeo, por favor espera...' },
       { quoted: m }
     );
 
-    await m.react('✅');
-  } catch (e) {
-    console.error(e);
-    await m.react('❌');
-    await m.reply('> La API devolvió un formato no compatible o está caída.');
+    const res = await fetch(`${ANYABRAT_API_PATH}?text=${encodeURIComponent(text)}`);
+
+    if (!res.ok) {
+      return m.reply(`> Error al contactar con la API. Código de error: ${res.status}`);
+    }
+
+    const contentType = res.headers.get('content-type');
+    console.log('Content-Type:', contentType);
+
+    if (contentType.includes('image/webp')) {
+      const imageBuffer = await res.buffer();
+
+      if (!imageBuffer || imageBuffer.length === 0) {
+        return m.reply('> No se pudo obtener la imagen correctamente.');
+      }
+
+      await conn.sendMessage(m.chat, { image: imageBuffer, caption: 'Aquí tienes la imagen generada:', edit: key });
+    } else {
+      return m.reply('> La respuesta de la API no es una imagen válida.');
+    }
+
+  } catch (error) {
+    console.error(error);
+    await m.reply(`> Ocurrió un error al procesar tu solicitud: ${error.message}`);
   }
 };
 
-handler.help = ['anyagif'];
-handler.tags = ['ia'];
-handler.command = ['anyagif', 'brat']; 
+handler.help = ['brat'];
+handler.tags = ['ia', 'media'];
+handler.command = ['brat'];
 
 export default handler;
