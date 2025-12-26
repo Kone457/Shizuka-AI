@@ -18,14 +18,18 @@ let handler = async (m, { conn, args }) => {
 
     const url = `${ANYA_PATH}?text=${encodeURIComponent(text)}`;
 
+    // Descargamos el video como buffer
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Error al descargar video: ${res.statusText}`);
     const buffer = await res.buffer();
 
+    // Enviamos el buffer como archivo de video con mimetype explícito
     await conn.sendMessage(
       m.chat,
       {
-        video: buffer,
+        document: buffer,
+        mimetype: 'video/mp4',
+        fileName: `anyabrat-${Date.now()}.mp4`,
         caption: `> 🎬 Aquí está tu vídeo generado:\n"${text}"`
       },
       { quoted: m, edit: key }
