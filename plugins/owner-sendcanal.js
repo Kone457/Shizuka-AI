@@ -3,70 +3,72 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
 
   if (m.quoted) {
     try {
-      // Obtener el mensaje citado
       const quotedMsg = m.quoted;
+      const mtype = quotedMsg.mtype || quotedMsg.type;
       
-      // Determinar el tipo de mensaje y reconstruirlo
-      if (quotedMsg.type === 'imageMessage' || quotedMsg.type === 'stickerMessage' || quotedMsg.type === 'videoMessage') {
-        // Para medios (imágenes, stickers, videos)
+      // Detectar el tipo de contenido y reconstruir
+      if (mtype === 'imageMessage') {
         const media = await quotedMsg.download();
-        const caption = quotedMsg.caption || '';
-        const mimetype = quotedMsg.mimetype || '';
+        const caption = quotedMsg.caption || quotedMsg.text || '';
+        await conn.sendMessage(canalID, {
+          image: media,
+          caption: caption,
+          mentions: quotedMsg.mentionedJid || []
+        });
         
-        if (quotedMsg.type === 'imageMessage') {
-          await conn.sendMessage(canalID, {
-            image: media,
-            caption: caption,
-            mimetype: mimetype
-          });
-        } else if (quotedMsg.type === 'videoMessage') {
-          await conn.sendMessage(canalID, {
-            video: media,
-            caption: caption,
-            mimetype: mimetype
-          });
-        } else if (quotedMsg.type === 'stickerMessage') {
-          await conn.sendMessage(canalID, {
-            sticker: media,
-            mimetype: mimetype
-          });
-        }
-      } else if (quotedMsg.type === 'audioMessage') {
-        // Para audios
-        const audio = await quotedMsg.download();
-        const mimetype = quotedMsg.mimetype || '';
-        const ptt = quotedMsg.ptt || false;
+      } else if (mtype === 'videoMessage') {
+        const media = await quotedMsg.download();
+        const caption = quotedMsg.caption || quotedMsg.text || '';
+        await conn.sendMessage(canalID, {
+          video: media,
+          caption: caption,
+          mentions: quotedMsg.mentionedJid || []
+        });
+        
+      } else if (mtype === 'stickerMessage') {
+        const media = await quotedMsg.download();
+        await conn.sendMessage(canalID, {
+          sticker: media
+        });
+        
+      } else if (mtype === 'audioMessage') {
+        const media = await quotedMsg.download();
+        const isVoice = quotedMsg.ptt || false;
+        await conn.sendMessage(canalID, {
+          audio: media,
+          ptt: isVoice,
+          mimetype: quotedMsg.mimetype || 'audio/mpeg'
+        });
+        
+      } else if (mtype === 'documentMessage') {
+        const media = await quotedMsg.download();
+        const filename = quotedMsg.fileName || 'documento';
+        await conn.sendMessage(canalID, {
+          document: media,
+          fileName: filename,
+          mimetype: quotedMsg.mimetype
+        });
+        
+      } else if (mtype === 'conversation' || mtype === 'extendedTextMessage' || quotedMsg.text) {
+        // Para mensajes de texto
+        const messageText = quotedMsg.text || quotedMsg.caption || '';
+        const mentions = quotedMsg.mentionedJid || [];
         
         await conn.sendMessage(canalID, {
-          audio: audio,
-          mimetype: mimetype,
-          ptt: ptt
+          text: messageText,
+          mentions: mentions
         });
-      } else if (quotedMsg.type === 'documentMessage') {
-        // Para documentos
-        const document = await quotedMsg.download();
-        const mimetype = quotedMsg.mimetype || '';
-        const fileName = quotedMsg.fileName || 'documento';
         
-        await conn.sendMessage(canalID, {
-          document: document,
-          mimetype: mimetype,
-          fileName: fileName
-        });
-      } else if (quotedMsg.text) {
-        // Para texto simple
-        await conn.sendMessage(canalID, {
-          text: quotedMsg.text
-        });
       } else {
-        // Si no se puede determinar el tipo, enviar como reenviado
-        await conn.copyNForward(canalID, quotedMsg.fakeObj || quotedMsg, true);
+        // Para otros tipos de mensajes o reacciones
+        const messageText = quotedMsg.text || `📨 Mensaje del bot`;
+        await conn.sendMessage(canalID, { text: messageText });
       }
       
       return m.reply(`✅ *Mensaje enviado correctamente al canal.*`);
     } catch (e) {
       console.error(e);
-      return m.reply(`⚠️ *Error al enviar el mensaje al canal.*\nVerifica que el ID del canal sea correcto y que el bot tenga permisos para enviar mensajes.`);
+      return m.reply(`⚠️ *Error al enviar el mensaje al canal.*\nDetalles: ${e.message}`);
     }
   }
 
