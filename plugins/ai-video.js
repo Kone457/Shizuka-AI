@@ -16,7 +16,7 @@ let handler = async (m, { conn, args }) => {
       { quoted: m }
     );
 
-    const res = await fetch(`${ANYABRAT_API_PATH}?text=${encodeURIComponent(text)}`);
+    const res = await fetch(`${ANYABRAT_API_PATH}?text=${encodeURIComponent(text)}`, { timeout: 10000 });
 
     if (!res.ok) {
       return m.reply(`> Error al contactar con la API. Código de error: ${res.status}`);
@@ -24,6 +24,9 @@ let handler = async (m, { conn, args }) => {
 
     const contentType = res.headers.get('content-type');
     console.log('Content-Type:', contentType);
+
+    const responseBody = await res.text();
+    console.log('Response Body:', responseBody);
 
     if (contentType.includes('image/webp')) {
       const imageBuffer = await res.buffer();
@@ -44,7 +47,7 @@ let handler = async (m, { conn, args }) => {
 };
 
 handler.help = ['brat'];
-handler.tags = ['ia', 'media'];
+handler.tags = ['ia'];
 handler.command = ['brat'];
 
 export default handler;
