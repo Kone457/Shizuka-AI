@@ -1,52 +1,41 @@
 import fetch from 'node-fetch';
 
-const ANYA_PATH = 'https://api-faa.my.id/faa/anyabrat-vid';
+const ANYABRAT_API_PATH = 'https://api-faa.my.id/faa/anyabrat-vid';
 
 let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
 
   if (!text) {
-    return m.reply('> Escribe un *texto* para que *Anya* genere tu video.');
+    return m.reply('> Escribe una *petición* para generar el vídeo.');
   }
 
   try {
-    // Mensaje inicial mientras procesa
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: '> 🎥 *Anya* está procesando tu video...' },
+      { text: '> Generando vídeo, por favor espera...' },
       { quoted: m }
     );
 
-    // Llamada a la API
-    const res = await fetch(`${ANYA_PATH}?text=${encodeURIComponent(text)}`);
+    // Realizamos la petición a la API
+    const res = await fetch(`${ANYABRAT_API_PATH}?text=${encodeURIComponent(text)}`);
     const json = await res.json();
 
-    console.log('Respuesta completa de la API:', json); // 👀 Depuración
-
-    // Detectar el campo correcto que contiene el enlace del video
-    const videoUrl = json?.result || json?.url || json?.video;
+    const videoUrl = json?.result; // Suponiendo que el video URL está en el campo "result"
 
     if (!videoUrl) {
-      return conn.reply(m.chat, '> No se pudo generar un *video* válido.');
+      return conn.reply(m.chat, '> No se pudo obtener el vídeo.');
     }
 
-    // Enviar el video generado
-    await conn.sendMessage(
-      m.chat,
-      {
-        video: { url: videoUrl },
-        caption: `🎬 Video generado para: ${text}`
-      },
-      { edit: key }
-    );
+    // Enviar el video a la conversación
+    await conn.sendMessage(m.chat, { video: { url: videoUrl }, caption: 'Aquí tienes el vídeo generado:', edit: key });
   } catch (error) {
     console.error(error);
-    await m.reply('️> Ocurrió un error al procesar tu solicitud.');
+    await m.reply('> Ocurrió un error al procesar tu solicitud.');
   }
 };
 
-handler.help = ['anya'];
-handler.tags = ['ia'];
-handler.command = ['anya'];
+handler.help = ['brat'];
+handler.tags = ['ia', 'media'];
+handler.command = ['brat'];
 
 export default handler;
