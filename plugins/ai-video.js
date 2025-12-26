@@ -24,15 +24,18 @@ let handler = async (m, { conn, args }) => {
       return m.reply(`> Error al contactar con la API. Código de error: ${res.status}`);
     }
 
-    // Obtener los datos binarios del vídeo
-    const videoBuffer = await res.buffer();
+    // Intentar parsear la respuesta como JSON
+    const json = await res.json();
 
-    if (!videoBuffer) {
-      return conn.reply(m.chat, '> No se pudo obtener el vídeo.');
+    // Verificar si la API devuelve una URL del vídeo
+    const videoUrl = json?.result;
+
+    if (!videoUrl) {
+      return conn.reply(m.chat, '> No se pudo obtener el vídeo. La respuesta de la API no contiene un URL válido.');
     }
 
-    // Enviar el vídeo a la conversación
-    await conn.sendMessage(m.chat, { video: videoBuffer, caption: 'Aquí tienes el vídeo generado:', edit: key });
+    // Enviar el video a la conversación (usamos la URL directamente)
+    await conn.sendMessage(m.chat, { video: { url: videoUrl }, caption: 'Aquí tienes el vídeo generado:', edit: key });
   } catch (error) {
     console.error(error);
     await m.reply(`> Ocurrió un error al procesar tu solicitud: ${error.message}`);
@@ -40,7 +43,7 @@ let handler = async (m, { conn, args }) => {
 };
 
 handler.help = ['brat'];
-handler.tags = ['ia'];
+handler.tags = ['ia', 'media'];
 handler.command = ['brat'];
 
 export default handler;
