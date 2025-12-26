@@ -6,7 +6,7 @@ let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
 
   if (!text) {
-    return m.reply('> Escribe un *texto* para  generar el vídeo.');
+    return m.reply('> Escribe un *texto* para generar el vídeo.');
   }
 
   try {
@@ -16,14 +16,16 @@ let handler = async (m, { conn, args }) => {
       { quoted: m }
     );
 
-   
     const url = `${ANYA_PATH}?text=${encodeURIComponent(text)}`;
 
-    
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Error al descargar video: ${res.statusText}`);
+    const buffer = await res.buffer();
+
     await conn.sendMessage(
       m.chat,
       {
-        video: { url }, 
+        video: buffer,
         caption: `> 🎬 Aquí está tu vídeo generado:\n"${text}"`
       },
       { quoted: m, edit: key }
