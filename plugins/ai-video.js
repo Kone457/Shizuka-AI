@@ -3,7 +3,9 @@ import fetch from 'node-fetch';
 const ANYA_PATH = 'https://api-faa.my.id/faa/anyabrat-vid';
 
 let handler = async (m, { conn, args }) => {
-  const text = args.join if (!text) {
+  const text = args.join(' ').trim();
+
+  if (!text) {
     return m.reply('> Escribe un *texto* para que *Anya* genere tu video.');
   }
 
@@ -14,21 +16,24 @@ let handler = async (m, { conn, args }) => {
       { quoted: m }
     );
 
-    // Llamada a la API con el texto proporcionado
+    // Llamada a la API
     const res = await fetch(`${ANYA_PATH}?text=${encodeURIComponent(text)}`);
     const json = await res.json();
 
-    // La API devuelve probablemente un enlace de video
-    const response = json?.result || json?.url || json?.video;
+    // La API devuelve un enlace de video
+    const videoUrl = json?.result || json?.url || json?.video;
 
-    if (!response) {
+    if (!videoUrl) {
       return conn.reply(m.chat, '> No se pudo generar un *video* válido.');
     }
 
     // Enviar el video generado
     await conn.sendMessage(
       m.chat,
-      { video: { url: response }, caption: `🎬 Video generado para: ${text}` },
+      {
+        video: { url: videoUrl },
+        caption: `🎬 Video generado para: ${text}`
+      },
       { edit: key }
     );
   } catch (error) {
