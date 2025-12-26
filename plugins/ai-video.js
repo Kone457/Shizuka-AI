@@ -3,36 +3,33 @@ import fetch from 'node-fetch';
 const ANYA_PATH = 'https://api-faa.my.id/faa/anyabrat-vid';
 
 let handler = async (m, { conn, args }) => {
-  const text = args.join(' ').trim();
-
-  if (!text) {
-    return m.reply('> Escribe un *texto* para generar el vídeo.');
+  const text = args.join if (!text) {
+    return m.reply('> Escribe un *texto* para que *Anya* genere tu video.');
   }
 
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: '> 🎥 Estoy generando tu vídeo...' },
+      { text: '> 🎥 *Anya* está procesando tu video...' },
       { quoted: m }
     );
 
-    const url = `${ANYA_PATH}?text=${encodeURIComponent(text)}`;
+    // Llamada a la API con el texto proporcionado
+    const res = await fetch(`${ANYA_PATH}?text=${encodeURIComponent(text)}`);
+    const json = await res.json();
 
-    // Descargamos el video como buffer
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Error al descargar video: ${res.statusText}`);
-    const buffer = await res.buffer();
+    // La API devuelve probablemente un enlace de video
+    const response = json?.result || json?.url || json?.video;
 
-    // Enviamos el buffer como archivo de video con mimetype explícito
+    if (!response) {
+      return conn.reply(m.chat, '> No se pudo generar un *video* válido.');
+    }
+
+    // Enviar el video generado
     await conn.sendMessage(
       m.chat,
-      {
-        document: buffer,
-        mimetype: 'video/mp4',
-        fileName: `anyabrat-${Date.now()}.mp4`,
-        caption: `> 🎬 Aquí está tu vídeo generado:\n"${text}"`
-      },
-      { quoted: m, edit: key }
+      { video: { url: response }, caption: `🎬 Video generado para: ${text}` },
+      { edit: key }
     );
   } catch (error) {
     console.error(error);
@@ -40,8 +37,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['video'];
+handler.help = ['anya'];
 handler.tags = ['ia'];
-handler.command = ['video'];
+handler.command = ['anya'];
 
 export default handler;
