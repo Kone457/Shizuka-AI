@@ -25,17 +25,25 @@ let handler = async (m, { conn, args }) => {
     const contentType = res.headers.get('content-type');
     console.log('Content-Type:', contentType);
 
-    if (!contentType || !contentType.includes('video')) {
-      return m.reply('> La respuesta de la API no es un archivo de vídeo. Content-Type: ' + contentType);
+    if (contentType.includes('video')) {
+      const videoBuffer = await res.buffer();
+
+      if (!videoBuffer || videoBuffer.length === 0) {
+        return m.reply('> No se pudo obtener el vídeo correctamente.');
+      }
+
+      await conn.sendMessage(m.chat, { video: videoBuffer, caption: 'Aquí tienes el vídeo generado:', edit: key });
+    } else if (contentType.includes('image/webp')) {
+      const imageBuffer = await res.buffer();
+
+      if (!imageBuffer || imageBuffer.length === 0) {
+        return m.reply('> No se pudo obtener la imagen de error.');
+      }
+
+      await conn.sendMessage(m.chat, { image: imageBuffer, caption: 'Aquí tienes la imagen de error:', edit: key });
+    } else {
+      return m.reply('> La respuesta de la API no es ni un vídeo ni una imagen válida.');
     }
-
-    const videoBuffer = await res.buffer();
-
-    if (!videoBuffer || videoBuffer.length === 0) {
-      return m.reply('> No se pudo obtener el vídeo correctamente.');
-    }
-
-    await conn.sendMessage(m.chat, { video: videoBuffer, caption: 'Aquí tienes el vídeo generado:', edit: key });
 
   } catch (error) {
     console.error(error);
