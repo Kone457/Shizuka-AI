@@ -25,9 +25,6 @@ let handler = async (m, { conn, args }) => {
     const contentType = res.headers.get('content-type');
     console.log('Content-Type:', contentType);
 
-    const responseBody = await res.text();
-    console.log('Response Body:', responseBody);
-
     if (contentType.includes('image/webp')) {
       const imageBuffer = await res.buffer();
 
@@ -47,7 +44,7 @@ let handler = async (m, { conn, args }) => {
 };
 
 handler.help = ['brat'];
-handler.tags = ['ia'];
+handler.tags = ['ia', 'media'];
 handler.command = ['brat'];
 
 export default handler;
