@@ -10,6 +10,7 @@ let handler = async (m, { conn, args }) => {
   }
 
   try {
+    // Mensaje inicial mientras procesa
     const { key } = await conn.sendMessage(
       m.chat,
       { text: '> 🎥 *Anya* está procesando tu video...' },
@@ -20,7 +21,9 @@ let handler = async (m, { conn, args }) => {
     const res = await fetch(`${ANYA_PATH}?text=${encodeURIComponent(text)}`);
     const json = await res.json();
 
-    // La API devuelve un enlace de video
+    console.log('Respuesta completa de la API:', json); // 👀 Depuración
+
+    // Detectar el campo correcto que contiene el enlace del video
     const videoUrl = json?.result || json?.url || json?.video;
 
     if (!videoUrl) {
