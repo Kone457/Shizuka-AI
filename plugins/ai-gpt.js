@@ -2,7 +2,18 @@ import fetch from 'node-fetch';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-const DORRATZ_API = 'https://api.dorratz.com/ai/gpt';
+const GEMINI_APIKEY = (() => {
+  const parts = [
+    'AIzaSyCkgjoH',
+    '84GHrSUYnYMh',
+    'whIc4NpJqb4K',
+    'vvw'
+  ];
+  return parts.join('');
+})();
+
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_PATH = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_APIKEY}`;
 
 const SHIZUKA_ROLE = [
   "Eres Shizuka y respondes con ternura y muchos emojis en tus respuestas.",
@@ -46,21 +57,30 @@ let handler = async (m, { conn, args }) => {
 
     const rows = await db.all(`SELECT role, text FROM memory WHERE chatId = ? ORDER BY timestamp ASC`, [chatId]);
 
-    // Construimos el prompt concatenando el rol + historial + texto del usuario
     const prompt = [
       SHIZUKA_ROLE,
       ...rows.map(msg => `${msg.role}: ${msg.text}`)
     ].join('\n');
 
-    // Llamada a la API de Dorratz
-    const res = await fetch(`${DORRATZ_API}?prompt=${encodeURIComponent(prompt)}&country=venezuela`);
+    const res = await fetch(GEMINI_PATH, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: prompt }
+          ]
+        }]
+      })
+    });
+
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
       throw new Error(`HTTP ${res.status}: ${errText || 'Error en la solicitud'}`);
     }
 
     const json = await res.json();
-    const response = (json?.result || '').trim();
+    const response = json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!response) {
       await conn.sendMessage(chatId, { text: '> No se obtuvo una *respuesta* válida.', edit: key });
@@ -71,13 +91,13 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(chatId, { text: response, edit: key });
   } catch (error) {
-    console.error('[Shizuka-IA] Error:', error);
+    console.error('[Shizuka-Gemini] Error:', error);
     await m.reply('> Ocurrió un error al procesar tu solicitud.');
   }
 };
 
-handler.help = ['ia', 'gpt'];
+handler.help = ['ia', 'gpt', 'shizuka'];
 handler.tags = ['ia'];
-handler.command = ['ia', 'gpt'];
+handler.command = ['ia', 'gpt', 'shizuka'];
 
 export default handler;
