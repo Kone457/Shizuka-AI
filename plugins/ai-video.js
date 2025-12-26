@@ -19,23 +19,31 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
     const checkUrl = data.check_url;
+    let attempts = 0;
     let done = false;
 
-    while (!done) {
+    while (!done && attempts < 12) {
       const statusRes = await fetch(checkUrl);
       const statusData = await statusRes.json();
 
-      if (statusData.status && statusData.result && statusData.result.url) {
+      if (statusData.status && (statusData.result_url || (statusData.result && statusData.result.url) || (statusData.data && statusData.data.url))) {
+        const finalUrl = statusData.result_url || (statusData.result && statusData.result.url) || (statusData.data && statusData.data.url);
         done = true;
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
-        await conn.sendMessage(m.chat, { video: { url: statusData.result.url } }, { quoted: m });
+        await conn.sendMessage(m.chat, { video: { url: finalUrl } }, { quoted: m });
       } else if (statusData.error) {
         done = true;
         await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
         m.reply('La API devolvió un error en el procesamiento.');
       } else {
+        attempts++;
         await new Promise(r => setTimeout(r, 5000));
       }
+    }
+
+    if (!done) {
+      await conn.sendMessage(m.chat: '⚠️', key: m.key } });
+      m.reply('Tiempo de espera agotado, el video no se generó.');
     }
 
   } catch (error) {
