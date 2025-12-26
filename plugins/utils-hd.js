@@ -24,12 +24,10 @@ async function catbox(content) {
 }
 
 async function getEnhancedBuffer(url) {
-  const res = await fetch(`https://api.waifu.pics/upscale?url=${encodeURIComponent(url)}`);
+  const res = await fetch(`https://api-faa.my.id/faa/hdv3?image=${encodeURIComponent(url)}`);
   if (!res.ok) return null;
-  const json = await res.json();
-  if (!json?.url) return null;
-  const enhancedRes = await fetch(json.url);
-  return Buffer.from(await enhancedRes.arrayBuffer());
+  const arrayBuffer = await res.arrayBuffer();
+  return Buffer.from(arrayBuffer);
 }
 
 function formatBytes(bytes) {
