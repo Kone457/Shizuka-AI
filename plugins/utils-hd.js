@@ -24,16 +24,11 @@ async function catbox(content) {
 }
 
 async function getEnhancedBuffer(url) {
-  const res = await fetch("https://api.deepai.org/api/torch-srgan", {
-    method: "POST",
-    headers: { "Api-Key": process.env.DEEPAI_KEY },
-    body: new URLSearchParams({ image: url }),
-  });
-
+  const res = await fetch(`https://api.waifu.pics/upscale?url=${encodeURIComponent(url)}`);
   if (!res.ok) return null;
   const json = await res.json();
-
-  const enhancedRes = await fetch(json.output_url);
+  if (!json?.url) return null;
+  const enhancedRes = await fetch(json.url);
   return Buffer.from(await enhancedRes.arrayBuffer());
 }
 
