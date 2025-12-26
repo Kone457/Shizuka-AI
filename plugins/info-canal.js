@@ -1,4 +1,8 @@
-let handler = async (m, { conn }) => {
+const handler = async (m, { conn }) => {
+  const texto = (m.text || '').trim().toUpperCase();
+
+  if (texto !== 'CANAL') return;
+
   const canalURL = "https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v";
   
   const mensaje = `CANAL OFICIAL
@@ -19,18 +23,16 @@ ID: 0029VbAVMtj2f3EFmXmrzt0v
 3. ¡Listo!`;
 
   await conn.sendMessage(m.chat, {
-    text: mensaje,
-    mentions: [m.sender]
+    text: mensaje
   }, { quoted: m });
 };
 
-
-handler.customPrefix = /^(canal|channel|enlace)$/i;
-handler.command = /^(canal|channel|enlace)$/i;
-handler.help = ['canal'];
+handler.customPrefix = /^canal$/i; 
+handler.command = new RegExp(); 
+handler.group = false;
+handler.admin = false;
+handler.botAdmin = false;
 handler.tags = ['info'];
-
-
-handler.exp = 0;
+handler.help = ['canal'];
 
 export default handler;
