@@ -6,11 +6,15 @@ let handler = async (m, { conn, text, command }) => {
   try {
     await m.react('⏳');
     const apiUrl = `https://api-faa.my.id/faa/anyabrat-vid?text=${encodeURIComponent(text)}`;
+    
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error();
+    const buffer = await response.buffer();
 
     await conn.sendMessage(
       m.chat, 
       { 
-        video: { url: apiUrl }, 
+        video: buffer, 
         caption: `> *Anya Brat:* ${text}`,
         gifPlayback: true 
       }, 
@@ -20,11 +24,12 @@ let handler = async (m, { conn, text, command }) => {
     await m.react('✅');
   } catch (error) {
     console.error(error);
-    await m.reply('> Ocurrió un error.');
+    await m.react('❌');
+    await m.reply('> Ocurrió un error al generar el video.');
   }
 };
 
-handler.help = ['brat'];
+handler.help = ['anyagif'];
 handler.tags = ['ia'];
 handler.command = ['brat']; 
 
