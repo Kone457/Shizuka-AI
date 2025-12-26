@@ -25,6 +25,12 @@ let handler = async (m, { conn, args }) => {
     const contentType = res.headers.get('content-type');
     console.log('Content-Type:', contentType);
 
+    if (contentType.includes('image')) {
+      const textResponse = await res.text();
+      console.log('API Error Response:', textResponse);
+      return m.reply(`> La API devolvió una imagen (probablemente un error):\n${textResponse}`);
+    }
+
     if (contentType.includes('video')) {
       const videoBuffer = await res.buffer();
 
@@ -33,14 +39,6 @@ let handler = async (m, { conn, args }) => {
       }
 
       await conn.sendMessage(m.chat, { video: videoBuffer, caption: 'Aquí tienes el vídeo generado:', edit: key });
-    } else if (contentType.includes('image/webp')) {
-      const imageBuffer = await res.buffer();
-
-      if (!imageBuffer || imageBuffer.length === 0) {
-        return m.reply('> No se pudo obtener la imagen de error.');
-      }
-
-      await conn.sendMessage(m.chat, { image: imageBuffer, caption: 'Aquí tienes la imagen de error:', edit: key });
     } else {
       return m.reply('> La respuesta de la API no es ni un vídeo ni una imagen válida.');
     }
@@ -52,7 +50,7 @@ let handler = async (m, { conn, args }) => {
 };
 
 handler.help = ['brat'];
-handler.tags = ['ia'];
+handler.tags = ['ia', 'media'];
 handler.command = ['brat'];
 
 export default handler;
