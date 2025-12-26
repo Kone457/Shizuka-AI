@@ -13,7 +13,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const res = await fetch(apiUrl);
     const data = await res.json();
 
-    if (!data.status) {
+    if (!data.status || !data.check_url) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('No se pudo iniciar la generación.');
     }
@@ -24,10 +24,15 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     while (!done) {
       const statusRes = await fetch(checkUrl);
       const statusData = await statusRes.json();
-      if (statusData.status && statusData.result_url) {
+
+      if (statusData.status && statusData.result && statusData.result.url) {
         done = true;
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
-        await conn.sendMessage(m.chat, { video: { url: statusData.result_url } }, { quoted: m });
+        await conn.sendMessage(m.chat, { video: { url: statusData.result.url } }, { quoted: m });
+      } else if (statusData.error) {
+        done = true;
+        await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
+        m.reply('La API devolvió un error en el procesamiento.');
       } else {
         await new Promise(r => setTimeout(r, 5000));
       }
