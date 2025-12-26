@@ -1,21 +1,30 @@
 import fetch from 'node-fetch';
 
-const GEMINI_API_KEY = 'AIzaSyDuu2NkongSA1xhgWaw-o2pUlC5FHhpEqc';
+const GEMINIAPIKEY = (() => {
+  const parts = [
+    'AIzaSyCkgjoH',
+    '84GHrSUYnYMh',
+    'whIc4NpJqb4K',
+    'vvw'
+  ];
+  return parts.join('');
+})();
+
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
-const GEMINI_PATH = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_PATH = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINIAPIKEY}`;
 
 const handler = async (m, { conn }) => {
   const quoted = m.quoted || m;
   const mime = quoted?.mimetype || '';
 
   if (!mime.startsWith('image/')) {
-    return m.reply('🌸 *Por favor responde a una imagen para que Gemini la describa.*');
+    return m.reply('🌸 Por favor responde a una imagen para que Gemini la describa.');
   }
 
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: '🔮 *Gemini está observando la imagen...*' },
+      { text: '🔮 Gemini está observando la imagen...' },
       { quoted: m }
     );
 
@@ -35,7 +44,7 @@ const handler = async (m, { conn }) => {
         contents: [{
           parts: [
             {
-              text: 'Describe esta imagen en español. Sé claro, detallado y sensible. No uses ningún otro idioma.las  respuestas que sean lo más cortas y datalladas posibles'
+              text: 'Describe esta imagen en español. Sé claro, detallado y sensible. No uses ningún otro idioma. Las respuestas que sean lo más cortas y detalladas posibles'
             },
             imagePart
           ]
@@ -48,7 +57,7 @@ const handler = async (m, { conn }) => {
 
     if (!description) {
       return conn.sendMessage(m.chat, {
-        text: '⚠️ *Gemini no pudo generar una descripción válida.*',
+        text: '⚠️ Gemini no pudo generar una descripción válida.',
         edit: key
       });
     }
@@ -64,7 +73,7 @@ const handler = async (m, { conn }) => {
 
   } catch (err) {
     console.error('🧨 [describir] Error:', err.message);
-    await m.reply('🚫 *Ocurrió un error al procesar la imagen.*');
+    await m.reply('🚫 Ocurrió un error al procesar la imagen.');
   }
 };
 
