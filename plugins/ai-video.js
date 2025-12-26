@@ -1,56 +1,31 @@
 import fetch from 'node-fetch';
 
-const ANYABRAT_API_PATH = 'https://api-faa.my.id/faa/anyabrat-vid';
-
-let handler = async (m, { conn, args }) => {
-  const text = args.join(' ').trim();
-
-  if (!text) {
-    return m.reply('> Escribe una *petición* para generar el vídeo.');
-  }
+let handler = async (m, { conn, text, command }) => {
+  if (!text) return m.reply(`> Escribe el texto para el video.\n\n*Ejemplo:* .${command} Hola`);
 
   try {
-    const { key } = await conn.sendMessage(
-      m.chat,
-      { text: '> Generando vídeo, por favor espera...' },
+    await m.react('⏳');
+    const apiUrl = `https://api-faa.my.id/faa/anyabrat-vid?text=${encodeURIComponent(text)}`;
+
+    await conn.sendMessage(
+      m.chat, 
+      { 
+        video: { url: apiUrl }, 
+        caption: `> *Anya Brat:* ${text}`,
+        gifPlayback: true 
+      }, 
       { quoted: m }
     );
 
-    const res = await fetch(`${ANYABRAT_API_PATH}?text=${encodeURIComponent(text)}`);
-
-    if (!res.ok) {
-      return m.reply(`> Error al contactar con la API. Código de error: ${res.status}`);
-    }
-
-    const contentType = res.headers.get('content-type');
-    console.log('Content-Type:', contentType);
-
-    if (contentType.includes('image')) {
-      const textResponse = await res.text();
-      console.log('API Error Response:', textResponse);
-      return m.reply(`> La API devolvió una imagen (probablemente un error):\n${textResponse}`);
-    }
-
-    if (contentType.includes('video')) {
-      const videoBuffer = await res.buffer();
-
-      if (!videoBuffer || videoBuffer.length === 0) {
-        return m.reply('> No se pudo obtener el vídeo correctamente.');
-      }
-
-      await conn.sendMessage(m.chat, { video: videoBuffer, caption: 'Aquí tienes el vídeo generado:', edit: key });
-    } else {
-      return m.reply('> La respuesta de la API no es ni un vídeo ni una imagen válida.');
-    }
-
+    await m.react('✅');
   } catch (error) {
     console.error(error);
-    await m.reply(`> Ocurrió un error al procesar tu solicitud: ${error.message}`);
+    await m.reply('> Ocurrió un error.');
   }
 };
 
 handler.help = ['brat'];
-handler.tags = ['ia', 'media'];
-handler.command = ['brat'];
+handler.tags = ['ia'];
+handler.command = ['brat']; 
 
 export default handler;
