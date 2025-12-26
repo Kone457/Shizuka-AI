@@ -15,7 +15,7 @@ const handler = async (m, { conn }) => {
 Enlace directo:
 ${canalURL}
 
-ID: 0029VbAVMtj2f3EFmXmrzt0v
+ID: 120363400241973967@newsletter
 
 ¿Cómo unirse?
 1. Haz clic en el enlace
