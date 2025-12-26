@@ -1,25 +1,31 @@
 import fetch from 'node-fetch';
 import FormData from 'form-data';
 
-async function uploadToUguu(buffer) {
+async function uploadToImgBB(buffer) {
   const body = new FormData();
-  body.append('files[]', buffer, 'image.jpg');
+  body.append('image', buffer.toString('base64'));
 
-  const res = await fetch('https://uguu.se/upload.php', {
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.IMGBB_KEY}`, {
     method: 'POST',
     body,
-    headers: body.getHeaders(),
   });
 
   const json = await res.json();
-  return json.files?.[0]?.url;
+  return json.data?.url;
 }
 
 async function getEnhancedBuffer(url) {
-  const res = await fetch(`${api.url}/tools/upscale?url=${url}&apikey=${api.key}`);
-  if (!res.ok) return null;
+  const res = await fetch('https://api.deepai.org/api/torch-srgan', {
+    method: 'POST',
+    headers: { 'Api-Key': process.env.DEEPAI_KEY },
+    body: new URLSearchParams({ image: url }),
+  });
 
-  return Buffer.from(await res.arrayBuffer());
+  if (!res.ok) return null;
+  const json = await res.json();
+
+  const enhancedRes = await fetch(json.output_url);
+  return Buffer.from(await enhancedRes.arrayBuffer());
 }
 
 let handler = async (m, { conn }) => {
@@ -36,7 +42,7 @@ let handler = async (m, { conn }) => {
     }
 
     const buffer = await q.download();
-    const uploadedUrl = await uploadToUguu(buffer);
+    const uploadedUrl = await uploadToImgBB(buffer);
 
     if (!uploadedUrl) {
       return m.reply('> No se pudo subir la imagen. Intenta nuevamente.');
