@@ -18,19 +18,25 @@ let handler = async (m, { conn, args }) => {
 
     const res = await fetch(`${ANYABRAT_API_PATH}?text=${encodeURIComponent(text)}`);
 
-    
     if (!res.ok) {
       return m.reply(`> Error al contactar con la API. Código de error: ${res.status}`);
     }
 
-    
+    const contentType = res.headers.get('content-type');
+    console.log('Content-Type:', contentType);
+
+    if (!contentType || !contentType.includes('video')) {
+      return m.reply('> La respuesta de la API no es un archivo de vídeo. Content-Type: ' + contentType);
+    }
+
     const videoBuffer = await res.buffer();
 
-    if (!videoBuffer) {
-      return conn.reply(m.chat, '> No se pudo obtener el vídeo.');
+    if (!videoBuffer || videoBuffer.length === 0) {
+      return m.reply('> No se pudo obtener el vídeo correctamente.');
     }
 
     await conn.sendMessage(m.chat, { video: videoBuffer, caption: 'Aquí tienes el vídeo generado:', edit: key });
+
   } catch (error) {
     console.error(error);
     await m.reply(`> Ocurrió un error al procesar tu solicitud: ${error.message}`);
@@ -38,7 +44,7 @@ let handler = async (m, { conn, args }) => {
 };
 
 handler.help = ['brat'];
-handler.tags = ['ia', 'media'];
+handler.tags = ['ia'];
 handler.command = ['brat'];
 
 export default handler;
