@@ -1,28 +1,25 @@
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply('> Escribe un texto para generar el sticker.');
+  if (!text) return conn.reply(m.chat, '> Escribe un texto para generar el sticker.', m);
 
   try {
-    await m.react('⏳');
-    
     const apiUrl = `https://api-faa.my.id/faa/anyabrat-vid?text=${encodeURIComponent(text)}`;
     const res = await fetch(apiUrl);
     
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error('Error en la API');
     const buffer = await res.buffer();
 
     await conn.sendMessage(m.chat, { sticker: buffer }, { quoted: m });
-    await m.react('✅');
     
   } catch (error) {
     console.error(error);
-    await m.react('❌');
+    conn.reply(m.chat, '> Ocurrió un error al procesar la solicitud.', m);
   }
 };
 
-handler.help = ['brat'];
+handler.help = ['anyabrat'];
 handler.tags = ['ia'];
-handler.command = ['brat'];
+handler.command = ['brat', 'anyasticker'];
 
 export default handler;
