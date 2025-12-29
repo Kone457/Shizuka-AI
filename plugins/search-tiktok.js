@@ -17,7 +17,7 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '🔍', key: m.key } });
     
-    const searchRes = await fetch(`https://kurumi-apiz.vercel.app/search/tiktok?q=${encodeURIComponent(text)}`);
+    const searchRes = await fetch(`https://chisato-api.vercel.app/search/tiktok?q=${encodeURIComponent(text)}`);
     const searchJson = await searchRes.json();
 
     if (!searchJson.status || !searchJson.result || searchJson.result.length === 0) {
