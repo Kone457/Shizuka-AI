@@ -39,7 +39,7 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
       try {
         await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
         
-        const videoRes = await fetch(`https://kurumi-apiz.vercel.app/download/tiktok?url=https://www.tiktok.com/@user/video/${video.video_id}`);
+        const videoRes = await fetch(`https://chisato-api.vercel.app/download/tiktok?url=https://www.tiktok.com/@user/video/${video.video_id}`);
         const videoJson = await videoRes.json();
         
         let videoUrl, videoData;
