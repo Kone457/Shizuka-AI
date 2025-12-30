@@ -1,11 +1,10 @@
-import { useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore, fetchLatestBaileysVersion, generateWAMessageFromContent, proto } from "@whiskeysockets/baileys"
+import { useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore, fetchLatestBaileysVersion, proto } from "@whiskeysockets/baileys"
 import qrcode from "qrcode"
 import NodeCache from "node-cache"
 import fs from "fs"
 import path from "path"
 import pino from 'pino'
 import chalk from 'chalk'
-import util from 'util' 
 import * as ws from 'ws'
 const { child, spawn, exec } = await import('child_process')
 const { CONNECTING } = ws
@@ -19,8 +18,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const MAX_SUBBOTS = 10
 
-if (global.conns instanceof Array) console.log()
-else global.conns = []
+if (!(global.conns instanceof Array)) global.conns = []
 
 async function loadSubbots() {
   if (!fs.existsSync(`./${global.jadi}`)) return
@@ -34,14 +32,14 @@ async function loadSubbots() {
 }
 loadSubbots().catch(console.error)
 
-let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
+let handler = async (m, { conn, args, usedPrefix, command }) => {
   if (!global.db.data.settings[conn.user.jid].jadibotmd) {
-    return m.reply(`*Este comando esta deshabilitado por mi creador.*`)
+    return m.reply(`*Este comando está deshabilitado por mi creador.*`)
   }
 
   const activeConns = global.conns.filter(c => c.user && c.ws.socket && c.ws.socket.readyState !== ws.CLOSED)
   if (activeConns.length >= MAX_SUBBOTS) {
-    return m.reply(`*Lo siento, se ha alcanzado el límite de ${MAX_SUBBOTS} subbots.*`)
+    return m.reply(`*Se alcanzó el límite de ${MAX_SUBBOTS} subbots.*`)
   }
 
   let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
@@ -58,7 +56,6 @@ export default handler
 
 export async function skyJadiBot(options) {
   let { pathSkyJadiBot, m, conn, args, usedPrefix, command, fromCommand } = options
-  let isInit = true
   let isSent = false
   
   if (!fs.existsSync(pathSkyJadiBot)) fs.mkdirSync(pathSkyJadiBot, { recursive: true })
@@ -70,13 +67,14 @@ export async function skyJadiBot(options) {
   const connectionOptions = {
     logger: pino({ level: "silent" }),
     printQRInTerminal: false,
-    auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
+    auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keyssilent'})) },
     browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Sky Bot','Chrome','2.0.0'],
     version,
     msgRetryCounterCache: new NodeCache()
   }
 
   let sock = makeWASocket(connectionOptions)
+  sock.isFirstConnect = false
 
   async function connectionUpdate(update) {
     const { connection, lastDisconnect, qr } = update
@@ -96,12 +94,13 @@ export async function skyJadiBot(options) {
     }
 
     if (connection === 'open') {
-      sock.isInit = true
       isSent = true
       if (!global.conns.includes(sock)) global.conns.push(sock)
-      console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
-      if (fromCommand) {
-        await conn.reply(m.chat, `*¡Conexión exitosa!*`, m)
+      console.log(chalk.cyanBright(`\n🟢 Conectado: ${sock.user.id}`))
+
+      if (fromCommand && !sock.isFirstConnect) {
+        await conn.reply(m.chat, `*¡Conectado con éxito!*`, m)
+        sock.isFirstConnect = true
         options.fromCommand = false
       }
     }
