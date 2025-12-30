@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 
-const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1436892691433521183/C_wUqs-yclWsiUS6gxvZuedIAxEnRI5UUKSUh-uYhAbrfDg_HhfXawcSjz1gmSuaovWc'
+const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1452139458706145288/2K6mPF2V-o2d_Yz_XhBjxrO7FPv_mHhBiycsqI4zMSQHz7n_Kh_pfz8K2c5aqrcxZRxC'
 
 var handler = async (m, { text }) => {
   if (!text) return m.reply('> Escribe el mensaje que quieres enviar a Discord.')
