@@ -67,7 +67,7 @@ export async function skyJadiBot(options) {
   const connectionOptions = {
     logger: pino({ level: "silent" }),
     printQRInTerminal: false,
-    auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keyssilent'})) },
+    auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
     browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Sky Bot','Chrome','2.0.0'],
     version,
     msgRetryCounterCache: new NodeCache()
@@ -88,8 +88,8 @@ export async function skyJadiBot(options) {
     if (qr && fromCommand && mcode && !isSent) {
       let secret = await sock.requestPairingCode((m.sender.split`@`[0]))
       secret = secret.match(/.{1,4}/g)?.join("-")
-      await conn.reply(m.chat, rtx2, m)
-      await conn.reply(m.chat, secret, m)
+      await conn.sendMessage(m.chat, { text: rtx2 }, { quoted: m })
+      await conn.sendMessage(m.chat, { text: secret }, { quoted: m })
       isSent = true
     }
 
@@ -99,7 +99,7 @@ export async function skyJadiBot(options) {
       console.log(chalk.cyanBright(`\n🟢 Conectado: ${sock.user.id}`))
 
       if (fromCommand && !sock.isFirstConnect) {
-        await conn.reply(m.chat, `*¡Conectado con éxito!*`, m)
+        await sock.sendMessage(m.chat, { text: '*¡Conectado con éxito!*' }, { quoted: m })
         sock.isFirstConnect = true
         options.fromCommand = false
       }
