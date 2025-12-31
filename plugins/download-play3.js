@@ -114,7 +114,7 @@ handler.before = async (m, { conn }) => {
   }
 };
 
-handler.command = ['play'];
+handler.command = ['play', 'play2'];
 handler.tags = ['descargas'];
 handler.help = ['play <nombre>'];
 
