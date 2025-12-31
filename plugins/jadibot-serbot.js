@@ -35,7 +35,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
   const activeConns = global.conns.filter(c => c.ws?.readyState === ws.OPEN)
   if (activeConns.length >= MAX_SUBBOTS) {
-    return m.reply(`*Límite alcanzado: ${MAX_SUBBOTS} subbots.*`)
+    return m.reply(`*Límite alcanzado.*`)
   }
 
   let id = m.sender.split('@')[0]
@@ -68,8 +68,7 @@ export async function skyJadiBot(options) {
     },
     browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Sky Bot','Chrome','2.0.0'],
     version,
-    msgRetryCounterCache: new NodeCache(),
-    generateHighQualityLinkPreview: true
+    msgRetryCounterCache: new NodeCache()
   }
 
   let sock = makeWASocket(connectionOptions)
@@ -79,14 +78,12 @@ export async function skyJadiBot(options) {
     const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode
 
     if (qr && fromCommand && !mcode && !isSent) {
-      let rtx = `> *Vincula el subbot usando el código QR.*`
-      await conn.sendMessage(m.chat, { image: await qrcode.toBuffer(qr, { scale: 8 }), caption: rtx }, { quoted: m })
+      await conn.sendMessage(m.chat, { image: await qrcode.toBuffer(qr, { scale: 8 }), caption: `> *Vincula el subbot usando el código QR.*` }, { quoted: m })
       isSent = true
     }
 
     if (qr && fromCommand && mcode && !isSent) {
-      let rtx2 = `> *Vincula el subbot usando el código de 8 dígitos.*`
-      await conn.reply(m.chat, rtx2, m)
+      await conn.reply(m.chat, `> *Vincula el subbot usando el código de 8 dígitos.*`, m)
       let secret = await sock.requestPairingCode(m.sender.split`@`[0])
       await conn.reply(m.chat, secret.match(/.{1,4}/g)?.join("-"), m)
       isSent = true
@@ -95,18 +92,19 @@ export async function skyJadiBot(options) {
     if (connection === 'open') {
       sock.isInit = true
       if (!global.conns.some(c => c.user?.id === sock.user?.id)) global.conns.push(sock)
-      
       console.log(chalk.cyanBright(`\n🟢 Conectado: ${sock.user.id}`))
       
-      if (fromCommand && m) {
-        await conn.reply(m.chat, `*¡Conexión exitosa!*\nSubbot activo para: @${sock.user.id.split('@')[0]}`, m, { mentions: [sock.user.id] })
+      if (fromCommand) {
+        // Delay de 2 segundos para asegurar que el socket esté listo antes de avisar
+        setTimeout(async () => {
+          await conn.sendMessage(m.chat, { text: `*¡Conexión exitosa!*\n\nEl subbot se ha vinculado correctamente a la sesión de Carlos.` }, { quoted: m })
+        }, 2000)
+        options.fromCommand = false 
       }
     }
 
     if (connection === 'close') {
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut
-      console.log(chalk.yellow(`\n⚠️ Estado: ${shouldReconnect ? 'Reconectando' : 'Sesión cerrada'} (${path.basename(pathSkyJadiBot)})`))
-
       if (shouldReconnect) {
         setTimeout(() => skyJadiBot({ ...options, fromCommand: false }), 7000)
       } else {
