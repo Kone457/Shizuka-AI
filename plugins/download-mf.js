@@ -41,7 +41,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     const { filename, filesize, mimetype, uploaded, download_url } = data.result;
 
     const sizeInMB = parseFloat(filesize);
-    const isLargeFile = filesize.includes('GB') || sizeInMB > 500;
+    const isLargeFile = filesize.includes('GB') || sizeInMB > 200;
 
     const info = `> 📦 *Archivo encontrado:*\n\n` +
       `> 📄 *Nombre:* ${filename}\n` +
