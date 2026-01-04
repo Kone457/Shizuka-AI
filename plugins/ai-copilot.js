@@ -1,35 +1,40 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn }) => {
+const COPILOT_PATH = 'https://api.stellarwa.xyz/ai/copilot';
+const API_KEY = 'stellar-EBo93V1d';
+
+let handler = async (m, { conn, args }) => {
+  const text = args.join(' ').trim();
+
+  if (!text) {
+    return m.reply('> Escribe una *petición* para que *Copilot* te responda.');
+  }
+
   try {
-    const sender = m.sender;
-    const senderName = await conn.getName(sender);
-
-    const endpoint = 'https://api.nekolabs.web.id/ai/copilot';
-    const res = await fetch(endpoint);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-
-    const text = json?.result?.text || '✨ El copilot no respondió.';
-    const caption = `🤖 *Copilot*\n${text}\n\n✨ Para ${senderName}`;
-
-    await conn.sendMessage(
+    const { key } = await conn.sendMessage(
       m.chat,
-      {
-        text: caption,
-        mentions: [sender]
-      },
+      { text: '> *Copilot* está procesando tu respuesta...' },
       { quoted: m }
     );
 
+    const res = await fetch(`${COPILOT_PATH}?text=${encodeURIComponent(text)}&key=${API_KEY}`);
+    const json = await res.json();
+
+    const response = json?.response;
+
+    if (!response) {
+      return conn.reply(m.chat, '> No se pudo obtener una *respuesta* válida.');
+    }
+
+    await conn.sendMessage(m.chat, { text: response.trim(), edit: key });
   } catch (error) {
-    console.error('❌ Error en nekolabs-copilot:', error);
-    m.reply('> *Error al consultar a Copilot.* Intenta nuevamente más tarde.');
+    console.error(error);
+    await m.reply('️> Ocurrió un error al procesar tu solicitud.');
   }
 };
 
 handler.help = ['copilot'];
-handler.tags = ['ai'];
-handler.command = ['copilot'];
+handler.tags = ['ia'];
+handler.command = ['copilot', 'cpt'];
 
 export default handler;
