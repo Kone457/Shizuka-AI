@@ -14,6 +14,7 @@ const CATEGORY_META = {
   fun: '🎉 Diversión y Juegos',
   game: '🎮 Juegos',
   anime: '🎌 Anime',
+  gacha: '🎟️ Gacha',
   grupo: '👥 Comandos de Grupo',
   text: '✒️ Efectos de Texto',
   rpg: '🪄 RPG y Economía',
