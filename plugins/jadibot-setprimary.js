@@ -7,8 +7,8 @@ let handler = async (m, { conn, usedPrefix, args }) => {
     }
 
     // Validación de global.conns para evitar errores de undefined
-    const users = global.conns 
-      ? [...new Set([...global.conns.filter(conn => conn?.user && conn?.ws?.socket && conn.ws.socket.readyState !== ws.CLOSED).map(conn => conn)])] 
+    const users = global.conns && Array.isArray(global.conns)
+      ? [...new Set(global.conns.filter(conn => conn?.user && conn?.ws?.socket && conn.ws.socket.readyState !== ws.OPEN).map(conn => conn))] 
       : [];
 
     let botJid;
