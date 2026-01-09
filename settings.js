@@ -9,7 +9,7 @@ global.owner = [
   ["595975677765", "David", true],
   ["5363870693", "Magical", true],
   ["17054102764"],
-  ["573136602975"]
+  ["573238788888"]
 ]
 
 global.botname = '🍃 Shizuka-AI'
