@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const hotw = '⚠️ El contenido NSFW está desactivado en este grupo.';
+const hotw = '⚠️ El contenido NSFW está desactivado en este grupo.\n> Ve a jalartela a otro lado 😡';
 const dev = '> No te la jales 😏';
 
 const API_MAP = {
