@@ -17,7 +17,7 @@ let rtx2 = `> *Vincula el subbot usando el código de 8 dígitos.*`.trim()
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const MAX_SUBBOTS = 10
+const MAX_SUBBOTS = 40
 
 if (global.conns instanceof Array) console.log()
 else global.conns = []
