@@ -17,7 +17,6 @@ const API_MAP = {
   'ecchi': 'https://api.waifu.im/search?is_nsfw=true&included_tags=ecchi',
   'tetas': 'https://nekobot.xyz/api/image?type=boobs',
   'pechos': 'https://nekobot.xyz/api/image?type=boobs',
-  'pene': 'https://nekobot.xyz/api/image?type=phentai',
   'pussy': 'https://nekobot.xyz/api/image?type=pussy',
   'culo': 'https://nekobot.xyz/api/image?type=ass',
   'gonewild': 'https://nekobot.xyz/api/image?type=gonewild',
