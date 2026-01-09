@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const hotw = '⚠️ El contenido NSFW está desactivado en este grupo.';
-const dev = 'By Carlos';
+const dev = '> No te la jales 😏';
 
 const API_MAP = {
   'waifu': 'https://api.waifu.pics/nsfw/waifu',
