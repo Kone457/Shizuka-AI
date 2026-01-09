@@ -4,7 +4,6 @@ const hotw = '⚠️ El contenido NSFW está desactivado en este grupo.';
 const dev = '> No te la jales 😏';
 
 const API_MAP = {
-  'waifu': 'https://api.waifu.pics/nsfw/waifu',
   'neko': 'https://api.waifu.pics/nsfw/neko',
   'trap': 'https://api.waifu.pics/nsfw/trap',
   'blowjob': 'https://api.waifu.pics/nsfw/blowjob',
