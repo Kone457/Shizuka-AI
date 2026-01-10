@@ -49,8 +49,12 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
     }
 
+    const isSubBot = (conn.user.jid !== global.conn?.user?.jid) && !!global.conn?.user?.jid
+    const botType = isSubBot ? 'Sub-Bot' : 'Principal'
+
     let menuTexto = `✦━━━━━━━━━━━━━━━✦\n`
     menuTexto += `   ${ucapan}, ${m.pushName || 'Usuario'} ✨\n`
+    menuTexto += `   Bot: ${botType}\n`
     menuTexto += `   Comandos activos: ${pluginsCount}\n`
     menuTexto += `   📅 Fecha: ${fecha} \n   🕒 Hora: ${hora}\n`
     menuTexto += `✦━━━━━━━━━━━━━━━✦\n\n`
