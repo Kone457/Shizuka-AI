@@ -8,7 +8,7 @@ let handler = async (m, { conn, usedPrefix, args }) => {
 
     // Validación de global.conns para evitar errores de undefined
     const users = global.conns && Array.isArray(global.conns)
-      ? [...new Set(global.conns.filter(conn => conn?.user && conn?.ws?.socket && conn.ws.socket.readyState !== ws.OPEN).map(conn => conn))] 
+      ? global.conns.filter(conn => conn?.user && conn?.ws?.socket && conn.ws.socket.readyState === ws.OPEN)
       : [];
 
     let botJid;
@@ -22,10 +22,10 @@ let handler = async (m, { conn, usedPrefix, args }) => {
       botJid = args[0].replace(/[^0-9]/g, "") + "@s.whatsapp.net";
     }
 
-    if (botJid === conn.user.jid || botJid === global.conn.user.jid) {
+    if (botJid === conn.user.jid || (global.conn && botJid === global.conn.user.jid)) {
       selectedBot = conn;
     } else {
-      selectedBot = users.find(conn => conn.user.jid === botJid);
+      selectedBot = users.find(c => c.user && (c.user.jid === botJid || c.user.id === botJid));
     }
 
     if (!selectedBot) {
