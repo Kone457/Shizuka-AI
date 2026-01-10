@@ -6,7 +6,7 @@ let handler = async (m, { conn, usedPrefix, args }) => {
       return m.reply(`⚠️ Menciona el número de un bot o responde al mensaje de un bot.\n> Ejemplo: *${usedPrefix}setprimary @0*`);
     }
 
-    // Validación de global.conns para evitar errores de undefined
+    
     const users = global.conns && Array.isArray(global.conns)
       ? global.conns.filter(conn => conn?.user && conn?.ws?.socket && conn.ws.socket.readyState === ws.OPEN)
       : [];
