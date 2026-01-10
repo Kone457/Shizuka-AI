@@ -109,6 +109,16 @@ export async function handler(chatUpdate) {
             m.text = ""
         const user = globalThis.db.data.users[m.sender]
         const chat = globalThis.db.data.chats[m.chat]
+
+        // Check for primary bot in the group
+        if (m.isGroup && chat && chat.primaryBot) {
+            if (this.user.jid !== chat.primaryBot) {
+                // If this is not the primary bot, only respond to specific commands (like setprimary or status)
+                // or if it's explicitly mentioned (optional, but usually they shouldn't respond at all)
+                return
+            }
+        }
+
         globalThis.setting = globalThis.db.data.settings[this.user.jid]
         const isOwner = [...globalThis.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
         if (opts["queque"] && m.text && !(isMods)) {
