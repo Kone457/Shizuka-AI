@@ -16,7 +16,7 @@ let handler = async (m, { conn, args, command, isOwner }) => {
   switch (setting) {
     case 'antilinks':
     case 'antienlaces':
-      chatData.antilink = status;
+      chatData.antiLink = status;
       reply('Anti Enlaces');
       break;
 
