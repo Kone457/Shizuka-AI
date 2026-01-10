@@ -3,7 +3,7 @@ let handler = async (m, { conn, text }) => {
     if (!text) {
       return conn.reply(
         m.chat,
-        `> Ejemplo de uso:\n.ginfo https://chat.whatsapp.com/JQfFmOLb8VcEPQNyZDH8dm`,
+        `> Ejemplo de uso:\n.ginfo https://chat.whatsapp.com/CgQSUIsZe5HFzsrrz2XKpt`,
         m
       )
     }
