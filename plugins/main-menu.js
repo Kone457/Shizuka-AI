@@ -56,8 +56,8 @@ let handler = async (m, { conn, usedPrefix }) => {
     menuTexto += `   ${ucapan}, ${m.pushName || 'Usuario'} ✨\n`
     menuTexto += `   Comandos activos: ${pluginsCount}\n`
     menuTexto += `   📅 Fecha: ${fecha} \n   🕒 Hora: ${hora}\n`
-    menuTexto += `✦━━━━━━━━━━━━━━━✦\n\n`
-    menuTexto += `   Bot: ${botType}\n`
+    menuTexto += `✦━━━━━━━━━━━━━━━✦\n`
+    menuTexto += `   Bot: ${botType}\n\n`
     menuTexto += `   ❖ Menú del Bot ❖\n`
 
     for (const tag of Object.keys(CATEGORY_META)) {
