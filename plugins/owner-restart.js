@@ -5,6 +5,10 @@ let handler = async (m, { conn }) => {
     m
   );
 
+  const fs = await import('fs')
+  if (!fs.existsSync('./tmp')) fs.mkdirSync('./tmp')
+  fs.writeFileSync('./tmp/restarting.txt', `${m.chat}|${m.id}`)
+
   setTimeout(() => {
     process.exit(0);
   }, 3000);
