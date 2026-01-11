@@ -28,28 +28,34 @@ let handler = async (m, { conn, usedPrefix, text }) => {
     const fecha = moment.tz('America/Bogota').format('DD/MM/YYYY')
     const hora = moment.tz('America/Bogota').format('hh:mm A')
 
-    // --- LÓGICA DE CONTENIDO DINÁMICO ---
-    let bodyText = `Presiona el botón de abajo para desplegar las categorías y ver los comandos.`
+    let menuTexto = ''
     let headerTitle = '✧ PANEL DE CONTROL ✧'
 
     if (text) {
       const tag = text.toLowerCase().trim()
       if (CATEGORY_META[tag]) {
-        headerTitle = `✧ MENÚ: ${tag.toUpperCase()} ✧`
+        headerTitle = `✧ SECCIÓN: ${tag.toUpperCase()} ✧`
         const helps = pluginsActivos
           .filter(p => p.tags && p.tags.includes(tag))
           .flatMap(p => Array.isArray(p.help) ? p.help : [p.help])
           .sort()
 
-        if (helps.length > 0) {
-          bodyText = `╭─❖ *${CATEGORY_META[tag]}* ❖─╮\n`
-          bodyText += helps.map(h => `│ • ${usedPrefix}${h}`).join('\n')
-          bodyText += `\n╰───────────────╯`
-        }
+        menuTexto = `╭─❖ *${CATEGORY_META[tag]}* ❖─╮\n`
+        menuTexto += helps.map(h => `│ • ${usedPrefix}${h}`).join('\n')
+        menuTexto += `\n╰───────────────╯`
       }
+    } 
+
+    if (!menuTexto) {
+      menuTexto = `✦━━━━━━━━━━━━━━━━✦\n`
+      menuTexto += `   ${ucapan}, *${m.pushName || 'Carlos'}* ✨\n`
+      menuTexto += `   📅 Fecha: ${fecha}\n`
+      menuTexto += `   🕒 Hora: ${hora}\n`
+      menuTexto += `   👤 Creador: Carlos\n`
+      menuTexto += `✦━━━━━━━━━━━━━━━━✦\n\n`
+      menuTexto += `Presiona el botón de abajo para desplegar las categorías y ver los comandos.`
     }
 
-    // --- CONSTRUCCIÓN DEL DISEÑO ESTILO CARLOS ---
     await conn.sendMessage(m.chat, { react: { text: '🎨', key: m.key } })
 
     const byTag = {}
@@ -71,15 +77,6 @@ let handler = async (m, { conn, usedPrefix, text }) => {
       }))
 
     const media = await prepareWAMessageMedia({ image: { url: BANNER_URL } }, { upload: conn.waUploadToServer })
-
-    // Estructura visual solicitada
-    let menuTexto = `✦━━━━━━━━━━━━━━━━✦\n`
-    menuTexto += `   ${ucapan}, *${m.pushName || 'Carlos'}* ✨\n`
-    menuTexto += `   📅 Fecha: ${fecha}\n`
-    menuTexto += `   🕒 Hora: ${hora}\n`
-    menuTexto += `   👤 Creador: Carlos\n`
-    menuTexto += `✦━━━━━━━━━━━━━━━━✦\n\n`
-    menuTexto += bodyText
 
     const messageInstance = {
       interactiveMessage: {
