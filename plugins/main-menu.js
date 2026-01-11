@@ -100,7 +100,7 @@ let handler = async (m, { conn, usedPrefix, text }) => {
               name: 'quick_reply',
               buttonParamsJson: JSON.stringify({
                 display_text: '💻 Ser Subbot',
-                id: `${usedPrefix}serbot`
+                id: `${usedPrefix}code`
               })
             },
             {
