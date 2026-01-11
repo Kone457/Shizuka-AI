@@ -207,6 +207,13 @@ console.log(chalk.red.bold(`
         if (connection === "open") {
         await joinChannels(conn)
             console.log(chalk.bold.redBright('\n✩ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈✦ 𝗢𝗡𝗟𝗜𝗡𝗘 ✦┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ ✩\n│\n│★ CONEXIÓN EXITOSA CON WHATSAPP 🌷\n│\n✩ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈✦ ✅  ✦┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ ✩'))
+            
+            const restartFile = './tmp/restarting.txt'
+            if (fs.existsSync(restartFile)) {
+                const [chatId, messageId] = fs.readFileSync(restartFile, 'utf8').split('|')
+                await conn.sendMessage(chatId, { text: '✅ *¡Bot activo nuevamente!* \n> El proceso de reinicio ha finalizado con éxito.' }, { quoted: { key: { remoteJid: chatId, id: messageId, fromMe: false }, message: { conversation: 'reiniciar' } } }).catch(() => {})
+                fs.unlinkSync(restartFile)
+            }
         }
 let reason = new Boom(lastDisconnect?.error)?.output?.statusCode
 if (connection === "close") {
