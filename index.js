@@ -208,7 +208,7 @@ console.log(chalk.red.bold(`
         await joinChannels(conn)
             console.log(chalk.bold.redBright('\n✩ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈✦ 𝗢𝗡𝗟𝗜𝗡𝗘 ✦┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ ✩\n│\n│★ CONEXIÓN EXITOSA CON WHATSAPP 🌷\n│\n✩ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈✦ ✅  ✦┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ ✩'))
             
-            const restartFile = './tmp/restarting.txt'
+            const restartFile = `./tmp/restarting_${conn.user.jid.split('@')[0]}.txt`
             if (fs.existsSync(restartFile)) {
                 const [chatId, messageId] = fs.readFileSync(restartFile, 'utf8').split('|')
                 await conn.sendMessage(chatId, { text: '✅ *¡Bot activo nuevamente!* \n> El proceso de reinicio ha finalizado con éxito.' }, { quoted: { key: { remoteJid: chatId, id: messageId, fromMe: false }, message: { conversation: 'reiniciar' } } }).catch(() => {})
