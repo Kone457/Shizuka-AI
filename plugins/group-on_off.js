@@ -79,7 +79,7 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 handler.help = ['on', 'off'];
 handler.tags = ['grupo'];
 handler.command = ['on', 'off'];
-handler.admin = false;
+handler.admin = true;
 handler.botAdmin = false;
 
 export default handler;
