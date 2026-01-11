@@ -29,7 +29,7 @@ let handler = async (m, { conn, usedPrefix, text }) => {
     const hora = moment.tz('America/Bogota').format('hh:mm A')
 
     let menuTexto = ''
-    let headerTitle = '✧ PANEL DE CONTROL ✧'
+    let headerTitle = '✧ 𝙈𝙚𝙣𝙪 𝙋𝙧𝙞𝙣𝙘𝙞𝙥𝙖𝙡 ✧'
 
     if (text) {
       const tag = text.toLowerCase().trim()
