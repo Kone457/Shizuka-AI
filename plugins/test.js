@@ -9,101 +9,95 @@ let handler = async (m, { conn, text }) => {
     const json = await res.json();
     const imageUrl = json.url;
 
-    const caption = `💗 Aquí tienes ${senderName}...\n> Este es un plugin de prueba con todos los tipos de botones soportados por Baileys. ✨`;
-
-    const buttons = [
-      { buttonId: 'id1', buttonText: { displayText: 'Botón 1' }, type: 1 },
-      { buttonId: 'id2', buttonText: { displayText: 'Botón 2' }, type: 1 }
-    ];
-
-    const sections = [
-      {
-        title: 'Sección de Prueba',
-        rows: [
-          { title: 'Opción 1', rowId: 'row1', description: 'Descripción de la opción 1' },
-          { title: 'Opción 2', rowId: 'row2', description: 'Descripción de la opción 2' }
+    // 1. Mensaje con botones interactivos Native Flow (estándar actual de WhatsApp)
+    // Estos son los que permiten URLs, Llamadas y Listas internas
+    const interactiveMessage = {
+      body: { text: `💗 ¡Hola ${senderName}! Aquí tienes el panel de pruebas completo.` },
+      footer: { text: 'Baileys Multi-Button Test' },
+      header: {
+        title: 'Panel Interactivo',
+        hasMediaAttachment: true,
+        imageMessage: (await conn.prepareWAMessageMedia({ image: { url: imageUrl } }, { upload: conn.waUploadToServer })).imageMessage
+      },
+      nativeFlowMessage: {
+        buttons: [
+          {
+            name: 'quick_reply',
+            buttonParamsJson: JSON.stringify({
+              display_text: 'Respuesta Rápida',
+              id: 'quick_reply_id'
+            })
+          },
+          {
+            name: 'cta_url',
+            buttonParamsJson: JSON.stringify({
+              display_text: 'Abrir Enlace',
+              url: 'https://www.google.com',
+              merchant_url: 'https://www.google.com'
+            })
+          },
+          {
+            name: 'cta_call',
+            buttonParamsJson: JSON.stringify({
+              display_text: 'Llamar',
+              phone_number: '123456789'
+            })
+          },
+          {
+            name: 'single_select',
+            buttonParamsJson: JSON.stringify({
+              title: 'Ver Menú',
+              sections: [
+                {
+                  title: 'Opciones de Prueba',
+                  rows: [
+                    { header: 'Opción A', title: 'Título A', description: 'Descripción A', id: 'select_1' },
+                    { header: 'Opción B', title: 'Título B', description: 'Descripción B', id: 'select_2' }
+                  ]
+                }
+              ]
+            })
+          }
         ]
       }
-    ];
+    };
 
-
-    const nativeFlowButtons = [
-      {
-        name: 'quick_reply',
-        buttonParamsJson: JSON.stringify({
-          display_text: 'Respuesta Rápida 1',
-          id: 'quick1'
-        })
-      },
-      {
-        name: 'cta_url',
-        buttonParamsJson: JSON.stringify({
-          display_text: 'Visitar Google',
-          url: 'https://www.google.com',
-          merchant_url: 'https://www.google.com'
-        })
-      },
-      {
-        name: 'cta_call',
-        buttonParamsJson: JSON.stringify({
-        display_text: 'Llamar',
-          phone_number: '123456789'
-        })
-      },
-      {
-        name: 'single_select',
-        buttonParamsJson: JSON.stringify({
-          title: 'Seleccionar una opción',
-          sections: [
-            {
-              title: 'Opciones',
-              rows: [
-                { header: 'H1', title: 'Título 1', description: 'Desc 1', id: 'id1' },
-                { header: 'H2', title: 'Título 2', description: 'Desc 2', id: 'id2' }
-              ]
-            }
-          ]
-        })
+    // 2. Enviamos el mensaje interactivo usando relayMessage
+    // Baileys requiere enviar estos nodos directamente para que WhatsApp los procese correctamente
+    await conn.relayMessage(m.chat, {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: interactiveMessage
+        }
       }
-    ];
+    }, { quoted: m });
 
+    // 3. Enviamos un List Message clásico (el botón que despliega un menú)
+    const listMessage = {
+      title: 'Menú de Lista Clásico',
+      text: 'Este botón abre una lista de opciones separada:',
+      footer: 'Prueba de Lista',
+      buttonText: 'Seleccionar Opción',
+      sections: [
+        {
+          title: 'Categorías',
+          rows: [
+            { title: 'Opción 1', rowId: 'row1', description: 'Esta es la opción 1' },
+            { title: 'Opción 2', rowId: 'row2', description: 'Esta es la opción 2' }
+          ]
+        }
+      ]
+    };
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        image: { url: imageUrl },
-        caption,
-        footer: 'Baileys Button Test',
-        buttons: buttons, 
-        viewOnce: true,
-        headerType: 4,
-        nativeFlowMessage: {
-          buttons: nativeFlowButtons
-        },
-        mentions: [sender]
-      },
-      { quoted: m }
-    );
-
-
-    await conn.sendMessage(
-      m.chat,
-      {
-        text: 'Haz clic para ver la lista de opciones:',
-        footer: 'Prueba de List Message',
-        buttonText: 'Ver Lista',
-        sections: sections
-      },
-      { quoted: m }
-    );
+    await conn.sendMessage(m.chat, listMessage, { quoted: m });
 
   } catch (error) {
-    console.error(error);
-    m.reply('> *Error al ejecutar el plugin de prueba.*');
+    console.error('Error en el plugin de botones:', error);
+    m.reply('> *Error al generar los botones interactivos.*');
   }
 };
 
-handler.help = ['test'];
+handler.help = ['testbuttons'];
 handler.tags = ['test'];
 handler.command = ['test', 'pruebabotones'];
 
