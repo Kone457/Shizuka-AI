@@ -1,5 +1,4 @@
 import moment from 'moment-timezone'
-import pkg from '@whiskeysockets/baileys'
 
 const BANNER_URL = 'https://ik.imagekit.io/ybi6xmp5g/Bot.jpg'
 
@@ -76,62 +75,64 @@ let handler = async (m, { conn, usedPrefix, text }) => {
       }))
 
     const messageInstance = {
-      interactiveMessage: {
-        body: { text: menuTexto },
-        footer: { text: 'ち卄工乙UＫ丹-丹工 • Dev by Carlos' },
-        header: {
-          title: headerTitle,
-          hasMediaAttachment: false
-        },
-        contextInfo: {
-          externalAdReply: {
-            title: '✧ ち卄工乙UＫ丹-丹工 ✧',
-            body: '𝓢𝓾𝓹𝓮𝓻 𝓑𝓸𝓽 𝓭𝓮 𝓦𝓱𝓪𝓽𝓼𝓐𝓹𝓹',
-            thumbnailUrl: BANNER_URL,
-            mediaType: 1,
-            renderLargerThumbnail: true,
-            sourceUrl: 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
+      body: { text: menuTexto },
+      footer: { text: 'ち卄工乙UＫ丹-丹工 • Dev by Carlos' },
+      header: {
+        title: headerTitle,
+        hasMediaAttachment: false
+      },
+      nativeFlowMessage: {
+        buttons: [
+          {
+            name: 'single_select',
+            buttonParamsJson: JSON.stringify({
+              title: '📂 SELECCIONAR CATEGORÍA',
+              sections: [{ title: 'Categorías Disponibles', rows: categoryRows }]
+            })
+          },
+          {
+            name: 'quick_reply',
+            buttonParamsJson: JSON.stringify({
+              display_text: '💻 Ser Subbot',
+              id: `${usedPrefix}serbot`
+            })
+          },
+          {
+            name: 'quick_reply',
+            buttonParamsJson: JSON.stringify({
+              display_text: '👑 Creador',
+              id: `${usedPrefix}owner`
+            })
+          },
+          {
+            name: 'cta_url',
+            buttonParamsJson: JSON.stringify({
+              display_text: '📢 Canal Oficial',
+              url: 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
+            })
           }
-        },
-        nativeFlowMessage: {
-          buttons: [
-            {
-              name: 'single_select',
-              buttonParamsJson: JSON.stringify({
-                title: '📂 SELECCIONAR CATEGORÍA',
-                sections: [{ title: 'Categorías Disponibles', rows: categoryRows }]
-              })
-            },
-            {
-              name: 'quick_reply',
-              buttonParamsJson: JSON.stringify({
-                display_text: '💻 Ser Subbot',
-                id: `${usedPrefix}serbot`
-              })
-            },
-            {
-              name: 'quick_reply',
-              buttonParamsJson: JSON.stringify({
-                display_text: '👑 Creador',
-                id: `${usedPrefix}owner`
-              })
-            },
-            {
-              name: 'cta_url',
-              buttonParamsJson: JSON.stringify({
-                display_text: '📢 Canal Oficial',
-                url: 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
-              })
-            }
-          ]
-        }
+        ]
       }
     }
 
-    await conn.relayMessage(m.chat, { 
-      viewOnceMessage: { 
-        message: messageInstance 
-      } 
+    await conn.relayMessage(m.chat, {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: {
+            ...messageInstance,
+            contextInfo: {
+              externalAdReply: {
+                title: '✧ ち卄工乙UＫ丹-丹工 ✧',
+                body: '𝓢𝓾𝓹𝓮𝓻 𝓑𝓸𝓽 𝓭𝓮 𝓦𝓱𝓪𝓽𝓼𝓐𝓹𝓹',
+                thumbnailUrl: BANNER_URL,
+                mediaType: 1,
+                renderLargerThumbnail: true,
+                sourceUrl: 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
+              }
+            }
+          }
+        }
+      }
     }, { quoted: m })
 
   } catch (e) {
