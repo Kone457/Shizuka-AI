@@ -1,6 +1,5 @@
 import moment from 'moment-timezone'
 import pkg from '@whiskeysockets/baileys'
-const { prepareWAMessageMedia } = pkg
 
 const BANNER_URL = 'https://ik.imagekit.io/ybi6xmp5g/Bot.jpg'
 
@@ -29,7 +28,7 @@ let handler = async (m, { conn, usedPrefix, text }) => {
     const hora = moment.tz('America/Bogota').format('hh:mm A')
 
     let menuTexto = ''
-    let headerTitle = '✧ PANEL DE CONTROL ✧'
+    let headerTitle = '✧ ち卄工乙UＫ丹-丹工 ✧'
 
     if (text) {
       const tag = text.toLowerCase().trim()
@@ -76,16 +75,23 @@ let handler = async (m, { conn, usedPrefix, text }) => {
         id: `${usedPrefix}menu ${tag}`
       }))
 
-    const media = await prepareWAMessageMedia({ image: { url: BANNER_URL } }, { upload: conn.waUploadToServer })
-
     const messageInstance = {
       interactiveMessage: {
         body: { text: menuTexto },
         footer: { text: 'ち卄工乙UＫ丹-丹工 • Dev by Carlos' },
         header: {
           title: headerTitle,
-          hasMediaAttachment: true,
-          imageMessage: media.imageMessage
+          hasMediaAttachment: false
+        },
+        contextInfo: {
+          externalAdReply: {
+            title: '✧ ち卄工乙UＫ丹-丹工 ✧',
+            body: '𝓢𝓾𝓹𝓮𝓻 𝓑𝓸𝓽 𝓭𝓮 𝓦𝓱𝓪𝓽𝓼𝓐𝓹𝓹',
+            thumbnailUrl: BANNER_URL,
+            mediaType: 1,
+            renderLargerThumbnail: true,
+            sourceUrl: 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
+          }
         },
         nativeFlowMessage: {
           buttons: [
@@ -122,7 +128,11 @@ let handler = async (m, { conn, usedPrefix, text }) => {
       }
     }
 
-    await conn.relayMessage(m.chat, { viewOnceMessage: { message: messageInstance } }, { quoted: m })
+    await conn.relayMessage(m.chat, { 
+      viewOnceMessage: { 
+        message: messageInstance 
+      } 
+    }, { quoted: m })
 
   } catch (e) {
     console.error(e)
