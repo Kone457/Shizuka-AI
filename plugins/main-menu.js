@@ -23,42 +23,35 @@ const CATEGORY_META = {
 let handler = async (m, { conn, usedPrefix, text }) => {
   try {
     const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)
-
-    // --- LÓGICA PARA LOS DESLIZABLES (CATEGORÍAS) ---
-    // Si 'text' existe, significa que el usuario eligió una categoría en el botón deslizable
-    if (text) {
-      const tag = text.toLowerCase().trim()
-      if (CATEGORY_META[tag]) {
-        // Filtramos los comandos que pertenecen a esta etiqueta
-        const helps = []
-        for (const plugin of pluginsActivos) {
-          const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : [])
-          if (tags.includes(tag)) {
-            const h = Array.isArray(plugin.help) ? plugin.help : [plugin.help]
-            helps.push(...h)
-          }
-        }
-
-        if (helps.length > 0) {
-          let txt = `╭─❖ ${CATEGORY_META[tag]} ❖─╮\n`
-          txt += helps.sort().map(h => `│ • ${usedPrefix}${h}`).join('\n')
-          txt += `\n╰───────────────╯`
-          
-          // Enviamos la lista de comandos de esa categoría y cortamos la ejecución aquí
-          return await m.reply(txt)
-        }
-      }
-    }
-
-    // --- SI NO HAY TEXTO, ENVIAMOS EL MENÚ DE BOTONES PRINCIPAL ---
-    await conn.sendMessage(m.chat, { react: { text: '🎨', key: m.key } })
-
     const jam = moment.tz('America/Bogota').format('HH:mm:ss')
     const ucapan = jam < '12:00:00' ? '🌅 Buen día' : jam < '19:00:00' ? '☀️ Buenas tardes' : '🌙 Buenas noches'
     const fecha = moment.tz('America/Bogota').format('DD/MM/YYYY')
     const hora = moment.tz('America/Bogota').format('hh:mm A')
 
-    // Contar comandos por tag para la lista
+    // --- LÓGICA DE CONTENIDO DINÁMICO ---
+    let bodyText = `Presiona el botón de abajo para desplegar las categorías y ver los comandos.`
+    let headerTitle = '✧ PANEL DE CONTROL ✧'
+
+    if (text) {
+      const tag = text.toLowerCase().trim()
+      if (CATEGORY_META[tag]) {
+        headerTitle = `✧ MENÚ: ${tag.toUpperCase()} ✧`
+        const helps = pluginsActivos
+          .filter(p => p.tags && p.tags.includes(tag))
+          .flatMap(p => Array.isArray(p.help) ? p.help : [p.help])
+          .sort()
+
+        if (helps.length > 0) {
+          bodyText = `╭─❖ *${CATEGORY_META[tag]}* ❖─╮\n`
+          bodyText += helps.map(h => `│ • ${usedPrefix}${h}`).join('\n')
+          bodyText += `\n╰───────────────╯`
+        }
+      }
+    }
+
+    // --- CONSTRUCCIÓN DEL DISEÑO ESTILO CARLOS ---
+    await conn.sendMessage(m.chat, { react: { text: '🎨', key: m.key } })
+
     const byTag = {}
     for (const plugin of pluginsActivos) {
       const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : [])
@@ -68,31 +61,32 @@ let handler = async (m, { conn, usedPrefix, text }) => {
       }
     }
 
-    // Filas para el Single Select
     const categoryRows = Object.keys(CATEGORY_META)
       .filter(tag => byTag[tag] > 0)
       .map(tag => ({
         header: 'SECCIÓN',
         title: CATEGORY_META[tag],
         description: `Ver ${byTag[tag]} comandos`,
-        id: `${usedPrefix}menu ${tag}` // Importante: esto envía ".menu anime"
+        id: `${usedPrefix}menu ${tag}`
       }))
 
     const media = await prepareWAMessageMedia({ image: { url: BANNER_URL } }, { upload: conn.waUploadToServer })
 
+    // Estructura visual solicitada
     let menuTexto = `✦━━━━━━━━━━━━━━━━✦\n`
-    menuTexto += `   ${ucapan}, *${m.pushName || 'Usuario'}* ✨\n`
-    menuTexto += `   📅 Fecha: ${fecha}\n   🕒 Hora: ${hora}\n`
+    menuTexto += `   ${ucapan}, *${m.pushName || 'Carlos'}* ✨\n`
+    menuTexto += `   📅 Fecha: ${fecha}\n`
+    menuTexto += `   🕒 Hora: ${hora}\n`
     menuTexto += `   👤 Creador: Carlos\n`
     menuTexto += `✦━━━━━━━━━━━━━━━━✦\n\n`
-    menuTexto += `Presiona el botón de abajo para desplegar las categorías y ver los comandos.`
+    menuTexto += bodyText
 
     const messageInstance = {
       interactiveMessage: {
         body: { text: menuTexto },
         footer: { text: 'ち卄工乙UＫ丹-丹工 • Dev by Carlos' },
         header: {
-          title: '✧ PANEL DE CONTROL ✧',
+          title: headerTitle,
           hasMediaAttachment: true,
           imageMessage: media.imageMessage
         },
