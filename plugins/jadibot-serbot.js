@@ -101,6 +101,13 @@ export async function skyJadiBot(options) {
       if (!global.conns.includes(sock)) global.conns.push(sock)
       console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
 
+      const restartFile = `./tmp/restarting_${sock.user.id.split(':')[0]}.txt`
+      if (fs.existsSync(restartFile)) {
+        const [chatId, messageId] = fs.readFileSync(restartFile, 'utf8').split('|')
+        await sock.sendMessage(chatId, { text: '✅ *¡Subbot activo nuevamente!* \n> El proceso de reinicio ha finalizado con éxito.' }, { quoted: { key: { remoteJid: chatId, id: messageId, fromMe: false }, message: { conversation: 'reiniciar' } } }).catch(() => {})
+        fs.unlinkSync(restartFile)
+      }
+
       if (fromCommand) {
         await conn.reply(m.chat, `*¡Conexión exitosa!*\n> Bienvenido a la familia de subbots`, m)
         options.fromCommand = false
