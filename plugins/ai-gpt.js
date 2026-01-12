@@ -2,19 +2,6 @@ import fetch from 'node-fetch';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-const GEMINI_APIKEY = (() => {
-  const parts = [
-    'AIzaSyCkgjoH',
-    '84GHrSUYnYMh',
-    'whIc4NpJqb4K',
-    'vvw'
-  ];
-  return parts.join('');
-})();
-
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
-const GEMINI_PATH = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_APIKEY}`;
-
 const SHIZUKA_ROLE = [
   "Eres Shizuka y respondes con ternura y muchos emojis en tus respuestas.",
   "Eres dulce, amable y siempre transmites calma y cariño.",
@@ -57,21 +44,33 @@ let handler = async (m, { conn, args }) => {
 
     const rows = await db.all(`SELECT role, text FROM memory WHERE chatId = ? ORDER BY timestamp ASC`, [chatId]);
 
-    const prompt = [
-      SHIZUKA_ROLE,
-      ...rows.map(msg => `${msg.role}: ${msg.text}`)
-    ].join('\n');
+    const messages = [
+      {
+        role: "system",
+        content: `${SHIZUKA_ROLE}\n\nContexto de la conversación anterior:`
+      }
+    ];
 
-    const res = await fetch(GEMINI_PATH, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt }
-          ]
-        }]
-      })
+    rows.forEach(msg => {
+      messages.push({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      });
+    });
+
+    const params = {
+      query: JSON.stringify(messages),
+      link: "writecream.com"
+    };
+
+    const url = "https://8pe3nv3qha.execute-api.us-east-1.amazonaws.com/default/llm_chat?" + new URLSearchParams(params);
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 
+        'accept': '*/*',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
     });
 
     if (!res.ok) {
@@ -80,7 +79,7 @@ let handler = async (m, { conn, args }) => {
     }
 
     const json = await res.json();
-    const response = json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    const response = json?.result?.trim();
 
     if (!response) {
       await conn.sendMessage(chatId, { text: '> No se obtuvo una *respuesta* válida.', edit: key });
@@ -91,7 +90,7 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(chatId, { text: response, edit: key });
   } catch (error) {
-    console.error('[Shizuka-Gemini] Error:', error);
+    console.error('[Shizuka-LLaMA] Error:', error);
     await m.reply('> Ocurrió un error al procesar tu solicitud.');
   }
 };
