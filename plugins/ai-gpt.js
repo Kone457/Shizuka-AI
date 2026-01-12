@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
@@ -45,18 +45,12 @@ let handler = async (m, { conn, args }) => {
     const rows = await db.all(`SELECT role, text FROM memory WHERE chatId = ? ORDER BY timestamp ASC`, [chatId]);
 
     const messages = [
-      {
-        role: "system",
-        content: `${SHIZUKA_ROLE}\n\nContexto de la conversación anterior:`
-      }
-    ];
-
-    rows.forEach(msg => {
-      messages.push({
-        role: msg.role === 'user' ? 'user' : 'assistant',
+      { role: "system", content: SHIZUKA_ROLE },
+      ...rows.map(msg => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
         content: msg.text
-      });
-    });
+      }))
+    ];
 
     const params = {
       query: JSON.stringify(messages),
@@ -65,21 +59,14 @@ let handler = async (m, { conn, args }) => {
 
     const url = "https://8pe3nv3qha.execute-api.us-east-1.amazonaws.com/default/llm_chat?" + new URLSearchParams(params);
 
-    const res = await fetch(url, {
-      method: 'GET',
+    const { data } = await axios.get(url, {
       headers: { 
         'accept': '*/*',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'user-agent': 'Mozilla/5.0' 
       }
     });
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '');
-      throw new Error(`HTTP ${res.status}: ${errText || 'Error en la solicitud'}`);
-    }
-
-    const json = await res.json();
-    const response = json?.result?.trim();
+    const response = data?.response_content?.trim();
 
     if (!response) {
       await conn.sendMessage(chatId, { text: '> No se obtuvo una *respuesta* válida.', edit: key });
@@ -89,8 +76,8 @@ let handler = async (m, { conn, args }) => {
     await db.run(`INSERT INTO memory (chatId, role, text) VALUES (?, ?, ?)`, [chatId, 'assistant', response]);
 
     await conn.sendMessage(chatId, { text: response, edit: key });
+
   } catch (error) {
-    console.error('[Shizuka-LLaMA] Error:', error);
     await m.reply('> Ocurrió un error al procesar tu solicitud.');
   }
 };
