@@ -70,7 +70,7 @@ handler.before = async (m, { conn }) => {
               quality: json.result.quality || '128 kbps'
             };
           }
-          throw new Error('API 1 falló');
+          throw new Error();
         },
         async () => {
           const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/audio?url=${link}&quality=128`);
@@ -83,7 +83,27 @@ handler.before = async (m, { conn }) => {
               quality: '128 kbps'
             };
           }
-          throw new Error('API 2 falló');
+          throw new Error();
+        },
+        async () => {
+          const encodedUrl = encodeURIComponent(link);
+          const apiKey = 'sylphy-M2ZfL5Z45B_1768271221779_7s0h9zojo';
+          const res = await fetch(`https://sylphy.xyz/download/ytmp3?url=${encodedUrl}&api_key=${apiKey}`);
+          const json = await res.json();
+          
+          if (json.status && json.result?.dl_url) {
+            const searchRes = await fetch(`https://chisato-api.vercel.app/search/youtube?q=${encodeURIComponent(link)}`);
+            const searchJson = await searchRes.json();
+            const title = searchJson.status && searchJson.result?.[0]?.title ? searchJson.result[0].title : 'audio';
+            
+            return {
+              url: json.result.dl_url,
+              title: title,
+              duration: 'Desconocida',
+              quality: '128 kbps'
+            };
+          }
+          throw new Error();
         }
       ];
 
@@ -130,7 +150,7 @@ handler.before = async (m, { conn }) => {
               title: json.result.title || 'video'
             };
           }
-          throw new Error('API 1 falló');
+          throw new Error();
         },
         async () => {
           const res = await fetch(`https://api-faa.my.id/faa/ytmp4?url=${encodeURIComponent(link)}`);
@@ -141,7 +161,7 @@ handler.before = async (m, { conn }) => {
               title: json.result.title || 'video'
             };
           }
-          throw new Error('API 2 falló');
+          throw new Error();
         },
         async () => {
           const res = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/video?url=${link}&quality=360`);
@@ -152,7 +172,7 @@ handler.before = async (m, { conn }) => {
               title: json.result.metadata?.title || 'video'
             };
           }
-          throw new Error('API 3 falló');
+          throw new Error();
         }
       ];
 
