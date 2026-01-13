@@ -112,15 +112,6 @@ export async function handler(chatUpdate) {
         const user = globalThis.db.data.users[m.sender]
         const chat = globalThis.db.data.chats[m.chat]
 
-        // --- Lógica para usuarios silenciados ---
-        if (m.isGroup && chat && chat.mutedUsers && chat.mutedUsers.includes(m.sender)) {
-            if (isBotAdmin) {
-                await this.sendMessage(m.chat, { delete: m.key })
-            }
-            return
-        }
-        // --- Fin lógica silencio ---
-
         if (m.isGroup && chat && chat.primaryBot) {
             if (this.user.jid !== chat.primaryBot) return
         }
@@ -218,7 +209,7 @@ export async function handler(chatUpdate) {
 
                 if (chat?.bannedGrupo && !isOwner && name !== "grupo-mute.js") return
 
-               // if (!m.chat.endsWith('g.us') && !isOwner) return
+                if (!m.chat.endsWith('g.us') && !isOwner) return
 
                 const adminMode = chat.adminonly || false
                 if (adminMode && !isOwner && m.isGroup && !isAdmin) return
@@ -274,7 +265,7 @@ export async function handler(chatUpdate) {
 
 global.dfail = (type, m, conn) => {
     const msg = {
-        owner: `> El comando *${globalThis.comando}* solo puede ser ejecutado por mi Creador.`,
+        owner: `> El comando *${globalThis.comando}* solo puede ser ejecutado por mi Creador Carlos.`,
         moderation: `> El comando *${globalThis.comando}* solo puede ser ejecutado por los mods.`,
         admin: `> El comando *${globalThis.comando}* solo puede ser ejecutado por los admins del Grupo.`,
         botAdmin: `> Para usar el comando *${globalThis.comando}* debo ser admin del Grupo.`
