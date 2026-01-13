@@ -112,6 +112,15 @@ export async function handler(chatUpdate) {
         const user = globalThis.db.data.users[m.sender]
         const chat = globalThis.db.data.chats[m.chat]
 
+        // --- Lógica para usuarios silenciados ---
+        if (m.isGroup && chat && chat.mutedUsers && chat.mutedUsers.includes(m.sender)) {
+            if (isBotAdmin) {
+                await this.sendMessage(m.chat, { delete: m.key })
+            }
+            return
+        }
+        // --- Fin lógica silencio ---
+
         if (m.isGroup && chat && chat.primaryBot) {
             if (this.user.jid !== chat.primaryBot) return
         }
