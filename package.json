@@ -65,6 +65,7 @@
     "url-regex-safe": "^3.0.0",
     "uuid": "^10.0.0",
     "wa-sticker-formatter": "^4.3.2",
+    "speedtest-net": "^2.2.0",
     "sqlite3": "^5.1.7",
     "sqlite": "^4.2.1",
     "yargs": "^17.3.1",
