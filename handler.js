@@ -265,7 +265,7 @@ export async function handler(chatUpdate) {
 
 global.dfail = (type, m, conn) => {
     const msg = {
-        owner: `> El comando *${globalThis.comando}* solo puede ser ejecutado por mi Creador Carlos.`,
+        owner: `> El comando *${globalThis.comando}* solo puede ser ejecutado por mi Creador.`,
         moderation: `> El comando *${globalThis.comando}* solo puede ser ejecutado por los mods.`,
         admin: `> El comando *${globalThis.comando}* solo puede ser ejecutado por los admins del Grupo.`,
         botAdmin: `> Para usar el comando *${globalThis.comando}* debo ser admin del Grupo.`
