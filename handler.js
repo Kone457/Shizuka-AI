@@ -209,7 +209,7 @@ export async function handler(chatUpdate) {
 
                 if (chat?.bannedGrupo && !isOwner && name !== "grupo-mute.js") return
 
-                if (!m.chat.endsWith('g.us') && !isOwner) return
+               // if (!m.chat.endsWith('g.us') && !isOwner) return
 
                 const adminMode = chat.adminonly || false
                 if (adminMode && !isOwner && m.isGroup && !isAdmin) return
