@@ -27,24 +27,51 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     }
 
     let videoData = null;
-    let apiSource = '';
+    let metadata = {
+      title: 'Video de YouTube',
+      duration: 'Desconocida',
+      thumbnail: null
+    };
+
     
     try {
-      const res1 = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/video?url=${encodeURIComponent(args[0])}&quality=360`);
-      const json1 = await res1.json();
+      const apiUrl = `https://nexevo-api.vercel.app/download/y2?url=${encodeURIComponent(args[0])}`;
+      const res = await fetch(apiUrl);
+      const json = await res.json();
       
-      if (json1.status && json1.result?.download?.url) {
+      if (json.status && json.result?.url) {
         videoData = {
-          url: json1.result.download.url,
-          title: json1.result.metadata?.title || 'Video de YouTube',
-          duration: json1.result.metadata?.duration?.timestamp || 'Desconocida',
-          quality: json1.result.download.quality || '360p',
-          source: 'API 1'
+          url: json.result.url,
+          quality: json.result.quality + 'p',
+          size: json.result.info?.size || null
         };
-        apiSource = 'vreden';
+        
+        if (json.result.info?.title) metadata.title = json.result.info.title;
+        if (json.result.info?.duration) metadata.duration = json.result.info.duration;
+        if (json.result.info?.thumbnail) metadata.thumbnail = json.result.info.thumbnail;
       }
     } catch (error) {}
 
+    
+    if (!videoData) {
+      try {
+        const res1 = await fetch(`https://api.vreden.my.id/api/v1/download/youtube/video?url=${encodeURIComponent(args[0])}&quality=360`);
+        const json1 = await res1.json();
+        
+        if (json1.status && json1.result?.download?.url) {
+          videoData = {
+            url: json1.result.download.url,
+            quality: json1.result.download.quality || '360p',
+            size: json1.result.metadata?.size || null
+          };
+          
+          if (json1.result.metadata?.title) metadata.title = json1.result.metadata.title;
+          if (json1.result.metadata?.duration?.timestamp) metadata.duration = json1.result.metadata.duration.timestamp;
+        }
+      } catch (error) {}
+    }
+
+    
     if (!videoData) {
       try {
         const res2 = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(args[0])}&format=360`);
@@ -53,32 +80,31 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         if (json2.success && json2.result?.downloadUrl) {
           videoData = {
             url: json2.result.downloadUrl,
-            title: json2.result.title || 'Video de YouTube',
-            duration: json2.result.duration || 'Desconocida',
             quality: json2.result.quality || '360p',
-            source: 'API 2'
+            size: json2.result.size || null
           };
-          apiSource = 'nekolabs';
+          
+          if (json2.result.title) metadata.title = json2.result.title;
+          if (json2.result.duration) metadata.duration = json2.result.duration;
         }
       } catch (error) {}
     }
 
     if (!videoData) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-      return m.reply('❌ *Error al obtener el video*\nAmbas APIs están fallando. Intenta más tarde.');
+      return m.reply('❌ *Error al obtener el video*\nNo se pudo descargar el video. Intenta más tarde.');
     }
 
     const caption = `
 ╭─「 🅨𝖙 🅥ideo 」
-│ ✨ *Título:* ${videoData.title}
-│ ⏱️ *Duración:* ${videoData.duration}
+│ ✨ *Título:* ${metadata.title}
+│ ⏱️ *Duración:* ${metadata.duration}
 │ 📊 *Calidad:* ${videoData.quality}
-│ 🔧 *Fuente:* ${apiSource}
 ╰───────────────`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
-    const cleanTitle = videoData.title
+    const cleanTitle = metadata.title
       .replace(/[^\w\sáéíóúÁÉÍÓÚñÑ.,!?\-]/gi, '')
       .substring(0, 100);
 
