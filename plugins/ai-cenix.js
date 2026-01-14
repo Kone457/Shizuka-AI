@@ -12,7 +12,7 @@ let handler = async (m, { conn, args }) => {
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: '> *Cenix-AI* está procesando tu respuesta...' },
+      { text: '> *Cenix-AI* está procesando tu solicitud...' },
       { quoted: m }
     );
 
