@@ -6,7 +6,7 @@ let handler = async (m, { conn, text }) => {
     const senderName = await conn.getName(sender);
 
     
-    const imageUrl = 'https://chisato-api.vercel.app/random/ba';
+    const imageUrl = 'https://nexevo-api.vercel.app/random/ba';
 
     const caption = `🎭 Aquí tienes ${senderName} ✨`;
 
