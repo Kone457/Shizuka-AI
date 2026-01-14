@@ -14,19 +14,25 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(args[0])}&format=mp3`);
+    
+    const apiUrl = `https://nexevo-api.vercel.app/download/y?url=${encodeURIComponent(args[0])}`;
+    const res = await fetch(apiUrl);
     const json = await res.json();
 
-    if (!json.success || !json.result?.downloadUrl) {
+    if (!json.status || !json.result?.url) {
       await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       return m.reply('⚠️ No se pudo obtener el *audio*. Intenta con otro enlace.');
     }
 
-    const audioUrl = json.result.downloadUrl;
-    const title = json.result.title || 'audio';
-    const duration = json.result.duration || 'Desconocida';
-    const quality = json.result.quality || '128 kbps';
-    const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅜𝟑\n\n🎶 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n📊 *Calidad:* ${quality}`;
+    const audioUrl = json.result.url;
+    const title = json.result.info?.title || 'Audio de YouTube';
+    const duration = json.result.info?.duration || 'Desconocida';
+    const quality = `${json.result.quality || 128} kbps`;
+    
+    
+    const cleanTitle = title.replace(/[^\w\s]/gi, '').substring(0, 50) || 'audio_youtube';
+    
+    const caption = `𖣣ֶㅤ֯⌗ 🅨𝖙 🅜𝟑\n\n🎶 *Título:* ${title}\n⏱️ *Duración:* ${duration}\n📊 *Calidad:* ${quality}\n🔄 *Formato:* MP3`;
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -35,7 +41,7 @@ let handler = async (m, { conn, args }) => {
       {
         audio: { url: audioUrl },
         mimetype: 'audio/mpeg',
-        fileName: `${title.replace(/[^\w\s]/gi, '')}.mp3`,
+        fileName: `${cleanTitle}.mp3`,
         caption
       },
       { quoted: m }
@@ -48,8 +54,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['ytmp3'];
+handler.help = ['ytmp3', 'ytaudio'];
 handler.tags = ['descargas'];
-handler.command = ['ytmp3', 'mp3'];
+handler.command = ['ytmp3', 'ytaudio', 'mp3'];
 
 export default handler;
