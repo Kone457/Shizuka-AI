@@ -58,7 +58,40 @@ handler.before = async (m, { conn }) => {
       const link = id.replace('audio_', '');
       await conn.sendMessage(m.chat, { react: { text: '🎵', key: m.key } });
 
+      let videoId = '';
+      if (link.includes('youtu.be/')) {
+        videoId = link.split('youtu.be/')[1].split('?')[0];
+      } else if (link.includes('youtube.com/watch?v=')) {
+        videoId = link.split('v=')[1].split('&')[0];
+      }
+
       const apis = [
+        async () => {
+          const apiUrl = `https://nexevo-api.vercel.app/download/y?url=${encodeURIComponent(link)}`;
+          const res = await fetch(apiUrl);
+          const json = await res.json();
+          
+          if (json.status && json.result?.url && json.result.type === 'audio') {
+            let title = 'Audio de YouTube';
+            if (videoId) {
+              try {
+                const searchRes = await fetch(`https://chisato-api.vercel.app/search/youtube?q=${encodeURIComponent(videoId)}`);
+                const searchJson = await searchRes.json();
+                if (searchJson.status && searchJson.result?.[0]?.title) {
+                  title = searchJson.result[0].title;
+                }
+              } catch (e) {}
+            }
+            
+            return {
+              url: json.result.url,
+              title: title,
+              duration: json.result.info?.duration || 'Desconocida',
+              quality: json.result.quality + ' kbps'
+            };
+          }
+          throw new Error();
+        },
         async () => {
           const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(link)}&format=mp3`);
           const json = await res.json();
@@ -80,26 +113,6 @@ handler.before = async (m, { conn }) => {
               url: json.result.download.url,
               title: json.result.metadata?.title || 'audio',
               duration: json.result.metadata?.duration?.timestamp || 'Desconocida',
-              quality: '128 kbps'
-            };
-          }
-          throw new Error();
-        },
-        async () => {
-          const encodedUrl = encodeURIComponent(link);
-          const apiKey = 'sylphy-M2ZfL5Z45B_1768271221779_7s0h9zojo';
-          const res = await fetch(`https://sylphy.xyz/download/ytmp3?url=${encodedUrl}&api_key=${apiKey}`);
-          const json = await res.json();
-          
-          if (json.status && json.result?.dl_url) {
-            const searchRes = await fetch(`https://chisato-api.vercel.app/search/youtube?q=${encodeURIComponent(link)}`);
-            const searchJson = await searchRes.json();
-            const title = searchJson.status && searchJson.result?.[0]?.title ? searchJson.result[0].title : 'audio';
-            
-            return {
-              url: json.result.dl_url,
-              title: title,
-              duration: 'Desconocida',
               quality: '128 kbps'
             };
           }
@@ -140,25 +153,47 @@ handler.before = async (m, { conn }) => {
       const link = id.replace('video_', '');
       await conn.sendMessage(m.chat, { react: { text: '🎬', key: m.key } });
 
+      let videoId = '';
+      if (link.includes('youtu.be/')) {
+        videoId = link.split('youtu.be/')[1].split('?')[0];
+      } else if (link.includes('youtube.com/watch?v=')) {
+        videoId = link.split('v=')[1].split('&')[0];
+      }
+
       const apis = [
+        async () => {
+          const apiUrl = `https://nexevo-api.vercel.app/download/y2?url=${encodeURIComponent(link)}`;
+          const res = await fetch(apiUrl);
+          const json = await res.json();
+          
+          if (json.status && json.result?.url && json.result.type === 'video') {
+            let title = 'Video de YouTube';
+            if (videoId) {
+              try {
+                const searchRes = await fetch(`https://chisato-api.vercel.app/search/youtube?q=${encodeURIComponent(videoId)}`);
+                const searchJson = await searchRes.json();
+                if (searchJson.status && searchJson.result?.[0]?.title) {
+                  title = searchJson.result[0].title;
+                }
+              } catch (e) {}
+            }
+            
+            return {
+              url: json.result.url,
+              title: title,
+              quality: json.result.quality + 'p'
+            };
+          }
+          throw new Error();
+        },
         async () => {
           const res = await fetch(`https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(link)}&format=360`);
           const json = await res.json();
           if (json.success && json.result?.downloadUrl) {
             return {
               url: json.result.downloadUrl,
-              title: json.result.title || 'video'
-            };
-          }
-          throw new Error();
-        },
-        async () => {
-          const res = await fetch(`https://api-faa.my.id/faa/ytmp4?url=${encodeURIComponent(link)}`);
-          const json = await res.json();
-          if (json.status && json.result?.download_url) {
-            return {
-              url: json.result.download_url,
-              title: json.result.title || 'video'
+              title: json.result.title || 'video',
+              quality: json.result.quality || '360p'
             };
           }
           throw new Error();
@@ -169,7 +204,8 @@ handler.before = async (m, { conn }) => {
           if (json.status && json.result?.download?.status !== false && json.result.download?.url) {
             return {
               url: json.result.download.url,
-              title: json.result.metadata?.title || 'video'
+              title: json.result.metadata?.title || 'video',
+              quality: json.result.download.quality || '360p'
             };
           }
           throw new Error();
@@ -193,7 +229,7 @@ handler.before = async (m, { conn }) => {
       
       await conn.sendMessage(m.chat, {
         video: { url: videoData.url },
-        fileName: `${videoData.title.replace(/[^\w\s]/gi, '')} (360p).mp4`,
+        fileName: `${videoData.title.replace(/[^\w\s]/gi, '')} (${videoData.quality}).mp4`,
         mimetype: 'video/mp4'
       }, { quoted: m });
     }
