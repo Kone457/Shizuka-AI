@@ -5,7 +5,7 @@ let handler = async (m, { conn, text }) => {
     const sender = m.sender;
     const senderName = await conn.getName(sender);
 
-m.react('🤭');
+
     
     const imageUrl = 'https://api.delirius.store/nsfw/girls';
 
