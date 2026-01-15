@@ -47,7 +47,6 @@ const COPILOT_PATH = 'https://api.stellarwa.xyz/ai/copilot';
 const API_KEY = 'stellar-EBo93V1d';
 const MEMORY_FILE = './cenix.json';
 
-
 const CENIX_PROMPT = `Eres **Cenix-AI**, la IA del futuro creada por Stellar Systems. Tu personalidad es:
 1. **Vanguardista y visionaria**: Hablas sobre tecnología futura como si ya existiera
 2. **Elegante y sofisticada**: Tu lenguaje es pulido y preciso
@@ -92,7 +91,6 @@ let handler = async (m, { conn, args }) => {
       { quoted: m }
     );
 
-    
     const previousContext = memory[m.sender] ? 
       `\n\n[Contexto de conversación anterior]\nUsuario: ${memory[m.sender].last}\nCenix-AI: ${memory[m.sender].reply.substring(0, 200)}...` : 
       '';
@@ -110,7 +108,6 @@ let handler = async (m, { conn, args }) => {
       return conn.reply(m.chat, '> 🌐 *Error de conexión cuántica*. Intenta nuevamente.');
     }
 
-    
     memory[m.sender] = { 
       last: text, 
       reply: response,
@@ -127,21 +124,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-
-handler.help = ['cenix'];
+handler.help = ['cenix <consulta>', 'cpt <consulta>'];
 handler.tags = ['ia', 'futuro'];
-handler.command = ['cenix', 'cpt', 'cenixai', 'iafuturo', 'resetcenix'];
-
-handler.command = Object.assign(handler.command, ['resetcenix']);
-handler.resetcenix = async (m) => {
-  const memory = loadMemory();
-  if (memory[m.sender]) {
-    delete memory[m.sender];
-    saveMemory(memory);
-    m.reply('> 🧠 *Memoria de Cenix-AI reseteada*. Comenzamos desde cero.');
-  } else {
-    m.reply('> 🌌 *No hay memoria activa* de tu conversación con Cenix-AI.');
-  }
-};
+handler.command = ['cenix', 'cpt', 'cenixai', 'iafuturo'];
 
 export default handler;
