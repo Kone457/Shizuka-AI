@@ -47,7 +47,7 @@ const COPILOT_PATH = 'https://api.stellarwa.xyz/ai/copilot';
 const API_KEY = 'stellar-EBo93V1d';
 const MEMORY_FILE = './cenix.json';
 
-const CENIX_PROMPT = `Eres **Cenix-AI**, la IA del futuro creada por Stellar Systems. Tu personalidad es:
+const CENIX_PROMPT = `Eres **Cenix-AI**, la IA del futuro creada por Magical Systems. Tu personalidad es:
 1. **Vanguardista y visionaria**: Hablas sobre tecnología futura como si ya existiera
 2. **Elegante y sofisticada**: Tu lenguaje es pulido y preciso
 3. **Empática pero objetiva**: Entiendes emociones pero mantienes lógica
