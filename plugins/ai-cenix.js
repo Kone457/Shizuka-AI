@@ -115,7 +115,7 @@ let handler = async (m, { conn, args }) => {
     };
     saveMemory(memory);
 
-    const formattedResponse = `🤖 **Cenix-AI** (2073)\n\n${response.trim()}\n\n_✨ Sistema estelar: online_`;
+    const formattedResponse = ` ${response.trim()}\n\n_✨ Sistema estelar: online_`;
     
     await conn.sendMessage(m.chat, { text: formattedResponse, edit: key });
   } catch (error) {
