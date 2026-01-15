@@ -1,35 +1,34 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, usedPrefix, command }) => {
+let handler = async (m, { conn, text }) => {
+  try {
+    const sender = m.sender;
+    const senderName = await conn.getName(sender);
 
-    if (!db.data.chats[m.chat].nsfw && m.isGroup) {
-    return m.reply(hotw);
-    }
+m.react('🤭');
+    
+    const imageUrl = 'https://api.delirius.store/nsfw/girls';
 
-    m.react('🤭');
+    const caption = `🎭 Aquí tienes ${senderName} ✨`;
 
-    let txt = 'Pack 🔥';
-    let img = 'https://delirius-apiofc.vercel.app/nsfw/girls';
-
-    let buttons = [
-        {
-            buttonId: `.pack`,
-            buttonText: { displayText: "Ver más" },
-            type: 1
-        }
-    ];
     await conn.sendMessage(
-        m.chat,
-        {
-            image: { url: img },
-            caption: txt,
-            buttons: buttons,
-            viewOnce: false
-        },
-        { quoted: m }
+      m.chat,
+      {
+        image: { url: imageUrl },
+        caption,
+        mentions: [sender]
+      },
+      { quoted: m }
     );
+
+  } catch (error) {
+    console.error(error);
+    m.reply('> *Error al obtener la imagen.* Intenta nuevamente más tarde.');
+  }
 };
 
+handler.help = ['pack'];
+handler.tags = ['nsfw'];
 handler.command = ['pack'];
-handler.group = true;
+
 export default handler;
