@@ -12,37 +12,35 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: "🕒", key: m.key } })
 
-    
-    const apiKey = 'rmF1oUJI529jzux8'
-    
-    
-    let apiUrl = `https://api-nv.ultraplus.click/api/video/dl/pinterest?url=${encodeURIComponent(text)}&key=${apiKey}`
-    console.log('Consultando API:', apiUrl)
-    
-    let response = await fetch(apiUrl)
+    // API principal: ananta.qzz.io
+    let response = await fetch('https://api.ananta.qzz.io/api/pinvid', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': 'ant92t92tu6it' // tu API key
+      },
+      body: JSON.stringify({ url: text })
+    })
+
     let data = await response.json()
 
     if (!data?.status || !data?.result) {
       throw new Error('La API no devolvió datos válidos')
     }
 
-    let downloadUrl = data.result.video_url || data.result.image_url
-    
-    if (!downloadUrl) {
-      throw new Error('No se encontró contenido para descargar')
-    }
-
-    let isVideo = data.result.video_url ? true : false
+    let result = data.result
+    let downloadUrl = result.video?.formats?.mp4 || result.url
+    let isVideo = !!result.video?.formats?.mp4
     let fileName = `pinterest_download.${isVideo ? 'mp4' : 'jpg'}`
     let fileType = isVideo ? 'video' : 'imagen'
 
-    await conn.sendFile(
-      m.chat,
-      downloadUrl,
-      fileName,
-      `⬛ Pinterest ${fileType} descargado\n⬛ Original: ${data.result.original_url}`,
-      m
-    )
+    let caption = `⬛ *Pinterest ${fileType} descargado*\n` +
+                  `📝 ${result.info?.title || 'Sin título'}\n` +
+                  `👤 ${result.user?.fullName || result.user?.username || 'Desconocido'}\n` +
+                  `💾 Guardados: ${result.stats?.saves || 0}\n` +
+                  `🔗 ${text}`
+
+    await conn.sendFile(m.chat, downloadUrl, fileName, caption, m)
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
   } catch (e) {
