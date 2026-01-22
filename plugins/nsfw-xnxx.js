@@ -5,8 +5,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!db.data.chats[m.chat].nsfw && m.isGroup) {
     return conn.reply(
       m.chat,
-      `⚠️ El contenido NSFW está desactivado en este grupo.
-> Ve a jalartela a otro lado 😡`,
+      `⚠️ El contenido NSFW está desactivado en este grupo.\n> Ve a jalartela a otro lado 😡`,
       m
     )
   }
