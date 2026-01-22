@@ -23,5 +23,5 @@ handler.register = true
 handler.group = false
 handler.rowner = true
 handler.premium = false
-
+handler.owner = true
 export default handler
