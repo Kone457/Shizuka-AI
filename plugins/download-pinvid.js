@@ -12,35 +12,27 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: "🕒", key: m.key } })
 
-    // API principal: ananta.qzz.io
-    let response = await fetch('https://api.ananta.qzz.io/api/pinvid', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': 'ant92t92tu6it' // tu API key
-      },
-      body: JSON.stringify({ url: text })
-    })
-
+    let encodedUrl = encodeURIComponent(text)
+    let apiUrl = `https://nexevo.onrender.com/download/pinterest?url=${encodedUrl}`
+    
+    let response = await fetch(apiUrl)
+    
+    if (!response.ok) {
+      throw new Error(`Error en la API: ${response.status}`)
+    }
+    
     let data = await response.json()
 
-    if (!data?.status || !data?.result) {
+    if (!data?.status || !data?.result?.dl) {
       throw new Error('La API no devolvió datos válidos')
     }
 
-    let result = data.result
-    let downloadUrl = result.video?.formats?.mp4 || result.url
-    let isVideo = !!result.video?.formats?.mp4
+    let downloadUrl = data.result.dl
+    let urlLower = downloadUrl.toLowerCase()
+    let isVideo = urlLower.includes('.mp4') || urlLower.includes('.webm') || urlLower.includes('.mov')
     let fileName = `pinterest_download.${isVideo ? 'mp4' : 'jpg'}`
-    let fileType = isVideo ? 'video' : 'imagen'
 
-    let caption = `⬛ *Pinterest ${fileType} descargado*\n` +
-                  `📝 ${result.info?.title || 'Sin título'}\n` +
-                  `👤 ${result.user?.fullName || result.user?.username || 'Desconocido'}\n` +
-                  `💾 Guardados: ${result.stats?.saves || 0}\n` +
-                  `🔗 ${text}`
-
-    await conn.sendFile(m.chat, downloadUrl, fileName, caption, m)
+    await conn.sendFile(m.chat, downloadUrl, fileName, '', m)
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
   } catch (e) {
