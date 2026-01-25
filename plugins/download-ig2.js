@@ -14,7 +14,7 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const apiUrl = `https://nexevo-api.vercel.app/download/instagram?url=${encodeURIComponent(args[0])}`;
+    const apiUrl = `https://nexevo.onrender.com/download/instagram?url=${encodeURIComponent(args[0])}`;
     const res = await fetch(apiUrl);
     const json = await res.json();
 
