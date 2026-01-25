@@ -34,7 +34,7 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const apiUrl = `https://chisato-api.vercel.app/download/tiktok?url=${encodeURIComponent(args[0])}`;
+    const apiUrl = `https://nexevo.onrender.com/download/tiktok?url=${encodeURIComponent(args[0])}`;
     const json = await fetchWithRetry(apiUrl);
 
     const data = json.result.data;
