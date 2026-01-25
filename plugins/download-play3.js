@@ -9,7 +9,7 @@ const handler = async (m, { conn, text }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '🔎', key: m.key } });
 
-    const searchRes = await fetch(`https://chisato-api.vercel.app/search/youtube?q=${encodeURIComponent(text)}`);
+    const searchRes = await fetch(`https://nexevo.onrender.com/search/youtube?q=${encodeURIComponent(text)}`);
     const searchJson = await searchRes.json();
 
     if (!searchJson.status || !searchJson.result?.length) {
@@ -67,7 +67,7 @@ handler.before = async (m, { conn }) => {
 
       const apis = [
         async () => {
-          const apiUrl = `https://nexevo-api.vercel.app/download/y?url=${encodeURIComponent(link)}`;
+          const apiUrl = `https://nexevo.onrender.com/download/y?url=${encodeURIComponent(link)}`;
           const res = await fetch(apiUrl);
           const json = await res.json();
           
@@ -75,7 +75,7 @@ handler.before = async (m, { conn }) => {
             let title = 'Audio de YouTube';
             if (videoId) {
               try {
-                const searchRes = await fetch(`https://chisato-api.vercel.app/search/youtube?q=${encodeURIComponent(videoId)}`);
+                const searchRes = await fetch(`https://nexevo.onrender.com/search/youtube?q=${encodeURIComponent(videoId)}`);
                 const searchJson = await searchRes.json();
                 if (searchJson.status && searchJson.result?.[0]?.title) {
                   title = searchJson.result[0].title;
@@ -162,7 +162,7 @@ handler.before = async (m, { conn }) => {
 
       const apis = [
         async () => {
-          const apiUrl = `https://nexevo-api.vercel.app/download/y2?url=${encodeURIComponent(link)}`;
+          const apiUrl = `https://nexevo.onrender.com/download/y2?url=${encodeURIComponent(link)}`;
           const res = await fetch(apiUrl);
           const json = await res.json();
           
@@ -170,7 +170,7 @@ handler.before = async (m, { conn }) => {
             let title = 'Video de YouTube';
             if (videoId) {
               try {
-                const searchRes = await fetch(`https://chisato-api.vercel.app/search/youtube?q=${encodeURIComponent(videoId)}`);
+                const searchRes = await fetch(`https://nexevo.onrender.com/search/youtube?q=${encodeURIComponent(videoId)}`);
                 const searchJson = await searchRes.json();
                 if (searchJson.status && searchJson.result?.[0]?.title) {
                   title = searchJson.result[0].title;
