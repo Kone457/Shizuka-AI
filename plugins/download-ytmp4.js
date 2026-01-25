@@ -35,7 +35,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     
     try {
-      const apiUrl = `https://nexevo-api.vercel.app/download/y2?url=${encodeURIComponent(args[0])}`;
+      const apiUrl = `https://nexevo.onrender.com/download/y2?url=${encodeURIComponent(args[0])}`;
       const res = await fetch(apiUrl);
       const json = await res.json();
       
