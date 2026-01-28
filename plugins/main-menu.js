@@ -2,7 +2,7 @@ import moment from 'moment-timezone'
 import pkg from '@whiskeysockets/baileys'
 const { prepareWAMessageMedia } = pkg
 
-const BANNER_URL = 'https://ik.imagekit.io/ybi6xmp5g/Bot.jpg'
+const BANNER_URL = 'https://files.catbox.moe/4k9pie.jpg'
 
 const CATEGORY_META = {
   main: '🌟 Comandos Principales',
