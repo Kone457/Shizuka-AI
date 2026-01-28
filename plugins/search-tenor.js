@@ -6,7 +6,7 @@ let handler = async (m, { conn, text }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '⌛', key: m.key } })
 
-    const res = await fetch(`https://nexevo-api.vercel.app/search/tenor?q=${encodeURIComponent(text)}&limit=10`)
+    const res = await fetch(`https://nexevo-api.vercel.app/search/tenor?q=${encodeURIComponent(text)}&limit=5`)
     const json = await res.json()
 
     if (!json.status || !json.result?.results?.length) {
