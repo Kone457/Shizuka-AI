@@ -56,7 +56,7 @@ let handler = async (m, { conn, usedPrefix, text }) => {
       menuTexto += `Presiona el botón de abajo para desplegar las categorías y ver los comandos.`
     }
 
-    await conn.sendMessage(m.chat, { react: { text: '🎨', key: m.key } })
+    await conn.sendMessage(m.chat, { react: { text: '👿', key: m.key } })
 
     const byTag = {}
     for (const plugin of pluginsActivos) {
