@@ -27,22 +27,12 @@ let handler = async (m, { conn, text }) => {
       caption = `🦷 ${senderName} le dio una mordida a ${targetName} ¡ouch! 🍓`;
     }
 
-    // Enviar la imagen
+    // Enviar solo la imagen con caption
     await conn.sendMessage(
       m.chat,
       {
         image: imgBuffer,
         caption,
-        mentions: mentioned ? [mentioned] : []
-      },
-      { quoted: m }
-    );
-
-    // Enviar el bloque estilo Git como texto aparte
-    await conn.sendMessage(
-      m.chat,
-      {
-        text: `\`\`\`git\n${caption}\nImagen enviada arriba\n\`\`\``,
         mentions: mentioned ? [mentioned] : []
       },
       { quoted: m }
