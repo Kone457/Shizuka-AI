@@ -15,6 +15,9 @@ let handler = async (m, { conn, text }) => {
     const json = await res.json();
     const imageUrl = json.url;
 
+    // Descargar la imagen como buffer
+    const imgBuffer = await fetch(imageUrl).then(res => res.buffer());
+
     let caption;
     if (!mentioned || mentioned === sender) {
       caption = `😬 ${senderName} se mordió solo... ¿todo bien? 🫣`;
@@ -24,11 +27,22 @@ let handler = async (m, { conn, text }) => {
       caption = `🦷 ${senderName} le dio una mordida a ${targetName} ¡ouch! 🍓`;
     }
 
-    // Enviar como bloque estilo Git/Markdown
+    // Enviar la imagen
     await conn.sendMessage(
       m.chat,
       {
-        text: `\`\`\`git\n${caption}\nImagen: ${imageUrl}\n\`\`\``,
+        image: imgBuffer,
+        caption,
+        mentions: mentioned ? [mentioned] : []
+      },
+      { quoted: m }
+    );
+
+    // Enviar el bloque estilo Git como texto aparte
+    await conn.sendMessage(
+      m.chat,
+      {
+        text: `\`\`\`git\n${caption}\nImagen enviada arriba\n\`\`\``,
         mentions: mentioned ? [mentioned] : []
       },
       { quoted: m }
