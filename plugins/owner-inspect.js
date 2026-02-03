@@ -32,7 +32,7 @@ let handler = async (m, { conn, text }) => {
 handler.command = ['inspector', 'inspect', 'id']
 handler.help = ['inspect <url>']
 handler.tags = ['tools']
-handler.owner = true
+handler.owner = false
 
 export default handler
 
