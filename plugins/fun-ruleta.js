@@ -13,7 +13,10 @@ let handler = async (m, { conn, participants, groupMetadata }) => {
   
   let balas = 6
   let posicionBala = Math.floor(Math.random() * balas) + 1
-  let giro = Math.floor(Math.random() * balas) + 1
+  
+  let perder = Math.random() < 0.98
+  let giro = perder ? posicionBala : Math.floor(Math.random() * (balas - 1)) + 1
+  if (giro === posicionBala && !perder) giro = (giro % balas) + 1
   
   let mensajeRuleta = `🔫 *RULETA RUSA DEL DESTINO*\n\n`
   mensajeRuleta += `🎰 *Girado en posición:* ${giro}\n`
@@ -57,7 +60,7 @@ let handler = async (m, { conn, participants, groupMetadata }) => {
 }
 
 handler.help = ['ruleta', 'ruletarusa']
-handler.tags = ['fun']
+handler.tags = ['game']
 handler.command = ['ruleta', 'ruletarusa', 'suerte']
 handler.group = true
 handler.botAdmin = true
