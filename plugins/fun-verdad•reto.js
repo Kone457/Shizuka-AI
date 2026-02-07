@@ -59,6 +59,8 @@ let preguntasVerdad = [
   "🤡 ¿Cuál es tu mayor miedo?",
   "💔 ¿Alguna vez has hecho trampa en un examen?",
   "🖕 ¿Qué es lo más cobarde que has hecho?",
+  "😏 Todavía piensas en tu ex",
+  "🥺 Volverías con tu ex si ella te lo pide",
   "🤢 ¿Has orinado en la ducha?",
   "📸 ¿Tienes fotos comprometedoras en tu teléfono?",
   "🤑 ¿Cuánto dinero tienes ahorrado?",
