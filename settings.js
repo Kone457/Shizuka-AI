@@ -21,7 +21,7 @@ global.dev = '© Pᴏᴡᴇʀᴇᴅ Bʏ Carlos.'
 
 global.banner = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/v2.jpg'
 global.icon = 'https://files.catbox.moe/m7l8nc.jpg'
-global.currency = 'Coins'
+global.currency = 'Euros'
 global.sessions = 'sessions/session-bot'
 global.jadi = 'sessions/session-sub'
 
