@@ -90,7 +90,9 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     }
 
     try {
-        await m.react('⏳');
+        
+        await m.reply('⏳ *Procesando imagen...*');
+        
         const buffer = await q.download?.();
         if (!buffer) return m.reply('❌ Error al descargar la imagen.');
 
@@ -104,7 +106,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
         if (!text.trim()) return m.reply('⚠️ No se detectó texto en la imagen.');
 
         await m.reply(`📝 *TEXTO EXTRAÍDO:*\n\n${text.trim()}`);
-        await m.react('✅');
+        
 
     } catch (e) {
         console.error(e);
