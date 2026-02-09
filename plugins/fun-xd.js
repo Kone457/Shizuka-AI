@@ -1,4 +1,4 @@
-const handler = async (m, { conn }) => {
+/** const handler = async (m, { conn }) => {
   const texto = (m.text || '').trim();
 
 
@@ -27,3 +27,4 @@ handler.tags = ['imagen'];
 handler.help = ['xd'];
 
 export default handler;
+**/
