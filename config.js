@@ -7,6 +7,7 @@ global.sessionName = 'Sessions/Owner'
 global.version = '4.7'
 global.pairing_code = true
 global.number_bot = ''
+global.prefa = '/'
 global.msgglobal = '[εггσг: *tყ℘εεггσг*] ʄεtɕɧ ʄศıɭεɖ'
 globalThis.dev = '☄︎ ℘σшεгεɖ ๖ყ ɱศɢıɕศɭı'
 
