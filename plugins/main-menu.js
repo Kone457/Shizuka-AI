@@ -24,11 +24,13 @@ export default {
     await client.sendMessage(
       m.chat,
       {
-        text: '📜 MENÚ PRINCIPAL\n\nSelecciona un comando:',
-        footer: 'Bot • Carlos',
-        title: 'MENÚ',
-        buttonText: 'Abrir lista',
-        sections
+        listMessage: {
+          title: '📜 MENÚ PRINCIPAL',
+          description: 'Selecciona un comando:',
+          footerText: 'Bot • Carlos',
+          buttonText: 'Abrir menú',
+          sections
+        }
       },
       { quoted: m }
     )
