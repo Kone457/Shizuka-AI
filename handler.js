@@ -40,12 +40,14 @@ export default async (client, m) => {
         : ''
     )
 
+  if (!body) return
+
   initDB(m, client)
   antilink(client, m)
 
   const from = m.key.remoteJid
   const idDD = client.user.id.split(':')[0] + '@s.whatsapp.net' || ''
-  
+
   const rawPrefijo = global.db.data.settings[idDD]?.prefijo || ''
   const prefas = Array.isArray(rawPrefijo)
     ? rawPrefijo
@@ -53,7 +55,7 @@ export default async (client, m) => {
     ? [rawPrefijo]
     : ['#', '.', '/']
 
-  const rawBotname = global.db.data.settings[idDD]?.namebot2 
+  const rawBotname = global.db.data.settings[idDD]?.namebot2
   const isValidBotname = /^[\w\s]+$/.test(rawBotname)
   const botname2 = isValidBotname ? rawBotname : 'Yot'
 
@@ -70,7 +72,13 @@ export default async (client, m) => {
 
   globalThis.prefix = new RegExp(`^(${prefixes.join('|')})?[${prefixo}]`, 'i')
 
-  const prefixMatch = body.match(globalThis.prefix)
+  let prefixMatch = body.match(globalThis.prefix)
+
+  // soporte para botones nativeFlow
+  if (!prefixMatch && m.message?.interactiveResponseMessage) {
+    prefixMatch = ['']
+  }
+
   if (!prefixMatch) return
 
   const usedPrefix = prefixMatch[0]
@@ -79,7 +87,7 @@ export default async (client, m) => {
   const command = args.shift()?.toLowerCase()
   const text = args.join(' ')
 
-  if (!command) return 
+  if (!command) return
 
   const pushname = m.pushName || 'Sin nombre'
   const botJid = client.user.id.split(':')[0] + '@s.whatsapp.net' || client.user.lid
@@ -95,8 +103,13 @@ export default async (client, m) => {
     groupAdmins = groupMetadata?.participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin') || []
   }
 
-  const isBotAdmins = m.isGroup ? groupAdmins.some(p => [p.phoneNumber, p.jid, p.id, p.lid].includes(botJid)) : false
-  const isAdmins = m.isGroup ? groupAdmins.some(p => [p.phoneNumber, p.jid, p.id, p.lid].includes(sender)) : false
+  const isBotAdmins = m.isGroup
+    ? groupAdmins.some(p => [p.phoneNumber, p.jid, p.id, p.lid].includes(botJid))
+    : false
+
+  const isAdmins = m.isGroup
+    ? groupAdmins.some(p => [p.phoneNumber, p.jid, p.id, p.lid].includes(sender))
+    : false
 
   const fromprimary = global.db.data.chats[from]
   const consolePrimary = fromprimary?.primaryBot
@@ -136,9 +149,7 @@ export default async (client, m) => {
 
   const cmdData = global.comandos.get(command)
 
-  if (!cmdData) {
-    return 
-  }
+  if (!cmdData) return
 
   if (cmdData.isOwner && !isVotOwn) return
   if (cmdData.isModeration && !global.mods.map(num => num + '@s.whatsapp.net').includes(sender)) return
@@ -159,7 +170,11 @@ export default async (client, m) => {
     await cmdData.run(client, m, args, command, text)
   } catch (error) {
     console.error(error)
-    await client.sendMessage(m.chat, { text: `🗞 Error al ejecutar el comando\n${error}` }, { quoted: m })
+    await client.sendMessage(
+      m.chat,
+      { text: `🗞 Error al ejecutar el comando\n${error}` },
+      { quoted: m }
+    )
   }
 
   level(m)
