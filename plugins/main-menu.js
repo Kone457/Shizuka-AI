@@ -1,11 +1,9 @@
 import moment from 'moment-timezone'
-import pkg from '@whiskeysockets/baileys'
-
-const {
+import {
   generateWAMessageFromContent,
   prepareWAMessageMedia,
   proto
-} = pkg
+} from '@whiskeysockets/baileys'
 
 const BANNER_URL = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Datos/8baf438dfe.jpg'
 
@@ -56,6 +54,7 @@ export default {
           headerTitle = `✧ SECCIÓN: ${tag.toUpperCase()} ✧`
 
           const helps = []
+
           for (const [cmd, data] of global.comandos.entries()) {
             if (data.category === tag) helps.push(cmd)
           }
@@ -104,65 +103,63 @@ export default {
         { upload: client.waUploadToServer }
       )
 
-      const messageInstance = {
-        interactiveMessage: proto.Message.InteractiveMessage.create({
-          body: proto.Message.InteractiveMessage.Body.create({
-            text: menuTexto
-          }),
-          footer: proto.Message.InteractiveMessage.Footer.create({
-            text: 'ち卄工乙UＫ丹-丹工 • Dev by Carlos'
-          }),
-          header: proto.Message.InteractiveMessage.Header.create({
-            title: headerTitle,
-            hasMediaAttachment: true,
-            imageMessage: media.imageMessage
-          }),
-          nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-            buttons: [
-              {
-                name: 'single_select',
-                buttonParamsJson: JSON.stringify({
-                  title: '📂 SELECCIONAR CATEGORÍA',
-                  sections: [
-                    {
-                      title: 'Categorías Disponibles',
-                      rows: categoryRows
-                    }
-                  ]
-                })
-              },
-              {
-                name: 'quick_reply',
-                buttonParamsJson: JSON.stringify({
-                  display_text: '💻 Ser Subbot',
-                  id: `${usedPrefix}code`
-                })
-              },
-              {
-                name: 'quick_reply',
-                buttonParamsJson: JSON.stringify({
-                  display_text: '👑 Creador',
-                  id: `${usedPrefix}owner`
-                })
-              },
-              {
-                name: 'cta_url',
-                buttonParamsJson: JSON.stringify({
-                  display_text: '📢 Canal Oficial',
-                  url: 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
-                })
-              }
-            ]
-          })
+      const message = proto.Message.InteractiveMessage.create({
+        body: proto.Message.InteractiveMessage.Body.create({
+          text: menuTexto
+        }),
+        footer: proto.Message.InteractiveMessage.Footer.create({
+          text: 'ち卄工乙UＫ丹-丹工 • Dev by Carlos'
+        }),
+        header: proto.Message.InteractiveMessage.Header.create({
+          title: headerTitle,
+          hasMediaAttachment: true,
+          imageMessage: media.imageMessage
+        }),
+        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+          buttons: [
+            {
+              name: 'single_select',
+              buttonParamsJson: JSON.stringify({
+                title: '📂 SELECCIONAR CATEGORÍA',
+                sections: [
+                  {
+                    title: 'Categorías Disponibles',
+                    rows: categoryRows
+                  }
+                ]
+              })
+            },
+            {
+              name: 'quick_reply',
+              buttonParamsJson: JSON.stringify({
+                display_text: '💻 Ser Subbot',
+                id: `${usedPrefix}code`
+              })
+            },
+            {
+              name: 'quick_reply',
+              buttonParamsJson: JSON.stringify({
+                display_text: '👑 Creador',
+                id: `${usedPrefix}owner`
+              })
+            },
+            {
+              name: 'cta_url',
+              buttonParamsJson: JSON.stringify({
+                display_text: '📢 Canal Oficial',
+                url: 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
+              })
+            }
+          ]
         })
-      }
+      })
 
       const msg = generateWAMessageFromContent(
         m.chat,
         {
           viewOnceMessage: {
             message: {
-              interactiveMessage: messageInstance.interactiveMessage
+              interactiveMessage: message
             }
           }
         },
