@@ -3,6 +3,7 @@ import {
   prepareWAMessageMedia,
   proto
 } from '@whiskeysockets/baileys'
+import fetch from 'node-fetch'
 
 const BANNER_URL = 'https://files.catbox.moe/4k9pie.jpg'
 
@@ -53,7 +54,6 @@ export default {
           headerTitle = `✧ SECCIÓN: ${tag.toUpperCase()} ✧`
 
           const helps = []
-
           for (const [cmd, data] of global.comandos.entries()) {
             if (data.category === tag) helps.push(cmd)
           }
@@ -76,13 +76,9 @@ export default {
         menuTexto += `Presiona el botón de abajo para desplegar las categorías y ver los comandos.`
       }
 
-      await client.sendMessage(
-        m.chat,
-        { react: { text: '👿', key: m.key } }
-      )
+      await client.sendMessage(m.chat, { react: { text: '👿', key: m.key } })
 
       const byTag = {}
-
       for (const [, data] of global.comandos.entries()) {
         const cat = data.category
         if (!CATEGORY_META[cat]) continue
@@ -98,15 +94,17 @@ export default {
           id: `${usedPrefix}menu ${tag}`
         }))
 
+      // 🔧 DESCARGAR LA IMAGEN A BUFFER (fix real)
+      const res = await fetch(BANNER_URL)
+      const buffer = Buffer.from(await res.arrayBuffer())
+
       const media = await prepareWAMessageMedia(
-        { image: { url: BANNER_URL } },
+        { image: buffer },
         { upload: client.waUploadToServer }
       )
 
       const interactiveMessage = proto.Message.InteractiveMessage.create({
-        body: proto.Message.InteractiveMessage.Body.create({
-          text: menuTexto
-        }),
+        body: proto.Message.InteractiveMessage.Body.create({ text: menuTexto }),
         footer: proto.Message.InteractiveMessage.Footer.create({
           text: 'ち卄工乙UＫ丹-丹工 • Dev by Carlos'
         }),
@@ -122,10 +120,7 @@ export default {
               buttonParamsJson: JSON.stringify({
                 title: '📂 SELECCIONAR CATEGORÍA',
                 sections: [
-                  {
-                    title: 'Categorías Disponibles',
-                    rows: categoryRows
-                  }
+                  { title: 'Categorías Disponibles', rows: categoryRows }
                 ]
               })
             },
@@ -158,9 +153,7 @@ export default {
         m.chat,
         {
           viewOnceMessage: {
-            message: {
-              interactiveMessage
-            }
+            message: { interactiveMessage }
           }
         },
         { quoted: m }
