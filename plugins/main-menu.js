@@ -4,7 +4,7 @@ import {
   proto
 } from '@whiskeysockets/baileys'
 
-const BANNER_URL = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Datos/8baf438dfe.jpg'
+const BANNER_URL = 'https://files.catbox.moe/4k9pie.jpg'
 
 const CATEGORY_META = {
   ai: '🧠 Inteligencia AI',
