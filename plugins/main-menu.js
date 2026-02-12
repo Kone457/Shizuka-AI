@@ -1,6 +1,5 @@
 import moment from 'moment-timezone'
 import {
-  generateWAMessageFromContent,
   prepareWAMessageMedia,
   proto
 } from '@whiskeysockets/baileys'
@@ -77,9 +76,10 @@ export default {
         menuTexto += `Presiona el botón de abajo para desplegar las categorías y ver los comandos.`
       }
 
-      await client.sendMessage(m.chat, {
-        react: { text: '👿', key: m.key }
-      })
+      await client.sendMessage(
+        m.chat,
+        { react: { text: '👿', key: m.key } }
+      )
 
       const byTag = {}
 
@@ -103,7 +103,7 @@ export default {
         { upload: client.waUploadToServer }
       )
 
-      const message = proto.Message.InteractiveMessage.create({
+      const interactiveMessage = proto.Message.InteractiveMessage.create({
         body: proto.Message.InteractiveMessage.Body.create({
           text: menuTexto
         }),
@@ -154,25 +154,16 @@ export default {
         })
       })
 
-      const msg = generateWAMessageFromContent(
+      await client.sendMessage(
         m.chat,
         {
           viewOnceMessage: {
             message: {
-              interactiveMessage: message
+              interactiveMessage
             }
           }
         },
-        {
-          userJid: client.user.id,
-          quoted: m
-        }
-      )
-
-      await client.relayMessage(
-        m.chat,
-        msg.message,
-        { messageId: msg.key.id }
+        { quoted: m }
       )
 
     } catch (e) {
