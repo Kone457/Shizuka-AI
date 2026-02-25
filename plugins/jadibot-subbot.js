@@ -11,6 +11,8 @@ let commandFlags = {}
 export default {
   command: ['code'],
   category: 'socket',
+  isOwner: true,
+
   run: async (client, m, args, command) => {
 
     const subsPath = path.join(dirname, '../../Sessions/Subs')
