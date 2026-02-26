@@ -9,27 +9,17 @@ export default {
   command: ['bots', 'sockets'],
   category: 'socket',
   run: async (client, m) => {
-    const botId = client.user.id.split(':')[0] + '@s.whatsapp.net'
-    const botSetting = global.db.data.settings[botId] || {}
-    const botname = botSetting.namebot || 'Yotsuba'
-    const botname2 = botSetting.namebot2 || 'Bot'
-    const banner = botSetting.icon
+    const mainBotJid = client.user.id.split(':')[0] + '@s.whatsapp.net'
+    const botSetting = global.db.data.settings[mainBotJid] || {}
     const from = m.key.remoteJid
 
     const groupMetadata = m.isGroup ? await client.groupMetadata(from).catch(() => null) : null
     const groupParticipants = groupMetadata?.participants?.map(p => p.id) || []
 
-    const mainBotJid = global.client.user.id.split(':')[0] + '@s.whatsapp.net'
-    const basePath = path.join(dirname, '../../Sessions/Subs')
+    const activeSubs = (global.conns || [])
+      .filter(conn => conn.user && conn.userId !== client.user.id.split(':')[0])
+      .map(conn => conn.userId + '@s.whatsapp.net')
 
-    const getSubs = () => {
-      if (!fs.existsSync(basePath)) return []
-      return fs.readdirSync(basePath).filter(dir => {
-        return fs.existsSync(path.join(basePath, dir, 'creds.json'))
-      }).map(id => id.split('@')[0].replace(/\D/g, '') + '@s.whatsapp.net')
-    }
-
-    const allSubs = getSubs()
     const maxSubs = 20
     const mentionedJid = []
     let botList = []
@@ -43,7 +33,6 @@ export default {
       const statusIcon = isInGroup ? '🟢' : '⚪' 
       
       if (isInGroup) mentionedJid.push(jid)
-
       
       const isLast = index === total - 1
       const branch = isLast ? '┗' : '┣'
@@ -51,29 +40,28 @@ export default {
       return `${branch}──『 ${statusIcon} 』 @${num}\n${isLast ? ' ' : '┃'}      ◈ *Tag:* ${name}\n${isLast ? ' ' : '┃'}      ◈ *Tipo:* ${type}`
     }
 
+    const fullListJids = [mainBotJid, ...activeSubs]
     
-    const fullListJids = [mainBotJid, ...allSubs.filter(j => j !== mainBotJid)]
     fullListJids.forEach((jid, i) => {
       const type = jid === mainBotJid ? 'Owner' : 'Sub-Socket'
       botList.push(formatBot(jid, type, i, fullListJids.length))
     })
-
 
     let message = `╔════════════════════╗\n`
     message += `║   ✨ *SISTEMA DE SOCKETS* ║\n`
     message += `╚════════════════════╝\n\n`
     
     message += `╔▣ **ESTADÍSTICAS**\n`
-    message += `┃ ◈ Totales: ${botList.length}\n`
-    message += `┃ ◈ Libres: ${Math.max(0, maxSubs - allSubs.length)}\n`
-    message += `┃ ◈ En grupo: ${mentionedJid.length}\n`
+    message += `┃ ◈ Activos: ${fullListJids.length}\n`
+    message += `┃ ◈ Cupos: ${maxSubs - activeSubs.length}\n`
+    message += `┃ ◈ En este chat: ${mentionedJid.length}\n`
     message += `╚════════════════════\n\n`
 
     message += `╔▣ *REGISTRO DE CONEXIONES*\n`
-    message += botList.join('\n') + `\n`
+    message += (botList.length > 0 ? botList.join('\n') : '┃ ◈ No hay subbots activos.') + `\n`
     message += `╚════════════════════\n\n`
     
-    message += `> 💡 *Simbología:* 🟢 En línea aquí | ⚪ Remoto`
+    message += `> 💡 *Simbología:* 🟢 En este grupo | ⚪ Remoto`
 
     await client.sendContextInfoIndex(
       m.chat,
