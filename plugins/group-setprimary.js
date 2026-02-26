@@ -21,12 +21,14 @@ export default {
         return client.reply(m.chat, `Por favor menciona un bot para convertirlo en primario.`, m)
       }
 
-      const who = await resolveLidToRealJid(who2, client, m.chat);
+      const rawWho = await resolveLidToRealJid(who2, client, m.chat);
+      const who = rawWho.split(':')[0].split('@')[0] + '@s.whatsapp.net'
+      
       const mainBotJid = client.user.id.split(':')[0] + '@s.whatsapp.net'
       
       const activeBots = (global.conns || [])
         .filter(conn => conn.user)
-        .map(conn => conn.userId + '@s.whatsapp.net')
+        .map(conn => conn.userId.split('@')[0] + '@s.whatsapp.net')
       
       const allowedBots = [...new Set([mainBotJid, ...activeBots])]
 
@@ -35,7 +37,7 @@ export default {
       }
 
       const groupMetadata = m.isGroup ? await client.groupMetadata(m.chat).catch(() => {}) : null
-      const groupParticipants = groupMetadata?.participants?.map((p) => p.id) || []
+      const groupParticipants = groupMetadata?.participants?.map((p) => p.id.split(':')[0].split('@')[0] + '@s.whatsapp.net') || []
 
       if (!groupParticipants.includes(who)) {
         return client.reply(m.chat, `《✧》 El bot mencionado no está presente en este grupo.`, m)
