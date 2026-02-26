@@ -6,22 +6,6 @@ import { fileURLToPath } from 'url'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-const getBotsFromFolder = (folderName) => {
-  const basePath = path.join(dirname, '../../Sessions', folderName)
-  if (!fs.existsSync(basePath)) return []
-  return fs
-    .readdirSync(basePath)
-    .filter((dir) => fs.existsSync(path.join(basePath, dir, 'creds.json')))
-    .map((id) => id.replace(/\D/g, '') + '@s.whatsapp.net')
-}
-
-const getAllowedBots = (mainBotJid) => {
-  const subs = getBotsFromFolder('Subs')
-  const mods = getBotsFromFolder('Mods')
-  const prems = getBotsFromFolder('Prems')
-  return [...new Set([...subs, ...mods, ...prems, mainBotJid])]
-}
-
 export default {
   command: ['setprimary'],
   category: 'grupo',
@@ -32,19 +16,26 @@ export default {
       const chat = global.db.data.chats[m.chat]
       const mentioned = m.mentionedJid
       const who2 = mentioned.length > 0 ? mentioned[0] : m.quoted?.sender || false
-     const who = await resolveLidToRealJid(who2, client, m.chat);
+      
       if (!who2) {
         return client.reply(m.chat, `Por favor menciona un bot para convertirlo en primario.`, m)
       }
-      const groupMetadata = m.isGroup ? await client.groupMetadata(m.chat).catch(() => {}) : ''
-      const groupParticipants = groupMetadata?.participants?.map((p) => p.phoneNumber || p.jid || p.id || p.lid) || []
 
-      const mainBotJid = global.client.user.id.split(':')[0] + '@s.whatsapp.net'
-      const allowedBots = getAllowedBots(mainBotJid)
+      const who = await resolveLidToRealJid(who2, client, m.chat);
+      const mainBotJid = client.user.id.split(':')[0] + '@s.whatsapp.net'
+      
+      const activeBots = (global.conns || [])
+        .filter(conn => conn.user)
+        .map(conn => conn.userId + '@s.whatsapp.net')
+      
+      const allowedBots = [...new Set([mainBotJid, ...activeBots])]
 
       if (!allowedBots.includes(who)) {
-        return client.reply(m.chat, `El usuario mencionado no es una instancia de Sub-Bot.`, m)
+        return client.reply(m.chat, `El usuario mencionado no es una instancia de Sub-Bot activa.`, m)
       }
+
+      const groupMetadata = m.isGroup ? await client.groupMetadata(m.chat).catch(() => {}) : null
+      const groupParticipants = groupMetadata?.participants?.map((p) => p.id) || []
 
       if (!groupParticipants.includes(who)) {
         return client.reply(m.chat, `《✧》 El bot mencionado no está presente en este grupo.`, m)
