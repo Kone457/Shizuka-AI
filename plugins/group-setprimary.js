@@ -21,14 +21,18 @@ export default {
         return client.reply(m.chat, `Por favor menciona un bot para convertirlo en primario.`, m)
       }
 
-      const rawWho = await resolveLidToRealJid(who2, client, m.chat);
-      const who = rawWho.split(':')[0].split('@')[0] + '@s.whatsapp.net'
+      let resWho = await resolveLidToRealJid(who2, client, m.chat);
+      if (!resWho) resWho = who2;
       
-      const mainBotJid = client.user.id.split(':')[0] + '@s.whatsapp.net'
+      const targetNumber = resWho.split('@')[0].split(':')[0];
+      const who = targetNumber + '@s.whatsapp.net';
+      
+      const mainBotId = client.user.id.split('@')[0].split(':')[0];
+      const mainBotJid = mainBotId + '@s.whatsapp.net';
       
       const activeBots = (global.conns || [])
         .filter(conn => conn.user)
-        .map(conn => conn.userId.split('@')[0] + '@s.whatsapp.net')
+        .map(conn => conn.userId.split('@')[0].split(':')[0] + '@s.whatsapp.net')
       
       const allowedBots = [...new Set([mainBotJid, ...activeBots])]
 
@@ -36,15 +40,22 @@ export default {
         return client.reply(m.chat, `El usuario mencionado no es una instancia de Sub-Bot activa.`, m)
       }
 
-      const groupMetadata = m.isGroup ? await client.groupMetadata(m.chat).catch(() => {}) : null
-      const groupParticipants = groupMetadata?.participants?.map((p) => p.id.split(':')[0].split('@')[0] + '@s.whatsapp.net') || []
+      const groupMetadata = m.isGroup ? await client.groupMetadata(m.chat).catch(() => null) : null
+      if (!groupMetadata) {
+        return client.reply(m.chat, `No pude obtener la información del grupo. Intenta de nuevo.`, m)
+      }
 
-      if (!groupParticipants.includes(who)) {
+      const isPresent = groupMetadata.participants.some(p => {
+        const pId = (p.id || '').split('@')[0].split(':')[0];
+        return pId === targetNumber;
+      });
+
+      if (!isPresent) {
         return client.reply(m.chat, `《✧》 El bot mencionado no está presente en este grupo.`, m)
       }
 
       if (chat.primaryBot === who) {
-        return client.reply(m.chat, ` @${who.split('@')[0]} ya es el Bot principal del Grupo.`, m, {
+        return client.reply(m.chat, ` @${targetNumber} ya es el Bot principal del Grupo.`, m, {
           mentions: [who],
         })
       }
@@ -52,7 +63,7 @@ export default {
       chat.primaryBot = who
       await client.reply(
         m.chat,
-        ` Se ha establecido a @${who.split('@')[0]} como bot primario de este grupo.\n> Ahora todos los comandos de este grupo serán ejecutados por @${who.split('@')[0]}.`,
+        ` Se ha establecido a @${targetNumber} como bot primario de este grupo.\n> Ahora todos los comandos de este grupo serán ejecutados por @${targetNumber}.`,
         m,
         { mentions: [who] },
       )
