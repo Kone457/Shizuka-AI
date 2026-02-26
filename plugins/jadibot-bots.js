@@ -18,16 +18,25 @@ export default {
 
     const activeSubs = (global.conns || [])
       .filter(conn => conn.user && conn.userId !== client.user.id.split(':')[0])
-      .map(conn => conn.userId + '@s.whatsapp.net')
+      .map(conn => ({
+        jid: conn.userId + '@s.whatsapp.net',
+        name: conn.user.name || conn.user.verifiedName || 'Sin nombre'
+      }))
 
     const maxSubs = 20
     const mentionedJid = []
     let botList = []
 
-    const formatBot = (jid, type, index, total) => {
+    const formatBot = (jid, type, index, total, subName = null) => {
       const num = jid.split('@')[0]
       const data = global.db.data.settings[jid] || {}
-      const name = data.namebot2 || (type === 'Owner' ? 'Central' : 'Sub-Bot')
+      
+      let name = 'Desconocido'
+      if (type === 'Owner') {
+        name = data.namebot2 || 'Central'
+      } else {
+        name = subName || data.namebot2 || 'Sub-Bot'
+      }
       
       const isInGroup = groupParticipants.includes(jid)
       const statusIcon = isInGroup ? '🟢' : '⚪' 
@@ -40,11 +49,13 @@ export default {
       return `${branch}──『 ${statusIcon} 』 @${num}\n${isLast ? ' ' : '┃'}      ◈ *Tag:* ${name}\n${isLast ? ' ' : '┃'}      ◈ *Tipo:* ${type}`
     }
 
-    const fullListJids = [mainBotJid, ...activeSubs]
+    const fullList = [
+      { jid: mainBotJid, type: 'Owner', name: null },
+      ...activeSubs.map(s => ({ jid: s.jid, type: 'Sub-Socket', name: s.name }))
+    ]
     
-    fullListJids.forEach((jid, i) => {
-      const type = jid === mainBotJid ? 'Owner' : 'Sub-Socket'
-      botList.push(formatBot(jid, type, i, fullListJids.length))
+    fullList.forEach((bot, i) => {
+      botList.push(formatBot(bot.jid, bot.type, i, fullList.length, bot.name))
     })
 
     let message = `╔════════════════════╗\n`
@@ -52,7 +63,7 @@ export default {
     message += `╚════════════════════╝\n\n`
     
     message += `╔▣ **ESTADÍSTICAS**\n`
-    message += `┃ ◈ Activos: ${fullListJids.length}\n`
+    message += `┃ ◈ Activos: ${fullList.length}\n`
     message += `┃ ◈ Cupos: ${maxSubs - activeSubs.length}\n`
     message += `┃ ◈ En este chat: ${mentionedJid.length}\n`
     message += `╚════════════════════\n\n`
