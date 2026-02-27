@@ -11,7 +11,7 @@ export default {
   run: async (client, m, args) => {
     try {
       if (!args[0]) {
-        return m.reply('✨ *Uso correcto:* Escribe el nombre o pega el link de un video para descargar su audio.')
+        return m.reply('🌸 *Shizuka AI:* \n> Por favor, dame el título o link de la canción que deseas escuchar.')
       }
 
       const query = args.join(' ')
@@ -19,9 +19,7 @@ export default {
 
       if (!isYTUrl(query)) {
         const search = await yts(query)
-        if (!search.all.length) {
-          return m.reply('❌ No encontré resultados para tu búsqueda.')
-        }
+        if (!search.all.length) return m.reply('🥀 *Lo siento,* \n> no encontré resultados para esa búsqueda.')
         videoData = search.all[0]
         url = videoData.url
       } else {
@@ -34,57 +32,39 @@ export default {
       title = videoData.title
       thumbBuffer = await getBuffer(videoData.image || videoData.thumbnail)
 
-      // --- DISEÑO AVANZADO DE MENSAJE ---
       const vistas = (videoData.views || 0).toLocaleString()
       const canal = videoData.author?.name || 'YouTube'
-      
-      let infoMessage = `╔════════════════════╗\n`
-      infoMessage += `║   🎵 **YOUTUBE PLAY** ║\n`
-      infoMessage += `╚════════════════════╝\n\n`
-      
-      infoMessage += `╔▣ **INFORMACIÓN DEL AUDIO**\n`
-      infoMessage += `┃ ◈ *Título:* ${title}\n`
-      infoMessage += `┃ ◈ *Canal:* ${canal}\n`
-      infoMessage += `┃ ◈ *Duración:* ${videoData.timestamp || 'N/A'}\n`
-      infoMessage += `┃ ◈ *Vistas:* ${vistas}\n`
-      infoMessage += `┃ ◈ *Estado:* ✅ Extrayendo...\n`
-      infoMessage += `╚════════════════════\n\n`
-      
-      infoMessage += `> ⏳ *Enviando audio como archivo, por favor espere...*`
+
+      let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`
+      infoMessage += `🎵 *Audio preparado con delicadeza*\n\n`
+      infoMessage += `• 🏷️ *Título:* ${title}\n`
+      infoMessage += `• 🎙️ *Canal:* ${canal}\n`
+      infoMessage += `• ⏳ *Duración:* ${videoData.timestamp || 'N/A'}\n`
+      infoMessage += `• 👀 *Vistas:* ${vistas}\n\n`
+      infoMessage += `> 💎 *Enviando tu música, espera un instante...*`
 
       await client.sendMessage(m.chat, { image: thumbBuffer, caption: infoMessage }, { quoted: m })
 
-      let result
-      try {
-        const res = await fetch(`${api.url}/download/y?url=${encodeURIComponent(url)}`)
-        result = await res.json()
-        
-        if (!result.status || !result.result || !result.result.url) {
-          return m.reply('❌ No se pudo extraer el audio del servidor.')
-        }
-      } catch {
-        return m.reply('⚠️ Error en la API de descarga.')
+      const res = await fetch(`${api.url}/download/y?url=${encodeURIComponent(url)}`)
+      const result = await res.json()
+
+      if (!result.status || !result.result || !result.result.url) {
+        return m.reply('🥀 *Ups,* \n> hubo un pequeño problema técnico al extraer el audio.')
       }
 
-      const { url: audioUrl, info } = result.result
-      const audioTitle = info?.title || title || 'Audio'
+      const { url: audioUrl } = result.result
       const audioBuffer = await getBuffer(audioUrl)
-      
-      const thumb300 = await sharp(thumbBuffer)
-        .resize(300, 300)
-        .jpeg({ quality: 80 })
-        .toBuffer();
 
       await client.sendMessage(m.chat, {
-        document: audioBuffer,
+        audio: audioBuffer,
         mimetype: 'audio/mpeg',
-        fileName: `${audioTitle}.mp3`,
-        jpegThumbnail: thumb300
+        ptt: false, // false para que sea música, true si quisieras nota de voz
+        fileName: `${title}.mp3`
       }, { quoted: m });
 
     } catch (e) {
       console.error(e)
-      await m.reply('❌ Ocurrió un fallo crítico al procesar la descarga.')
+      await m.reply('🥀 *Shizuka AI:* \n> Hubo un fallo inesperado al procesar tu solicitud.')
     }
   }
 };
