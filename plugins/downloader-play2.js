@@ -11,7 +11,7 @@ export default {
   run: async (client, m, args) => {
     try {
       if (!args[0]) {
-        return m.reply('✨ *Uso correcto:* Escribe el nombre o pega el link de un video para descargar en formato MP4.')
+        return m.reply('🌸 *Shizuka AI:*\n> Por favor, indícame qué video deseas visualizar.')
       }
 
       const query = args.join(' ')
@@ -19,9 +19,7 @@ export default {
 
       if (!isYTUrl(query)) {
         const search = await yts(query)
-        if (!search.all.length) {
-          return m.reply('❌ No se encontraron resultados para tu búsqueda.')
-        }
+        if (!search.all.length) return m.reply('🥀 *Lo siento,*\n> no encontré resultados para tu búsqueda.')
         videoData = search.all[0]
         url = videoData.url
       } else {
@@ -36,37 +34,25 @@ export default {
 
       const vistas = (videoData.views || 0).toLocaleString()
       const canal = videoData.author?.name || 'YouTube'
-      
-      let infoMessage = `╔════════════════════╗\n`
-      infoMessage += `║   🎬 **YOUTUBE VIDEO** ║\n`
-      infoMessage += `╚════════════════════╝\n\n`
-      
-      infoMessage += `╔▣ **INFORMACIÓN TÉCNICA**\n`
-      infoMessage += `┃ ◈ *Título:* ${title}\n`
-      infoMessage += `┃ ◈ *Canal:* ${canal}\n`
-      infoMessage += `┃ ◈ *Duración:* ${videoData.timestamp || 'N/A'}\n`
-      infoMessage += `┃ ◈ *Vistas:* ${vistas}\n`
-      infoMessage += `┃ ◈ *Publicado:* ${videoData.ago || 'Reciente'}\n`
-      infoMessage += `╚════════════════════\n\n`
-      
-      infoMessage += `> 🎥 *Descargando video, espere...*`
+
+      let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`
+      infoMessage += `🎬 *Tu video se está preparando*\n\n`
+      infoMessage += `• 🏷️ *Título:* ${title}\n`
+      infoMessage += `• 🎙️ *Canal:* ${canal}\n`
+      infoMessage += `• ⏳ *Duración:* ${videoData.timestamp || 'N/A'}\n`
+      infoMessage += `• 👀 *Vistas:* ${vistas}\n\n`
+      infoMessage += `> 💎 *Enviando contenido, espera un momento...*`
 
       await client.sendMessage(m.chat, { image: thumbBuffer, caption: infoMessage }, { quoted: m })
 
-      let result
-      try {
-        const res = await fetch(`${api.url}/download/y2?url=${encodeURIComponent(url)}`)
-        result = await res.json()
-        
-        if (!result.status || !result.result || !result.result.url) {
-          return m.reply('❌ Error: No se pudo obtener el enlace de descarga del video.')
-        }
-      } catch {
-        return m.reply('⚠️ El servidor de descarga no responde. Intenta más tarde.')
+      const res = await fetch(`${api.url}/download/y2?url=${encodeURIComponent(url)}`)
+      const result = await res.json()
+
+      if (!result.status || !result.result || !result.result.url) {
+        return m.reply('🥀 *Ups,*\n> hubo un pequeño fallo al procesar el video.')
       }
 
-      const { url: videoUrl, info } = result.result
-      const videoTitle = info?.title || title || 'Video'
+      const { url: videoUrl } = result.result
       const videoBuffer = await getBuffer(videoUrl)
       
       const thumb300 = await sharp(thumbBuffer)
@@ -75,16 +61,16 @@ export default {
         .toBuffer();
 
       await client.sendMessage(m.chat, {
-        document: videoBuffer,
+        video: videoBuffer,
         mimetype: 'video/mp4',
-        fileName: `${videoTitle}.mp4`,
+        fileName: `${title}.mp4`,
         jpegThumbnail: thumb300,
-        caption: ` ${videoTitle}`
+        caption: `🎬 *${title}*`
       }, { quoted: m });
 
     } catch (e) {
       console.error(e)
-      await m.reply('❌ Ocurrió un error inesperado al procesar el video.')
+      await m.reply('🥀 *Shizuka AI:*\n> Ha ocurrido un error inesperado al procesar el video.')
     }
   }
 };
