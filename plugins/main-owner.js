@@ -5,7 +5,7 @@ export default {
   run: async (client, m) => {
 
     const ownerNumber = '5355699866'
-    const botname = 'รђเzยкค-คเ - ๓คgเςคl'
+    const botname = 'รђเzยкค-คเ'
     const thumbnail = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Anime/c7329cda57.jpg'
 
     const text = `
