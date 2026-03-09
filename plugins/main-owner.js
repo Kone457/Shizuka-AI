@@ -5,14 +5,11 @@ export default {
 
   run: async (client, m) => {
 
-    const owner = '5355699866@s.whatsapp.net'
-    const botname = 'รђเzยкค-คเ'
-    const banner = ''
-
-    const ownerNumber = owner.split('@')[0]
+    const ownerNumber = '5355699866'
+    const botname = 'รђเzยкค-คเ - ๓คgเςคl'
 
     const text = `
-╭━〔 ˚୨•(=^●ω●^=)• ⊹ 𝑪𝑹𝑬𝑨𝑫𝑶𝑹 ⊹ 〕━╮
+╭━〔 ˚୨•(=^●ω●^=)• ⊹ 𝑪𝑹𝑬𝑨𝑫𝑶𝑹 ⊹〕━╮
 
 » ˚୨•(=^●ω●^=)• ⊹ Información ⊹
 
@@ -30,7 +27,6 @@ export default {
     const vcard = `
 BEGIN:VCARD
 VERSION:3.0
-N:;Creador;;;
 FN:Creador
 TEL;type=CELL;type=VOICE;waid=${ownerNumber}:${ownerNumber}
 END:VCARD
@@ -38,8 +34,14 @@ END:VCARD
 
     await client.sendMessage(
       m.chat,
+      { text },
+      { quoted: m }
+    )
+
+  
+    await client.sendMessage(
+      m.chat,
       {
-        text: text,
         contacts: {
           displayName: 'Creador',
           contacts: [{ vcard }]
@@ -47,5 +49,6 @@ END:VCARD
       },
       { quoted: m }
     )
+
   }
 }
