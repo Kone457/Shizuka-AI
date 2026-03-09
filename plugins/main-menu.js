@@ -1,4 +1,4 @@
-Import fetch from 'node-fetch'
+import fetch from 'node-fetch'
 import { getDevice } from '@whiskeysockets/baileys'
 import fs from 'fs'
 import axios from 'axios'
