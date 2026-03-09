@@ -1,4 +1,3 @@
-
 export default {
   command: ['creator', 'owner', 'creador'],
   category: 'info',
@@ -7,9 +6,10 @@ export default {
 
     const ownerNumber = '5355699866'
     const botname = 'รђเzยкค-คเ - ๓คgเςคl'
+    const thumbnail = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Anime/c7329cda57.jpg'
 
     const text = `
-╭━〔 ˚୨•(=^●ω●^=)• ⊹ 𝑪𝑹𝑬𝑨𝑫𝑶𝑹 ⊹〕━╮
+╭━〔˚୨•(=^●ω●^=)• ⊹ 𝑪𝑹𝑬𝑨𝑫𝑶𝑹 ⊹〕━╮
 
 » ˚୨•(=^●ω●^=)• ⊹ Información ⊹
 
@@ -34,11 +34,22 @@ END:VCARD
 
     await client.sendMessage(
       m.chat,
-      { text },
+      {
+        text,
+        contextInfo: {
+          externalAdReply: {
+            title: 'Creador del Bot',
+            body: botname,
+            thumbnailUrl: thumbnail,
+            mediaType: 1,
+            renderLargerThumbnail: true,
+            showAdAttribution: false
+          }
+        }
+      },
       { quoted: m }
     )
 
-  
     await client.sendMessage(
       m.chat,
       {
