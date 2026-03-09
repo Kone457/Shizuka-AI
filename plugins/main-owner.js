@@ -13,7 +13,7 @@ export default {
 
 » ˚୨•(=^●ω●^=)• ⊹ Información ⊹
 
-➤ Creador: @Oculto por privacidad
+➤ Creador: Carlos 
 ➤ Bot: ${botname}
 ➤ Contacto disponible abajo
 
