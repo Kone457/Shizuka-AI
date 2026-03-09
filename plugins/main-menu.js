@@ -69,14 +69,14 @@ export default {
 ✧ 💖 ¡Hola, *${sender}*! 💖 ✧
 
 ╭─━━ 📊 **STATUS** 📊 ━━─╮
-│ 👤 **Usuario:** ${sender}
-│ 🤖 **Bot:** *${botType}*
-│ 🕒 **Hora:** \`${tiempo2}\`
-│ 📅 **Fecha:** \`${tiempo}\`
-│ ⏳ **Activo:** ${uptime}
-│ 👥 **Usuarios:** *${users}*
-│ 📱 **Disp:** ${device}
-╰━━━━━━━━━━━━━━━━━━━━━─╯
+│ 👤 *Usuario:* ${sender}
+│ 🤖 *Bot:* *${botType}*
+│ 🕒 *Hora:* \`${tiempo2}\`
+│ 📅 *Fecha:* \`${tiempo}\`
+│ ⏳ *Activo:* ${uptime}
+│ 👥 *Usuarios:* *${users}*
+│ 📱 *Disp:* ${device}
+╰━━━━━━━━━━━━━━━━━━─╯
 
 ✦ ✧ 𝑴 𝑬 𝑵 𝑼 ✧ ✦
 ${dynamicMenu}
