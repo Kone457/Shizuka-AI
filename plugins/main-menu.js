@@ -68,7 +68,7 @@ export default {
       const menu = `
 ✧ 💖 ¡Hola, *${sender}*! 💖 ✧
 
-╭─━━ 📊 **STATUS** 📊 ━━─╮
+╭─━━ 📊 *STATUS* 📊 ━━─╮
 │ 👤 *Usuario:* ${sender}
 │ 🤖 *Bot:* *${botType}*
 │ 🕒 *Hora:* \`${tiempo2}\`
