@@ -47,7 +47,7 @@ export default {
       const commandMap = await loadCommandsByCategory()  
 
       const categoryNames = {  
-        ai: '🤖 𝑰𝒏𝒕𝒆𝒍𝒊𝒈𝒆𝒏𝒄𝒊𝒂 𝑨𝒓𝒕𝒊𝒇𝒊𝒄𝒊𝒂𝒍',  
+        ai: '🤖 𝑰 𝑨𝒓𝒕𝒊𝒇𝒊𝒄𝒊𝒂𝒍',  
         downloads: '📥 𝑫𝒆𝒔𝒄𝒂𝒓𝒈𝒂𝒔',  
         economia: '💰 𝑬𝒄𝒐𝒏𝒐𝒎𝒊𝒂',  
         gacha: '🎰 𝑮𝒂𝒄𝒉𝒂 / 𝑾𝒂𝒊𝒇𝒖𝒔',  
@@ -68,7 +68,7 @@ export default {
       const menu = `
 ✧ 💖 ¡Hola, *${sender}*! 💖 ✧
 
-╭─━━━━━ 📊 **STATUS** 📊 ━━━━━─╮
+╭─━━ 📊 **STATUS** 📊 ━━─╮
 │ 👤 **Usuario:** ${sender}
 │ 🤖 **Bot:** *${botType}*
 │ 🕒 **Hora:** \`${tiempo2}\`
@@ -76,7 +76,7 @@ export default {
 │ ⏳ **Activo:** ${uptime}
 │ 👥 **Usuarios:** *${users}*
 │ 📱 **Disp:** ${device}
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━─╯
+╰━━━━━━━━━━━━━━━━━━━━━─╯
 
 ✦ ✧ 𝑴 𝑬 𝑵 𝑼 ✧ ✦
 ${dynamicMenu}
