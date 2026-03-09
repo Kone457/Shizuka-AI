@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+Import fetch from 'node-fetch'
 import { getDevice } from '@whiskeysockets/baileys'
 import fs from 'fs'
 import axios from 'axios'
@@ -32,17 +32,14 @@ export default {
       const tiempo2 = moment.tz('America/Bogota').format('hh:mm A')  
       const botId = client?.user?.id.split(':')[0] + '@s.whatsapp.net' || ''  
       const botSettings = global.db?.data?.settings?.[botId] || {}  
-      
-      const botname = botSettings.namebot || 'Shizuka-AI'  
+      const botname = botSettings.namebot || ''  
       const botname2 = botSettings.namebot2 || ''  
       const banner = botSettings.banner || ''  
       const owner = botSettings.owner || ''  
       const canalId = botSettings.id || '120363400241973967@newsletter'  
       const canalName = botSettings.nameid || '（´•̥̥̥ω•̥̥̥`）♡ 𝑆ℎ𝑖𝑧𝑢𝑘𝑎-𝐴𝐼 ♡（´•̥̥̥ω•̥̥̥`）'  
-      
       const isOficialBot = botId === global.client?.user?.id.split(':')[0] + '@s.whatsapp.net'  
-      const botType = isOficialBot ? 'Bot Owner' : botSettings.botprem ? 'Bot Premium' : botSettings.botmod ? 'Bot Mod' : 'Sub Bot'  
-      
+      const botType = isOficialBot ? 'Principal (Owner)' : botSettings.botprem ? 'Premium' : botSettings.botmod ? 'Principal *(Mod)*' : 'Sub Bot'  
       const users = Object.keys(global.db?.data?.users || {}).length.toLocaleString() || '0'
       const device = getDevice(m.key.id)  
       const sender = global.db?.data?.users?.[m.sender]?.name || m.pushName || 'Usuario'  
@@ -69,12 +66,11 @@ export default {
       }
 
       const menu = `
-✧ 💖 ¡Hola *${sender}*, yo soy *${botname}*! 💖 ✧
-✨ Soy un *${botType}* a tu servicio.
+✧ 💖 ¡Hola, *${sender}*! 💖 ✧
 
 ╭─━━ 📊 *STATUS* 📊 ━━─╮
 │ 👤 *Usuario:* ${sender}
-│ 🤖 *Rango:* *${botType}*
+│ 🤖 *Bot:* *${botType}*
 │ 🕒 *Hora:* \`${tiempo2}\`
 │ 📅 *Fecha:* \`${tiempo}\`
 │ ⏳ *Activo:* ${uptime}
