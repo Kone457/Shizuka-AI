@@ -54,7 +54,7 @@ END:VCARD
       m.chat,
       {
         contacts: {
-          displayName: 'Creador',
+          displayName: 'Carlos',
           contacts: [{ vcard }]
         }
       },
