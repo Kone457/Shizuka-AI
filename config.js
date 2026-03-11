@@ -12,7 +12,7 @@ global.msgglobal = '[εггσг: *tყ℘εεггσг*] ʄεtɕɧ ʄศıɭεɖ'
 globalThis.dev = '☄︎ ℘σшεгεɖ ๖ყ ɱศɢıɕศɭı'
 
 global.api = {
-  url: 'https://nexevo.onrender.com',
+  url: 'https://magical.vercel.app',
   url2: 'https://api.vreden.my.id'
 }
 
