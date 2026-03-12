@@ -12,7 +12,7 @@ global.msgglobal = '[εггσг: *tყ℘εεггσг*] ʄεtɕɧ ʄศıɭεɖ'
 globalThis.dev = '☄︎ ℘σшεгεɖ ๖ყ ɱศɢıɕศɭı'
 
 global.api = {
-  url: 'https://magical.vercel.app',
+  url: 'https://nex-magical.vercel.app',
   url2: 'https://api.vreden.my.id',
   url3: 'https://api-faa.my.id'
 }
