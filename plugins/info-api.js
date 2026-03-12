@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 export default {
-  command: ['apistatus', 'status', 'estadoapi'],
+  command: ['apistatus', 'api', 'estadoapi'],
   category: 'info',
   run: async (client, m) => {
     try {
