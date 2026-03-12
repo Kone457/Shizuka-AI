@@ -8,90 +8,63 @@ const isYTUrl = (url) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i
 export default {
   command: ['play', 'mp3', 'ytmp3', 'ytaudio', 'playaudio'],
   category: 'downloader',
-
   run: async (client, m, args) => {
     try {
-
       if (!args[0]) {
-        return m.reply('🌸 Shizuka AI:\n> Dame el nombre o link de la canción.')
+        return m.reply('🌸 *Shizuka AI:* \n> Por favor, dame el título o link de la canción que deseas escuchar.')
       }
 
       const query = args.join(' ')
-      let url, videoData
+      let url, title, thumbBuffer, videoData
 
       if (!isYTUrl(query)) {
         const search = await yts(query)
-
-        if (!search.videos.length) {
-          return m.reply('🥀 No encontré resultados.')
-        }
-
-        videoData = search.videos[0]
+        if (!search.all.length) return m.reply('🥀 *Lo siento,* \n> no encontré resultados para esa búsqueda.')
+        videoData = search.all[0]
         url = videoData.url
-
       } else {
-
-        const videoId = query.split('v=')[1]?.split('&')[0] || query.split('/').pop()
-        videoData = await yts({ videoId })
+        const videoId = query.split('v=')[1] || query.split('/').pop()
+        const search = await yts({ videoId })
+        videoData = search
         url = query
       }
 
-      const title = videoData.title
-      const thumbUrl = videoData.thumbnail || videoData.image
-      const thumbBuffer = await getBuffer(thumbUrl)
+      title = videoData.title
+      thumbBuffer = await getBuffer(videoData.image || videoData.thumbnail)
 
       const vistas = (videoData.views || 0).toLocaleString()
       const canal = videoData.author?.name || 'YouTube'
 
-      let info = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒜 𝒜𝐼 ── ✨\n\n`
-      info += `🎵 Audio preparado\n\n`
-      info += `• 🏷️ Título: ${title}\n`
-      info += `• 🎙️ Canal: ${canal}\n`
-      info += `• ⏳ Duración: ${videoData.timestamp || 'N/A'}\n`
-      info += `• 👀 Vistas: ${vistas}\n\n`
-      info += `> ⏳ Descargando audio...`
+      let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`
+      infoMessage += `🎵 *Audio preparado con delicadeza*\n\n`
+      infoMessage += `• 🏷️ *Título:* ${title}\n`
+      infoMessage += `• 🎙️ *Canal:* ${canal}\n`
+      infoMessage += `• ⏳ *Duración:* ${videoData.timestamp || 'N/A'}\n`
+      infoMessage += `• 👀 *Vistas:* ${vistas}\n\n`
+      infoMessage += `> 💎 *Enviando tu música, espera un instante...*`
 
-      await client.sendMessage(m.chat, {
-        image: thumbBuffer,
-        caption: info
-      }, { quoted: m })
+      await client.sendMessage(m.chat, { image: thumbBuffer, caption: infoMessage }, { quoted: m })
 
+      const res = await fetch(`${api.url}/download/y?url=${encodeURIComponent(url)}`)
+      const result = await res.json()
 
-      const api = await fetch(`https://api-faa.my.id/faa/ytmp3?url=${encodeURIComponent(url)}`)
-      const data = await api.json()
-
-      if (!data.status || !data.result?.mp3) {
-        return m.reply('🥀 No se pudo obtener el audio.')
+      if (!result.status || !result.result || !result.result.url) {
+        return m.reply('🥀 *Ups,* \n> hubo un pequeño problema técnico al extraer el audio.')
       }
 
-      const mp3Url = data.result.mp3
-
-
-      const audioFetch = await fetch(mp3Url)
-      const audioBuffer = Buffer.from(await audioFetch.arrayBuffer())
-
-      if (audioBuffer.length > 52428800) {
-        return m.reply('🥀 El archivo pesa más de 50MB.')
-      }
-
-
-      const thumb300 = await sharp(thumbBuffer)
-        .resize(300, 300)
-        .jpeg({ quality: 80 })
-        .toBuffer()
-
+      const { url: audioUrl } = result.result
+      const audioBuffer = await getBuffer(audioUrl)
 
       await client.sendMessage(m.chat, {
-        document: audioBuffer,
+        audio: audioBuffer,
         mimetype: 'audio/mpeg',
-        fileName: `${data.result.title || title}.mp3`,
-        jpegThumbnail: thumb300
-      }, { quoted: m })
+        ptt: false, // false para que sea música, true si quisieras nota de voz
+        fileName: `${title}.mp3`
+      }, { quoted: m });
 
-
-    } catch (err) {
-      console.error(err)
-      m.reply('🥀 Ocurrió un error al descargar la música.')
+    } catch (e) {
+      console.error(e)
+      await m.reply('🥀 *Shizuka AI:* \n> Hubo un fallo inesperado al procesar tu solicitud.')
     }
   }
-}
+};
