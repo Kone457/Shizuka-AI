@@ -48,20 +48,18 @@ export default {
 
       await client.sendMessage(m.chat, { image: thumbBuffer, caption: infoMessage }, { quoted: m })
 
-      let result
-      try {
-        const res = await fetch(`${api.url3}/faa/ytmp3?url=${encodeURIComponent(url)}`)
-        const data = await res.json()
-        
-        if (!data.status || !data.result || !data.result.mp3) {
-          return m.reply('🥀 Shizuka AI: \n> No se pudo extraer el audio del servidor.')
-        }
-        result = data.result
-      } catch (e) {
-        return m.reply('🥀 Shizuka AI: \n> Hubo un fallo inesperado al procesar tu solicitud.')
+      const res = await fetch(`https://api-faa.my.id/faa/ytmp3?url=${encodeURIComponent(url)}`)
+      const data = await res.json()
+      
+      if (!data.status || !data.result || !data.result.mp3) {
+        return m.reply('🥀 Shizuka AI: \n> No se pudo extraer el audio del servidor.')
       }
 
-      const audioBuffer = await getBuffer(result.mp3)
+      const audioBuffer = await getBuffer(data.result.mp3)
+
+      if (audioBuffer.length > 52428800) {
+        return m.reply('🥀 Shizuka AI: \n> El archivo pesa más de 50MB. No quiero que tu servidor barato pase a mejor vida hoy.')
+      }
       
       const thumb300 = await sharp(thumbBuffer)
         .resize(300, 300)
@@ -71,7 +69,7 @@ export default {
       await client.sendMessage(m.chat, {
         document: audioBuffer,
         mimetype: 'audio/mpeg',
-        fileName: `${result.title || title}.mp3`,
+        fileName: `${data.result.title || title}.mp3`,
         jpegThumbnail: thumb300
       }, { quoted: m });
 
