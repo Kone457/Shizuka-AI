@@ -1,165 +1,183 @@
 import yts from 'yt-search'
 import axios from 'axios'
-import { getBuffer } from '../lib/message.js'
+import fs from 'fs'
+import path from 'path'
 import sharp from 'sharp'
+import { getBuffer } from '../lib/message.js'
 
-const UA = "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36"
+const UA = "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/123 Mobile Safari/537.36"
 
 const isYTUrl = (url) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url)
 
 function extractYouTubeId(input) {
-  const s = String(input || "").trim()
-  if (!s) return null
-
-  const m1 = s.match(/(?:v=|\/shorts\/|youtu\.be\/)([A-Za-z0-9_-]{11})/)
-  if (m1?.[1]) return m1[1]
-
-  const m2 = s.match(/^[A-Za-z0-9_-]{11}$/)
-  if (m2?.[0]) return m2[0]
-
-  return null
+  const m = String(input).match(/(?:v=|\/|youtu\.be\/)([A-Za-z0-9_-]{11})/)
+  return m ? m[1] : null
 }
 
 function baseHeaders(ref) {
   return {
     "User-Agent": UA,
-    Accept: "application/json, text/plain, */*",
     Origin: ref,
     Referer: `${ref}/`
   }
 }
 
-async function getSanityKey() {
+async function getSanityKey(){
+
   const ref = "https://frame.y2meta-uk.com"
 
-  const res = await axios.get("https://cnv.cx/v2/sanity/key", {
-    headers: baseHeaders(ref)
-  })
+  const res = await axios.get(
+    "https://cnv.cx/v2/sanity/key",
+    {headers:baseHeaders(ref)}
+  )
 
-  const key = res?.data?.key
-  if (!key) throw new Error("SANITYKEY_MISSING")
+  return {key:res.data.key,ref}
 
-  return { key, ref }
 }
 
-function toForm(data) {
+function toForm(data){
+
   const p = new URLSearchParams()
-  for (const [k, v] of Object.entries(data)) p.set(k, String(v))
+
+  Object.entries(data).forEach(([k,v])=>p.set(k,v))
+
   return p
+
 }
 
-async function y2mateVideo(url) {
-  const videoId = extractYouTubeId(url)
-  if (!videoId) throw new Error("INVALID_YOUTUBE_URL")
+async function convertVideo(url){
 
-  const { key, ref } = await getSanityKey()
+  const videoId = extractYouTubeId(url)
+
+  const {key,ref} = await getSanityKey()
 
   const payload = {
-    link: `https://youtu.be/${videoId}`,
-    format: "mp4",
-    videoQuality: 720,
-    filenameStyle: "pretty",
-    vCodec: "h264"
+
+    link:`https://youtu.be/${videoId}`,
+    format:"mp4",
+    videoQuality:720,
+    vCodec:"h264"
+
   }
 
   const res = await axios.post(
+
     "https://cnv.cx/v2/converter",
     toForm(payload),
     {
-      headers: {
+      headers:{
         ...baseHeaders(ref),
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type":"application/x-www-form-urlencoded",
         key
       }
     }
+
   )
 
-  const direct = res?.data?.url
-  if (!direct) throw new Error("NO_VIDEO_URL")
+  return res.data.url
 
-  return direct
+}
+
+async function downloadTmp(url,ext){
+
+  const file = path.join('./tmp',`${Date.now()}.${ext}`)
+
+  const res = await axios({
+    url,
+    method:"GET",
+    responseType:"stream"
+  })
+
+  const writer = fs.createWriteStream(file)
+
+  res.data.pipe(writer)
+
+  return new Promise((resolve,reject)=>{
+
+    writer.on('finish',()=>resolve(file))
+    writer.on('error',reject)
+
+  })
+
 }
 
 export default {
-  command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'],
-  category: 'downloader',
 
-  run: async (client, m, args) => {
-    try {
+command:['play2','mp4','ytmp4','ytvideo'],
+category:'downloader',
 
-      if (!args[0]) {
-        return m.reply(
-`🌸 Shizuka AI:
-> Por favor dime qué video deseas.`)
-      }
+run: async(client,m,args)=>{
 
-      const query = args.join(' ')
-      let url, videoData
+try{
 
-      if (!isYTUrl(query)) {
-        const search = await yts(query)
+if(!args[0]) return m.reply("🌸 Dime el nombre o link del video")
 
-        if (!search.all.length)
-          return m.reply('🥀 No encontré resultados.')
+const query = args.join(" ")
 
-        videoData = search.all[0]
-        url = videoData.url
-      } else {
-        const videoId = extractYouTubeId(query)
-        videoData = await yts({ videoId })
-        url = query
-      }
+let url,video
 
-      const title = videoData.title
-      const thumbBuffer = await getBuffer(videoData.image || videoData.thumbnail)
+if(!isYTUrl(query)){
 
-      const vistas = (videoData.views || 0).toLocaleString()
-      const canal = videoData.author?.name || 'YouTube'
+const search = await yts(query)
 
-      let infoMessage =
-`✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨
+video = search.all[0]
 
-🎬 Tu video se está preparando
+url = video.url
 
-• 🏷️ Título: ${title}
-• 🎙️ Canal: ${canal}
-• ⏳ Duración: ${videoData.timestamp || 'N/A'}
-• 👀 Vistas: ${vistas}
+}else{
 
-> 💎 Enviando video...`
+const id = extractYouTubeId(query)
 
-      await client.sendMessage(
-        m.chat,
-        { image: thumbBuffer, caption: infoMessage },
-        { quoted: m }
-      )
+video = await yts({videoId:id})
 
-      const videoUrl = await y2mateVideo(url)
-      const videoBuffer = await getBuffer(videoUrl)
+url = query
 
-      const thumb300 = await sharp(thumbBuffer)
-        .resize(300, 300)
-        .jpeg({ quality: 80 })
-        .toBuffer()
+}
 
-      await client.sendMessage(
-        m.chat,
-        {
-          video: videoBuffer,
-          mimetype: 'video/mp4',
-          fileName: `${title}.mp4`,
-          jpegThumbnail: thumb300,
-          caption: `🎬 ${title}`
-        },
-        { quoted: m }
-      )
+const title = video.title
 
-    } catch (e) {
-      console.error(e)
+const thumb = await getBuffer(video.thumbnail)
 
-      m.reply(
-`🥀 Shizuka AI:
-> Hubo un error al descargar el video.`)
-    }
-  }
+await client.sendMessage(
+m.chat,
+{
+image:thumb,
+caption:`🎬 Preparando video\n\n${title}`
+},
+{quoted:m}
+)
+
+const videoUrl = await convertVideo(url)
+
+const file = await downloadTmp(videoUrl,"mp4")
+
+const thumb300 = await sharp(thumb)
+.resize(300,300)
+.jpeg({quality:80})
+.toBuffer()
+
+await client.sendMessage(
+m.chat,
+{
+video:fs.readFileSync(file),
+mimetype:"video/mp4",
+fileName:`${title}.mp4`,
+jpegThumbnail:thumb300,
+caption:`🎬 ${title}`
+},
+{quoted:m}
+)
+
+fs.unlinkSync(file)
+
+}catch(e){
+
+console.error(e)
+
+m.reply("🥀 Error al descargar el video")
+
+}
+
+}
+
 }
