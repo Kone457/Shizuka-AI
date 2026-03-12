@@ -25,10 +25,10 @@ export default {
       let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`;
       infoMessage += `🌐 *Estado de la API*\n\n`;
       infoMessage += `• 📡 *Status:* ${status}\n`;
-      infoMessage += `• 📊 *Total Requests:* ${Number(totalrequest)}\n`;
-      infoMessage += `• 🧩 *Total Features:* ${Number(totalfitur)}\n`;
+      infoMessage += `• 📊 *Total Requests:* ${totalrequest}\n`;
+      infoMessage += `• 🧩 *Total Features:* ${totalfitur}\n`;
       infoMessage += `• ⏱️ *Runtime:* ${runtime}\n`;
-      infoMessage += `• 🏰 *Dominio:* xvideos.com\n`;
+      infoMessage += `• 🏰 *Dominio:* ${domain}\n`;
       infoMessage += `• 👤 *Creator:* ${creator}\n\n`;
       infoMessage += `> 💎 *Información obtenida con éxito.*`;
 
