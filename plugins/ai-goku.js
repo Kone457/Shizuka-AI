@@ -92,16 +92,14 @@ if(!reply) return m.reply("Goku se distrajo pensando en comida.")
 
 const audioUrl = await tts(reply)
 
-const audioBuffer = (await axios.get(audioUrl,{responseType:"arraybuffer"})).data
-
 await client.sendMessage(
 m.chat,
 {
-audio: audioBuffer,
-mimetype: "audio/mp4",
-ptt: true
+audio: { url: audioUrl },
+mimetype: "audio/mpeg",
+fileName: "goku.mp3"
 },
-{quoted:m}
+{ quoted: m }
 )
 
 }catch(e){
