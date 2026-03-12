@@ -20,14 +20,16 @@ export default {
       }
 
       const { status, totalrequest, totalfitur, runtime, domain } = json.result;
+      const creator = json.creator || 'Desconocido';
 
       let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`;
       infoMessage += `🌐 *Estado de la API*\n\n`;
       infoMessage += `• 📡 *Status:* ${status}\n`;
-      infoMessage += `• 📊 *Total Requests:* ${totalrequest}\n`;
-      infoMessage += `• 🧩 *Total Features:* ${totalfitur}\n`;
+      infoMessage += `• 📊 *Total Requests:* ${Number(totalrequest)}\n`;
+      infoMessage += `• 🧩 *Total Features:* ${Number(totalfitur)}\n`;
       infoMessage += `• ⏱️ *Runtime:* ${runtime}\n`;
-      infoMessage += `• 🏰 *Dominio:* Oculto\n\n`;
+      infoMessage += `• 🏰 *Dominio:* xvideos.com\n`;
+      infoMessage += `• 👤 *Creator:* ${creator}\n\n`;
       infoMessage += `> 💎 *Información obtenida con éxito.*`;
 
       await client.sendMessage(m.chat, {
