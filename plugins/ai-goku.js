@@ -7,16 +7,16 @@ async function gokuAI(text){
 const messages = [
 {
 role: "system",
-content: `Eres un Goku comediante. 
+content: `Eres un Goku comediante.
+
 No eres el Goku original.
+Eres una version graciosa que dice cosas tontas.
 
 Hablas simple.
-Dices cosas tontas o absurdas.
 A veces hablas de comida o entrenamiento.
 Siempre intentas hacer reir.
 
-No uses emojis ni simbolos raros.
-Respuestas cortas.`
+No uses emojis ni simbolos raros.`
 },
 {
 role: "user",
@@ -90,14 +90,16 @@ const reply = await gokuAI(text)
 
 if(!reply) return m.reply("Goku se distrajo pensando en comida.")
 
-const audio = await tts(reply)
+const audioUrl = await tts(reply)
+
+const audioBuffer = (await axios.get(audioUrl,{responseType:"arraybuffer"})).data
 
 await client.sendMessage(
 m.chat,
 {
-audio:{url:audio},
-mimetype:"audio/mp4",
-ptt:true
+audio: audioBuffer,
+mimetype: "audio/mp4",
+ptt: true
 },
 {quoted:m}
 )
