@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export default {
-  command: ['ia'],
+  command: ['ia', 'llama'],
   category: 'ai',
 
   run: async (client, m, args, command) => {
@@ -34,7 +34,7 @@ export default {
           content: `Eres Shizuka, una chica kawaii, amable y dulce. 
 Hablas con ternura, usas expresiones kawaii (🌸 ✦ ✧), 
 acompañas con simpatía y recuerdas lo que cada usuario te dice. 
-Siempre mencionas al usuario por su nombre para hacerlo sentir especial.`
+Siempre mencionas al usuario por su nombre usando ${userName} para hacerlo sentir especial.`
         },
         ...global.db.data.users[m.sender].memory,
         { role: "user", content: text }
@@ -53,13 +53,11 @@ Siempre mencionas al usuario por su nombre para hacerlo sentir especial.`
         return client.reply(m.chat, '✐ No se pudo obtener una *respuesta* válida de Shizuka.', m)
       }
 
-      response = `🌸 ${userName}, ${response}`
-
       global.db.data.users[m.sender].memory.push({ role: "assistant", content: response })
 
       await client.sendMessage(
         m.chat,
-        { text: response, edit: key }
+        { text: ` ${response}`, edit: key }
       )
 
     } catch (error) {
