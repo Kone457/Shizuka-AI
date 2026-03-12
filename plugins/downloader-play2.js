@@ -1,7 +1,5 @@
 import yts from 'yt-search'
 import axios from 'axios'
-import fs from 'fs'
-import path from 'path'
 import sharp from 'sharp'
 import { getBuffer } from '../lib/message.js'
 
@@ -9,30 +7,9 @@ const isYTUrl = (url) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
-async function downloadTmp(url) {
-
-  const file = path.join('./tmp', `${Date.now()}.mp4`)
-
-  const res = await axios({
-    url,
-    method: "GET",
-    responseType: "stream",
-    timeout: 60000
-  })
-
-  const writer = fs.createWriteStream(file)
-
-  res.data.pipe(writer)
-
-  return new Promise((resolve, reject) => {
-    writer.on('finish', () => resolve(file))
-    writer.on('error', reject)
-  })
-}
-
 async function getVideo(url){
 
-  for(let i=0;i<10;i++){
+  for(let i = 0; i < 10; i++){
 
     try{
 
@@ -60,7 +37,7 @@ export default {
 command:['play2','mp4','ytmp4','ytvideo','playvideo'],
 category:'downloader',
 
-run: async(client,m,args)=>{
+run: async (client, m, args) => {
 
 try{
 
@@ -119,26 +96,24 @@ m.chat,
 
 const videoUrl = await getVideo(url)
 
-const file = await downloadTmp(videoUrl)
+const videoBuffer = await getBuffer(videoUrl)
 
 const thumb300 = await sharp(thumbBuffer)
 .resize(300,300)
-.jpeg({quality:80})
+.jpeg({ quality:80 })
 .toBuffer()
 
 await client.sendMessage(
 m.chat,
 {
-video: fs.readFileSync(file),
-mimetype:'video/mp4',
-fileName:`${title}.mp4`,
-jpegThumbnail:thumb300,
-caption:`🎬 *${title}*`
+video: videoBuffer,
+mimetype: 'video/mp4',
+fileName: `${title}.mp4`,
+jpegThumbnail: thumb300,
+caption: `🎬 *${title}*`
 },
 { quoted: m }
 )
-
-fs.unlinkSync(file)
 
 }catch(e){
 
