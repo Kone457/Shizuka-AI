@@ -13,7 +13,8 @@ globalThis.dev = '☄︎ ℘σшεгεɖ ๖ყ ɱศɢıɕศɭı'
 
 global.api = {
   url: 'https://magical.vercel.app',
-  url2: 'https://api.vreden.my.id'
+  url2: 'https://api.vreden.my.id',
+  url3: 'https://api-faa.my.id'
 }
 
 global.bot = {
