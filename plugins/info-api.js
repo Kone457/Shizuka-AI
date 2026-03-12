@@ -1,3 +1,4 @@
+
 import fetch from 'node-fetch';
 
 export default {
@@ -25,7 +26,7 @@ export default {
       let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`;
       infoMessage += `🌐 *Estado de la API*\n\n`;
       infoMessage += `• 📡 *Status:* ${status}\n`;
-      infoMessage += `• 📊 *Total Requests:* ${totalrequest}\n`;
+      infoMessage += `• 📊 *Total Requests:* ${totalrequest}\n`; // sin Number(), sin toLocaleString()
       infoMessage += `• 🧩 *Total Features:* ${totalfitur}\n`;
       infoMessage += `• ⏱️ *Runtime:* ${runtime}\n`;
       infoMessage += `• 🏰 *Dominio:* ${domain}\n`;
