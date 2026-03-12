@@ -4,10 +4,6 @@ const gokuVoice = "67aed50c-5d4b-11ee-a861-00163e2ac61b"
 
 async function tts(text) {
 
-  function randomIP() {
-    return `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`
-  }
-
   const payload = {
     raw_text: text,
     url: "https://filme.imyfone.com/text-to-speech/anime-text-to-speech/",
@@ -23,12 +19,11 @@ async function tts(text) {
 
   const { data } = await axios.post(
     "https://voxbox-tts-api.imyfone.com/pc/v1/voice/tts",
-    payload,
+    JSON.stringify(payload),
     {
       headers: {
         "Content-Type": "application/json",
         "Accept": "*/*",
-        "X-Forwarded-For": randomIP(),
         "User-Agent": "Mozilla/5.0"
       }
     }
@@ -49,25 +44,36 @@ export default {
       text = m.quoted.text || m.quoted.caption || m.quoted.body || ''
     }
 
-    if (!text) return m.reply('Preguntale algo a Goku.')
+    if (!text) return m.reply('Preguntale algo al Goku comediante.')
 
     try {
 
       const { key } = await client.sendMessage(
         m.chat,
-        { text: 'Goku esta pensando...' },
+        { text: 'El Goku comediante esta pensando...' },
         { quoted: m }
       )
 
       const messages = [
         {
           role: "system",
-          content: `Eres Goku un comediante.
+          content: `Eres una version comediante de Goku.
 
-Hablas simple, dices cosas tontas y graciosas.
-A veces mencionas comida o entrenamiento.
+No eres el Goku original. 
+Eres un Goku que hace bromas tontas y responde de forma graciosa.
 
-No uses emojis ni simbolos.`
+Personalidad:
+Hablas simple.
+Dices cosas absurdas.
+Confundes cosas normales.
+A veces hablas de comida o entrenamiento de forma graciosa.
+
+Reglas:
+No uses emojis.
+No uses simbolos raros.
+Solo texto normal.
+Respuestas cortas o medianas.
+Siempre intenta que la respuesta sea graciosa.`
         },
         {
           role: "user",
@@ -86,11 +92,9 @@ No uses emojis ni simbolos.`
 
       const { data } = await axios.get(url)
 
-      const response = String(data?.response_content || "").trim()
+      let response = String(data?.response_content || "").trim().slice(0, 200)
 
-      if (!response) {
-        return m.reply('Goku se distrajo entrenando.')
-      }
+      if (!response) return m.reply("El Goku comediante se distrajo pensando en comida.")
 
       const audio = await tts(response)
 
@@ -98,21 +102,19 @@ No uses emojis ni simbolos.`
         m.chat,
         {
           audio: { url: audio },
-          mimetype: 'audio/mp4',
+          mimetype: "audio/mp4",
           ptt: true
         },
         { quoted: m }
       )
 
-      await client.sendMessage(
-        m.chat,
-        { delete: key }
-      )
+      await client.sendMessage(m.chat, { delete: key })
 
-    } catch (e) {
+    } catch (err) {
 
-      console.error(e)
-      m.reply('Goku intento pensar pero termino peleando con su cerebro.')
+      console.log(err)
+
+      m.reply("El Goku comediante intento pensar pero termino comiendo.")
     }
   },
 }
