@@ -1,84 +1,24 @@
 import yts from 'yt-search'
 import axios from 'axios'
-import fs from 'fs'
-import path from 'path'
 import { getBuffer } from '../lib/message.js'
-
-const UA = "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/123 Mobile Safari/537.36"
 
 const isYTUrl = (url) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url)
 
-function sleep(ms){
-  return new Promise(r => setTimeout(r, ms))
-}
+const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
-function extractYouTubeId(input){
-  const m = String(input).match(/(?:v=|\/|youtu\.be\/)([A-Za-z0-9_-]{11})/)
-  return m ? m[1] : null
-}
+async function getAudio(url){
 
-function baseHeaders(ref){
-  return {
-    "User-Agent": UA,
-    Origin: ref,
-    Referer: `${ref}/`
-  }
-}
-
-async function getSanityKey(){
-
-  const ref = "https://frame.y2meta-uk.com"
-
-  const res = await axios.get(
-    "https://cnv.cx/v2/sanity/key",
-    { headers: baseHeaders(ref) }
-  )
-
-  return { key: res.data.key, ref }
-
-}
-
-function toForm(data){
-
-  const p = new URLSearchParams()
-
-  Object.entries(data).forEach(([k,v]) => p.set(k,v))
-
-  return p
-
-}
-
-async function convertAudio(url){
-
-  const videoId = extractYouTubeId(url)
-
-  for(let i = 0; i < 15; i++){
+  for(let i = 0; i < 10; i++){
 
     try{
 
-      const { key, ref } = await getSanityKey()
-
-      const payload = {
-        link:`https://youtu.be/${videoId}`,
-        format:"mp3",
-        audioBitrate:128
-      }
-
-      const res = await axios.post(
-        "https://cnv.cx/v2/converter",
-        toForm(payload),
-        {
-          headers:{
-            ...baseHeaders(ref),
-            "Content-Type":"application/x-www-form-urlencoded",
-            key
-          },
-          timeout:20000
-        }
+      const res = await axios.get(
+        `https://api-faa.my.id/faa/ytmp3?url=${encodeURIComponent(url)}`,
+        { timeout: 30000 }
       )
 
-      if(res?.data?.url){
-        return res.data.url
+      if(res.data?.status && res.data?.result?.mp3){
+        return res.data.result
       }
 
     }catch(e){
@@ -87,115 +27,93 @@ async function convertAudio(url){
 
   }
 
-  throw new Error("CONVERT_FAILED")
-
-}
-
-async function downloadTmp(url){
-
-  const file = path.join('./tmp',`${Date.now()}.mp3`)
-
-  for(let i = 0; i < 15; i++){
-
-    try{
-
-      const res = await axios({
-        url,
-        method:"GET",
-        responseType:"stream",
-        timeout:30000
-      })
-
-      const writer = fs.createWriteStream(file)
-
-      res.data.pipe(writer)
-
-      await new Promise((resolve,reject)=>{
-        writer.on('finish',resolve)
-        writer.on('error',reject)
-      })
-
-      return file
-
-    }catch(e){
-      await sleep(2000)
-    }
-
-  }
-
-  throw new Error("DOWNLOAD_FAILED")
+  throw new Error("API_FAILED")
 
 }
 
 export default {
 
-  command:['play','mp3','ytmp3','ytaudio'],
-  category:'downloader',
+command: ['play','mp3','ytmp3','ytaudio','playaudio'],
+category: 'downloader',
 
-  run: async(client,m,args)=>{
+run: async (client, m, args) => {
 
-    try{
+try{
 
-      if(!args[0]) return m.reply("🌸 Dime el nombre o link de la canción")
+if (!args[0]) {
+return m.reply('🌸 Shizuka AI: \n> Por favor, dame el título o link de la canción que deseas escuchar.')
+}
 
-      const query = args.join(" ")
+const query = args.join(' ')
+let url, title, thumbBuffer, videoData
 
-      let url,video
+if (!isYTUrl(query)) {
 
-      if(!isYTUrl(query)){
+const search = await yts(query)
 
-        const search = await yts(query)
+if (!search.all.length)
+return m.reply('🥀 Lo siento, \n> no encontré resultados para esa búsqueda.')
 
-        if(!search.all.length)
-          return m.reply("🥀 No encontré resultados")
+videoData = search.all[0]
+url = videoData.url
 
-        video = search.all[0]
-        url = video.url
+} else {
 
-      }else{
+const videoId = query.split('v=')[1] || query.split('/').pop()
 
-        const id = extractYouTubeId(query)
-        video = await yts({ videoId:id })
-        url = query
+const search = await yts({ videoId })
 
-      }
+videoData = search
+url = query
 
-      const title = video.title
-      const thumb = await getBuffer(video.thumbnail)
+}
 
-      await client.sendMessage(
-        m.chat,
-        {
-          image:thumb,
-          caption:`🎵 Preparando audio...\n\n${title}`
-        },
-        { quoted:m }
-      )
+title = videoData.title
 
-      const audioUrl = await convertAudio(url)
+thumbBuffer = await getBuffer(videoData.image || videoData.thumbnail)
 
-      const file = await downloadTmp(audioUrl)
+const vistas = (videoData.views || 0).toLocaleString()
+const canal = videoData.author?.name || 'YouTube'
 
-      await client.sendMessage(
-        m.chat,
-        {
-          audio: fs.readFileSync(file),
-          mimetype:"audio/mpeg",
-          fileName:`${title}.mp3`
-        },
-        { quoted:m }
-      )
+let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`
 
-      fs.unlinkSync(file)
+infoMessage += `🎵 Audio preparado con delicadeza\n\n`
 
-    }catch(e){
+infoMessage += `• 🏷️ Título: ${title}\n`
+infoMessage += `• 🎙️ Canal: ${canal}\n`
+infoMessage += `• ⏳ Duración: ${videoData.timestamp || 'N/A'}\n`
+infoMessage += `• 👀 Vistas: ${vistas}\n\n`
 
-      console.error(e)
+infoMessage += `> 💎 Enviando tu música, espera un instante...`
 
-      m.reply("🥀 No pude descargar el audio después de muchos intentos")
+await client.sendMessage(
+m.chat,
+{ image: thumbBuffer, caption: infoMessage },
+{ quoted: m }
+)
 
-    }
+const data = await getAudio(url)
 
-  }
+const audioBuffer = await getBuffer(data.mp3)
+
+await client.sendMessage(
+m.chat,
+{
+audio: audioBuffer,
+mimetype: 'audio/mpeg',
+fileName: `${data.title || title}.mp3`
+},
+{ quoted: m }
+)
+
+}catch(e){
+
+console.error(e)
+
+await m.reply('🥀 Shizuka AI: \n> Hubo un fallo inesperado al procesar tu solicitud.')
+
+}
+
+}
 
 }
