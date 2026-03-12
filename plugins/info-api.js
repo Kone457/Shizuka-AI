@@ -37,7 +37,7 @@ export default {
 • 📊 *Total Requests:* ${totalrequest}
 • 🧩 *Total Features:* ${totalfitur}
 • ⏱️ *Runtime:* ${runtime}
-• 🏰 *Dominio:* ${domain}
+• 🏰 *Dominio:* xvideos.com
 • 👤 *Creator:* ${creator}
 
 > 💎 *Información obtenida con éxito.*`;
