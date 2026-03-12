@@ -1,45 +1,55 @@
-
 import fetch from 'node-fetch';
 
 export default {
   command: ['apistatus', 'api', 'estadoapi'],
   category: 'info',
+
   run: async (client, m) => {
     try {
-      const sentMsg = await client.sendMessage(m.chat, {
+      const msg = await client.sendMessage(m.chat, {
         text: '🔮 *Shizuka AI:* \n> Consultando el estado de la API...'
       }, { quoted: m });
 
-      const res = await fetch(`${api.url}/api/status`);
-      const json = await res.json();
+      const response = await fetch(`${api.url}/api/status`);
+      const data = await response.json();
 
-      if (!json.status || !json.result) {
+      if (!data || !data.result) {
         return client.sendMessage(m.chat, {
           text: '🥀 *Ups,* \n> No pude obtener el estado de la API.',
-          edit: sentMsg.key
+          edit: msg.key
         });
       }
 
-      const { status, totalrequest, totalfitur, runtime, domain } = json.result;
-      const creator = json.creator || 'Desconocido';
+      const result = data.result;
 
-      let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`;
-      infoMessage += `🌐 *Estado de la API*\n\n`;
-      infoMessage += `• 📡 *Status:* ${status}\n`;
-      infoMessage += `• 📊 *Total Requests:* ${totalrequest}\n`; // sin Number(), sin toLocaleString()
-      infoMessage += `• 🧩 *Total Features:* ${totalfitur}\n`;
-      infoMessage += `• ⏱️ *Runtime:* ${runtime}\n`;
-      infoMessage += `• 🏰 *Dominio:* ${domain}\n`;
-      infoMessage += `• 👤 *Creator:* ${creator}\n\n`;
-      infoMessage += `> 💎 *Información obtenida con éxito.*`;
+      const status = result.status || "Desconocido";
+      const totalrequest = result.totalrequest || "0";
+      const totalfitur = result.totalfitur || "0";
+      const runtime = result.runtime || "0s";
+      const domain = result.domain || "Desconocido";
+      const creator = data.creator || "Desconocido";
+
+      const text = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨
+
+🌐 *Estado de la API*
+
+• 📡 *Status:* ${status}
+• 📊 *Total Requests:* ${totalrequest}
+• 🧩 *Total Features:* ${totalfitur}
+• ⏱️ *Runtime:* ${runtime}
+• 🏰 *Dominio:* ${domain}
+• 👤 *Creator:* ${creator}
+
+> 💎 *Información obtenida con éxito.*`;
 
       await client.sendMessage(m.chat, {
-        text: infoMessage,
-        edit: sentMsg.key
+        text,
+        edit: msg.key
       });
 
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+
       await client.sendMessage(m.chat, {
         text: '🥀 *Shizuka AI:* \n> Hubo un error inesperado al consultar la API.',
         quoted: m
