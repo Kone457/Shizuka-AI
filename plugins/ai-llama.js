@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 export default {
-  command: ['ia', 'llama'],
+  command: ['llama'],
   category: 'ai',
 
   run: async (client, m, args, command) => {
