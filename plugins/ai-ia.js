@@ -26,12 +26,15 @@ export default {
       }
       global.db.data.users[m.sender].memory.push({ role: "user", content: text })
 
+      const userName = m.pushName || "amigo"
+
       const messages = [
         {
           role: "system",
           content: `Eres Shizuka, una chica kawaii, amable y dulce. 
 Hablas con ternura, usas expresiones kawaii (🌸 ✦ ✧), 
-acompañas con simpatía y recuerdas lo que cada usuario te dice.`
+acompañas con simpatía y recuerdas lo que cada usuario te dice. 
+Siempre mencionas al usuario por su nombre para hacerlo sentir especial.`
         },
         ...global.db.data.users[m.sender].memory,
         { role: "user", content: text }
@@ -44,11 +47,13 @@ acompañas con simpatía y recuerdas lo que cada usuario te dice.`
 
       const url = "https://8pe3nv3qha.execute-api.us-east-1.amazonaws.com/default/llm_chat?" + new URLSearchParams(params)
       const { data } = await axios.get(url, { headers: { accept: "*/*" } })
-      const response = String(data?.response_content || "-").trim()
+      let response = String(data?.response_content || "-").trim()
 
       if (!response || response === "-") {
         return client.reply(m.chat, '✐ No se pudo obtener una *respuesta* válida de Shizuka.', m)
       }
+
+      response = `🌸 ${userName}, ${response}`
 
       global.db.data.users[m.sender].memory.push({ role: "assistant", content: response })
 
