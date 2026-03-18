@@ -44,12 +44,18 @@ export default {
     user.deathCooldown = now + cooldown
 
     await client.sendMessage(chatId, {
-      text: `☠️ *RULETA DE LA MUERTE*\n\n🎲 Girando... resultado en 1 minuto...`,
+      text: `☠️ *RULETA DE LA MUERTE*\n\n🎲 Girando...\n⏳ Resultado en 1 minuto...`,
+      mentions: [senderId],
     }, { quoted: m })
 
     await new Promise(r => setTimeout(r, 60000))
 
     const survive = Math.random() < 0.25
+
+    const groupInfo = await client.groupMetadata(chatId)
+    const ownerGroup = groupInfo.owner || chatId.split`-`[0] + '@s.whatsapp.net'
+    const ownerBot = global.owner[0][0] + '@s.whatsapp.net'
+    const botNumber = client.decodeJid(client.user.id)
 
     if (survive) {
       const reward = Math.floor(total * (2 + Math.random() * 2))
@@ -64,38 +70,23 @@ export default {
     user.coins = 0
     user.bank = 0
 
-    const groupInfo = await client.groupMetadata(chatId)
-    const ownerGroup = groupInfo.owner || chatId.split`-`[0] + '@s.whatsapp.net'
-    const ownerBot = global.owner[0][0] + '@s.whatsapp.net'
-
-    const participant = groupInfo.participants.find(
-      (p) => p.id === senderId || p.jid === senderId || p.lid === senderId
-    )
-
-    if (!participant) {
-      return client.reply(chatId, ` *@${senderId.split('@')[0]}* ya no está en el grupo.`, m, {
-        mentions: [senderId],
-      })
-    }
-
-    if (senderId === client.decodeJid(client.user.id))
-      return m.reply(' No puedo eliminar al *bot*')
-
-    if (senderId === ownerGroup)
-      return m.reply(' No puedo eliminar al *propietario del grupo*')
-
-    if (senderId === ownerBot)
-      return m.reply(' No puedo eliminar al *propietario del bot*')
-
     await client.sendMessage(chatId, {
       text: `💀 HAS MUERTO...\n\nPerdiste todas tus ${currency}...`,
       mentions: [senderId],
     }, { quoted: m })
 
+    if (
+      senderId === botNumber ||
+      senderId === ownerGroup ||
+      senderId === ownerBot
+    ) {
+      return m.reply('⚠️ No puedo eliminar a este usuario.')
+    }
+
     try {
       await client.groupParticipantsUpdate(chatId, [senderId], 'remove')
     } catch (e) {
-      m.reply('No pude eliminar al usuario (¿soy admin?)')
+      await m.reply('No pude eliminar al usuario (¿soy admin?)')
     }
   },
 }
