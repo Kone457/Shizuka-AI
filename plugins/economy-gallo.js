@@ -8,9 +8,9 @@ const msToTime = (duration) => {
 }
 
 export default {
-  command: ['gallos', 'apostargallos'],
+  command: ['gallos', 'apostargallos', 'gallo'],
   category: 'rpg',
-  run: async (client, m, { args }) => {
+  run: async (client, m) => {
     const db = global.db.data
     const chatId = m.chat
     const senderId = m.sender
@@ -37,8 +37,12 @@ export default {
     if (remaining > 0)
       return m.reply(`Debes esperar *${msToTime(remaining)}* para volver a apostar.`)
 
+    const text = m.text || ''
+    const args = text.trim().split(/\s+/).slice(1)
+
     const bet = parseInt(args[0])
-    if (!bet || bet <= 0)
+
+    if (!bet || isNaN(bet) || bet <= 0)
       return m.reply(`Ingresa una cantidad válida.\nEjemplo: *.gallos 500*`)
 
     if (user.coins < bet)
