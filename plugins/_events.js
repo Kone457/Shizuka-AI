@@ -14,12 +14,19 @@ export default async (client, m) => {
       const now = moment().tz('America/Bogota')
       const fecha = now.format('DD MMM YYYY')
       const hora = now.format('hh:mm A')
-
       const memberCount = metadata.participants.length
 
       for (const participant of anu.participants) {
         const jid = typeof participant === 'string' ? participant : participant.id
-        const phone = jid.split('@')[0]
+
+        // Nombre del usuario afectado
+        let userName = jid.split('@')[0]
+        try {
+          const info = await client.fetchContact(jid)
+          if (info?.name) userName = info.name
+        } catch {}
+
+        // Foto del usuario afectado
         const pp = await client.profilePictureUrl(jid, 'image')
           .catch(() => 'https://cdn.stellarwa.xyz/files/1755559736781.jpeg')
 
@@ -77,7 +84,7 @@ export default async (client, m) => {
        🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-✨ @${phone} se ha unido al grupo
+✨ @${userName} se ha unido al grupo
 📌 ${metadata.subject}
 
 📅 ${fecha} | 🕐 ${hora}
@@ -91,7 +98,8 @@ export default async (client, m) => {
               await client.sendMessage(anu.id, { 
                 image: { url: pp }, 
                 caption: welcomeMessage, 
-                ...smallThumbContext 
+                mentions: [jid],
+                ...smallThumbContext
               })
             }
             break
@@ -104,7 +112,7 @@ export default async (client, m) => {
        🕊️  𝐀𝐃𝐈𝐎́𝐒  🕊️
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 @${phone} ha abandonado el grupo
+👤 @${userName} ha abandonado el grupo
 
 📅 ${fecha} | 🕐 ${hora}
 👥 Miembros restantes: ${memberCount}
@@ -117,69 +125,41 @@ export default async (client, m) => {
               await client.sendMessage(anu.id, { 
                 image: { url: pp }, 
                 caption: goodbyeMessage, 
+                mentions: [jid],
                 ...smallThumbContext 
               })
             }
             break
 
           case 'promote':
-            if (chat?.alerts) {
-              const adminJid = anu.author
-              let adminName = adminJid.split('@')[0]
-
-              try {
-                const info = await client.fetchContact(adminJid)
-                adminName = info?.name || adminName
-              } catch {}
-
-              const promotionMessage = `
-╭─────────────────╮
-   ⚡ 𝐍𝐔𝐄𝐕𝐎 𝐀𝐃𝐌𝐈𝐍𝐈𝐒𝐓𝐑𝐀𝐃𝐎𝐑 ⚡
-╰─────────────────╯
-
-👑 @${phone} ha sido ascendido
-👤 Por: @${adminName}
-
-📋 Ahora tiene privilegios de administrador
-🛡️ Responsabilidades asignadas
-
-╰─⊷ ${fecha} ${hora} ⊶─╯`
-
-              await client.sendMessage(anu.id, {
-                text: promotionMessage,
-                mentions: [jid, adminJid],
-                ...normalThumbContext 
-              })
-            }
-            break
-
           case 'demote':
             if (chat?.alerts) {
               const adminJid = anu.author
               let adminName = adminJid.split('@')[0]
-
               try {
                 const info = await client.fetchContact(adminJid)
-                adminName = info?.name || adminName
+                if (info?.name) adminName = info.name
               } catch {}
 
-              const demotionMessage = `
+              const action = anu.action === 'promote' ? 'ha sido ascendido' : 'ha sido degradado'
+              const actionTitle = anu.action === 'promote' ? '⚡ 𝐍𝐔𝐄𝐕𝐎 𝐀𝐃𝐌𝐈𝐍𝐈𝐒𝐓𝐑𝐀𝐃𝐎𝐑 ⚡' : '📉 𝐂𝐀𝐌𝐁𝐈𝐎 𝐃𝐄 𝐑𝐎𝐋 📉'
+
+              const msg = `
 ╭─────────────────╮
-   📉 𝐂𝐀𝐌𝐁𝐈𝐎 𝐃𝐄 𝐑𝐎𝐋 📉
+   ${actionTitle}
 ╰─────────────────╯
 
-🔻 @${phone} ha sido degradado
+👑 @${userName} ${action}
 👤 Por: @${adminName}
 
-📋 Privilegios de administrador removidos
-⚙️ Rol cambiado a miembro regular
+📋 ${anu.action === 'promote' ? 'Ahora tiene privilegios de administrador\n🛡️ Responsabilidades asignadas' : 'Privilegios de administrador removidos\n⚙️ Rol cambiado a miembro regular'}
 
 ╰─⊷ ${fecha} ${hora} ⊶─╯`
 
               await client.sendMessage(anu.id, {
-                text: demotionMessage,
+                text: msg,
                 mentions: [jid, adminJid],
-                ...normalThumbContext 
+                ...normalThumbContext
               })
             }
             break
