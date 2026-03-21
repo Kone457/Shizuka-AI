@@ -18,13 +18,30 @@ export default async (client, m) => {
       const memberCount = metadata.participants.length
 
       for (const participant of anu.participants) {
-        const jid = participant
+        const jid = typeof participant === 'string' ? participant : participant.id
         const phone = jid.split('@')[0]
         const pp = await client.profilePictureUrl(jid, 'image')
           .catch(() => 'https://cdn.stellarwa.xyz/files/1755559736781.jpeg')
 
-        const baseContext = {
+        const smallThumbContext = {
           contextInfo: {
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+              newsletterJid: global.db.data.settings[botId]?.id || botId,
+              serverMessageId: '0',
+              newsletterName: global.db.data.settings[botId]?.nameid || 'Bot Notification'
+            },
+            externalAdReply: {
+              title: global.db.data.settings[botId]?.namebot || 'Sistema de Grupos',
+              body: global.dev || 'Notificación Automática',
+              mediaUrl: null,
+              description: null,
+              previewType: 'PHOTO',
+              thumbnailUrl: global.db.data.settings[botId]?.icon || pp,
+              sourceUrl: global.db.data.settings[botId]?.link || '',
+              mediaType: 1,
+              renderLargerThumbnail: false 
+            },
             mentionedJid: [jid]
           }
         }
@@ -53,17 +70,67 @@ export default async (client, m) => {
         }
 
         switch (anu.action) {
+          case 'add':
+            if (chat?.welcome) {
+              const welcomeMessage = `
+╔═══❖•°•°•°❖•°•°•°❖═══╗
+       🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
+╚═══❖•°•°•°❖•°•°•°❖═══╝
+
+✨ @${phone} se ha unido al grupo
+📌 ${metadata.subject}
+
+📅 ${fecha} | 🕐 ${hora}
+👥 Miembros: ${memberCount}
+
+💡 Usa .menu para ver comandos disponibles
+🎯 ¡Disfruta de tu estadía!
+
+╰─⊷ ${global.db.data.settings[botId]?.namebot || 'Bot'} ⊶─╯`
+
+              await client.sendMessage(anu.id, { 
+                image: { url: pp }, 
+                caption: welcomeMessage, 
+                ...smallThumbContext 
+              })
+            }
+            break
+
+          case 'remove':
+          case 'leave':
+            if (chat?.welcome) {
+              const goodbyeMessage = `
+╔═══❖•°•°•°❖•°•°•°❖═══╗
+       🕊️  𝐀𝐃𝐈𝐎́𝐒  🕊️
+╚═══❖•°•°•°❖•°•°•°❖═══╝
+
+👤 @${phone} ha abandonado el grupo
+
+📅 ${fecha} | 🕐 ${hora}
+👥 Miembros restantes: ${memberCount}
+
+🎐 Esperamos verte nuevamente pronto
+📝 Tus contribuciones fueron valoradas
+
+╰─⊷ ${global.db.data.settings[botId]?.namebot || 'Bot'} ⊶─╯`
+
+              await client.sendMessage(anu.id, { 
+                image: { url: pp }, 
+                caption: goodbyeMessage, 
+                ...smallThumbContext 
+              })
+            }
+            break
+
           case 'promote':
             if (chat?.alerts) {
               const adminJid = anu.author
-              let adminName = adminJid
+              let adminName = adminJid.split('@')[0]
+
               try {
-                const contact = await client.onWhatsApp(adminJid)
-                if (contact && contact[0]?.exists) {
-                  const info = await client.fetchContact(adminJid)
-                  adminName = info?.name || adminJid.split('@')[0]
-                }
-              } catch { adminName = adminJid.split('@')[0] }
+                const info = await client.fetchContact(adminJid)
+                adminName = info?.name || adminName
+              } catch {}
 
               const promotionMessage = `
 ╭─────────────────╮
@@ -89,14 +156,12 @@ export default async (client, m) => {
           case 'demote':
             if (chat?.alerts) {
               const adminJid = anu.author
-              let adminName = adminJid
+              let adminName = adminJid.split('@')[0]
+
               try {
-                const contact = await client.onWhatsApp(adminJid)
-                if (contact && contact[0]?.exists) {
-                  const info = await client.fetchContact(adminJid)
-                  adminName = info?.name || adminJid.split('@')[0]
-                }
-              } catch { adminName = adminJid.split('@')[0] }
+                const info = await client.fetchContact(adminJid)
+                adminName = info?.name || adminName
+              } catch {}
 
               const demotionMessage = `
 ╭─────────────────╮
