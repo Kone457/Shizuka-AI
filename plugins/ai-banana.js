@@ -10,10 +10,10 @@ export default {
     let q = m.quoted ? m.quoted : m;
     let mime = (q.msg || q).mimetype || '';
 
-    if (!mime) return m.reply('📦 Responde a una imagen válida.');
+    if (!mime) return m.reply('📦 *乂  E R R O R  乂*\n\n✩  *Motivo* : No respondiste a una imagen.\n✩  *Uso* : Reacciona a una foto con el comando.');
 
     const prompt = args.join(' ').trim();
-    if (!prompt) return m.reply('✏️ Escribe un *prompt*.');
+    if (!prompt) return m.reply('✏️ *乂  E R R O R  乂*\n\n✩  *Motivo* : Falta el prompt.\n✩  *Ejemplo* : .banana ponle un sombrero.');
 
     try {
       await client.sendMessage(m.chat, { react: { text: '🍌', key: m.key } });
@@ -26,10 +26,9 @@ export default {
       const apiUrl = `https://api-faa.my.id/faa/nano-banana?url=${encodeURIComponent(link)}&prompt=${encodeURIComponent(prompt)}`;
       const res = await fetch(apiUrl);
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`Status ${res.status}`);
 
-      const arrayBuffer = await res.arrayBuffer();
-      let edited = Buffer.from(arrayBuffer);
+      const buffer = await res.buffer();
 
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
@@ -39,14 +38,14 @@ export default {
                       `✩  *Motor* : Nano Banana IA`
 
       await client.sendMessage(m.chat, {
-        image: edited,
+        image: buffer,
         caption: caption
       }, { quoted: m });
 
     } catch (e) {
       console.error(e);
       await client.sendMessage(m.chat, { react: { text: '💥', key: m.key } });
-      await m.reply(`❌ Error: ${e.message}`);
+      await m.reply(`*乂  E R R O R  乂*\n\n✩  *Detalle* : ${e.message}\n✩  *Nota* : Es posible que la API esté caída.`);
     }
   }
 }
