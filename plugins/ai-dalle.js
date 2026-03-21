@@ -13,7 +13,7 @@ export default {
     try {
       await m.reply("> 🖼️ Generando imagen...")
 
-      const apiUrl = `https://nex-magical.vercel.app/ai/flux?prompt=${encodeURIComponent(text)}`
+      const apiUrl = `${api.url}/ai/flux?prompt=${encodeURIComponent(text)}`
 
       const res = await fetch(apiUrl)
       const json = await res.json()
