@@ -1,3 +1,4 @@
+
 import fetch from "node-fetch"
 import { getBuffer } from "../lib/message.js"
 
@@ -12,33 +13,20 @@ export default {
     try {
       await m.reply("> 🖼️ Generando imagen...")
 
-      const apiUrl = "https://fluximagegen.com/api/generate"
+      const apiUrl = `https://nex-magical.vercel.app/ai/flux?prompt=${encodeURIComponent(text)}`
 
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          prompt: text,
-          style: "photorealism" 
-        })
-      })
-
+      const res = await fetch(apiUrl)
       const json = await res.json()
 
-      if (!json.success || !json.imageUrl) {
+      if (!json.success || !json.result) {
         return m.reply("❌ La API no devolvió una imagen válida.")
       }
 
-      const buffer = await getBuffer(json.imageUrl)
-
-      let caption = `🎨 *IMAGEN GENERADA*\n`
-      caption += `• Prompt: ${text}`
+      const buffer = await getBuffer(json.result) 
 
       await client.sendMessage(m.chat, {
         image: buffer,
-        caption
+        caption: `🎨 *IMAGEN GENERADA*\n• Prompt: ${text}`
       }, { quoted: m })
 
     } catch (err) {
