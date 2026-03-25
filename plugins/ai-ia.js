@@ -1,7 +1,8 @@
+
 import axios from 'axios'
 
 export default {
-  command: ['ia', 'llama'],
+  command: ['ia', 'shizuka'],
   category: 'ai',
 
   run: async (client, m, args, command) => {
@@ -24,40 +25,34 @@ export default {
       if (!global.db.data.users[m.sender].memory) {
         global.db.data.users[m.sender].memory = []
       }
-      global.db.data.users[m.sender].memory.push({ role: "user", content: text })
 
       const userName = m.pushName || "amigo"
+ global.db.data.users[m.sender].memory.push({ role: "user", content: text })
 
-      const messages = [
-        {
-          role: "system",
-          content: `Eres Shizuka, una chica kawaii, amable y dulce. 
-Hablas con ternura, usas expresiones kawaii (🌸 ✦ ✧), 
-acompañas con simpatía y recuerdas lo que cada usuario te dice. 
-Siempre mencionas al usuario por su nombre usando ${userName} para hacerlo sentir especial.Y usa muchos emojis en tus respuestas.`
-        },
-        ...global.db.data.users[m.sender].memory,
-        { role: "user", content: text }
-      ]
+      const prompt = `
+Eres Shizuka, una chica kawaii, amable y dulce 🌸✨.
+Hablas con ternura, usas emojis kawaii (🌸 ✦ ✧ 💖),
+y haces sentir especial al usuario llamándolo ${userName}.
+Responde de forma cariñosa y amigable.
 
-      const params = {
-        query: JSON.stringify(messages),
-        link: "writecream.com"
-      }
+Usuario: ${text}
+Shizuka:
+      `.trim()
 
-      const url = "https://8pe3nv3qha.execute-api.us-east-1.amazonaws.com/default/llm_chat?" + new URLSearchParams(params)
-      const { data } = await axios.get(url, { headers: { accept: "*/*" } })
-      let response = String(data?.response_content || "-").trim()
+      const url = `https://nex-magical.vercel.app/ai/qwen?text=${encodeURIComponent(prompt)}`
+      const { data } = await axios.get(url)
 
-      if (!response || response === "-") {
+      let response = String(data?.result || '').trim()
+
+      if (!response) {
         return client.reply(m.chat, '✐ No se pudo obtener una *respuesta* válida de Shizuka.', m)
       }
 
-      global.db.data.users[m.sender].memory.push({ role: "assistant", content: response })
+       global.db.data.users[m.sender].memory.push({ role: "assistant", content: response })
 
       await client.sendMessage(
         m.chat,
-        { text: ` ${response}`, edit: key }
+        { text: `${response}`, edit: key }
       )
 
     } catch (error) {
