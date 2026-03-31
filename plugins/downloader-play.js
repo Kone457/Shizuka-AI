@@ -45,7 +45,7 @@ export default {
 
       await client.sendMessage(m.chat, { image: thumbBuffer, caption: infoMessage }, { quoted: m })
 
-      const res = await fetch(`${api.url}/download/y?url=${encodeURIComponent(url)}`)
+      const res = await fetch(`${api.url}/download/y?url=${encodeURIComponent(url)}&apikey=${api.key}`)
       const result = await res.json()
 
       if (!result.status || !result.result || !result.result.url) {
@@ -58,7 +58,7 @@ export default {
       await client.sendMessage(m.chat, {
         audio: audioBuffer,
         mimetype: 'audio/mpeg',
-        ptt: false, // false para que sea música, true si quisieras nota de voz
+        ptt: false, 
         fileName: `${title}.mp3`
       }, { quoted: m });
 
