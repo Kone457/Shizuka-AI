@@ -33,7 +33,7 @@ export default {
       return m.reply(`🔹 Escriba una *petición* o responda a un mensaje para que *Llama* le responda.`)
     }
 
-    const apiUrl = `${api.url}/ai/llama?text=${encodeURIComponent(text)}`
+    const apiUrl = `${api.url}/ai/llama?text=${encodeURIComponent(text)}&apikey=${api.key}`
 
     try {
       const { key } = await client.sendMessage(
