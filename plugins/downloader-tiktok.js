@@ -47,7 +47,7 @@ export default {
       try {
         await m.reply(`> 🔍 *Buscando "${query}" en TikTok...*`)
 
-        const apiUrl = `${api.url}/search/tiktok?q=${encodeURIComponent(query)}`
+        const apiUrl = `${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${api.key}`
         const res = await fetch(apiUrl)
         const json = await res.json()
 
