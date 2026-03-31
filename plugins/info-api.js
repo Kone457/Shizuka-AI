@@ -10,7 +10,7 @@ export default {
         text: '🔮 *Shizuka AI:* \n> Consultando el estado de la API...'
       }, { quoted: m });
 
-      const response = await fetch(`${api.url}/api/status&apikey=${api.key}`);
+      const response = await fetch(`${api.url}/api/status?apikey=${api.key}`);
       const data = await response.json();
 
       if (!data || !data.result) {
