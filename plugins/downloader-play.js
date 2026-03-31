@@ -45,7 +45,7 @@ export default {
 
       await client.sendMessage(m.chat, { image: thumbBuffer, caption: infoMessage }, { quoted: m })
 
-      const res = await fetch(`${api.url}/download/y?url=${encodeURIComponent(url)}&apikey=${api.key}`)
+      const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(url)}&apikey=${api.key}`)
       const result = await res.json()
 
       if (!result.status || !result.result || !result.result.url) {
