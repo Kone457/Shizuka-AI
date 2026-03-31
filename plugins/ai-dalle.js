@@ -10,7 +10,7 @@ export default {
     try {
       await m.reply("> 🖼️ Generando imagen...")
 
-      const apiUrl = `${api.url}/ai/flux?prompt=${encodeURIComponent(text)}`
+      const apiUrl = `${api.url}/ai/flux?prompt=${encodeURIComponent(text)}&apikey=${api.key}`
       const res = await fetch(apiUrl)
 
       if (!res.ok) {
