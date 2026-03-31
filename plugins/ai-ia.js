@@ -39,7 +39,7 @@ Usuario: ${text}
 Shizuka:
       `.trim()
 
-      const url = `${api.url}/ai/qwen?text=${encodeURIComponent(prompt)}`
+      const url = `${api.url}/ai/qwen?text=${encodeURIComponent(prompt)}&apikey=${api.key}`
       const { data } = await axios.get(url)
 
       let response = String(data?.result || '').trim()
