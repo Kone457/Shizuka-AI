@@ -19,7 +19,7 @@ export default {
       
       await m.reply('> 📥 *Extrayendo contenido de Instagram...*')
 
-      const res = await fetch(`${api.url}/download/instagram?url=${encodeURIComponent(url)}`)
+      const res = await fetch(`${api.url}/download/instagram?url=${encodeURIComponent(url)}&apikey=${api.key}`)
       const json = await res.json()
 
       if (!json.status || !json.result || !json.result.dl) {
