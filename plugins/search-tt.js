@@ -14,7 +14,7 @@ export default {
     }
 
     const query = args.join(' ')
-    const url = `${api.url}/search/tiktok?q=${encodeURIComponent(query)}`
+    const url = `${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${api.key}`
 
     try {
       await m.reply(`> 🔍 *Buscando top resultados para:* "${query}"...`)
