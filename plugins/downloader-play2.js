@@ -1,4 +1,3 @@
-import yts from 'yt-search';
 import fetch from 'node-fetch';
 import { getBuffer } from '../lib/message.js';
 import sharp from 'sharp';
@@ -15,46 +14,57 @@ export default {
       }
 
       const query = args.join(' ')
-      let url, title, thumbBuffer, videoData
+      let url, title, thumbBuffer, duration = 'N/A', canal = 'YouTube', vistas = 'N/A'
 
       if (!isYTUrl(query)) {
-        const search = await yts(query)
-        if (!search.all.length) return m.reply('🥀 *Lo siento,*\n> no encontré resultados para tu búsqueda.')
-        videoData = search.all[0]
-        url = videoData.url
+        const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(query)}&apikey=${api.key}`)
+        const json = await res.json()
+
+        if (!json.status || !json.result || !json.result.length) {
+          return m.reply('🥀 *Lo siento,*\n> no encontré resultados para tu búsqueda.')
+        }
+
+        const videoData = json.result[0]
+        url = videoData.link
+        title = videoData.title
+        duration = videoData.duration
+        canal = videoData.channel
+        thumbBuffer = await getBuffer(videoData.imageUrl)
       } else {
-        const videoId = query.split('v=')[1] || query.split('/').pop()
-        const search = await yts({ videoId })
-        videoData = search
+        const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(query)}&apikey=${api.key}`)
+        const json = await res.json()
+
+        if (!json.status || !json.result || !json.result.length) {
+          return m.reply('🥀 *Lo siento,*\n> no encontré resultados para tu búsqueda.')
+        }
+
+        const videoData = json.result[0]
         url = query
+        title = videoData.title
+        duration = videoData.duration
+        canal = videoData.channel
+        thumbBuffer = await getBuffer(videoData.imageUrl)
       }
-
-      title = videoData.title
-      thumbBuffer = await getBuffer(videoData.image || videoData.thumbnail)
-
-      const vistas = (videoData.views || 0).toLocaleString()
-      const canal = videoData.author?.name || 'YouTube'
 
       let infoMessage = `✨ ── 𝒮𝒽𝒾𝓏𝓊𝓀𝒶 𝒜𝐼 ── ✨\n\n`
       infoMessage += `🎬 *Tu video se está preparando*\n\n`
       infoMessage += `• 🏷️ *Título:* ${title}\n`
       infoMessage += `• 🎙️ *Canal:* ${canal}\n`
-      infoMessage += `• ⏳ *Duración:* ${videoData.timestamp || 'N/A'}\n`
+      infoMessage += `• ⏳ *Duración:* ${duration}\n`
       infoMessage += `• 👀 *Vistas:* ${vistas}\n\n`
       infoMessage += `> 💎 *Enviando contenido, espera un momento...*`
 
       await client.sendMessage(m.chat, { image: thumbBuffer, caption: infoMessage }, { quoted: m })
 
-      const res = await fetch(`${api.url}/download/video?url=${encodeURIComponent(url)}&apikey=${api.key}`)
-      const result = await res.json()
+      const res2 = await fetch(`${api.url}/download/video?url=${encodeURIComponent(url)}&apikey=${api.key}`)
+      const result = await res2.json()
 
       if (!result.status || !result.result || !result.result.url) {
         return m.reply('🥀 *Ups,*\n> hubo un pequeño fallo al procesar el video.')
       }
 
-      const { url: videoUrl } = result.result
-      const videoBuffer = await getBuffer(videoUrl)
-      
+      const videoBuffer = await getBuffer(result.result.url)
+
       const thumb300 = await sharp(thumbBuffer)
         .resize(300, 300)
         .jpeg({ quality: 80 })
