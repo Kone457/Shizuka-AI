@@ -31,7 +31,7 @@ export default {
           { quoted: m },
         )
       } else {
-        const pinterestAPI = `${api.url}/search/pinterest?q=${text}`
+        const pinterestAPI = `${api.url}/search/pinterest?q=${text}&key=${api.key}`
         const res = await fetch(pinterestAPI)
         const jsons = await res.json()
 
