@@ -3,61 +3,70 @@ import fetch from 'node-fetch'
 export default {
   command: ['pinterest', 'pin'],
   category: 'search',
-  run: async (client, m, args, from) => {
+
+  run: async (client, m, args) => {
     const text = args.join(' ')
     const isPinterestUrl = /^https?:\/\//.test(text)
 
     if (!text) {
-      return m.reply(
-        `Ingresa un *término* de búsqueda o un enlace de *Pinterest*.`,
-      )
+      return m.reply(`Ingresa un *término* de búsqueda o un enlace de *Pinterest*.`)
     }
 
     try {
+
       if (isPinterestUrl) {
-        const pinterestUrl = `${api.url}/dl/pinterest?url=${text}&key=${api.key}`
-        const ress = await fetch(pinterestUrl)
-        const { data: result } = await ress.json()
-        const mediaType = ['image', 'video'].includes(result.type) ? result.type : 'document'
+
+        const res = await fetch(`${api.url}/download/pinterest?url=${encodeURIComponent(text)}&apikey=${api.key}`)
+        const json = await res.json()
+
+        const result = json?.result
+
+        if (!json.status || !result?.dl) {
+          return m.reply('Error al procesar el enlace de Pinterest.')
+        }
 
         const message2 =
-          `> ➩ Resultados para › *${result.title}*\n` +
-          `✐ Author › *${result.author}*\n` +
-          `✐ Tipo › *${result.type}*\n\n${dev}`
+          `> ➩ Resultado de Pinterest\n` +
+          `✐ Título › *${result.titulo}*`
 
         await client.sendMessage(
           m.chat,
-          { [mediaType]: { url: result.dl }, caption: message2 },
-          { quoted: m },
+          { image: { url: result.dl }, caption: message2 },
+          { quoted: m }
         )
-      } else {
-        const pinterestAPI = `${api.url}/search/pinterest?q=${text}&key=${api.key}`
-        const res = await fetch(pinterestAPI)
-        const jsons = await res.json()
 
-        if (!jsons.status || !jsons.result || jsons.result.length === 0) {
+      } else {
+
+        const res = await fetch(`${api.url}/search/pinterest?q=${encodeURIComponent(text)}&apikey=${api.key}`)
+        const json = await res.json()
+
+        if (!json.status || !json.result?.length) {
           return m.reply(`✐ No se encontraron resultados para *${text}*`)
         }
 
-        const index = Math.floor(Math.random() * jsons.result.length)
-        const result = jsons.result[index]
+        const result = json.result[Math.floor(Math.random() * json.result.length)]
+
+        const image =
+          result.image_large_url ||
+          result.image_medium_url ||
+          result.image_small_url
+
+        if (!image) return m.reply('No se encontró imagen válida.')
 
         const message =
           `➩  Resultados para › *${text}*\n\n` +
-          `ꕥ Título › *${result.titulo}*\n\n${dev}`
+          `ꕥ Título › *${result.titulo}*`
 
         await client.sendMessage(
           m.chat,
-          { image: { url: result.image_large_url || result.image_medium_url || result.image_small_url }, caption: message },
-          { quoted: m },
+          { image: { url: image }, caption: message },
+          { quoted: m }
         )
       }
+
     } catch (e) {
-      await client.reply(
-        m.chat,
-       msgglobal,
-        m
-      )
+      console.log(e)
+      return m.reply('Error inesperado al buscar en Pinterest.')
     }
   },
 }
