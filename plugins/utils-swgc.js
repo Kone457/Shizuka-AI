@@ -1,0 +1,206 @@
+import * as baileys from "@whiskeysockets/baileys";
+import crypto from "node:crypto";
+import { PassThrough } from "stream";
+import ffmpeg from "fluent-ffmpeg";
+
+export default {
+  command: ['swgc', 'upswgc'],
+  category: 'grupo',
+  isAdmin: true,
+  botAdmin: true,
+
+  run: async (client, m, args) => {
+    let text = args.join(" ");
+    let [textoEntrada, colorTexto, url] = text.split("|");
+
+    let id;
+
+    if (url) {
+      try {
+        const codigoInvitacion = url.split('/').pop().split('?')[0];
+        let infoGrupo = await client.groupGetInviteInfo(codigoInvitacion);
+        id = infoGrupo.id;
+      } catch {
+        return m.reply("⚠️ Enlace de grupo inválido.");
+      }
+    } else {
+      id = m.chat;
+    }
+
+    let citado = m.quoted || m;
+    let caption = citado.caption || textoEntrada;
+    let mime = citado?.mimetype || citado?.msg?.mimetype || "";
+
+    if (/image/.test(mime)) {
+      const buffer = await citado.download().catch(() => null);
+      if (!buffer) return m.reply("⚠️ Error al obtener la imagen.");
+
+      await enviarEstadoGrupo(client, id, {
+        image: buffer,
+        caption
+      });
+
+      return m.reply("✅ Estado de imagen subido correctamente.");
+    }
+
+    else if (/video/.test(mime)) {
+      const buffer = await citado.download().catch(() => null);
+      if (!buffer) return m.reply("⚠️ Error al obtener el video.");
+
+      await enviarEstadoGrupo(client, id, {
+        video: buffer,
+        caption
+      });
+
+      return m.reply("✅ Estado de video subido correctamente.");
+    }
+
+    else if (/audio/.test(mime)) {
+      const buffer = await citado.download().catch(() => null);
+      if (!buffer) return m.reply("⚠️ Error al obtener el audio.");
+
+      const audioVoz = await convertirAVoz(buffer);
+      const formaOnda = await generarFormaOnda(buffer);
+
+      await enviarEstadoGrupo(client, id, {
+        audio: audioVoz,
+        waveform: formaOnda,
+        mimetype: "audio/ogg; codecs=opus",
+        ptt: true
+      });
+
+      return m.reply("✅ Estado de audio subido correctamente.");
+    }
+
+    else if (colorTexto) {
+      if (!caption) return m.reply("⚠️ Escribe un texto.");
+
+      const colores = new Map([
+        ['azul', '#34B7F1'],
+        ['verde', '#25D366'],
+        ['amarillo', '#FFD700'],
+        ['naranja', '#FF8C00'],
+        ['rojo', '#FF3B30'],
+        ['morado', '#9C27B0'],
+        ['gris', '#9E9E9E'],
+        ['negro', '#000000'],
+        ['blanco', '#FFFFFF'],
+        ['cian', '#00BCD4']
+      ]);
+
+      let color = null;
+      const textoColor = colorTexto.toLowerCase();
+
+      for (const [nombre, codigo] of colores.entries()) {
+        if (textoColor.includes(nombre)) {
+          color = codigo;
+          break;
+        }
+      }
+
+      if (!color) return m.reply("⚠️ Color no válido.");
+
+      await enviarEstadoGrupo(client, id, {
+        text: caption,
+        backgroundColor: color
+      });
+
+      return m.reply("✅ Estado de texto publicado.");
+    }
+
+    else {
+      return m.reply("⚠️ Responde a imagen, video, audio o usa texto|color.");
+    }
+  }
+};
+
+async function enviarEstadoGrupo(client, jid, contenido) {
+  const { backgroundColor } = contenido;
+  delete contenido.backgroundColor;
+
+  const contenidoInterno = await baileys.generateWAMessageContent(contenido, {
+    upload: client.waUploadToServer,
+    backgroundColor
+  });
+
+  const secreto = crypto.randomBytes(32);
+
+  const mensaje = baileys.generateWAMessageFromContent(jid, {
+    messageContextInfo: { messageSecret: secreto },
+    groupStatusMessageV2: {
+      message: {
+        ...contenidoInterno,
+        messageContextInfo: { messageSecret: secreto }
+      }
+    }
+  }, {});
+
+  await client.relayMessage(jid, mensaje.message, {
+    messageId: mensaje.key.id
+  });
+
+  return mensaje;
+}
+
+async function convertirAVoz(buffer) {
+  return new Promise((resolve, reject) => {
+    const entrada = new PassThrough();
+    const salida = new PassThrough();
+    const chunks = [];
+
+    entrada.end(buffer);
+
+    ffmpeg(entrada)
+      .noVideo()
+      .audioCodec("libopus")
+      .format("ogg")
+      .audioBitrate("48k")
+      .audioChannels(1)
+      .audioFrequency(48000)
+      .on("error", reject)
+      .on("end", () => resolve(Buffer.concat(chunks)))
+      .pipe(salida);
+
+    salida.on("data", c => chunks.push(c));
+  });
+}
+
+async function generarFormaOnda(buffer, barras = 64) {
+  return new Promise((resolve, reject) => {
+    const entrada = new PassThrough();
+    entrada.end(buffer);
+
+    const chunks = [];
+
+    ffmpeg(entrada)
+      .audioChannels(1)
+      .audioFrequency(16000)
+      .format("s16le")
+      .on("error", reject)
+      .on("end", () => {
+        const raw = Buffer.concat(chunks);
+        const muestras = raw.length / 2;
+
+        let amplitudes = [];
+        for (let i = 0; i < muestras; i++) {
+          let val = raw.readInt16LE(i * 2);
+          amplitudes.push(Math.abs(val) / 32768);
+        }
+
+        let tamaño = Math.floor(amplitudes.length / barras);
+        let promedio = [];
+
+        for (let i = 0; i < barras; i++) {
+          let bloque = amplitudes.slice(i * tamaño, (i + 1) * tamaño);
+          promedio.push(bloque.reduce((a, b) => a + b, 0) / bloque.length);
+        }
+
+        let max = Math.max(...promedio);
+        let normalizado = promedio.map(v => Math.floor((v / max) * 100));
+
+        resolve(Buffer.from(new Uint8Array(normalizado)).toString("base64"));
+      })
+      .pipe()
+      .on("data", c => chunks.push(c));
+  });
+}
