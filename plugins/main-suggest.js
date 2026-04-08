@@ -65,7 +65,7 @@ Mensaje:
     `.trim()
 
     await global.client.sendContextInfoIndex(
-      '120363424651881923@g.us',
+      '120363426509425722@g.us',
       reportMsg,
       {},
       null,
