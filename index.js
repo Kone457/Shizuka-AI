@@ -21,7 +21,7 @@ import os from "os";
 import qrcode from "qrcode-terminal";
 import parsePhoneNumber from "awesome-phonenumber";
 import { smsg } from "./lib/message.js";
-import db from "./lib/system/database.js";
+import db from "./lib/database.js";
 import { startSubBot } from './lib/subs.js';
 import { exec, execSync } from "child_process";
 import moment from 'moment-timezone';
