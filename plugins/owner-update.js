@@ -35,7 +35,7 @@ async function reloadCommands() {
 
 export default {
   command: ['fix', 'update'],
-  isOwner: true,
+  isOwner: false,
   run: async (client, m) => {
 
     await client.sendMessage(m.chat, { text: '🛠️ *Procesando actualización...*' }, { quoted: m })
