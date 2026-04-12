@@ -197,7 +197,10 @@ ${h}`
       return
   }
 
-  if (chat?.bannedGrupo && !isVotOwn) return
+  const allowedWhileOff = ['bot']
+
+  if (chat?.bannedGrupo && !isVotOwn && !allowedWhileOff.includes(command)) return
+
   if (chat.adminonly && !isAdmins) return
 
   const cmdData = global.comandos.get(command)
