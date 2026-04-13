@@ -1,23 +1,5 @@
-import fs from 'fs';
-import {v4 as uuidv4} from 'uuid';
-import fetch from 'node-fetch';
-
-const obtenerImagenGelbooru = async (keyword) => {
-  const url = `https://api.delirius.store/search/gelbooru?query=${encodeURIComponent(keyword)}`
-  try {
-    const res = await fetch(url)
-    const data = await res.json()
-    const extensionesImagen = /\.(jpg|jpeg|png)$/i
-    const imagenesValidas = data?.data?.filter(
-      (item) => typeof item?.image === 'string' && extensionesImagen.test(item.image),
-    )
-    if (!imagenesValidas?.length) return null
-    const aleatoria = imagenesValidas[Math.floor(Math.random() * imagenesValidas.length)]
-    return aleatoria.image
-  } catch {
-    return null
-  }
-}
+import fs from 'fs'
+import { v4 as uuidv4 } from 'uuid'
 
 const obtenerPersonajes = () => {
   try {
@@ -51,50 +33,49 @@ export default {
     const db = global.db.data
     const chatId = m.chat
     const userId = m.sender
-    const botId = client.user.id.split(':')[0] + '@s.whatsapp.net'
     const chat = (db.chats[chatId] ||= { users: {}, personajesReservados: [] })
     chat.users ||= {}
     chat.personajesReservados ||= []
+
     const user = (chat.users[userId] ||= {})
     const now = Date.now()
 
     if (chat.adminonly || !chat.gacha)
-      return m.reply(`✎ Estos comandos estan desactivados en este grupo.`)
+      return m.reply(`✎ Estos comandos están desactivados en este grupo.`)
 
     const cooldown = user.rwCooldown || 0
     const restante = cooldown - now
     if (restante > 0) {
-      return m.reply(` Espera *${msToTime(restante)}* para volver a usar este comando.`)
+      return m.reply(`⏳ Espera *${msToTime(restante)}* para volver a usar este comando.`)
     }
 
     const personajes = obtenerPersonajes()
     const personaje = personajes[Math.floor(Math.random() * personajes.length)]
-    if (!personaje) return m.reply(' No se encontró ningún personaje disponible.')
+    if (!personaje) return m.reply('❌ No se encontró ningún personaje disponible.')
 
     const idUnico = uuidv4().slice(0, 8)
-    const reservado = Array.isArray(chat.personajesReservados)
-      ? chat.personajesReservados.find((p) => p.name === personaje.name)
-      : null
+
+    const reservado = chat.personajesReservados.find((p) => p.name === personaje.name)
 
     const poseedor = Object.entries(chat.users).find(
       ([_, u]) =>
         Array.isArray(u.characters) && u.characters.some((c) => c.name === personaje.name),
     )
 
-    try {
-      let estado = 'Libre'
-      if (poseedor) {
-        const [id] = poseedor
-        estado = `Reclamado por ${db.users[id]?.name || 'Alguien'}`
-      } else if (reservado) {
-        estado = `Reservado por ${db.users[reservado.userId]?.name || 'Alguien'}`
-      }
+    let estado = 'Libre'
+    if (poseedor) {
+      const [id] = poseedor
+      estado = `Reclamado por ${db.users[id]?.name || 'Alguien'}`
+    } else if (reservado) {
+      estado = `Reservado por ${db.users[reservado.userId]?.name || 'Alguien'}`
+    }
 
-      user.rwCooldown = now + 15 * 60000
+    user.rwCooldown = now + 15 * 60000
 
-      const valorPersonaje =
-        typeof personaje.value === 'number' ? personaje.value.toLocaleString() : '0'
-      const mensaje = `➩ Nombre › *${personaje.name || 'Desconocido'}*
+    const valorPersonaje =
+      typeof personaje.value === 'number' ? personaje.value.toLocaleString() : '0'
+
+    const mensaje = `➩ Nombre › *${personaje.name || 'Desconocido'}*
 
 ⚥ Género › *${personaje.gender || 'Desconocido'}*
 ⛁ Valor › *${valorPersonaje}*
@@ -103,17 +84,21 @@ export default {
 
 ${dev}`
 
-      const imagenUrl = await obtenerImagenGelbooru(personaje.keyword)
+    try {
+      const imagenUrl = personaje.url || null
 
-      await client.sendMessage(
-        chatId,
-        {
-          image: { url: imagenUrl },
-          caption: mensaje,
-          mimetype: 'image/jpeg',
-        },
-        { quoted: m },
-      )
+      if (imagenUrl) {
+        await client.sendMessage(
+          chatId,
+          {
+            image: { url: imagenUrl },
+            caption: mensaje,
+          },
+          { quoted: m },
+        )
+      } else {
+        await m.reply(mensaje)
+      }
 
       if (!poseedor) {
         reservarPersonaje(
@@ -131,7 +116,8 @@ ${dev}`
       }
     } catch (e) {
       user.rwCooldown = 0
+      console.error(e)
       return m.reply(msgglobal)
     }
   },
-};
+}
