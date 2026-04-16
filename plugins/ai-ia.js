@@ -12,7 +12,7 @@ export default {
     }
     text = text.trim()
     if (!text) {
-      return m.reply(`🔹 Escriba una *petición* o responda a un mensaje para que *Shizuka* le responda.`)
+      return m.reply(`🔹 Escriba una *petición* o responda a un mensaje para que *${botname}* le responda.`)
     }
 
     try {
@@ -36,7 +36,6 @@ y haces sentir especial al usuario llamándolo ${userName}.
 Responde de forma cariñosa y amigable.
 
 Usuario: ${text}
-Shizuka:
       `.trim()
 
       const url = `${api.url}/ai/llama?text=${encodeURIComponent(prompt)}&apikey=${api.key}`
@@ -45,7 +44,7 @@ Shizuka:
       let response = String(data?.result || '').trim()
 
       if (!response) {
-        return client.reply(m.chat, '✐ No se pudo obtener una *respuesta* válida de Shizuka.', m)
+        return client.reply(m.chat, '✐ No se pudo obtener una *respuesta*.', m)
       }
 
        global.db.data.users[m.sender].memory.push({ role: "assistant", content: response })
@@ -57,7 +56,7 @@ Shizuka:
 
     } catch (error) {
       console.error(error)
-      await m.reply('❌ Error al conectar con Shizuka.')
+      await m.reply('❌ Error al conectar.')
     }
   },
 }
