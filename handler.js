@@ -354,7 +354,7 @@ global.dfail = (type, m, conn) => {
         mods: `✿ El comando *${comando}* solo puede ser ejecutado por los mods.`,
         admin: `✿ El comando *${comando}* solo puede ser ejecutado por los admins del Grupo.`,
         botAdmin: `✿ Para usar el comando  *${comando}* debo ser admin del Grupo.`,
-        nsfw: `✿ Los comandos *NSFW* están desáctivados.`,
+        nsfw: `✿ Los comandos *NSFW* están desáctivados.\n> Un admin puede activarlo con:\n> *.on nsfw*`,
         restrict: "✿ *_¡Esta característica está -deshabilitada-_*"
     }[type]
     if (msg) return m.reply(msg)
