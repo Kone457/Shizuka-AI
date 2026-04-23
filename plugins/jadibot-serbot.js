@@ -170,7 +170,6 @@ export async function skyJadiBot(options) {
       if (!global.conns.includes(sock)) global.conns.push(sock)
       console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
 
-      await conn.reply(m.chat, `✿ *¡Conexión exitosa!*\n> Bienvenido a la familia de subbots`, m)
 
       if (fromCommand) {
         options.fromCommand = false
