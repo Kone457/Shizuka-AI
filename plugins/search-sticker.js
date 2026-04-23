@@ -70,6 +70,6 @@ handler.command = ['stickerpack']
 handler.tags = ['buscadores']
 handler.help = ['stickerpack']
 handler.group = true
-handler.restrict = true
+handler.restrict = false
 
 export default handler
