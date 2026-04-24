@@ -55,7 +55,14 @@ async function mediafire(url) {
 
 const handler = async (m, { conn, args }) => {
   if (!args[0]) {
-    return conn.reply(m.chat, '《✧》 Ingresa el link de MediaFire.', m)
+    return conn.reply(m.chat, `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼📥 𝐌𝐄𝐃𝐈𝐀𝐅𝐈𝐑𝐄 📥╮
+┃֪࣪
+├ׁ̟̇❍✎ Ingresa un link de MediaFire
+├ׁ̟̇❍✎ para descargar el archivo
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim(), m)
   }
 
   try {
@@ -63,11 +70,19 @@ const handler = async (m, { conn, args }) => {
 
     const res = await mediafire(args[0])
 
-    await conn.reply(
-      m.chat,
-      `✿ *${res.filename}*\n📦 Tipo: ${res.type}\n📂 Tamaño: ${res.size}\n📅 Subido: ${res.aploud}`,
-      m
-    )
+    await conn.sendMessage(m.chat, {
+      image: { url: 'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg' },
+      caption: `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼📦 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📦╮
+┃֪࣪
+├ׁ̟̇❍✎ ${res.filename}.${res.ext}
+├ׁ̟̇❍✎ Tipo » ${res.type}
+├ׁ̟̇❍✎ Tamaño » ${res.size}
+├ׁ̟̇❍✎ Subido » ${res.aploud}
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim()
+    }, { quoted: m })
 
     await conn.sendFile(
       m.chat,
@@ -82,16 +97,24 @@ const handler = async (m, { conn, args }) => {
   } catch (e) {
     await conn.reply(
       m.chat,
-      `❏ Error al descargar.\n❏ Detalles: ${e.message}`,
+      `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼⛔ 𝐄𝐑𝐑𝐎𝐑 ⛔╮
+┃֪࣪
+├ׁ̟̇❍✎ No se pudo descargar el archivo
+├ׁ̟̇❍✎ ${e.message}
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim(),
       m
     )
+
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
   }
 }
 
 handler.command = ['mediafire', 'mf']
 handler.tags = ['descargas']
-handler.help = ['mediafire']
+handler.help = ['mediafire <url>']
 handler.group = true
 
 export default handler
