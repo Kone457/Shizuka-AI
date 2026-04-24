@@ -12,7 +12,7 @@ let handler = async (m, { conn }) => {
     let media = await q.download();
     let isTele = /image\/(png|jpe?g|gif)|video\/mp4/.test(mime);
 
-    // Subida con fallback
+    
     let link = await uploadWithFallback(media);
 
     let txt = `*乂 M U L T I - U P L O A D E R 乂*\n\n`;
@@ -41,7 +41,7 @@ function formatBytes(bytes) {
 }
 
 async function uploadWithFallback(buffer) {
-  const uploaders = [telegraph, catbox, quax];
+  const uploaders = [quax, telegraph, catbox];
   let lastError;
   for (const uploader of uploaders) {
     try {
