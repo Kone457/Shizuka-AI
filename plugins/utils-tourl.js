@@ -11,16 +11,19 @@ let handler = async (m, { conn }) => {
   try {
     let media = await q.download();
     let isTele = /image\/(png|jpe?g|gif)|video\/mp4/.test(mime);
-    let link = await catbox(media);
 
-    let txt = `*乂 C A T B O X - U P L O A D E R 乂*\n\n`;
+    // Subida con fallback
+    let link = await uploadWithFallback(media);
+
+    let txt = `*乂 M U L T I - U P L O A D E R 乂*\n\n`;
     txt += `*» Enlace* : ${link}\n`;
     txt += `*» Tamaño* : ${formatBytes(media.length)}\n`;
     txt += `*» Expiración* : ${isTele ? 'No expira' : 'Desconocido'}\n`;
 
     await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m);
-  } catch {
-    await m.reply('《✧》 Error al subir el archivo.');
+  } catch (e) {
+    console.error(e);
+    await m.reply(`《✧》 Error al subir el archivo.\n\n*Detalles*: ${e.message}`);
   }
 };
 
@@ -37,6 +40,20 @@ function formatBytes(bytes) {
   return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
 }
 
+async function uploadWithFallback(buffer) {
+  const uploaders = [telegraph, catbox, quax];
+  let lastError;
+  for (const uploader of uploaders) {
+    try {
+      return await uploader(buffer);
+    } catch (err) {
+      console.error(`Uploader failed: ${uploader.name}`, err);
+      lastError = err;
+    }
+  }
+  throw lastError || new Error("No se pudo subir el archivo a ninguna nube.");
+}
+
 async function catbox(content) {
   const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
   const blob = new Blob([content.toArrayBuffer()], { type: mime });
@@ -48,11 +65,32 @@ async function catbox(content) {
   const response = await fetch("https://catbox.moe/user/api.php", {
     method: "POST",
     body: formData,
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
-    },
   });
-
+  if (!response.ok) throw new Error("Catbox upload failed");
   return await response.text();
+}
+
+async function quax(buffer) {
+  const { ext, mime } = await fileTypeFromBuffer(buffer);
+  const form = new FormData();
+  const blob = new Blob([buffer.toArrayBuffer()], { type: mime });
+  form.append("files[]", blob, "tmp." + ext);
+  const res = await fetch("https://qu.ax/upload.php", { method: "POST", body: form });
+  const result = await res.json();
+  if (result && result.success) {
+    return result.files[0].url;
+  } else {
+    throw new Error("Failed to upload to qu.ax");
+  }
+}
+
+async function telegraph(buffer) {
+  const { ext, mime } = await fileTypeFromBuffer(buffer);
+  const form = new FormData();
+  const blob = new Blob([buffer.toArrayBuffer()], { type: mime });
+  form.append("file", blob, "tmp." + ext);
+  const res = await fetch("https://telegra.ph/upload", { method: "POST", body: form });
+  const img = await res.json();
+  if (img.error) throw new Error(img.error);
+  return "https://telegra.ph" + img[0].src;
 }
