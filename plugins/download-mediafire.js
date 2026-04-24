@@ -114,7 +114,7 @@ const handler = async (m, { conn, args }) => {
 
 handler.command = ['mediafire', 'mf']
 handler.tags = ['descargas']
-handler.help = ['mediafire <url>']
+handler.help = ['mediafire']
 handler.group = true
 
 export default handler
