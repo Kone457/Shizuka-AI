@@ -1,19 +1,25 @@
 let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply("《✧》 ¿Y el link del canal? No leo mentes todavía.\n> *Ejemplo:* .reactlink https://whatsapp.com/channel/0029Va4K")
+  if (!text) return m.reply("《✧》 Pasa el link del canal, no soy adivino.\n> *Ejemplo:* .reactlink https://whatsapp.com/channel/0029Va4K")
 
-  const processingMsg = await conn.sendMessage(m.chat, { text: '✨ *Iniciando el bombardeo de emojis...*' }, { quoted: m })
+  const processingMsg = await conn.sendMessage(m.chat, { text: '✨ *Extrayendo datos del canal...*' }, { quoted: m })
 
   try {
-    const channelCode = extractChannelCode(text)
-    if (!channelCode) throw new Error("Ese enlace es más falso que las promesas de tu ex.")
+    const channelCode = text.match(/https:\/\/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i)?.[1]
+    if (!channelCode) throw new Error("Link inválido. Intenta con uno que sí funcione.")
 
     const metadata = await conn.newsletterMetadata('invite', channelCode)
     const newsletterJid = metadata.id
 
-    const messages = await conn.newsletterMessages(newsletterJid, 1)
-    if (!messages || messages.length === 0) throw new Error("El canal está más vacío que mi cuenta bancaria.")
+    const response = await conn.query({
+      tag: 'newsletter',
+      attrs: { type: 'get', jid: newsletterJid },
+      content: [{ tag: 'messages', attrs: { count: '1' } }]
+    })
 
-    const lastMsgId = messages[0].id
+    const node = response?.content?.[0]
+    if (!node || node.tag !== 'messages') throw new Error("No pude encontrar mensajes en este canal. Quizá está muerto.")
+
+    const lastMsgId = node.content[0].attrs.id
     const emojis = ['🔥', '😂', '🤡', '💀', '❤️']
 
     for (const emoji of emojis) {
@@ -27,33 +33,26 @@ let handler = async (m, { conn, text }) => {
           }
         }
       })
-      await delay(800)
+      await new Promise(resolve => setTimeout(resolve, 1000))
     }
 
     await conn.sendMessage(m.chat, {
-      text: `✅ *Misión cumplida.* El último mensaje del canal ha sido decorado con éxito.`,
+      text: `✅ *Bombardeo completado.* Reaccioné al mensaje con ID: ${lastMsgId}`,
       edit: processingMsg.key
     })
 
   } catch (error) {
     console.error(error)
     await conn.sendMessage(m.chat, {
-      text: `❌ *Error:* ${error.message}`,
+      text: `❌ *Fallo técnico:* ${error.message}\n\n> *Nota:* Si esto falla, actualiza tu librería a @whiskeysockets/baileys@latest. No seas tacaño con las actualizaciones.`,
       edit: processingMsg.key
     })
   }
 }
 
-function extractChannelCode(url) {
-  const match = url.match(/https:\/\/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i)
-  return match ? match[1] : null
-}
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
 handler.help = ['react']
 handler.tags = ['tools']
-handler.command = ['react', 'reaction']
+handler.command = ['reaction', 'react']
 handler.group = true
 
 export default handler
