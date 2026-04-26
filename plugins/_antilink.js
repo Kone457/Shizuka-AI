@@ -1,32 +1,18 @@
-let linkRegex = /chat.whatsapp.com\/([0-9A-Za-z]{20,24})/i;
-let linkRegex1 = /whatsapp.com\/channel\/([0-9A-Za-z]{20,24})/i;
+const linkRegex = /(chat\.whatsapp\.com\/[0-9A-Za-z]{20,24})|(z?https:\/\/whatsapp\.com\/channel\/[0-9A-Za-z]{20,24})/i
+const allowedLinks = ['https://whatsapp.com/channel/0029VbBBXTr5fM5flFaxsO06']
 
-export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, participants }) {
-    if (!m.isGroup) return 
-    if (isAdmin || isOwner || m.fromMe || isROwner) return
+export async function before(m, { conn, isAdmin, isBotAdmin, isModeration }) {
+if (!m.isGroup) return
 
-    let chat = global.db.data.chats[m.chat];
-    const user = `@${m.sender.split`@`[0]}`;
-    const groupAdmins = participants.filter(p => p.admin);
-    
-    const isGroupLink = linkRegex.exec(m.text) || linkRegex1.exec(m.text);
-    
-    if (chat.antiLink && isGroupLink && !isAdmin) {
-        if (isBotAdmin) {
-            const linkThisGroup = `https://chat.whatsapp.com/${await this.groupInviteCode(m.chat).catch(() => "")}`;
-            if (m.text.includes(linkThisGroup)) return !0;
-        }
-        
-        await conn.sendMessage(m.chat, { text: `*「 ENLACE DETECTADO 」*\n\n《✧》${user} Rompiste las reglas del Grupo serás eliminado...`, mentions: [m.sender] }, { quoted: m });
-        
-        if (!isBotAdmin) {
-            return conn.sendMessage(m.chat, { text: `《✧》 El antilink está activo pero no puedo eliminarte porque no soy admin.`, mentions: groupAdmins.map(v => v.id) }, { quoted: m });
-        }
-        
-        if (isBotAdmin) {
-            await conn.sendMessage(m.chat, { delete: m.key });
-            await conn.groupParticipantsUpdate(m.chat, [m.sender], "remove");
-        }
-    }
-    return !0;
-}
+const chat = globalThis?.db?.data?.chats[m.chat]
+const [command] = m.text.split(' ')
+const isGroupLink = linkRegex.test(m.text)
+
+const hasAllowedLink = allowedLinks.some(link => m.text.includes(link))
+if (hasAllowedLink) return
+
+if (chat.antilinks && isGroupLink && !isAdmin && isBotAdmin && !isModeration && m.key.participant !== botId) {
+await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: m.key.id, participant: m.key.participant }})
+await conn.reply(m.chat, `*${globalThis.db.data.users[m.key.participant].name}* eliminado por \`Anti-Link\``, m)
+await conn.groupParticipantsUpdate(m.chat, [m.key.participant], 'remove')
+}}
