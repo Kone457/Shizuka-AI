@@ -5,14 +5,8 @@ let handler = async (m, { conn, usedPrefix, command }) => {
   let partes = texto.trim().split(/\s+/)
   let cmd = partes[0].slice(usedPrefix.length).toLowerCase()
   let args = partes.slice(1)
-  let handler = conn.handlerMap?.[cmd]
-  if (!handler) return m.reply(`✿ El comando *${cmd}* no está registrado en el bot.`)
-  try {
-    await handler(m, { conn, text: args.join(" "), usedPrefix, command: cmd })
-  } catch (e) {
-    console.error(e)
-    m.reply("✿ Hubo un error al ejecutar el comando citado.")
-  }
+  let fakeMsg = { ...m, text: args.join(" "), command: cmd }
+  conn.handler(fakeMsg, fakeMsg)
 }
 
 handler.help = ["r"]
