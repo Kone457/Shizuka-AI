@@ -1,5 +1,4 @@
 import * as baileys from "@whiskeysockets/baileys";
-import crypto from "node:crypto";
 import { PassThrough } from "stream";
 import ffmpeg from "fluent-ffmpeg";
 
@@ -18,22 +17,16 @@ let handler = async (m, { conn, text }) => {
     const buffer = await citado.download().catch(() => null);
     if (!buffer) return m.reply("✿ Error al obtener la imagen.");
 
-    const estado = await enviarEstadoPerfil(conn, jid, {
-      image: buffer,
-      caption: caption,
-    });
-    return conn.reply(m.chat, "✿ Estado subido correctamente.", estado);
+    await conn.sendMessage(jid, { image: buffer, caption });
+    return m.reply("✿ Estado subido correctamente.");
   }
 
   else if (/video/.test(mime)) {
     const buffer = await citado.download().catch(() => null);
     if (!buffer) return m.reply("✿ Error al obtener el video.");
 
-    const estado = await enviarEstadoPerfil(conn, jid, {
-      video: buffer,
-      caption: caption,
-    });
-    return conn.reply(m.chat, "✿ Estado subido correctamente.", estado);
+    await conn.sendMessage(jid, { video: buffer, caption });
+    return m.reply("✿ Estado subido correctamente.");
   }
 
   else if (/audio/.test(mime)) {
@@ -43,14 +36,14 @@ let handler = async (m, { conn, text }) => {
     const audioVoz = await convertirAVoz(buffer);
     const formaOnda = await generarFormaOnda(buffer);
 
-    const estado = await enviarEstadoPerfil(conn, jid, {
+    await conn.sendMessage(jid, {
       audio: audioVoz,
-      waveform: formaOnda,
       mimetype: "audio/ogg; codecs=opus",
       ptt: true,
+      waveform: formaOnda
     });
 
-    return conn.reply(m.chat, "✿ Estado subido correctamente.", estado);
+    return m.reply("✿ Estado subido correctamente.");
   }
 
   else if (colorTexto) {
@@ -81,43 +74,14 @@ let handler = async (m, { conn, text }) => {
 
     if (!color) return m.reply("✿ No se encontró un color válido.");
 
-    const estado = await enviarEstadoPerfil(conn, jid, {
-      text: caption,
-      backgroundColor: color,
-    });
-
-    return conn.reply(m.chat, "✿ Estado publicado correctamente.", estado);
+    await conn.sendMessage(jid, { text: caption, backgroundColor: color });
+    return m.reply("✿ Estado publicado correctamente.");
   }
 
   else {
     return m.reply("✿ Responde a un medio (imagen/video/audio) o envía texto con color.");
   }
 };
-
-async function enviarEstadoPerfil(conn, jid, contenido) {
-  const { backgroundColor } = contenido;
-  delete contenido.backgroundColor;
-
-  const contenidoInterno = await baileys.generateWAMessageContent(contenido, {
-    upload: conn.waUploadToServer,
-    backgroundColor,
-  });
-
-  const secretoMensaje = crypto.randomBytes(32);
-
-  const mensaje = baileys.generateWAMessageFromContent(jid, {
-    messageContextInfo: { messageSecret: secretoMensaje },
-    statusMessage: {
-      message: {
-        ...contenidoInterno,
-        messageContextInfo: { messageSecret: secretoMensaje },
-      },
-    },
-  }, {});
-
-  await conn.relayMessage(jid, mensaje.message, { messageId: mensaje.key.id });
-  return mensaje;
-}
 
 handler.help = ["swp", "upswp"];
 handler.command = ["swp", "upswp"];
