@@ -1,4 +1,5 @@
-import hispamemes from 'hispamemes'
+import pkg from 'hispamemes'
+const { hispamemes } = pkg 
 
 let handler = async (m, { conn }) => {
   const processingMsg = await conn.sendMessage(
@@ -8,8 +9,7 @@ let handler = async (m, { conn }) => {
   )
 
   try {
-    const meme = await hispamemes()
-    const memeUrl = meme?.url || meme
+    const memeUrl = await hispamemes() 
 
     if (!memeUrl) throw new Error("No se pudo obtener el contenido solicitado.")
 
@@ -22,7 +22,7 @@ let handler = async (m, { conn }) => {
       { quoted: m }
     )
 
-    await conn.sendMessage(m.chat, { delete: processingMsg.key })
+    await conn, { delete: processingMsg.key })
 
   } catch (error) {
     console.error(error)
