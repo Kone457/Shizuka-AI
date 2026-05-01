@@ -3,13 +3,13 @@ import hispamemes from 'hispamemes'
 let handler = async (m, { conn }) => {
   const processingMsg = await conn.sendMessage(
     m.chat,
-    { text: '⏳ Procesando solicitud, obteniendo contenido...' },
+    { text: '⏳ Procesando...' },
     { quoted: m }
   )
 
   try {
-    const meme = await hispamemes.random()
-    const memeUrl = meme.url || meme
+    const meme = await hispamemes()
+    const memeUrl = meme?.url || meme
 
     if (!memeUrl) throw new Error("No se pudo obtener el contenido solicitado.")
 
