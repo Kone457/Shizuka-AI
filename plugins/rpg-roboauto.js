@@ -18,7 +18,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     user.coin -= cantidad
     if (user.coin < 0) user.coin = 0
   }
-  return conn.reply(m.chat, `✿ ${evento.mensaje} *${cantidad.toLocaleString()} monedas*`, m)
+  return conn.reply(m.chat, `✿ ${evento.mensaje} *${cantidad.toLocaleString()} ${currency}*`, m)
 }
 
 handler.help = ['roboauto']
