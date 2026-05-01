@@ -1,41 +1,34 @@
 var handler = async (m, { conn }) => {
-  let user = m.mentionedJid[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : false);
+  try {
+    const msgs = await conn.fetchMessages(m.chat, 100)
+    if (!msgs.length) return conn.reply(m.chat, `✧ No se encontraron mensajes recientes para eliminar.`, m)
 
-  if (!user) {
-    return conn.reply(m.chat, `《✧》 Debes mencionar o citar al usuario cuyos mensajes deseas eliminar.`, m);
-  }
-
-  
-  const msgs = await conn.fetchMessages(m.chat, 1000);
-
-  let toDelete = msgs.filter(ms => ms.key.participant === user);
-
-  if (!toDelete.length) {
-    return conn.reply(m.chat, `✦ No se encontraron mensajes de ese usuario en el grupo.`, m);
-  }
-
-  for (let msg of toDelete) {
-    try {
-      await conn.sendMessage(m.chat, {
-        delete: {
-          remoteJid: m.chat,
-          fromMe: false,
-          id: msg.key.id,
-          participant: user
-        }
-      });
-    } catch (e) {
-      console.log(`Error al eliminar mensaje:`, e);
+    for (let msg of msgs) {
+      try {
+        await conn.sendMessage(m.chat, {
+          delete: {
+            remoteJid: m.chat,
+            fromMe: false,
+            id: msg.key.id,
+            participant: msg.key.participant
+          }
+        })
+      } catch (e) {
+        console.log(`Error al eliminar mensaje:`, e)
+      }
     }
+
+    await conn.reply(m.chat, `✦ Los últimos 100 mensajes del grupo han sido eliminados...`, m)
+  } catch (err) {
+    console.error(err)
+    conn.reply(m.chat, `✧ Hubo un error al intentar eliminar los mensajes.`, m)
   }
+}
 
-  await conn.reply(m.chat, `✦ Todos los mensajes de ${user} han sido eliminados...`, m);
-};
+handler.help = ['delall']
+handler.tags = ['grupo']
+handler.command = ['delall']
+handler.admin = true
+handler.botAdmin = true
 
-handler.help = ['delall'];
-handler.tags = ['grupo'];
-handler.command = ['delall'];
-handler.admin = true;
-handler.botAdmin = true;
-
-export default handler;
+export default handler
