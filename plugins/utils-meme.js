@@ -1,5 +1,5 @@
 import pkg from 'hispamemes'
-const { hispamemes } = pkg 
+const { meme } = pkg
 
 let handler = async (m, { conn }) => {
   const processingMsg = await conn.sendMessage(
@@ -9,7 +9,7 @@ let handler = async (m, { conn }) => {
   )
 
   try {
-    const memeUrl = await hispamemes() 
+    const memeUrl = meme()
 
     if (!memeUrl) throw new Error("No se pudo obtener el contenido solicitado.")
 
@@ -17,19 +17,19 @@ let handler = async (m, { conn }) => {
       m.chat,
       { 
         image: { url: memeUrl }, 
-        caption: `📌 Aquí tienes.`
+        caption: `📌 ¡Aquí tienes un meme!\nFuente: Hispanimemes`
       },
       { quoted: m }
     )
 
-    await conn, { delete: processingMsg.key })
+    await conn.sendMessage(m.chat, { delete: processingMsg.key })
 
   } catch (error) {
-    console.error(error)
+    console.error('❌ Error ejecutando meme:', error)
     await conn.sendMessage(
       m.chat,
       {
-        text: `⚠️ Ocurrió un error al procesar la solicitud.\nDetalle: ${error.message}`,
+        text: `⚠️ Hubo un error ejecutando el comando.\nDetalle: ${error.message}`,
         edit: processingMsg.key
       }
     )
