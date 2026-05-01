@@ -7,16 +7,14 @@ let handler = async (m, { conn }) => {
 
     if (!memeUrl) throw new Error("No se pudo obtener el contenido solicitado.")
 
-    const sentMsg = await conn.sendMessage(
+    await conn.sendMessage(
       m.chat,
-      { 
-        image: { url: memeUrl }
-      },
+      { image: { url: memeUrl } },
       { quoted: m }
     )
 
-    await conn.sendMessage(m.chat, { react: { text: '🤣', key: sentMsg.key } })
-    await conn.sendMessage(m.chat, { react: { text: '🔥', key: sentMsg.key } })
+    await conn.sendMessage(m.chat, { react: { text: '🤣', key: m.key } })
+    await conn.sendMessage(m.chat, { react: { text: '🔥', key: m.key } })
 
   } catch (error) {
     console.error('❌ Error ejecutando meme:', error)
