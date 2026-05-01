@@ -39,8 +39,10 @@ function pickRandom(list) {
 }
 
 const roboauto = [
+{ tipo: 'victoria', mensaje: "Te robaste un tanque de la segunda guerra mundial del museo, ganaste." },
   { tipo: 'victoria', mensaje: "Forzaste la cerradura de un coche de lujo y escapaste, ganaste." },
   { tipo: 'victoria', mensaje: "Hackeaste el sistema de un Tesla y lo revendiste, ganaste." },
+  { tipo: 'derrota', mensaje: "Fuiste atrapado y violado por 3 negros sin parar, perdiste." },
   { tipo: 'derrota', mensaje: "El dueño salió justo a tiempo y te atrapó, perdiste." },
   { tipo: 'derrota', mensaje: "La policía rastreó el GPS del auto y te detuvo, perdiste." }
 ]
