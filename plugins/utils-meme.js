@@ -17,7 +17,7 @@ let handler = async (m, { conn }) => {
       m.chat,
       { 
         image: { url: memeUrl }, 
-        caption: `📌 ¡Aquí tienes un meme!\nFuente: Hispanimemes`
+        caption: `📌 ¡Aquí tienes...`
       },
       { quoted: m }
     )
