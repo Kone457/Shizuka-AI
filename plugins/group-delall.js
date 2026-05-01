@@ -1,16 +1,19 @@
 var handler = async (m, { conn }) => {
   try {
     const msgs = await conn.fetchMessages(m.chat, 100)
-    if (!msgs.length) return conn.reply(m.chat, `✧ No se encontraron mensajes recientes para eliminar.`, m)
+
+    if (!msgs || !msgs.length) {
+      return conn.reply(m.chat, `✧ No se encontraron mensajes recientes para eliminar.`, m)
+    }
 
     for (let msg of msgs) {
       try {
         await conn.sendMessage(m.chat, {
           delete: {
             remoteJid: m.chat,
-            fromMe: false,
+            fromMe: msg.key.fromMe,
             id: msg.key.id,
-            participant: msg.key.participant
+            participant: msg.key.participant || undefined
           }
         })
       } catch (e) {
