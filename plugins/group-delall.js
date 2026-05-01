@@ -1,12 +1,12 @@
-var handler = async (m, { conn, participants }) => {
+var handler = async (m, { conn }) => {
   let user = m.mentionedJid[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : false);
 
   if (!user) {
-    return conn.reply(m.chat, `✧ Debes mencionar al usuario cuyos mensajes deseas eliminar.`, m);
+    return conn.reply(m.chat, `《✧》 Debes mencionar o citar al usuario cuyos mensajes deseas eliminar.`, m);
   }
 
-  const groupInfo = await conn.groupMetadata(m.chat);
-  const msgs = await conn.fetchMessages(m.chat, 1000); 
+  
+  const msgs = await conn.fetchMessages(m.chat, 1000);
 
   let toDelete = msgs.filter(ms => ms.key.participant === user);
 
@@ -16,7 +16,14 @@ var handler = async (m, { conn, participants }) => {
 
   for (let msg of toDelete) {
     try {
-      await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: msg.key.id, participant: user }});
+      await conn.sendMessage(m.chat, {
+        delete: {
+          remoteJid: m.chat,
+          fromMe: false,
+          id: msg.key.id,
+          participant: user
+        }
+      });
     } catch (e) {
       console.log(`Error al eliminar mensaje:`, e);
     }
