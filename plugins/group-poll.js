@@ -14,8 +14,6 @@ var handler = async (m, { conn, text }) => {
       selectableCount: 1
     }
   })
-
-  await conn.reply(m.chat, `✦ Encuesta creada:\n> ${title}`, m)
 }
 
 handler.help = ['poll']
