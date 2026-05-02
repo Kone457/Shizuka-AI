@@ -19,9 +19,10 @@ let handler = async (m, { conn, text }) => {
     for (let gif of results) {
       const mf = gif.media_formats || {}
       const videoUrl =
+        mf?.tinygif?.url ||
+        mf?.gif?.url ||
         mf?.tinymp4?.url ||
-        mf?.mp4?.url ||
-        mf?.webm?.url
+        mf?.mp4?.url
 
       if (!videoUrl) continue
 
