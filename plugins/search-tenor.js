@@ -1,4 +1,3 @@
-
 import fetch from 'node-fetch'
 
 let handler = async (m, { conn, text }) => {
@@ -17,12 +16,11 @@ let handler = async (m, { conn, text }) => {
     }
 
     for (let gif of results) {
-      const mf = gif.media_formats || {}
-      const videoUrl = mf.mp4?.url || mf.tinymp4?.url || mf.nanomp4?.url
+      const media = gif.media_formats?.mp4?.url || gif.media_formats?.tinymp4?.url || gif.url
 
-      if (videoUrl) {
+      if (media && media.includes('http')) {
         await conn.sendMessage(m.chat, { 
-          video: { url: videoUrl }, 
+          video: { url: media }, 
           gifPlayback: true,
           caption: `🎬 *${gif.title || 'GIF'}*`
         }, { quoted: m })
