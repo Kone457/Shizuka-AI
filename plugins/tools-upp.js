@@ -43,7 +43,7 @@ async function myCloud(content) {
   const formData = new FormData()
   formData.append("file", blob, crypto.randomBytes(5).toString("hex") + "." + ext)
 
-  const response = await fetch("http://193.70.34.27:20193/upload", {
+  const response = await fetch("https://magical.vercel.app/upload", {
     method: "POST",
     body: formData
   })
