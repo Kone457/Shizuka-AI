@@ -1,4 +1,3 @@
-
 import fetch from 'node-fetch'
 
 let handler = async (m, { conn, text }) => {
@@ -9,7 +8,7 @@ let handler = async (m, { conn, text }) => {
 
     const res = await fetch(`${api.url}/search/tenor?q=${encodeURIComponent(text)}&limit=5&apikey=${api.key}`)
     const json = await res.json()
-    const results = json.result?.results
+    const results = json.result?.results || json.result
 
     if (!json.status || !results || results.length === 0) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
@@ -17,16 +16,24 @@ let handler = async (m, { conn, text }) => {
     }
 
     for (let gif of results) {
-      let url = gif.url
-      if (url.endsWith('.gif')) {
-        url = url.replace('.gif', '.mp4')
-      }
+      try {
+        
+        const htmlRes = await fetch(gif.page)
+        const html = await htmlRes.text()
+        
+        const mp4Match = html.match(/(https:\/\/[^"]+\.mp4)/)
+        const videoUrl = mp4Match ? mp4Match[1] : null
 
-      await conn.sendMessage(m.chat, { 
-        video: { url: url }, 
-        gifPlayback: true,
-        caption: `🎬 *${gif.title || 'GIF'}*`
-      }, { quoted: m })
+        if (videoUrl) {
+          await conn.sendMessage(m.chat, { 
+            video: { url: videoUrl }, 
+            gifPlayback: true,
+            caption: `🎬 *${gif.title || 'GIF'}*`
+          }, { quoted: m })
+        }
+      } catch (err) {
+        console.error('Error al extraer MP4 de la página:', err)
+      }
     }
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
