@@ -16,11 +16,6 @@ let handler = async (m, { conn }) => {
 
     global.conns.forEach((connBot) => {
       if (connBot.user && connBot.ws?.socket) {
-
-        if (!connBot.connectionTime) {
-          connBot.connectionTime = Date.now()
-        }
-
         uniqueUsers.set(connBot.user.jid, {
           bot: connBot,
           connectionTime: connBot.connectionTime
@@ -32,13 +27,14 @@ let handler = async (m, { conn }) => {
 
     for (let [jid, data] of uniqueUsers) {
       const connBot = data.bot
-      const connectionTime = data.connectionTime
+      const connectionTime = data.connectionTime || Date.now()
 
       const uptimeMs = Date.now() - connectionTime
       const tiempoActivo = formatTime(uptimeMs)
 
       const username = connBot.user?.name || connBot.user?.notify || 'Sin nombre'
-      const number = jid.split('@')[0]
+      const numberRaw = jid.split('@')[0]
+      const number = `https://wa.me/${numberRaw}`
 
       const connectionState = connBot.ws?.socket?.readyState
       let estado = '❓ Desconocido'
@@ -140,7 +136,7 @@ function formatTime(ms) {
   let m = Math.floor((totalSeconds % 3600) / 60)
   let s = totalSeconds % 60
 
-  return `${h > 0 ? h + 'h ' : ''}${m > 0 ? m + 'm ' : ''}${s}s`.trim()
+  return `${h ? h + 'h ' : ''}${m ? m + 'm ' : ''}${s}s`.trim()
 }
 
 handler.command = ['bots']
