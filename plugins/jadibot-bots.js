@@ -15,8 +15,9 @@ let handler = async (m, { conn }) => {
     }
 
     global.conns.forEach((connBot) => {
-      if (connBot.user && connBot.ws?.socket?.readyState !== ws.CLOSED) {
+      if (connBot.user && connBot.ws?.socket) {
 
+        
         if (!connBot.connectionTime) {
           connBot.connectionTime = Date.now()
         }
@@ -50,9 +51,7 @@ let handler = async (m, { conn }) => {
         case ws.CLOSED: estado = '🔴 Desconectado'; break
       }
 
-      const platform = Array.isArray(connBot?.browserInfo)
-  ? connBot.browserInfo[1] || 'Desconocido'
-  : connBot?.browserInfo || connBot?.user?.platform || 'Desconocido'
+      let platform = 'Chrome'
 
       subbotsInfo.push({
         username,
@@ -138,10 +137,16 @@ let handler = async (m, { conn }) => {
 
 function formatTime(ms) {
   let totalSeconds = Math.floor(ms / 1000)
+
   let h = Math.floor(totalSeconds / 3600)
   let m = Math.floor((totalSeconds % 3600) / 60)
   let s = totalSeconds % 60
-  return `${h ? h + 'h ' : ''}${m ? m + 'm ' : ''}${s ? s + 's' : '0s'}`.trim()
+
+  return [
+    h ? `${h}h` : '',
+    m ? `${m}m` : '',
+    `${s}s`
+  ].filter(Boolean).join(' ')
 }
 
 handler.command = ['bots']
