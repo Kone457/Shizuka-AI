@@ -25,6 +25,7 @@ const phoneUtil = PhoneNumberUtil.getInstance()
 const { DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore, jidNormalizedUser } = await import('@whiskeysockets/baileys')
 import readline, { createInterface } from 'readline'
 import NodeCache from 'node-cache'
+import os from 'os'
 const { CONNECTING } = ws
 const { chain } = lodash
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
@@ -140,7 +141,6 @@ return "";
 }},
 msgRetryCounterCache: msgRetryCounterCache || new Map(),
 userDevicesCache: userDevicesCache || new Map(),
-//msgRetryCounterMap,
 defaultQueryTimeoutMs: undefined,
 cachedGroupMetadata: (jid) => globalThis.conn.chats[jid] ?? {},
 version: version, 
@@ -183,7 +183,6 @@ conn.logger.info(`[ ✦ ]  I N I C I A N D O\n`)
 if (!opts['test']) {
 if (globalThis.db) setInterval(async () => {
 if (globalThis.db.data) await globalThis.db.write()
-if (opts['autocleartmp'] && (global.support || {}).find) (tmp = [os.tmpdir(), 'tmp', `${jadi}`], tmp.forEach((filename) => cp.spawn('find', [filename, '-amin', '3', '-type', 'f', '-delete'])));
 }, 30 * 1000);
 }
 
@@ -204,10 +203,10 @@ console.log(chalk.blue.bold(`
 │ ${chalk.red("Escanea este código QR para conectarte.")}
 ╰───────────────────╼`))}
 }
-        if (connection === "open") {
-        await joinChannels(conn)
-            console.log(chalk.bold.redBright('Conectado correctamente.'))
-        }
+if (connection === "open") {
+await joinChannels(conn)
+console.log(chalk.bold.redBright('Conectado correctamente.'))
+}
 let reason = new Boom(lastDisconnect?.error)?.output?.statusCode
 if (connection === "close") {
 if ([401, 440, 428, 405].includes(reason)) {      
@@ -247,15 +246,6 @@ conn.handler = handler.handler.bind(globalThis.conn)
 conn.connectionUpdate = connectionUpdate.bind(globalThis.conn)
 conn.credsUpdate = saveCreds.bind(globalThis.conn, true)
 
-const currentDateTime = new Date()
-const messageDateTime = new Date(conn.ev)
-if (currentDateTime >= messageDateTime) {
-const chats = Object.entries(conn.chats).filter(([jid, chat]) => !jid.endsWith('@g.us') && chat.isChats).map((v) => v[0])
-
-} else {
-const chats = Object.entries(conn.chats).filter(([jid, chat]) => !jid.endsWith('@g.us') && chat.isChats).map((v) => v[0])
-}
-
 conn.ev.on('messages.upsert', conn.handler)
 conn.ev.on('connection.update', conn.connectionUpdate)
 conn.ev.on('creds.update', conn.credsUpdate)
@@ -263,13 +253,14 @@ isInit = false
 return true
 };
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error("✿ Rechazo no manejado detectado:", reason);
+process.on('unhandledRejection', (reason) => {
+console.error("✿ Rechazo no manejado detectado:", reason);
 });
 
 const pluginFolder = globalThis.__dirname(join(__dirname, './plugins/index'))
 const pluginFilter = (filename) => /\.js$/.test(filename)
 globalThis.plugins = {}
+
 async function filesInit() {
 for (const filename of readdirSync(pluginFolder).filter(pluginFilter)) {
 try {
@@ -280,7 +271,8 @@ globalThis.plugins[filename] = module.default || module
 conn.logger.error(e)
 delete globalThis.plugins[filename]
 }}}
-filesInit().then((_) => Object.keys(globalThis.plugins)).catch(console.error);
+
+filesInit().catch(console.error);
 
 globalThis.reload = async (_ev, filename) => {
 if (pluginFilter(filename)) {
@@ -295,71 +287,66 @@ const err = syntaxerror(readFileSync(dir), filename, {
 sourceType: 'module',
 allowAwaitOutsideFunction: true,
 });
-if (err) conn.logger.error(`syntax error while loading '${filename}'\n${format(err)}`)
-else {
+if (!err) {
 try {
 const module = (await import(`${globalThis.__filename(dir)}?update=${Date.now()}`));
 globalThis.plugins[filename] = module.default || module;
 } catch (e) {
-conn.logger.error(`error require plugin '${filename}\n${format(e)}'`)
-} finally {
-globalThis.plugins = Object.fromEntries(Object.entries(globalThis.plugins).sort(([a], [b]) => a.localeCompare(b)))
-}}
-}}
+conn.logger.error(e)
+}}}}
+
 Object.freeze(globalThis.reload)
 watch(pluginFolder, globalThis.reload)
+
 await globalThis.reloadHandler()
+
 async function _quickTest() {
-const test = await Promise.all([
+await Promise.all([
 spawn('ffmpeg'),
 spawn('ffprobe'),
-spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-filter_complex', 'color', '-frames:v', '1', '-f', 'webp', '-']),
 spawn('convert'),
 spawn('magick'),
-spawn('gm'),
-spawn('find', ['--version']),
-].map((p) => {
-return Promise.race([
-new Promise((resolve) => {
-p.on('close', (code) => {
-resolve(code !== 127);
-});
-}),
-new Promise((resolve) => {
-p.on('error', (_) => resolve(false));
-})]);
-}));
-const [ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find] = test;
-const s = global.support = {ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find};
-Object.freeze(globalThis.support);
+spawn('gm')
+])
 }
 
-// Tmp
-setInterval(async () => {
-const tmpDir = join(__dirname, 'tmp')
+setInterval(() => {
+const dirs = [join(__dirname, 'tmp'), os.tmpdir()]
+const now = Date.now()
+
+for (const dir of dirs) {
 try {
-const filenames = readdirSync(tmpDir)
-filenames.forEach(file => {
-const filePath = join(tmpDir, file)
-unlinkSync(filePath)})
-console.log(chalk.gray(`→ Archivos de la carpeta TMP eliminados`))
-} catch {
-console.log(chalk.gray(`→ Los archivos de la carpeta TMP no se pudieron eliminar`));
-}}, 30 * 1000) 
+if (!existsSync(dir)) continue
+
+for (const file of readdirSync(dir)) {
+const filePath = join(dir, file)
+try {
+const stats = statSync(filePath)
+if (now - stats.mtimeMs > 2 * 60 * 1000) {
+if (stats.isDirectory()) rmSync(filePath, { recursive: true, force: true })
+else unlinkSync(filePath)
+}
+} catch {}
+}
+} catch {}
+}
+
+console.log(chalk.gray('→ TMP limpiado'))
+
+}, 30 * 1000)
 
 setInterval(async () => {
-  if (stopped === 'close' || !conn || !conn?.user) return;
-  const _uptime = process.uptime() * 1000;
-  const uptime = clockString(_uptime);
-  const bio = `| ⚡ Uptime : ${uptime}`;
-  await conn?.updateProfileStatus(bio).catch((_) => _);
+if (stopped === 'close' || !conn || !conn?.user) return;
+const uptime = clockString(process.uptime() * 1000);
+await conn?.updateProfileStatus(`| ⚡ Uptime : ${uptime}`).catch(() => {})
 }, 60000);
+
 function clockString(ms) {
-  const d = isNaN(ms) ? '--' : Math.floor(ms / 86400000);
-  const h = isNaN(ms) ? '--' : Math.floor(ms / 3600000) % 24;
-  const m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60;
-  const s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60;
-  return [d, 'd ️', h, 'h ', m, 'm ', s, 's '].map((v) => v.toString().padStart(2, 0)).join('');
+const d = Math.floor(ms / 86400000);
+const h = Math.floor(ms / 3600000) % 24;
+const m = Math.floor(ms / 60000) % 60;
+const s = Math.floor(ms / 1000) % 60;
+return [d,'d',h,'h',m,'m',s,'s'].map(v=>String(v).padStart(2,0)).join(' ')
 }
 
 _quickTest().catch(console.error)
@@ -367,21 +354,14 @@ _quickTest().catch(console.error)
 async function isValidPhoneNumber(number) {
 try {
 number = number.replace(/\s+/g, '')
-if (number.startsWith('+521')) {
-number = number.replace('+521', '+52');
-} else if (number.startsWith('+52') && number[4] === '1') {
-number = number.replace('+52 1', '+52');
-}
 const parsedNumber = phoneUtil.parseAndKeepRawInput(number)
 return phoneUtil.isValidNumber(parsedNumber)
-} catch (error) {
+} catch {
 return false
 }}
 
 async function joinChannels(conn) {
-  for (const value of Object.values(global.my)) {
-    if (typeof value === 'string' && value.endsWith('@newsletter')) {
-    await conn.newsletterFollow(value).catch(() => {})
-    }
-  }
-}
+for (const value of Object.values(global.my)) {
+if (typeof value === 'string' && value.endsWith('@newsletter')) {
+await conn.newsletterFollow(value).catch(() => {})
+}}}
