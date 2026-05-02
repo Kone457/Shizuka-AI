@@ -17,10 +17,18 @@ let handler = async (m, { conn, text }) => {
     const results = json.result.results
 
     for (let gif of results) {
+      const mf = gif.media_formats || {}
+      const videoUrl =
+        mf?.tinymp4?.url ||
+        mf?.mp4?.url ||
+        mf?.webm?.url
+
+      if (!videoUrl) continue
+
       await conn.sendMessage(m.chat, { 
-        video: { url: gif.url }, 
+        video: { url: videoUrl }, 
         gifPlayback: true,
-        caption: `🎬 *${gif.title}*`
+        caption: `🎬 *${gif.title || 'GIF'}*`
       }, { quoted: m })
     }
 
