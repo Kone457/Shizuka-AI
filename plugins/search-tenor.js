@@ -39,6 +39,5 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['tenor']
 handler.tags = ['buscadores']
 handler.command = ['tenor', 'gif']
-handler.register = true
 
 export default handler
