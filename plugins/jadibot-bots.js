@@ -51,8 +51,8 @@ let handler = async (m, { conn }) => {
       }
 
       const platform = Array.isArray(connBot?.browserInfo)
-        ? connBot.browserInfo.join(' ')
-        : connBot?.browserInfo || connBot?.user?.platform || 'Desconocido'
+  ? connBot.browserInfo[1] || 'Desconocido'
+  : connBot?.browserInfo || connBot?.user?.platform || 'Desconocido'
 
       subbotsInfo.push({
         username,
