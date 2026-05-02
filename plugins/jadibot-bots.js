@@ -17,7 +17,6 @@ let handler = async (m, { conn }) => {
     global.conns.forEach((connBot) => {
       if (connBot.user && connBot.ws?.socket) {
 
-        
         if (!connBot.connectionTime) {
           connBot.connectionTime = Date.now()
         }
@@ -137,16 +136,11 @@ let handler = async (m, { conn }) => {
 
 function formatTime(ms) {
   let totalSeconds = Math.floor(ms / 1000)
-
   let h = Math.floor(totalSeconds / 3600)
   let m = Math.floor((totalSeconds % 3600) / 60)
   let s = totalSeconds % 60
 
-  return [
-    h ? `${h}h` : '',
-    m ? `${m}m` : '',
-    `${s}s`
-  ].filter(Boolean).join(' ')
+  return `${h > 0 ? h + 'h ' : ''}${m > 0 ? m + 'm ' : ''}${s}s`.trim()
 }
 
 handler.command = ['bots']
