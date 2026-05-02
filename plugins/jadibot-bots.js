@@ -50,9 +50,9 @@ let handler = async (m, { conn }) => {
         case ws.CLOSED: estado = '🔴 Desconectado'; break
       }
 
-      const platform = Array.isArray(connBot?.user?.browser)
-        ? connBot.user.browser.join(' ')
-        : connBot?.user?.browser || 'Desconocido'
+      const platform = Array.isArray(connBot?.browserInfo)
+        ? connBot.browserInfo.join(' ')
+        : connBot?.browserInfo || connBot?.user?.platform || 'Desconocido'
 
       subbotsInfo.push({
         username,
