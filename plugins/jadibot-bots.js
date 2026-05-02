@@ -35,7 +35,6 @@ let handler = async (m, { conn }) => {
       const connectionTime = data.connectionTime
 
       const uptimeMs = Date.now() - connectionTime
-
       const tiempoActivo = formatTime(uptimeMs)
 
       const username = connBot.user?.name || connBot.user?.notify || 'Sin nombre'
@@ -51,7 +50,9 @@ let handler = async (m, { conn }) => {
         case ws.CLOSED: estado = '🔴 Desconectado'; break
       }
 
-      const platform = connBot.user?.platform || connBot.user?.device || 'Desconocido'
+      const platform = Array.isArray(connBot?.user?.browser)
+        ? connBot.user.browser.join(' ')
+        : connBot?.user?.browser || 'Desconocido'
 
       subbotsInfo.push({
         username,
@@ -103,17 +104,6 @@ let handler = async (m, { conn }) => {
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `
       })
-
-      txt += `
-
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼📊 𝐑𝐄𝐒𝐔𝐌𝐄𝐍 📊╮
-┃֪࣪
-├ׁ̟̇❍✎ Total: ${totalUsers}
-├ׁ̟̇❍✎ Conectados: ${subbotsInfo.filter(s => s.estado.includes('🟢')).length}
-├ׁ̟̇❍✎ Promedio: ${formatTime(calculateAverageTime(subbotsInfo))}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`
     }
 
     const metaMsg = {
@@ -148,17 +138,10 @@ let handler = async (m, { conn }) => {
 
 function formatTime(ms) {
   let totalSeconds = Math.floor(ms / 1000)
-
   let h = Math.floor(totalSeconds / 3600)
   let m = Math.floor((totalSeconds % 3600) / 60)
   let s = totalSeconds % 60
-
   return `${h ? h + 'h ' : ''}${m ? m + 'm ' : ''}${s ? s + 's' : '0s'}`.trim()
-}
-
-function calculateAverageTime(subbotsInfo) {
-  if (subbotsInfo.length === 0) return 0
-  return subbotsInfo.reduce((acc, subbot) => acc + subbot.uptimeMs, 0) / subbotsInfo.length
 }
 
 handler.command = ['bots']
