@@ -26,9 +26,9 @@ let handler = async (m, { conn, usedPrefix }) => {
     
     if (m.isGroup) {
         let pp = 'https://magical.vercel.app/files/1b70ddc50331.mp4'; 
-        let pp2 = ''; 
-        let pp3 = '';
-        let pp4 = '';
+        let pp2 = 'https://magical.vercel.app/files/d53b0a519b1f.mp4'; 
+        let pp3 = 'https://magical.vercel.app/files/99798eb43d03.mp4';
+        let pp4 = 'https://magical.vercel.app/files/444eac113d7e.mp4';
         
         const videos = [pp, pp2, pp3, pp4];
         const video = videos[Math.floor(Math.random() * videos.length)];
