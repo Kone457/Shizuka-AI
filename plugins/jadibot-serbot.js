@@ -93,23 +93,30 @@ export async function skyJadiBot(options) {
   let { pathSkyJadiBot, m, conn, args, usedPrefix, command, fromCommand } = options
   let isInit = true
   let isSent = false
-  
+
   if (!fs.existsSync(pathSkyJadiBot)) fs.mkdirSync(pathSkyJadiBot, { recursive: true })
 
   const mcode = fromCommand && (command === 'code' || args?.includes('code'))
   const { state, saveCreds } = await useMultiFileAuthState(pathSkyJadiBot)
   const { version } = await fetchLatestBaileysVersion()
 
+  const browserInfo = mcode 
+    ? ['Ubuntu', 'Chrome', '110.0.5585.95'] 
+    : ['Sky Bot', 'Chrome', '2.0.0']
+
   const connectionOptions = {
     logger: pino({ level: "silent" }),
     printQRInTerminal: false,
     auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
-    browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Sky Bot','Chrome','2.0.0'],
+    browser: browserInfo,
     version,
     msgRetryCounterCache: new NodeCache()
   }
 
   let sock = makeWASocket(connectionOptions)
+
+  // ✔ guardar plataforma/navegador correctamente
+  sock.browserInfo = browserInfo
 
   async function connectionUpdate(update) {
     const { connection, lastDisconnect, qr } = update
@@ -117,7 +124,7 @@ export async function skyJadiBot(options) {
 
     if (qr && fromCommand && !mcode && !isSent) {
       const imageBuffer = await downloadImage(IMAGE_URL)
-      
+
       if (imageBuffer) {
         await conn.sendMessage(m.chat, {
           image: imageBuffer,
@@ -125,7 +132,7 @@ export async function skyJadiBot(options) {
           jpegThumbnail: imageBuffer,
           mentions: [m.sender]
         }, { quoted: m })
-        
+
         await conn.sendMessage(m.chat, {
           image: await qrcode.toBuffer(qr, { scale: 8 }),
           caption: "📱 *Escanea este código QR:*"
@@ -142,16 +149,16 @@ export async function skyJadiBot(options) {
     if (qr && fromCommand && mcode && !isSent) {
       try {
         let secret = await sock.requestPairingCode((m.sender.split`@`[0]))
-        
+
         const imageBuffer = await downloadImage(IMAGE_URL)
-        
+
         if (imageBuffer) {
           await conn.sendMessage(m.chat, {
             image: imageBuffer,
             caption: rtx2,
             jpegThumbnail: imageBuffer
           }, { quoted: m })
-          
+
           await conn.reply(m.chat, secret, m)
         } else {
           await conn.reply(m.chat, rtx2, m)
@@ -167,9 +174,14 @@ export async function skyJadiBot(options) {
     if (connection === 'open') {
       sock.isInit = true
       isSent = true
-      if (!global.conns.includes(sock)) global.conns.push(sock)
-      console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
 
+      // ✔ asegurar que tenga plataforma visible
+      sock.user = sock.user || {}
+      sock.user.platform = browserInfo[1] || 'Desconocido'
+
+      if (!global.conns.includes(sock)) global.conns.push(sock)
+
+      console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
 
       if (fromCommand) {
         options.fromCommand = false
