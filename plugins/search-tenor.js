@@ -1,3 +1,4 @@
+
 import fetch from 'node-fetch'
 
 let handler = async (m, { conn, text }) => {
@@ -8,7 +9,7 @@ let handler = async (m, { conn, text }) => {
 
     const res = await fetch(`${api.url}/search/tenor?q=${encodeURIComponent(text)}&limit=5&apikey=${api.key}`)
     const json = await res.json()
-    const results = json.result?.results || json.result
+    const results = json.result?.results
 
     if (!json.status || !results || results.length === 0) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
@@ -16,15 +17,16 @@ let handler = async (m, { conn, text }) => {
     }
 
     for (let gif of results) {
-      const media = gif.media_formats?.mp4?.url || gif.media_formats?.tinymp4?.url || gif.url
-
-      if (media && media.includes('http')) {
-        await conn.sendMessage(m.chat, { 
-          video: { url: media }, 
-          gifPlayback: true,
-          caption: `🎬 *${gif.title || 'GIF'}*`
-        }, { quoted: m })
+      let url = gif.url
+      if (url.endsWith('.gif')) {
+        url = url.replace('.gif', '.mp4')
       }
+
+      await conn.sendMessage(m.chat, { 
+        video: { url: url }, 
+        gifPlayback: true,
+        caption: `🎬 *${gif.title || 'GIF'}*`
+      }, { quoted: m })
     }
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
@@ -37,5 +39,6 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['tenor']
 handler.tags = ['buscadores']
 handler.command = ['tenor', 'gif']
+handler.register = true
 
 export default handler
