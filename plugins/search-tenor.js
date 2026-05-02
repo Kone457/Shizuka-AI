@@ -18,7 +18,7 @@ let handler = async (m, { conn, text }) => {
 
     for (let gif of results) {
       const mf = gif.media_formats || {}
-      const videoUrl = mf?.mp4?.url || mf?.tinymp4?.url
+      const videoUrl = mf.mp4?.url || mf.tinymp4?.url
       if (!videoUrl) continue
 
       await conn.sendMessage(m.chat, { 
