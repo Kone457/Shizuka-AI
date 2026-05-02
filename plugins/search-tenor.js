@@ -1,3 +1,4 @@
+
 import fetch from 'node-fetch'
 
 let handler = async (m, { conn, text }) => {
@@ -8,24 +9,24 @@ let handler = async (m, { conn, text }) => {
 
     const res = await fetch(`${api.url}/search/tenor?q=${encodeURIComponent(text)}&limit=5&apikey=${api.key}`)
     const json = await res.json()
+    const results = json.result?.results || json.result
 
-    if (!json.status || !json.result?.results?.length) {
+    if (!json.status || !results || results.length === 0) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
       return m.reply('《✧》 No se encontraron resultados.')
     }
 
-    const results = json.result.results
-
     for (let gif of results) {
       const mf = gif.media_formats || {}
-      const videoUrl = mf.mp4?.url || mf.tinymp4?.url
-      if (!videoUrl) continue
+      const videoUrl = mf.mp4?.url || mf.tinymp4?.url || mf.nanomp4?.url
 
-      await conn.sendMessage(m.chat, { 
-        video: { url: videoUrl }, 
-        gifPlayback: true,
-        caption: `🎬 *${gif.title || 'GIF'}*`
-      }, { quoted: m })
+      if (videoUrl) {
+        await conn.sendMessage(m.chat, { 
+          video: { url: videoUrl }, 
+          gifPlayback: true,
+          caption: `🎬 *${gif.title || 'GIF'}*`
+        }, { quoted: m })
+      }
     }
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
