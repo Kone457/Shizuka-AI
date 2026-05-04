@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 
-const isUrl = (text) => /https?:\/\/[^\s]+/gi.test(text)
+const isUrl = (text) => /^https?:\/\/[^\s]+$/i.test(text)
 
 const handler = async (m, { conn, args }) => {
   if (!args[0]) {
@@ -19,14 +19,15 @@ const handler = async (m, { conn, args }) => {
       )
       const json = await res.json()
 
-      if (!json.status || !json.result?.dl) {
+      if (!json.status || !json.result) {
         throw new Error('No se pudo obtener el video')
       }
 
-      video = json.result.dl
+      video = json.result.play || json.result.hdplay
     } else {
+      const query = args.join(' ')
       const res = await fetch(
-        `${api.url}/search/tiktok?q=${encodeURIComponent(args.join(' '))}&apikey=${api.key}`
+        `${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${api.key}`
       )
       const json = await res.json()
 
@@ -36,6 +37,8 @@ const handler = async (m, { conn, args }) => {
 
       video = json.result[0].play
     }
+
+    if (!video) throw new Error('No se pudo obtener el video')
 
     await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)
 
