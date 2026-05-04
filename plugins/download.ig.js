@@ -12,19 +12,19 @@ const handler = async (m, { args, conn }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const api = `${api.url}/download/instagram?url=${encodeURIComponent(args[0])}&apikey=${api.key}`;
-    const res = await fetch(api);
+    const res = await fetch(
+      `${api.url}/download/instagram?url=${encodeURIComponent(args[0])}&apikey=${api.key}`
+    );
+
     const json = await res.json();
 
-    if (!json.status || !json.result || !json.result.dl) {
+    if (!json.status || !json.result?.dl) {
       throw new Error('Respuesta inválida de la api.');
     }
 
-    const url = json.result.dl;
-
     await conn.sendFile(
       m.chat,
-      url,
+      json.result.dl,
       'instagram.mp4',
       '✿ Aquí tienes.',
       m
