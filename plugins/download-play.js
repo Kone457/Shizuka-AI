@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
 
+const isUrl = (text) => /^https?:\/\/[^\s]+$/i.test(text)
+
 const handler = async (m, { conn, text }) => {
   if (!text) {
     await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
@@ -17,13 +19,18 @@ const handler = async (m, { conn, text }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: 'ⴵ', key: m.key } });
 
-    const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`);
-    const json = await res.json();
+    let link, title = 'YouTube', channel = '-', duration = '-', imageUrl = null
 
-    if (!json.status || !json.result?.length) {
-      await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
+    if (isUrl(text)) {
+      link = text
+    } else {
+      const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`);
+      const json = await res.json();
 
-      return m.reply(`
+      if (!json.status || !json.result?.length) {
+        await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
+
+        return m.reply(`
   ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐒𝐈𝐍 𝐑𝐄𝐒𝐔𝐋𝐓𝐀𝐃𝐎𝐒 ☁️╮
 ┃֪࣪
@@ -31,9 +38,15 @@ const handler = async (m, { conn, text }) => {
 ├ׁ̟̇❍✎ Intenta otro nombre
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim());
-    }
+      }
 
-    const { title, channel, duration, imageUrl, link } = json.result[0];
+      const data = json.result[0]
+      link = data.link
+      title = data.title
+      channel = data.channel
+      duration = data.duration
+      imageUrl = data.imageUrl
+    }
 
     const caption = `
   ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -50,17 +63,21 @@ const handler = async (m, { conn, text }) => {
 ✰ Selecciona una opción
 `.trim();
 
-    const thumb = await (await fetch(imageUrl)).buffer();
-
-    await conn.sendMessage(m.chat, {
-      image: thumb,
+    let message = {
       caption,
       buttons: [
         { buttonId: `audio_${link}`, buttonText: { displayText: '❖ AUDIO' }, type: 1 },
         { buttonId: `video_${link}`, buttonText: { displayText: '❖ VIDEO' }, type: 1 }
       ],
       headerType: 4
-    }, { quoted: m });
+    }
+
+    if (imageUrl) {
+      const thumb = await (await fetch(imageUrl)).buffer()
+      message.image = thumb
+    }
+
+    await conn.sendMessage(m.chat, message, { quoted: m });
 
   } catch (e) {
     await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
@@ -168,7 +185,7 @@ handler.before = async (m, { conn }) => {
   }
 };
 
-handler.command = ['play', 'play2'];
+handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4'];
 handler.tags = ['descargas'];
 handler.help = ['play'];
 handler.group = true;
