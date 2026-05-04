@@ -12,34 +12,26 @@ const handler = async (m, { args, conn }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(`${api.url4}/download/instagram?url=${encodeURIComponent(args[0])}`);
+    const api = `${api.url}/download/instagram?url=${encodeURIComponent(args[0])}&apikey=${api.key}`;
+    const res = await fetch(api);
     const json = await res.json();
 
-    if (!json.status || !json.data) {
-      throw new Error('Respuesta inválida del servidor.');
+    if (!json.status || !json.result || !json.result.dl) {
+      throw new Error('Respuesta inválida de la api.');
     }
 
-    for (let media of json.data) {
-      if (media.type === 'video') {
-        await conn.sendFile(
-          m.chat,
-          media.url,
-          'instagram.mp4',
-          '✿ Aquí tienes.',
-          m
-        );
-      } else if (media.type === 'image') {
-        await conn.sendFile(
-          m.chat,
-          media.url,
-          'instagram.jpg',
-          '✿ Aquí tienes.',
-          m
-        );
-      }
-    }
+    const url = json.result.dl;
+
+    await conn.sendFile(
+      m.chat,
+      url,
+      'instagram.mp4',
+      '✿ Aquí tienes.',
+      m
+    );
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+
   } catch (e) {
     await conn.sendMessage(
       m.chat,
