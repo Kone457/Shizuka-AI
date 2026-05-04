@@ -1,10 +1,10 @@
 import fetch from 'node-fetch';
 
-const isUrl = (text) => /^https?:\/\/[^\s]+$/i.test(text)
+const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text)
 
 const handler = async (m, { conn, text }) => {
   if (!text) {
-    await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
 
     return m.reply(`
   ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -17,18 +17,29 @@ const handler = async (m, { conn, text }) => {
   }
 
   try {
-    await conn.sendMessage(m.chat, { react: { text: 'ⴵ', key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
     let link, title = 'YouTube', channel = '-', duration = '-', imageUrl = null
 
     if (isUrl(text)) {
       link = text
+
+      const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`);
+      const json = await res.json();
+
+      if (json.status && json.result?.length) {
+        const data = json.result[0]
+        title = data.title
+        channel = data.channel
+        duration = data.duration
+        imageUrl = data.imageUrl
+      }
     } else {
       const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`);
       const json = await res.json();
 
       if (!json.status || !json.result?.length) {
-        await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
 
         return m.reply(`
   ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -80,7 +91,7 @@ const handler = async (m, { conn, text }) => {
     await conn.sendMessage(m.chat, message, { quoted: m });
 
   } catch (e) {
-    await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
 
     m.reply(`
   ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -102,13 +113,13 @@ handler.before = async (m, { conn }) => {
     if (id.startsWith('audio_')) {
       const link = id.replace('audio_', '');
 
-      await conn.sendMessage(m.chat, { react: { text: 'ⴵ', key: m.key } });
+      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
       const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`);
       const json = await res.json();
 
       if (!json.status || !json.result?.url) {
-        await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
 
         return m.reply(`
   ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -122,7 +133,7 @@ handler.before = async (m, { conn }) => {
 
       const data = json.result;
 
-      await conn.sendMessage(m.chat, { react: { text: '❖', key: m.key } });
+      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
       await conn.sendMessage(m.chat, {
         audio: { url: data.url },
@@ -143,13 +154,13 @@ handler.before = async (m, { conn }) => {
     if (id.startsWith('video_')) {
       const link = id.replace('video_', '');
 
-      await conn.sendMessage(m.chat, { react: { text: 'ⴵ', key: m.key } });
+      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
       const res = await fetch(`${api.url}/download/ytdown?url=${encodeURIComponent(link)}&apikey=${api.key}`);
       const json = await res.json();
 
       if (!json.status || !json.result?.url) {
-        await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
 
         return m.reply(`
   ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -162,7 +173,7 @@ handler.before = async (m, { conn }) => {
 
       const data = json.result;
 
-      await conn.sendMessage(m.chat, { react: { text: '❖', key: m.key } });
+      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
       await conn.sendMessage(m.chat, {
         video: { url: data.url },
@@ -172,7 +183,7 @@ handler.before = async (m, { conn }) => {
     }
 
   } catch {
-    await conn.sendMessage(m.chat, { react: { text: '✰', key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
 
     m.reply(`
   ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
