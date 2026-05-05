@@ -21,7 +21,7 @@ let handler = async (m, { conn }) => {
                 title: "Creador del Bot",
                 body: "Información de contacto",
                 thumbnail: thumbBuffer,
-                sourceUrl: `${web}` 
+                sourceUrl: `xvideos.com` 
             }
         }
     }, { quoted: m })
