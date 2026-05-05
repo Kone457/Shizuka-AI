@@ -1,17 +1,15 @@
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn }) => {
-    const thumbUrl = `${banner}` 
+    const thumbUrl = `https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Anime/18a2f50ee4.jpg` 
     const thumbBuffer = await fetch(thumbUrl).then(res => res.buffer());
 
     let mensaje = `
 ╭─❏ ✿ *Creador del Bot*
-│
 ┊ 👤 *Nombre:* Carlos
-┊ 🌐 *Github:* https://github.com/Kone457
-┊ 📱 *Telegram:* https://t.me/Carlosx200
+┊ 🌐 *Github:* github.com/Kone457
+┊ 📱 *Telegram:* t.me/Carlosx200
 ┊ 📞 *WhatsApp:* No disponible
-│
 ╰─❏ ✿`;
 
     await conn.sendMessage(m.chat, {
