@@ -24,7 +24,7 @@ global.sessions = 'sessions/session-bot'
 global.jadi = 'sessions/session-sub'
 
 global.api = {
-  url: 'https://nex-magical.vercel.app',
+  url: 'https://nexevo.boxmine.xyz',
   url2: 'https://api.vreden.my.id',
   url3: 'https://api-faa.my.id',
   url4: 'https://api.delirius.store',
