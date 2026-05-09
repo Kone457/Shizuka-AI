@@ -82,15 +82,8 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     await conn.sendMessage(m.chat, {
       text: menuTexto.trim(),
-      contextInfo: {
-        externalAdReply: {
-          title: `${namebot}`,
-          body: `${dev}`,
-          thumbnailUrl: BANNER_URL,
-          mediaType: 1,
-          renderLargerThumbnail: true
-        }
-      }
+      image: { url: BANNER_URL },
+      caption: `${namebot}\n${dev}`
     }, { quoted: m })
 
   } catch (e) {
