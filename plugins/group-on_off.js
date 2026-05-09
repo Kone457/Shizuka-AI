@@ -3,16 +3,18 @@ let handler = async (m, { conn, args, command, isOwner }) => {
   const chatData = global.db.data.chats[m.chat];
   const botSettings = global.db.data.settings[conn.user.jid];
 
-  if (!setting) {
-    const statusIcon = (conf) => conf ? '🟢' : '🔴';
-    return m.reply(`
+  const statusIcon = (conf) => conf ? '🟢' : '🔴';
+
+  const configList = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼⚙️ 𝐂𝐎𝐍𝐅𝐈𝐆𝐔𝐑𝐀𝐂𝐈𝐎𝐍 ⚙️╮
 ┃֪࣪
-├ׁ̟̇❍✎ Opciones disponibles:
 ├ׁ̟̇❍✎ welcome ${statusIcon(chatData.welcome)}
 ├ׁ̟̇❍✎ antilink ${statusIcon(chatData.antiLink)}
 ├ׁ̟̇❍✎ economia ${statusIcon(chatData.economy)}
+├ׁ̟̇❍✎ gacha ${statusIcon(chatData.gacha)}
+├ׁ̟̇❍✎ modoadmin ${statusIcon(chatData.adminonly)}
+├ׁ̟̇❍✎ reaccion ${statusIcon(chatData.reaction)}
 ├ׁ̟̇❍✎ nsfw ${statusIcon(chatData.nsfw)}
 ├ׁ̟̇❍✎ alertas ${statusIcon(chatData.alerts)}
 ├ׁ̟̇❍✎ serbot ${statusIcon(botSettings?.jadibotmd)}
@@ -20,7 +22,10 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 
 ✎ Ejemplo:
 ${command} welcome
-`.trim());
+`.trim();
+
+  if (!setting) {
+    return m.reply(configList);
   }
 
   const status = command === 'on';
@@ -59,7 +64,7 @@ ${command} welcome
     case 'adminonly':
     case 'onlyadmin':
       chatData.adminonly = status;
-      reply('Solo Admins');
+      reply('Modo Admin');
       break;
 
     case 'nsfw':
@@ -95,8 +100,10 @@ ${command} welcome
 ┃֪࣪
 ├ׁ̟̇❍✎ Solo el creador puede modificar
 ├ׁ̟̇❍✎ esta función del sistema
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim());
       }
+
       if (botSettings) {
         botSettings.jadibotmd = status;
         reply('Subbots (JadiBot)');
@@ -104,22 +111,14 @@ ${command} welcome
       break;
 
     default:
-      const statusIcon = (conf) => conf ? '🟢' : '🔴';
       m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼⚙️ 𝐎𝐏𝐂𝐈𝐎́𝐍 𝐍𝐎 𝐕𝐀́𝐋𝐈𝐃𝐀 ⚙️╮
 ┃֪࣪
-├ׁ̟̇❍✎ Opciones disponibles:
-├ׁ̟̇❍✎ welcome ${statusIcon(chatData.welcome)}
-├ׁ̟̇❍✎ antilink ${statusIcon(chatData.antiLink)}
-├ׁ̟̇❍✎ economia ${statusIcon(chatData.economy)}
-├ׁ̟̇❍✎ nsfw ${statusIcon(chatData.nsfw)}
-├ׁ̟̇❍✎ alertas ${statusIcon(chatData.alerts)}
-├ׁ̟̇❍✎ serbot ${statusIcon(botSettings?.jadibotmd)}
+├ׁ̟̇❍✎ Usa una opción válida
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
-✎ Ejemplo:
-${command} welcome
+${configList}
 `.trim());
       break;
   }
