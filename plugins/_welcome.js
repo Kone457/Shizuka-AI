@@ -91,10 +91,8 @@ export async function before(m, { conn, participants, groupMetadata }) {
       externalAdReply: {
         title: namebot || '',
         body: dev || '',
-        thumbnailUrl: icon || ppUrl,
         sourceUrl: redes || '',
-        mediaType: 1,
-        renderLargerThumbnail: false
+        mediaType: 1
       }
     }
   };
