@@ -65,6 +65,14 @@ async function postimages(buffer) {
     throw new Error("Postimages solo soporta imágenes");
   }
 
+  const ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36";
+
+  const sessionRes = await fetch("https://postimages.org/", {
+    headers: { "User-Agent": ua }
+  });
+  
+  const cookies = sessionRes.headers.get("set-cookie");
+
   const form = new FormData();
   const uploadSession = crypto.randomBytes(16).toString("hex");
   const filename = `${crypto.randomBytes(4).toString("hex")}.${ext}`;
@@ -80,17 +88,31 @@ async function postimages(buffer) {
     method: "POST",
     body: form,
     headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
+      "User-Agent": ua,
       "Origin": "https://postimages.org",
-      "Referer": "https://postimages.org/"
+      "Referer": "https://postimages.org/",
+      ...(cookies ? { "Cookie": cookies } : {})
     }
   });
 
-  if (!res.ok) throw new Error("Postimages upload failed");
+  if (!res.ok) {
+    throw new Error(`Servidor respondió con estado ${res.status}`);
+  }
 
   const result = await res.json();
   if (result.status !== "OK" || !result.url) {
-    throw new Error("Postimages no devolvió un enlace válido");
+    throw new Error("El servidor no retornó un enlace de visualización");
+  }
+
+  const pageRes = await fetch(result.url, {
+    headers: { "User-Agent": ua }
+  });
+  const html = await pageRes.text();
+  
+  const directLinkMatch = html.match(/<meta property="og:image" content="(.*?)"/);
+  
+  if (directLinkMatch && directLinkMatch[1]) {
+    return directLinkMatch[1];
   }
 
   const id = result.url.split("/").pop();
