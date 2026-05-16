@@ -24,15 +24,7 @@ handler.before = async function (m, { conn }) {
     const context = {
         contextInfo: {
             mentionedJid: mentions,
-            isForwarded: true,
-            externalAdReply: {
-                title: `${namebot} 𝚋𝚢 ${author}`,
-                body: 'Actualización de permisos',
-                thumbnailUrl: `${banner}`, 
-                sourceUrl: '',
-                mediaType: 1,
-                renderLargerThumbnail: true
-            }
+            isForwarded: true
         }
     }
 
@@ -64,7 +56,7 @@ ya no es administrador
 ${adminTag}
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🔒 𝐏ＥＲＭＩＳＯＳ 𝐑𝐄𝐕𝐎𝐂ＡＤＯＳ 🔒
+🔒 𝐏ＥＲＭＩＳＯＳ 𝐑𝐄𝐕𝐎𝐂ＡＤ𝐎Ｓ 🔒
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim()
 
@@ -80,7 +72,8 @@ ${adminTag}
 
     if (chat.alerts && m.messageStubType == 29) {
         await conn.sendMessage(m.chat, {
-            text: admingp,
+            image: { url: `${banner}` },
+            caption: admingp,
             ...context
         }, { quoted: null })
         return
@@ -88,7 +81,8 @@ ${adminTag}
 
     if (chat.alerts && m.messageStubType == 30) {
         await conn.sendMessage(m.chat, {
-            text: noadmingp,
+            image: { url: `${banner}` },
+            caption: noadmingp,
             ...context
         }, { quoted: null })
         return
