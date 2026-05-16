@@ -114,7 +114,7 @@ export async function handler(chatUpdate) {
         const user = globalThis.db.data.users[m.sender]
         const chat = globalThis.db.data.chats[m.chat]
 
-        If (m.isGroup && chat && chat.primaryBot) {
+        if (m.isGroup && chat && chat.primaryBot) {
             const texto = (m.text || "").trim().toLowerCase()
             const esComandoDelPrimary = texto.startsWith(".delprimary") || texto.startsWith("#delprimary")
             
