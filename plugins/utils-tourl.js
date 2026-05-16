@@ -18,9 +18,9 @@ let handler = async (m, { conn }) => {
   try {
     let media = await q.download();
 
-    const uploaders = /video/.test(mime)
-      ? [catbox, quax]
-      : [catbox, telegraph, quax];
+    const uploaders = /image/.test(mime)
+      ? [telegraph, catbox, quax]
+      : [catbox, quax];
 
     let link = await uploadWithFallback(media, uploaders);
 
@@ -161,12 +161,12 @@ async function quax(buffer) {
 
   const file = result.files[0];
 
-  if (file.name) {
-    return `https://qu.ax/${file.name}`;
-  }
-
   if (file.url) {
-    return file.url;
+    const direct = file.url.includes('.')
+      ? file.url
+      : `${file.url}.${ext}`;
+
+    return direct;
   }
 
   throw new Error("Qu.ax no devolvió enlace");
