@@ -41,7 +41,7 @@ function formatBytes(bytes) {
 }
 
 async function uploadWithFallback(buffer) {
-  const uploaders = [quax, telegraph, catbox];
+  const uploaders = [catbox, telegraph, quax];
   let lastError;
   for (const uploader of uploaders) {
     try {
