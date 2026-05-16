@@ -115,8 +115,11 @@ export async function handler(chatUpdate) {
         const chat = globalThis.db.data.chats[m.chat]
 
         if (m.isGroup && chat && chat.primaryBot) {
-            if (this.user.jid !== chat.primaryBot) return
-        }
+    const texto = (m.text || "").trim().toLowerCase()
+    if (!(texto.startsWith(".delprimary") || texto.startsWith("#delprimary"))) {
+        if (this.user.jid !== chat.primaryBot) return
+       }
+      }
 
         globalThis.setting = globalThis.db.data.settings[this.user.jid]
 
