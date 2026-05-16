@@ -114,12 +114,15 @@ export async function handler(chatUpdate) {
         const user = globalThis.db.data.users[m.sender]
         const chat = globalThis.db.data.chats[m.chat]
 
-        if (m.isGroup && chat && chat.primaryBot) {
-    const texto = (m.text || "").trim().toLowerCase()
-    if (!(texto.startsWith(".delprimary") || texto.startsWith("#delprimary"))) {
-        if (this.user.jid !== chat.primaryBot) return
-       }
-      }
+        If (m.isGroup && chat && chat.primaryBot) {
+            const texto = (m.text || "").trim().toLowerCase()
+            const esComandoDelPrimary = texto.startsWith(".delprimary") || texto.startsWith("#delprimary")
+            
+            if (!esComandoDelPrimary) {
+                if (this.user.jid !== chat.primaryBot) return
+            }
+        }
+      
 
         globalThis.setting = globalThis.db.data.settings[this.user.jid]
 
