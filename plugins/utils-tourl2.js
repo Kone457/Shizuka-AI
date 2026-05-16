@@ -79,24 +79,24 @@ async function postimg(buffer) {
 
   const blob = new Blob([buffer], { type: mime });
 
-  form.append("source", blob, `image.${ext}`);
-  form.append("type", "file");
-  form.append("action", "upload");
+  form.append("upload", blob, `image.${ext}`);
 
   const res = await fetch("https://postimages.org/json/rr", {
     method: "POST",
     body: form,
     headers: {
+      accept: "application/json",
       origin: "https://postimages.org",
       referer: "https://postimages.org/"
     }
   });
 
-  const json = await res.json();
+  const data = await res.json();
 
-  if (!json?.image?.url) {
-    throw new Error("PostImage no devolvió enlace");
+  if (!data?.url) {
+    console.log(data);
+    throw new Error("PostImages no devolvió enlace");
   }
 
-  return json.image.url;
+  return data.url;
 }
