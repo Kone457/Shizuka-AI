@@ -22,14 +22,20 @@ let handler = async (m, { conn }) => {
       ? [telegraph, catbox, quax]
       : [catbox, quax];
 
-    let link = await uploadWithFallback(media, uploaders);
+    let { link, name } = await uploadWithFallback(media, uploaders);
 
-    let txt = `*乂 M U L T I - U P L O A D E R 乂*\n\n`;
+    let txt = `*乂 ${name.toUpperCase()} U P L O A D E R 乂*\n\n`;
     txt += `*» Enlace* : ${link}\n`;
     txt += `*» Tamaño* : ${formatBytes(media.length)}\n`;
     txt += `*» Expiración* : No expira`;
 
-    await m.reply(txt);
+    await conn.sendFile(
+      m.chat,
+      media,
+      'thumbnail.jpg',
+      txt,
+      m
+    );
 
   } catch (e) {
     console.error(e);
@@ -57,7 +63,8 @@ async function uploadWithFallback(buffer, uploaders) {
 
   for (const uploader of uploaders) {
     try {
-      return await uploader(buffer);
+      let link = await uploader(buffer);
+      return { link, name: uploader.name };
     } catch (err) {
       console.error(`Uploader failed: ${uploader.name}`, err);
       lastError = err;
