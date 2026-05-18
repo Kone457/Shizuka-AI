@@ -1,16 +1,19 @@
 import fs from 'fs'
+import path from 'path'
 
 let handler = async (m, { conn, command }) => {
     let who = m.mentionedJid.length > 0 ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : m.sender)
     let name = conn.getName(who)
     let name2 = conn.getName(m.sender)
 
+    let jsonPath = path.join(process.cwd(), 'lib', 'reaction.json')
     let reactions;
+    
     try {
-        reactions = JSON.parse(fs.readFileSync('../lib/reaction.json', 'utf-8'))
+        reactions = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'))
     } catch (e) {
         console.error(e)
-        return m.reply('❌ Error al leer el archivo `lib/reaction.json`. Asegúrate de que el formato sea correcto.')
+        return m.reply('❌ Error al leer el archivo `lib/reaction.json`. Asegúrate de que exista y esté bien estructurado.')
     }
 
     let cmd = command.toLowerCase()
