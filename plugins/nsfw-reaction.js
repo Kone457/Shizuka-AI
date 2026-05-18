@@ -7,7 +7,7 @@ let handler = async (m, { conn, command }) => {
 
     let reactions;
     try {
-        reactions = JSON.parse(fs.readFileSync('./lib/reaction.json', 'utf-8'))
+        reactions = JSON.parse(fs.readFileSync('../lib/reaction.json', 'utf-8'))
     } catch (e) {
         console.error(e)
         return m.reply('❌ Error al leer el archivo `lib/reaction.json`. Asegúrate de que el formato sea correcto.')
