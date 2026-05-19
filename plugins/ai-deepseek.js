@@ -10,7 +10,7 @@ let handler = async (m, { conn, args }) => {
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: 'ⴵ *DeepSeek* está procesando tu respuesta...' },
+      { text: 'ⴵ *DeepSeek* está procesando tu solicitud...' },
       { quoted: m }
     );
 
