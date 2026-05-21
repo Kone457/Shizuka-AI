@@ -4,7 +4,7 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
 
   if (!user) {
     return conn.reply(m.chat, 
-      `《✧》 *Debes mencionar al usuario que quieras advertir.*`, 
+      `*Etiqueta a alguien, mi rey 👀.*`, 
       m
     );
   }
