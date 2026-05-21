@@ -1,6 +1,6 @@
 import moment from 'moment-timezone'
 
-const BANNER_URL = `${banner}`
+const BANNER_URL = `${banner}` 
 
 const CATEGORY_META = {
   main: '⊹ Main ⊹',
@@ -26,9 +26,7 @@ const CATEGORY_META = {
 
 let handler = async (m, { conn }) => {
   try {
-    await conn.sendMessage(m.chat, {
-      react: { text: '💔', key: m.key }
-    })
+    await conn.sendMessage(m.chat, { react: { text: '💔', key: m.key } })
 
     const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)
     const pluginsCount = pluginsActivos.length
@@ -74,9 +72,7 @@ let handler = async (m, { conn }) => {
     }, { quoted: m })
 
   } catch (e) {
-    await conn.sendMessage(m.chat, {
-      text: `✿ Error: ${e.message || e}`
-    }, { quoted: m })
+    await conn.sendMessage(m.chat, { text: `✿ Error: ${e.message || e}` }, { quoted: m })
   }
 }
 
