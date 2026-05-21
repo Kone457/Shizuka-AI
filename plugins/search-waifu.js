@@ -1,16 +1,14 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn }) => {
+let handler = async (m, { conn, text }) => {
   try {
     const sender = m.sender;
     const senderName = await conn.getName(sender);
 
-    const res = await fetch('https://api.waifu.im/search/?included_tags=waifu&is_nsfw=false');
-    const json = await res.json();
 
-    const imageUrl = json.images[0].url;
+    const imageUrl = `${api.url}/random/waifu?apikey=${api.key}`;
 
-    const caption = `✰ Aquí tienes ${senderName}...\n> ¿te enamoraste? `;
+    const caption = `✿ Aquí tienes ${senderName} `;
 
     await conn.sendMessage(
       m.chat,
@@ -24,7 +22,7 @@ let handler = async (m, { conn }) => {
 
   } catch (error) {
     console.error(error);
-    m.reply('✰ *Error al obtener la waifu.* Intenta nuevamente más tarde.');
+    m.reply('❏ *Error al obtener la imagen.* Intenta nuevamente más tarde.');
   }
 };
 
