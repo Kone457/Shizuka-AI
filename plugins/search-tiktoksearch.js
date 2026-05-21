@@ -5,15 +5,15 @@ let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('《✧》 Ingresa una palabra clave para buscar en TikTok.')
 
   try {
-    const res = await fetch(`${api.url2}/v1/search/tiktok?query=${encodeURIComponent(text)}`)
+    const res = await fetch(`${api.url}/search/tiktok?q=${encodeURIComponent(text)}&apikey=${api.key}`)
     const json = await res.json()
 
-    if (!json.status || !json.result?.search_data?.length) {
+    if (!json.status || !json.result?.length) {
       return m.reply('《✧》 No se encontraron videos para tu búsqueda.')
     }
 
     const cards = []
-    const videos = json.result.search_data.slice(0, 10)
+    const videos = json.result.slice(0, 10)
 
     for (let i = 0; i < videos.length; i++) {
       const vid = videos[i]
@@ -27,7 +27,7 @@ let handler = async (m, { conn, text }) => {
         headerObj = proto.Message.InteractiveMessage.Header.fromObject({ hasMediaAttachment: false })
       }
 
-      const bodyText = `🎬 ${vid.title.slice(0, 80)}\n👤 ${vid.author.nickname}\n⏱️ ${Math.floor(vid.duration / 60)}:${(vid.duration % 60).toString().padStart(2, '0')} min`
+      const bodyText = `🎬 ${vid.title.slice(0, 80)}\n👤 ${vid.author?.nickname || vid.author?.unique_id || 'Desconocido'}\n⏱️ ${Math.floor(vid.duration / 60)}:${(vid.duration % 60).toString().padStart(2, '0')} min`
       const footerText = `📍 Región: ${vid.region} • Resultado ${i + 1}`
 
       const card = {
@@ -40,7 +40,7 @@ let handler = async (m, { conn, text }) => {
               name: 'cta_url',
               buttonParamsJson: JSON.stringify({
                 display_text: '▶️ Ver video',
-                url: vid.data[0]?.url || `https://www.tiktok.com/@${vid.author.nickname}/video/${vid.video_id}`
+                url: vid.play || `https://www.tiktok.com/@${vid.author?.unique_id}/video/${vid.video_id}`
               })
             }
           ]
@@ -51,8 +51,8 @@ let handler = async (m, { conn, text }) => {
     }
 
     const interactive = proto.Message.InteractiveMessage.fromObject({
-      body: proto.Message.InteractiveMessage.Body.create({ text: `✧ Resultados de TikTok para *${json.result.query}*` }),
-      footer: proto.Message.InteractiveMessage.Footer.create({ text: `Total: ${json.result.count} videos` }),
+      body: proto.Message.InteractiveMessage.Body.create({ text: `✧ Resultados de TikTok para *${text}*` }),
+      footer: proto.Message.InteractiveMessage.Footer.create({ text: `Total: ${json.result.length} videos` }),
       header: proto.Message.InteractiveMessage.Header.create({ hasMediaAttachment: false }),
       carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards })
     })
