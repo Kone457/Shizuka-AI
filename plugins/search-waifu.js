@@ -1,13 +1,14 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, text }) => {
+let handler = async (m, { conn }) => {
   try {
     const sender = m.sender;
     const senderName = await conn.getName(sender);
 
-    const res = await fetch('https://api.waifu.pics/sfw/waifu');
+    const res = await fetch('https://api.waifu.im/search/?included_tags=waifu&is_nsfw=false');
     const json = await res.json();
-    const imageUrl = json.url;
+
+    const imageUrl = json.images[0].url;
 
     const caption = `✰ Aquí tienes ${senderName}...\n> ¿te enamoraste? `;
 
