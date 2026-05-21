@@ -1,37 +1,41 @@
-import fs from 'fs'
-import path from 'path'
+var handler = async (m, { conn, participants, usedPrefix, command }) => {
+  let texto = await m.mentionedJid;
+  let user = texto.length > 0 ? texto[0] : (m.quoted ? await m.quoted.sender : false);
 
-let handler = async (m, { conn }) => {
-    const user = m.mentionedJid?.[0] || m.quoted?.sender
-    if (!user) return m.reply('Etiqueta a alguien, mi rey 👀')
+  if (!user) {
+    return conn.reply(m.chat, 
+      `《✧》 *Debes mencionar al usuario que quieras advertir.*`, 
+      m
+    );
+  }
 
-    const frases = [
-        'me niego rotundamente a advertir a',
-        'no pienso hacerle nada a',
-        'me resisto completamente a advertir a',
-        'no quiero advertir a',
-        'no puedo advertir a',
-        'no me da la gana advertir a',
-        'hoy no advierto a',
-        'no estoy autorizado para advertir a'
-    ]
+  const frases = [
+    'me niego rotundamente a advertir a',
+    'no pienso hacerle nada a',
+    'me resisto completamente a advertir a',
+    'no quiero advertir a',
+    'no puedo advertir a',
+    'no me da la gana advertir a',
+    'hoy no advierto a',
+    'no estoy autorizado para advertir a'
+  ];
 
-    const frase = frases[Math.floor(Math.random() * frases.length)]
+  const frase = frases[Math.floor(Math.random() * frases.length)];
 
-    const texto = `
+  const textoFinal = `
 ╭─ׅ─ׅ┈ ─๋︩︪─⚠️─๋︩︪─┈─ׅ─ׅ╮
 ├ׁ̟̇❍✎ ${frase} @${user.split('@')[0]}
 ├ׁ̟̇❍✎ 😤 ¡Yo no hago bullying!
-╰─ׅ─ׅ┈ ─๋︩︪─⚠️─๋︩︪─┈─ׅ─ׅ╯`.trim()
+╰─ׅ─ׅ┈ ─๋︩︪─⚠️─๋︩︪─┈─ׅ─ׅ╯`.trim();
 
-    await conn.sendMessage(m.chat, { 
-        text: texto, 
-        mentions: [user] 
-    }, { quoted: m })
-}
+  await conn.sendMessage(m.chat, { 
+    text: textoFinal, 
+    mentions: [user] 
+  }, { quoted: m });
+};
 
-handler.help = ['warn']
-handler.tags = ['group']
-handler.command = ['warn']
+handler.help = ['warn'];
+handler.tags = ['fun'];
+handler.command = ['warn'];
 
-export default handler
+export default handler;
