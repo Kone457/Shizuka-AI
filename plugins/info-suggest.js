@@ -58,9 +58,10 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                content: m.quoted
-                    ? teks + '\n\n💭 RESPUESTA CITADA:\n' + (m.quoted.text || '')
-                    : teks
+                embeds: [{
+                    description: teks,
+                    color: 0x00AEEF
+                }]
             })
         })
 
