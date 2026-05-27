@@ -1,6 +1,6 @@
 import moment from 'moment-timezone'
 
-const BANNER_URL = `${banner}`
+const BANNER_URL = `${banner2}`
 
 const CATEGORY_META = {
   main: '⊹ Main ⊹',
