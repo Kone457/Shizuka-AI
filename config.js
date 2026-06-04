@@ -33,7 +33,7 @@ global.api = {
 }
 
 global.my = {
-  ch: '120363400241973967@newsletter',
+  ch: '120363424754823499@newsletter',
   name: '꒰ ✨ 𝚂𝚑𝚒𝚣𝚞𝚔𝚊-𝙰𝙸 ꒱'
 }
 
