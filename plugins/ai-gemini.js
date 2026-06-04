@@ -46,7 +46,7 @@ let handler = async (m, { conn, args }) => {
   try {
     const classifyPrompt = `Clasifica la siguiente petición en UNA palabra: "imagen" o "texto". Petición: "${text}"`;
     
-    const classifyRes = await fetch(`${api.url}/ai/gemini?text=${encodeURIComponent(classifyPrompt)}&apikey=${api.key}`);  
+    const classifyRes = await fetch(`${api.url}/ai/mistral?text=${encodeURIComponent(classifyPrompt)}&apikey=${api.key}`);  
     const classifyJson = await classifyRes.json();  
     const intent = (classifyJson?.result || '').toLowerCase().trim();  
 
@@ -88,7 +88,7 @@ let handler = async (m, { conn, args }) => {
       history: shortHistory  
     };  
 
-    const res = await fetch(`${api.url}/ai/gemini?text=${encodeURIComponent(JSON.stringify(payload))}&apikey=${api.key}`);  
+    const res = await fetch(`${api.url}/ai/mistral?text=${encodeURIComponent(JSON.stringify(payload))}&apikey=${api.key}`);  
     const json = await res.json();  
     const response = json?.result;  
 
