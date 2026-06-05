@@ -35,7 +35,7 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
 };
 
 handler.help = ['warn'];
-handler.tags = ['fun'];
+handler.tags = ['grupo'];
 handler.command = ['warn'];
 
 export default handler;
