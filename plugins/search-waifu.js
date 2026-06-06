@@ -8,7 +8,7 @@ let handler = async (m, { conn, text }) => {
 
     const imageUrl = `${api.url}/random/waifu?apikey=${api.key}`;
 
-    const caption = `✿ Aquí tienes ${senderName} `;
+    const caption = `✿ _¡Tu waifu ha llegado! ${senderName} (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧_  `;
 
     await conn.sendMessage(
       m.chat,
