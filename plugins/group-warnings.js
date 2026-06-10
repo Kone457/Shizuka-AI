@@ -8,7 +8,7 @@ let handler = async (m, { conn }) => {
 
     conn.reply(
         m.chat,
-        `📋 Advertencias de @${user.split('@')[0]}\n\n✦ Total: *${users[user].warn}*`,
+        `📋 Advertencias de @${user.split('@')[0]}\n\n> ✦ Total: *${users[user].warn}*`,
         m,
         { mentions: [user] }
     )
