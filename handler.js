@@ -98,10 +98,25 @@ export async function handler(chatUpdate) {
             if (settings) {
                 if (!('self' in settings)) settings.self = false
                 if (!('botcommando' in settings)) settings.botcommando = 0
+                if (!('config' in settings)) settings.config = {}
+                const cfg = settings.config
+                if (!('botname'  in cfg)) cfg.botname  = ''
+                if (!('namebot'  in cfg)) cfg.namebot  = ''
+                if (!('banner'   in cfg)) cfg.banner   = ''
+                if (!('banner2'  in cfg)) cfg.banner2  = ''
+                if (!('icon'     in cfg)) cfg.icon     = ''
+                if (!('currency' in cfg)) cfg.currency = ''
+                if (!('wm'       in cfg)) cfg.wm       = ''
+                if (!('packname' in cfg)) cfg.packname = ''
             } else {
                 globalThis.db.data.settings[this.user.jid] = {
                     self: false,
-                    botcommando: 0
+                    botcommando: 0,
+                    config: {
+                        botname: '', namebot: '', banner: '',
+                        banner2: '', icon: '', currency: '',
+                        wm: '', packname: ''
+                    }
                 }
             }
         } catch (err) {
