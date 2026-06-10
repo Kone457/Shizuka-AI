@@ -2,6 +2,7 @@ import { sticker } from '../lib/sticker.js'
 import uploadFile from '../lib/uploadFile.js'
 import uploadImage from '../lib/uploadImage.js'
 import { webp2png } from '../lib/webp2mp4.js'
+import { getBotConfig } from '../lib/botconfig.js'
 
 const isUrl = (text) => {
     return text.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)(jpe?g|gif|png)/, 'gi'))
@@ -9,6 +10,8 @@ const isUrl = (text) => {
 
 let handler = async (m, { conn, args }) => {
     let stiker = false;
+    const wm = getBotConfig(conn, 'wm')
+    const pack = getBotConfig(conn, 'packname')
     
     try {
         let q = m.quoted ? m.quoted : m;
@@ -24,7 +27,7 @@ let handler = async (m, { conn, args }) => {
 
             let out;
             try {
-                stiker = await sticker(img, false, global.wm, global.author);
+                stiker = await sticker(img, false, wm, pack);
             } catch (e) {
                 console.error(e);
             } finally {
@@ -34,12 +37,12 @@ let handler = async (m, { conn, args }) => {
                     else if (/video/g.test(mime)) out = await uploadFile(img);
                     
                     if (typeof out !== 'string') out = await uploadImage(img);
-                    stiker = await sticker(false, out, global.wm, global.author);
+                    stiker = await sticker(false, out, wm, pack);
                 }
             }
         } else if (args[0]) {
             if (isUrl(args[0])) {
-                stiker = await sticker(false, args[0], global.wm, global.author);
+                stiker = await sticker(false, args[0], wm, pack);
             } else {
                 return m.reply(`《✧》 El url es incorrecto`);
             }
