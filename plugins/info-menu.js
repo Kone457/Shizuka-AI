@@ -1,6 +1,5 @@
 import moment from 'moment-timezone'
-
-const BANNER_URL = `${banner2}`
+import { getBotConfig } from '../lib/botconfig.js'
 
 const CATEGORY_META = {
   main: '⊹ Main ⊹',
@@ -92,7 +91,7 @@ let handler = async (m, { conn }) => {
     }
 
     await conn.sendMessage(m.chat, {
-      image: { url: BANNER_URL },
+      image: { url: getBotConfig(conn, 'banner2') },
       caption: menuTexto.trim()
     }, { quoted: m })
 
