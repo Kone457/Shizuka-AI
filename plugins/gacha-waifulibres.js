@@ -19,7 +19,7 @@ let handler = async (m, { conn }) => {
         const claimedCharacters = characters.filter(c => c.user)
 
         const message = `
-╭━━〔 💖 HAREM INFO 💖 〕━━⬣
+╭━━〔 HAREM INFO 〕━━⬣
 ┃ ✦ Total » *${characters.length}*
 ┃ ✦ Libres » *${freeCharacters.length}*
 ┃ ✦ Reclamados » *${claimedCharacters.length}*
