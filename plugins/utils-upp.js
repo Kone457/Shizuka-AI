@@ -9,24 +9,29 @@ let handler = async (m, { conn }) => {
   if (!mime) return conn.reply(m.chat, '📦 Por favor, responde a un archivo válido (imagen, video, etc.).', m)
 
   try {
+    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
+
     let media = await q.download()
     let link = await myCloud(media)
 
-    let txt = `*乂 M I N I - N U B E 乂*\n\n`
-    txt += `*» Enlace* : ${link.enlace}\n`
-    txt += `*» Nombre* : ${link.nombre}\n`
-    txt += `*» Tamaño* : ${formatBytes(link.tamaño)}\n`
+    if (!link.success) throw new Error()
 
-    await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m)
+    let txt = `*乂 E V O G B  W I N 乂*\n\n`
+    txt += `*» Enlace* : ${link.url}\n`
+    txt += `*» ID* : ${link.id}\n`
+    txt += `*» Tamaño* : ${formatBytes(media.length)}\n`
+
+    await conn.sendFile(m.chat, media, 'file.' + link.url.split('.').pop(), txt, m)
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
   } catch (e) {
     console.error(e)
-    await m.reply('❌ Error al subir el archivo.')
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
   }
 }
 
-handler.help = ['upp']
+handler.help = ['upp', 'tourl']
 handler.tags = ['tools']
-handler.command = ['upp']
+handler.command = ['upp', 'tourl']
 
 export default handler
 
@@ -38,15 +43,22 @@ function formatBytes(bytes) {
 }
 
 async function myCloud(content) {
-  const { ext, mime } = (await fileTypeFromBuffer(content)) || {}
-  const blob = new Blob([content.toArrayBuffer()], { type: mime })
-  const formData = new FormData()
-  formData.append("file", blob, crypto.randomBytes(5).toString("hex") + "." + ext)
+  const fileType = await fileTypeFromBuffer(content)
+  const ext = fileType ? fileType.ext : 'bin'
+  const mime = fileType ? fileType.mime : 'application/octet-stream'
 
-  const response = await fetch("https://magical.vercel.app/upload", {
+  const formData = new FormData()
+  const blob = new Blob([content], { type: mime })
+  const fileName = `${crypto.randomBytes(5).toString("hex")}.${ext}`
+  
+  formData.append("file", blob, fileName)
+
+  const response = await fetch("https://evogb.win/api/upload", {
     method: "POST",
     body: formData
   })
+
+  if (!response.ok) throw new Error()
 
   return await response.json()
 }
