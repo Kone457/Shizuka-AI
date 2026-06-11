@@ -1,3 +1,4 @@
+/* 
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { FormData, Blob } from "formdata-node";
@@ -187,3 +188,4 @@ async function telegraph(buffer) {
 
   return `https://telegra.ph${data[0].src}`;
 }
+*/
