@@ -52,7 +52,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`
 
     try {
-        await fetch('https://discord.com/api/webhooks/1441568936410742814/YmRv4XOMIacttN8RAgq7X3tsgoEFhWSPHIw1KMEaLIRkHiL9_dhICIZ1QwYobmdCK4xZ', {
+        await fetch('https://discord.com/api/webhooks/1482041314701738066/CfeGZsaaEEzOYPWS0xFWqiN2yQqEYbpnszIB1x2Vc9GrDTN_Q2huKCdTgq2ozkyBhi0w', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
