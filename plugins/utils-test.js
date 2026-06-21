@@ -6,55 +6,21 @@ import { fileTypeFromBuffer } from "file-type"
 let handler = async (m, { conn }) => {
   let q = m.quoted ? m.quoted : m
   let mime = (q.msg || q).mimetype || ''
-
-  if (!mime) {
-    return conn.reply(
-      m.chat,
-      '📦 Responde a un archivo (imagen, video, audio o documento).',
-      m
-    )
-  }
+  if (!mime) return conn.reply(m.chat, '📦 Por favor, responde a un archivo válido (imagen, video, etc.).', m)
 
   try {
-    await conn.sendMessage(m.chat, {
-      react: { text: "⏳", key: m.key }
-    })
+    let media = await q.download()
+    let link = await myCloud(media)
 
-    const media = await q.download()
-    if (!media) throw new Error("No se pudo descargar el archivo")
+    let txt = `*乂 M I N I - N U B E 乂*\n\n`
+    txt += `*» Enlace* : ${link.enlace}\n`
+    txt += `*» Nombre* : ${link.nombre}\n`
+    txt += `*» Tamaño* : ${formatBytes(link.tamaño)}\n`
 
-    const link = await myCloud(media)
-
-    if (!link?.success || !link?.url) {
-      throw new Error("Upload fallido")
-    }
-
-    const txt = `
-*乂 PROJECT CLOUD 乂*
-
-*» Archivo:* ${link.id || "sin-id"}
-*» Tamaño:* ${formatBytes(link.size || media.length)}
-*» URL:* ${link.url}
-`.trim()
-
-    await conn.sendFile(m.chat, media, "file", txt, m)
-
-    await conn.sendMessage(m.chat, {
-      react: { text: "✅", key: m.key }
-    })
-
+    await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m)
   } catch (e) {
-    console.error("UPLOAD ERROR:", e)
-
-    await conn.sendMessage(m.chat, {
-      react: { text: "❌", key: m.key }
-    })
-
-    await conn.reply(
-      m.chat,
-      "❌ Error al subir el archivo. Revisa consola.",
-      m
-    )
+    console.error(e)
+    await m.reply('❌ Error al subir el archivo.')
   }
 }
 
@@ -65,48 +31,22 @@ handler.command = ['tes']
 export default handler
 
 function formatBytes(bytes) {
-  if (!bytes || isNaN(bytes)) return "0 B"
+  if (bytes === 0) return '0 B'
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`
+  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`
 }
 
-async function myCloud(buffer) {
-  const type = await fileTypeFromBuffer(buffer)
+async function myCloud(content) {
+  const { ext, mime } = (await fileTypeFromBuffer(content)) || {}
+  const blob = new Blob([content.toArrayBuffer()], { type: mime })
+  const formData = new FormData()
+  formData.append("file", blob, crypto.randomBytes(5).toString("hex") + "." + ext)
 
-  const ext = type?.ext || "bin"
-  const mime = type?.mime || "application/octet-stream"
-
-  const form = new FormData()
-
-  const filename = `${crypto.randomBytes(6).toString("hex")}.${ext}`
-
-  form.append(
-    "file",
-    new Blob([buffer], { type: mime }),
-    filename
-  )
-
-  const res = await fetch("https://project-x.nfy.fyi/index.php", {
+  const response = await fetch("https://project-sxl.vercel.app/upload", {
     method: "POST",
-    body: form
+    body: formData
   })
 
-  const text = await res.text()
-
-  console.log("SERVER RESPONSE:", text)
-
-  let json
-  try {
-    json = JSON.parse(text)
-  } catch (e) {
-    throw new Error("Respuesta no JSON del servidor")
-  }
-
-  return {
-    success: json.status,
-    id: json.filename,
-    url: json.url,
-    size: json.size
-  }
+  return await response.json()
 }
