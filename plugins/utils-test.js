@@ -10,7 +10,7 @@ let handler = async (m, { conn }) => {
   if (!mime) {
     return conn.reply(
       m.chat,
-      '📦 Responde a una imagen, video, audio o documento.',
+      '📦 Responde a un archivo (imagen, video, audio o documento).',
       m
     )
   }
@@ -21,36 +21,38 @@ let handler = async (m, { conn }) => {
     })
 
     const media = await q.download()
+    if (!media) throw new Error("No se pudo descargar el archivo")
+
     const link = await myCloud(media)
 
-    if (!link.success) {
+    if (!link?.success || !link?.url) {
       throw new Error("Upload fallido")
     }
 
     const txt = `
 *乂 PROJECT CLOUD 乂*
 
-*» Archivo:* ${link.id}
-*» Tamaño:* ${formatBytes(media.length)}
+*» Archivo:* ${link.id || "sin-id"}
+*» Tamaño:* ${formatBytes(link.size || media.length)}
 *» URL:* ${link.url}
 `.trim()
 
-    await conn.reply(m.chat, txt, m)
+    await conn.sendFile(m.chat, media, "file", txt, m)
 
     await conn.sendMessage(m.chat, {
       react: { text: "✅", key: m.key }
     })
 
   } catch (e) {
-    console.error(e)
+    console.error("UPLOAD ERROR:", e)
 
     await conn.sendMessage(m.chat, {
       react: { text: "❌", key: m.key }
     })
 
-    conn.reply(
+    await conn.reply(
       m.chat,
-      '❌ Error al subir el archivo.',
+      "❌ Error al subir el archivo. Revisa consola.",
       m
     )
   }
@@ -63,11 +65,9 @@ handler.command = ['tes']
 export default handler
 
 function formatBytes(bytes) {
-  if (!bytes) return "0 B"
-
+  if (!bytes || isNaN(bytes)) return "0 B"
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
-
   return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`
 }
 
@@ -79,25 +79,29 @@ async function myCloud(buffer) {
 
   const form = new FormData()
 
+  const filename = `${crypto.randomBytes(6).toString("hex")}.${ext}`
+
   form.append(
     "file",
     new Blob([buffer], { type: mime }),
-    `${crypto.randomBytes(6).toString("hex")}.${ext}`
+    filename
   )
 
-  const res = await fetch(
-    "https://project-x.nfy.fyi/index.php",
-    {
-      method: "POST",
-      body: form
-    }
-  )
+  const res = await fetch("https://project-x.nfy.fyi/index.php", {
+    method: "POST",
+    body: form
+  })
 
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`)
+  const text = await res.text()
+
+  console.log("SERVER RESPONSE:", text)
+
+  let json
+  try {
+    json = JSON.parse(text)
+  } catch (e) {
+    throw new Error("Respuesta no JSON del servidor")
   }
-
-  const json = await res.json()
 
   return {
     success: json.status,
