@@ -237,7 +237,7 @@ handler.before = async (m, { conn }) => {
   if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath)
   if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath)
 } catch {}
- 
+ }
 
       
  } catch (e) {
