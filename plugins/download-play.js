@@ -1,3 +1,10 @@
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+
+const execAsync = promisify(exec)
 import fetch from 'node-fetch';
 
 const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text)
@@ -154,52 +161,63 @@ handler.before = async (m, { conn }) => {
 
 
     if (id.startsWith('video_')) {
-  const link = id.replace('video_', '');
+  const link = id.replace('video_', '')
 
   await conn.sendMessage(m.chat, {
     react: { text: '⏳', key: m.key }
-  });
+  })
 
   const res = await fetch(
     `${api.url}/download/test?url=${encodeURIComponent(link)}&quality=720&apikey=${api.key}`
-  );
+  )
 
-  const json = await res.json();
+  const json = await res.json()
 
   if (!json.status || !json.result?.url) {
     await conn.sendMessage(m.chat, {
       react: { text: '❌', key: m.key }
-    });
+    })
 
-    return m.reply(`
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐕𝐈𝐃𝐄𝐎 ☁️╮
-┃֪࣪
-├ׁ̟̇❍✎ No disponible
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim());
+    return m.reply('No se pudo obtener el video.')
   }
 
-  const data = json.result;
+  const data = json.result
 
-  const videoResponse = await fetch(data.url);
+  const videoRes = await fetch(data.url)
 
-  if (!videoResponse.ok) {
-    throw new Error('VIDEO_DOWNLOAD_FAILED');
+  if (!videoRes.ok) {
+    throw new Error('VIDEO_DOWNLOAD_FAILED')
   }
 
-  const videoBuffer = Buffer.from(
-    await videoResponse.arrayBuffer()
-  );
+  const inputPath = path.join(
+    os.tmpdir(),
+    `yt_${Date.now()}.mp4`
+  )
+
+  const outputPath = path.join(
+    os.tmpdir(),
+    `wa_${Date.now()}.mp4`
+  )
+
+  fs.writeFileSync(
+    inputPath,
+    Buffer.from(await videoRes.arrayBuffer())
+  )
+
+  await execAsync(
+    `ffmpeg -y -i "${inputPath}" -c:v libx264 -c:a aac -movflags +faststart "${outputPath}"`
+  )
+
+  const finalBuffer = fs.readFileSync(outputPath)
 
   await conn.sendMessage(m.chat, {
     react: { text: '✅', key: m.key }
-  });
+  })
 
   await conn.sendMessage(
     m.chat,
     {
-      video: videoBuffer,
+      video: finalBuffer,
       mimetype: 'video/mp4',
       fileName: `${(data.info?.title || 'video')
         .replace(/[^\w\s]/gi, '')}.mp4`,
@@ -209,33 +227,40 @@ handler.before = async (m, { conn }) => {
 ┃֪࣪
 ├ׁ̟̇❍✎ ${data.info?.title || 'Video'}
 ├ׁ̟̇❍✎ ⏱️ ${data.info?.duration || 'Desconocido'}
-├ׁ̟̇❍✎ ⚡ ${data.quality || '720'}p
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
     },
     { quoted: m }
-  );
-}
+  )
 
+  fs.unlinkSync(inputPath)
+  fs.unlinkSync(outputPath)
+}
+  
+ 
 
       
-  } catch {
-    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
+ } catch (e) {
+    console.error(e)
+
+    await conn.sendMessage(m.chat, {
+      react: { text: '❌', key: m.key }
+    })
 
     m.reply(`
-  ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐄𝐑𝐑𝐎𝐑 ☁️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ Fallo inesperado
 ├ׁ̟̇❍✎ Intenta nuevamente
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim());
+`.trim())
   }
-};
+}
 
-handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4'];
-handler.tags = ['descargas'];
-handler.help = ['play'];
-handler.group = true;
+handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4']
+handler.tags = ['descargas']
+handler.help = ['play']
+handler.group = true
 
-export default handler;
+export default handler
