@@ -151,37 +151,74 @@ handler.before = async (m, { conn }) => {
       }, { quoted: m });
     }
 
+
+
     if (id.startsWith('video_')) {
-      const link = id.replace('video_', '');
+  const link = id.replace('video_', '');
 
-      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+  await conn.sendMessage(m.chat, {
+    react: { text: '⏳', key: m.key }
+  });
 
-      const res = await fetch(`${api.url}/download/test?url=${encodeURIComponent(link)}&apikey=${api.key}`);
-      const json = await res.json();
+  const res = await fetch(
+    `${api.url}/download/test?url=${encodeURIComponent(link)}&quality=720&apikey=${api.key}`
+  );
 
-      if (!json.status || !json.result?.url) {
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
+  const json = await res.json();
 
-        return m.reply(`
-  ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+  if (!json.status || !json.result?.url) {
+    await conn.sendMessage(m.chat, {
+      react: { text: '❌', key: m.key }
+    });
+
+    return m.reply(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐕𝐈𝐃𝐄𝐎 ☁️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ No disponible
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim());
-      }
+  }
 
-      const data = json.result;
+  const data = json.result;
 
-      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+  const videoResponse = await fetch(data.url);
 
-      await conn.sendMessage(m.chat, {
-        video: { url: data.url },
-        fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`,
-        mimetype: 'video/mp4'
-      }, { quoted: m });
-    }
+  if (!videoResponse.ok) {
+    throw new Error('VIDEO_DOWNLOAD_FAILED');
+  }
 
+  const videoBuffer = Buffer.from(
+    await videoResponse.arrayBuffer()
+  );
+
+  await conn.sendMessage(m.chat, {
+    react: { text: '✅', key: m.key }
+  });
+
+  await conn.sendMessage(
+    m.chat,
+    {
+      video: videoBuffer,
+      mimetype: 'video/mp4',
+      fileName: `${(data.info?.title || 'video')
+        .replace(/[^\w\s]/gi, '')}.mp4`,
+      caption: `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼☁️ 𝐕𝐈𝐃𝐄𝐎 ☁️╮
+┃֪࣪
+├ׁ̟̇❍✎ ${data.info?.title || 'Video'}
+├ׁ̟̇❍✎ ⏱️ ${data.info?.duration || 'Desconocido'}
+├ׁ̟̇❍✎ ⚡ ${data.quality || '720'}p
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim()
+    },
+    { quoted: m }
+  );
+}
+
+
+      
   } catch {
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
 
