@@ -156,7 +156,7 @@ handler.before = async (m, { conn }) => {
 
       await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-      const res = await fetch(`${api.url}/download/video?url=${encodeURIComponent(link)}&apikey=${api.key}`);
+      const res = await fetch(`${api.url}/download/test?url=${encodeURIComponent(link)}&apikey=${api.key}`);
       const json = await res.json();
 
       if (!json.status || !json.result?.url) {
