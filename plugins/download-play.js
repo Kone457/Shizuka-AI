@@ -221,14 +221,7 @@ handler.before = async (m, { conn }) => {
       mimetype: 'video/mp4',
       fileName: `${(data.info?.title || 'video')
         .replace(/[^\w\s]/gi, '')}.mp4`,
-      caption: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐕𝐈𝐃𝐄𝐎 ☁️╮
-┃֪࣪
-├ׁ̟̇❍✎ ${data.info?.title || 'Video'}
-├ׁ̟̇❍✎ ⏱️ ${data.info?.duration || 'Desconocido'}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim()
+     
     },
     { quoted: m }
   )
