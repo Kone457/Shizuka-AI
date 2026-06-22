@@ -168,7 +168,7 @@ handler.before = async (m, { conn }) => {
   })
 
   const res = await fetch(
-    `${api.url}/download/test?url=${encodeURIComponent(link)}&quality=720&apikey=${api.key}`
+    `${api.url}/download/test?url=${encodeURIComponent(link)}&quality=240&apikey=${api.key}`
   )
 
   const json = await res.json()
