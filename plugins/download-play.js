@@ -233,10 +233,10 @@ handler.before = async (m, { conn }) => {
     { quoted: m }
   )
 
-  fs.unlinkSync(inputPath)
-  fs.unlinkSync(outputPath)
-}
-  
+  try {
+  if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath)
+  if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath)
+} catch {}
  
 
       
