@@ -16,7 +16,7 @@ let handler = async (m, { conn, args }) => {
     fd.append('image', img, { filename: 'input.jpg', contentType: 'image/jpeg' })
 
     const model = args[0] || ''
-    const apiUrl = `${api}/ai/upscale?model=${encodeURIComponent(model)}&apikey=${apikey}`
+    const apiUrl = `${api.url}/ai/upscale?model=${encodeURIComponent(model)}&apikey=${api.key}`
 
     const resApi = await fetch(apiUrl, {
       method: 'POST',
