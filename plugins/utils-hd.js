@@ -23,18 +23,18 @@ let handler = async (m, { conn, args }) => {
       body: fd,
       headers: fd.getHeaders()
     })
-    const result = await resApi.json()
 
-    if (!result.ok) {
-      return conn.reply(m.chat, `❌ Error: ${result.msg || 'No se pudo procesar la imagen'}`, m)
+    if (!resApi.ok) {
+      return conn.reply(m.chat, `❌ Error: ${resApi.status}`, m)
     }
 
-    const txt = `*乂 H D - U P S C A L E R 乂*\n\n` +
-                `*» Modelo* : ${result.model}\n` +
-                `*» Upscaled* : ${result.upscaled}\n` +
-                `*» Tiempo* : ${result.duration}s\n`
+    const buffer = await resApi.buffer()
 
-    await conn.sendFile(m.chat, result.upscaled, 'upscaled.jpg', txt, m)
+    const txt = `*乂 H D - U P S C A L E R 乂*\n\n` +
+                `*» Modelo* : ${model || 'default'}\n` +
+                `*» Upscaled* : Imagen generada\n`
+
+    await conn.sendFile(m.chat, buffer, 'upscaled.jpg', txt, m)
 
   } catch (e) {
     conn.reply(m.chat, `❌ Error al conectar con la API: ${e.message}`, m)
