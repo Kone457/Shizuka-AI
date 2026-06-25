@@ -1,4 +1,5 @@
 import fetch from 'node-fetch'
+import FormData from 'form-data'
 
 let handler = async (m, { conn, args }) => {
   const quoted = m.quoted ? m.quoted : null
@@ -12,14 +13,15 @@ let handler = async (m, { conn, args }) => {
 
   try {
     const fd = new FormData()
-    fd.append('image', img, 'input.jpg')
+    fd.append('image', img, { filename: 'input.jpg', contentType: 'image/jpeg' })
 
     const model = args[0] || ''
     const apiUrl = `${api}/ai/upscale?model=${encodeURIComponent(model)}&apikey=${apikey}`
 
     const resApi = await fetch(apiUrl, {
       method: 'POST',
-      body: fd
+      body: fd,
+      headers: fd.getHeaders()
     })
     const result = await resApi.json()
 
