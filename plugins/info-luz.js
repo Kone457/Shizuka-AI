@@ -34,7 +34,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
   }
 }
 
-handler.command = ['luz'']
+handler.command = ['luz']
 handler.help = ['luz']
 handler.tags = ['info']
 handler.group = false
