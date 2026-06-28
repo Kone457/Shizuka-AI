@@ -23,7 +23,10 @@ const handler = async (m, { conn, usedPrefix, command }) => {
 
     const reporte = `📢 *Informe oficial de la Unión Eléctrica*\n\n${cuerpoNota || 'No hay información disponible en este momento.'}\n\n> ⚡ Manténgase preparado y tome las medidas necesarias.`
 
-    await conn.reply(m.chat, reporte, m)
+    await conn.sendMessage(m.chat, {
+      image: { url: 'https://www.unionelectrica.cu/wp-content/uploads/2025/01/nota-informativa.png' },
+      caption: reporte
+    }, { quoted: m })
 
   } catch (e) {
     await conn.reply(
