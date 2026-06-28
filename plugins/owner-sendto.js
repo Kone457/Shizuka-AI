@@ -1,11 +1,11 @@
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   let numero, mensaje
 
-  if (text) {
+  if (text && text.includes('|')) {
     [numero, mensaje] = text.split('|').map(v => v?.trim())
   } else if (m.quoted) {
     numero = m.quoted.sender
-    mensaje = m.text?.trim()
+    mensaje = text?.trim()
   }
 
   if (!numero || !mensaje) {
