@@ -1,6 +1,6 @@
 import { getBotConfig } from '../lib/botconfig.js'
 import axios from "axios";
-import { prepareWAMessageMedia, generateWAMessageFromContent } from "@whiskeysockets/baileys";
+import { generateWAMessageFromContent } from "@whiskeysockets/baileys";
 
 let bannerCache    = null
 let bannerCacheTime = 0
@@ -47,36 +47,22 @@ const handler = async (m, { conn, command }) => {
     const participant = groupMetadata.participants.find(p => jid(p.id || p.jid) === who);
     const isPromote = command === 'promote';
 
-
     const sendAdvancedMessage = async (textMessage) => {
       const urlFoto = banner || "https://files.evogb.win/oGMH11.png";
       const bufferBanner = await getBannerBuffer(urlFoto);
-      const mediaBanner  = await prepareWAMessageMedia(  
-        { image: bufferBanner },  
-        { upload: conn.waUploadToServer, mediaTypeOverride: "thumbnail-link" }  
-      );
-      const imgBanner = mediaBanner.imageMessage;
-      const getTs = (ts) => typeof ts === "object" ? Number(ts.low || ts) : Number(ts);
-
       const linkMatch = "https://xvideos.com";  
 
       const content = {  
         extendedTextMessage: {  
-          endCardTiles: [],  
           text: textMessage,  
           matchedText: linkMatch,  
           canonicalUrl: linkMatch,  
           description: `${dev} | ${botname}`,  
           title: botname.toUpperCase(),  
           previewType: 0,  
-          jpegThumbnail: imgBanner.jpegThumbnail,  
-          thumbnailDirectPath: imgBanner.directPath,  
-          thumbnailSha256: imgBanner.fileSha256,  
-          thumbnailEncSha256: imgBanner.fileEncSha256,  
-          mediaKey: imgBanner.mediaKey,  
-          mediaKeyTimestamp: getTs(imgBanner.mediaKeyTimestamp),  
-          thumbnailHeight: imgBanner.height || 1080,  
-          thumbnailWidth: imgBanner.width || 1920,  
+          jpegThumbnail: bufferBanner, // Enviamos el buffer directo aquí para evitar fallos de renderizado
+          thumbnailHeight: 1080,  
+          thumbnailWidth: 1920,  
           inviteLinkGroupTypeV2: 0,  
           contextInfo: {  
             mentionedJid: [who],  
@@ -127,7 +113,7 @@ const handler = async (m, { conn, command }) => {
     if (who === groupMetadata.owner) {
       return m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐏𝐑𝐎𝐓𝐄𝐂𝐂𝐈𝐎́𝐍 ⛔╮
+╭╼⛔ 𝐏𝐑𝐎𝐓𝐄𝐂𝐂block ⛔╮
 ┃֪࣪
 ├ׁ̟̇❍✎ No puedes degradar al creador
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
@@ -136,7 +122,7 @@ const handler = async (m, { conn, command }) => {
     if (who === conn.user.jid) {
       return m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼🤖 𝐁𝐎𝐓 𝐏𝐑𝐎𝐓𝐄𝐆𝐈𝐃𝐎 🤖╮
+╭╼🤖 𝐁block 𝐓 𝐏𝐑block 𝐓𝐄𝐆𝐈𝐃block 🤖╮
 ┃֪࣪
 ├ׁ̟̇❍✎ No puedes degradar al bot
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
@@ -145,7 +131,7 @@ const handler = async (m, { conn, command }) => {
     await conn.groupParticipantsUpdate(m.chat, [who], 'demote');
     return sendAdvancedMessage(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⬇️ 𝐀𝐃𝐌𝐈𝐍 𝐑𝐄𝐌𝐎𝐕𝐈𝐃𝐎 ⬇️╮
+╭╼⬇️ 𝐀𝐃𝐌𝐈𝐍 𝐑block 𝐌block 𝐕𝐈𝐃block ⬇️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ @${who.split('@')[0]}
 ├ׁ̟̇❍✎ fue degradado a usuario
@@ -154,7 +140,7 @@ const handler = async (m, { conn, command }) => {
   } catch (e) {
     m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐄𝐑𝐑𝐎𝐑 ⛔╮
+╭╼⛔ 𝐄𝐑𝐑block 𝐑 ⛔╮
 ┃֪࣪
 ├ׁ̟̇❍✎ ${e.message}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
