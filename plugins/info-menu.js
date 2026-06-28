@@ -33,7 +33,6 @@ let handler = async (m, { conn }) => {
     const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)
     const pluginsCount = pluginsActivos.length
 
-    const jam = moment.tz('America/Havana').format('HH:mm:ss')
     const fecha = moment.tz('America/Havana').format('DD/MM/YYYY')
     const hora = moment.tz('America/Havana').format('hh:mm A')
 
@@ -61,18 +60,40 @@ let handler = async (m, { conn }) => {
       }
     }
 
+    const userName = m.pushName || 'Usuario'
+    const botnameConfig = getBotConfig(conn, 'botname') || 'Bot'
+    
+    let isMainBot = false
+    
+    if (global.sessions) {
+
+      isMainBot = global.sessions.includes('session-bot') || global.sessions === 'sessions/'
+    }
+    
+    if (!isMainBot && global.owner && Array.isArray(global.owner)) {
+      const botNumber = conn.user.jid.split('@')[0]
+      isMainBot = global.owner.some(owner => {
+        const ownerNumber = String(owner[0]).replace(/[^0-9]/g, '')
+        return ownerNumber === botNumber
+      })
+    }
+
+    if (!isMainBot && !global.jadi) {
+      isMainBot = true 
+    }
+    
+    const botType = isMainBot ? ' 𝐏𝐫𝐞𝐦-𝐁𝐨𝐭' : '𝐅𝐫𝐞𝐞-𝐁𝐨𝐭'
+
     let menuTexto = ''
 
-    menuTexto += `╭─ׅ─ׅ┈ ─๋︩︪─☪︎︎︎̸⃘̸࣭ٜ࣪࣪࣪۬◌⃘۪֟፝֯۫۫︎⃪𐇽۫۬❖⃘࣭ٜ࣪࣪࣪۬☪︎︎︎︎̸─ׅ─ׅ┈ ─๋︩︪─╮\n`
-    menuTexto += `╭╼⬪࣪ꥈ𑁍⃪࣭۪ٜ 𝐌𝐄𝐍𝐔 ໑⃪࣭۪ٜ݊݊݊݊𑁍ꥈ࣪⬪\n`
-    menuTexto += `┃֪࣪  ╰─ׅ─ׅ┈ ─๋︩︪─☪︎︎︎̸⃘̸࣭ٜ࣪࣪࣪۬◌⃘۪֟፝֯۫۫︎⃪𐇽۫۬❖⃘࣭ٜ࣪࣪࣪۬☪︎︎︎︎̸─ׅ─ׅ┈ ─๋︩︪─╯\n`
+    menuTexto += `Hola *${userName}* soy *${botnameConfig}* (${botType})\n`
+    menuTexto += `ᴀǫᴜɪ ᴛɪᴇɴᴇs ʟᴀ ʟɪsᴛᴀ ᴅᴇ ᴄᴏᴍᴀɴᴅᴏs\n`
+    menuTexto += `╭┈ ↷\n`
+    menuTexto += `│ ✐ 𝓓𝓮𝔀𝓮𝓵𝓸𝓹𝓮𝓭 𝓫𝔂 𝓒𝓪𝓻𝓵𝓸𝓼 💙\n`
+    menuTexto += `│ ✐ ꒷ꕤ💎ദ ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ ෴\n`
+    menuTexto += `│https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O\n`
+    menuTexto += `╰─────────────────\n\n`
 
-    menuTexto += `├ׁ̟̇❍✎ 𝐔𝐬𝐮𝐚𝐫𝐢𝐨 » ${m.pushName || 'Usuario'}\n`
-    menuTexto += `├ׁ̟̇❍✎ 𝐅𝐞𝐜𝐡𝐚 » ${fecha}\n`
-    menuTexto += `├ׁ̟̇❍✎ 𝐇𝐨𝐫𝐚 » ${hora}\n`
-    menuTexto += `├ׁ̟̇❍✎ 𝐂𝐨𝐦𝐚𝐧𝐝𝐨𝐬 » ${pluginsCount}\n`
-
-    menuTexto += `╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n\n`
 
     for (const tag of Object.keys(CATEGORY_META)) {
       const set = byTag[tag]
