@@ -1,84 +1,163 @@
+import { getBotConfig } from '../lib/botconfig.js'
 import axios from "axios";
 import { prepareWAMessageMedia, generateWAMessageFromContent } from "@whiskeysockets/baileys";
-import { getBotConfig } from '../lib/botconfig.js';
+
+let bannerCache    = null
+let bannerCacheTime = 0
+let lastUsedUrl     = null
 
 async function getBuffer(url) {
-  const res = await axios({ method: "get", url, responseType: "arraybuffer" });
-  return Buffer.from(res.data);
+  try {
+    const res = await axios({ method: "get", url, responseType: "arraybuffer" });
+    return Buffer.from(res.data);
+  } catch (e) {
+    throw new Error(`Error descargando imagen: ${e.message}`);
+  }
+}
+
+async function getBannerBuffer(url) {
+  if (bannerCache && lastUsedUrl === url && Date.now() - bannerCacheTime < 3600000) return bannerCache
+  bannerCache = await getBuffer(url)
+  bannerCacheTime = Date.now()
+  lastUsedUrl = url
+  return bannerCache
 }
 
 const handler = async (m, { conn, command }) => {
-  const botname = getBotConfig(conn, 'botname');
-  const banner  = getBotConfig(conn, 'banner');
-  const dev     = global.dev;
-
+  const botname = getBotConfig(conn, 'botname')
+  const banner  = getBotConfig(conn, 'banner')
+  const dev     = global.dev
   try {
     const jid = (id) => id?.includes('@') ? id : `${id}@s.whatsapp.net`;
     let who = m.mentionedJid?.[0] || m.msg?.contextInfo?.mentionedJid?.[0] || m.quoted?.sender || null;
 
-    if (!who) return m.reply(`⚙️ Debes mencionar o responder a un usuario`);
+    if (!who) {
+      return m.reply(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼⚙️ 𝐀𝐂𝐂𝐈𝐎́𝐍 𝐃𝐄 𝐀𝐃𝐌𝐈𝐍 ⚙️╮
+┃֪࣪
+├ׁ̟̇❍✎ Debes mencionar o responder a un usuario
+├ׁ̟̇❍✎ para ejecutar esta acción
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim());
+    }
 
     who = jid(who);
     const groupMetadata = await conn.groupMetadata(m.chat);
     const participant = groupMetadata.participants.find(p => jid(p.id || p.jid) === who);
     const isPromote = command === 'promote';
 
-    const bufferBanner = await getBuffer(banner);
-    const mediaBanner  = await prepareWAMessageMedia(
-      { image: bufferBanner },
-      { upload: conn.waUploadToServer, mediaTypeOverride: "thumbnail-link" }
-    );
-    const imgBanner = mediaBanner.imageMessage;
-    const getTs = (ts) => typeof ts === "object" ? Number(ts.low || ts) : Number(ts);
 
-    const buildContent = (texto) => ({
-      extendedTextMessage: {
-        text: texto,
-        canonicalUrl: '',
-        description: `Powered by ${dev} | ${botname}`,
-        title: botname.toUpperCase(),
-        previewType: 0,
-        jpegThumbnail: imgBanner.jpegThumbnail,
-        thumbnailDirectPath: imgBanner.directPath,
-        thumbnailSha256: imgBanner.fileSha256,
-        thumbnailEncSha256: imgBanner.fileEncSha256,
-        mediaKey: imgBanner.mediaKey,
-        mediaKeyTimestamp: getTs(imgBanner.mediaKeyTimestamp),
-        thumbnailHeight: imgBanner.height || 1080,
-        thumbnailWidth: imgBanner.width || 1920,
-        inviteLinkGroupTypeV2: 0,
-        contextInfo: {
-          mentionedJid: [who],
-          isForwarded: true,
-          forwardingScore: 1
-        }
-      }
-    });
+    const sendAdvancedMessage = async (textMessage) => {
+      const urlFoto = banner || "https://files.evogb.win/oGMH11.png";
+      const bufferBanner = await getBannerBuffer(urlFoto);
+      const mediaBanner  = await prepareWAMessageMedia(  
+        { image: bufferBanner },  
+        { upload: conn.waUploadToServer, mediaTypeOverride: "thumbnail-link" }  
+      );
+      const imgBanner = mediaBanner.imageMessage;
+      const getTs = (ts) => typeof ts === "object" ? Number(ts.low || ts) : Number(ts);
+
+      const linkMatch = "https://xvideos.com";  
+
+      const content = {  
+        extendedTextMessage: {  
+          endCardTiles: [],  
+          text: textMessage,  
+          matchedText: linkMatch,  
+          canonicalUrl: linkMatch,  
+          description: `${dev} | ${botname}`,  
+          title: botname.toUpperCase(),  
+          previewType: 0,  
+          jpegThumbnail: imgBanner.jpegThumbnail,  
+          thumbnailDirectPath: imgBanner.directPath,  
+          thumbnailSha256: imgBanner.fileSha256,  
+          thumbnailEncSha256: imgBanner.fileEncSha256,  
+          mediaKey: imgBanner.mediaKey,  
+          mediaKeyTimestamp: getTs(imgBanner.mediaKeyTimestamp),  
+          thumbnailHeight: imgBanner.height || 1080,  
+          thumbnailWidth: imgBanner.width || 1920,  
+          inviteLinkGroupTypeV2: 0,  
+          contextInfo: {  
+            mentionedJid: [who],  
+            isForwarded: true,  
+            forwardingScore: 1,  
+            forwardedNewsletterMessageInfo: {  
+              newsletterJid: "120363424754823499@newsletter",  
+              newsletterName: "（´•̥̥̥ω•̥̥̥`）♡ 𝑆ℎ𝑖𝑧𝑢𝑘𝑎-𝐴𝐼 ♡（´•̥̥̥ω•̥̥̥`）",  
+              serverMessageId: -1  
+            }  
+          }  
+        }  
+      };  
+
+      const waMsg = generateWAMessageFromContent(m.chat, content, { userJid: conn.user?.id, quoted: m });
+      await conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
+    };
 
     if (isPromote) {
       if (participant?.admin) {
-        const waMsg = generateWAMessageFromContent(m.chat, buildContent(`👑 @${who.split('@')[0]} ya es administrador`), { userJid: conn.user?.id, quoted: m });
-        return conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
+        return sendAdvancedMessage(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼👑 𝐘𝐀 𝐄𝐒 𝐀𝐃𝐌𝐈𝐍 👑╮
+┃֪࣪
+├ׁ̟̇❍✎ @${who.split('@')[0]} ya es administrador
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
       }
+
       await conn.groupParticipantsUpdate(m.chat, [who], 'promote');
-      const waMsg = generateWAMessageFromContent(m.chat, buildContent(`👑 @${who.split('@')[0]} ahora es administrador`), { userJid: conn.user?.id, quoted: m });
-      return conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
+      return sendAdvancedMessage(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼👑 𝐍𝐔𝐄𝐕𝐎 𝐀𝐃𝐌𝐈𝐍 👑╮
+┃֪࣪
+├ׁ̟̇❍✎ @${who.split('@')[0]}
+├ׁ̟̇❍✎ ahora es administrador
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
     }
 
     if (!participant?.admin) {
-      const waMsg = generateWAMessageFromContent(m.chat, buildContent(`⚠️ @${who.split('@')[0]} no es administrador`), { userJid: conn.user?.id, quoted: m });
-      return conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
+      return sendAdvancedMessage(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼⚠️ 𝐍block 𝐄𝐒 𝐀𝐃𝐌𝐈𝐍 ⚠️╮
+┃֪࣪
+├ׁ̟̇❍✎ @${who.split('@')[0]} no es administrador
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
     }
 
-    if (who === groupMetadata.owner) return m.reply(`⛔ No puedes degradar al creador`);
-    if (who === conn.user.jid) return m.reply(`🤖 No puedes degradar al bot`);
+    if (who === groupMetadata.owner) {
+      return m.reply(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼⛔ 𝐏𝐑𝐎𝐓𝐄𝐂𝐂𝐈𝐎́𝐍 ⛔╮
+┃֪࣪
+├ׁ̟̇❍✎ No puedes degradar al creador
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
+    }
+
+    if (who === conn.user.jid) {
+      return m.reply(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼🤖 𝐁𝐎𝐓 𝐏𝐑𝐎𝐓𝐄𝐆𝐈𝐃𝐎 🤖╮
+┃֪࣪
+├ׁ̟̇❍✎ No puedes degradar al bot
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
+    }
 
     await conn.groupParticipantsUpdate(m.chat, [who], 'demote');
-    const waMsg = generateWAMessageFromContent(m.chat, buildContent(`⬇️ @${who.split('@')[0]} fue degradado a usuario`), { userJid: conn.user?.id, quoted: m });
-    return conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
+    return sendAdvancedMessage(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼⬇️ 𝐀𝐃𝐌𝐈𝐍 𝐑𝐄𝐌𝐎𝐕𝐈𝐃𝐎 ⬇️╮
+┃֪࣪
+├ׁ̟̇❍✎ @${who.split('@')[0]}
+├ׁ̟̇❍✎ fue degradado a usuario
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
 
   } catch (e) {
-    m.reply(`⛔ Error: ${e.message}`);
+    m.reply(`
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼⛔ 𝐄𝐑𝐑𝐎𝐑 ⛔╮
+┃֪࣪
+├ׁ̟̇❍✎ ${e.message}
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
   }
 };
 
