@@ -8,27 +8,27 @@ let handler = async (m, { conn }) => {
   let mime = (q.msg || q).mimetype || "";
 
   if (!mime) {
-    return conn.reply(m.chat, "《✧》 Por favor, responde a un archivo válido.", m);
+    return conn.reply(m.chat, "《✧》 Responde a un archivo válido.", m);
   }
 
   try {
     const media = await q.download();
-    const link = await catbox(media);
+    const link = await upload0x0(media);
 
-    const txt = `*乂 C A T B O X - U P L O A D E R 乂*\n\n`
-      + `*» Enlace* : ${link}\n`
-      + `*» Tamaño* : ${formatBytes(media.length)}\n`;
+    const txt = `*乂 0x0.st - U P L O A D E R 乂*\n\n`
+      + `*» Enlace:* ${link}\n`
+      + `*» Tamaño:* ${formatBytes(media.length)}\n`;
 
-    await conn.sendFile(m.chat, media, "thumbnail.jpg", txt, m);
+    await conn.sendFile(m.chat, media, "file", txt, m);
   } catch (e) {
     console.error(e);
-    await m.reply(`《✧》 Error al subir el archivo.\n\n*Detalles*: ${e.message}`);
+    m.reply(`《✧》 Error al subir el archivo.\n\n*Detalles:* ${e.message}`);
   }
 };
 
-handler.help = ["catbox"];
+handler.help = ["tourl2"];
 handler.tags = ["tools"];
-handler.command = ["catbox"];
+handler.command = ["tourl2"];
 
 export default handler;
 
@@ -39,41 +39,36 @@ function formatBytes(bytes) {
   return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
 }
 
-async function catbox(buffer) {
+async function upload0x0(buffer) {
   const type = await fileTypeFromBuffer(buffer);
 
-  if (!type) {
-    throw new Error("No se pudo detectar el tipo de archivo.");
-  }
+  if (!type) throw new Error("No se pudo detectar el tipo de archivo.");
 
   const form = new FormData();
 
-  form.set("reqtype", "fileupload");
   form.set(
-    "fileToUpload",
+    "file",
     new File(
       [buffer],
-      `${crypto.randomBytes(5).toString("hex")}.${type.ext}`,
+      `${crypto.randomBytes(6).toString("hex")}.${type.ext}`,
       {
         type: type.mime
       }
     )
   );
 
-  const res = await fetch("https://catbox.moe/user/api.php", {
+  const res = await fetch("https://0x0.st", {
     method: "POST",
     body: form,
-    headers: form.headers
+    headers: {
+      ...form.headers,
+      "User-Agent": "Shizuka-AI/3.5.1"
+    }
   });
 
   const text = (await res.text()).trim();
 
-  console.log("Catbox Status:", res.status);
-  console.log("Catbox Response:", text);
-
-  if (!res.ok) {
-    throw new Error(text);
-  }
+  if (!res.ok) throw new Error(text);
 
   if (!text.startsWith("https://")) {
     throw new Error(text);
