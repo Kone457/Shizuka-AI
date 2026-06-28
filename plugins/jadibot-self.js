@@ -1,9 +1,9 @@
 let handler = async (m, { conn, args }) => {
 
   const propietarios = [
-    conn.user.jid, 
-    ...(global.owner || []).map(n => n + '@s.whatsapp.net'),
-    '595987301197@s.whatsapp.net' 
+    conn.user.jid,
+    ...(global.owner || []).map(owner => owner[0] + '@s.whatsapp.net'),
+    '595987301197@s.whatsapp.net'
   ];
 
   const isSocketOwner = propietarios.includes(m.sender);
