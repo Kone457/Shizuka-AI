@@ -1,118 +1,84 @@
+import axios from "axios";
+import { prepareWAMessageMedia, generateWAMessageFromContent } from "@whiskeysockets/baileys";
+import { getBotConfig } from '../lib/botconfig.js';
 
-import { getBotConfig } from '../lib/botconfig.js'
+async function getBuffer(url) {
+  const res = await axios({ method: "get", url, responseType: "arraybuffer" });
+  return Buffer.from(res.data);
+}
 
 const handler = async (m, { conn, command }) => {
-  const botname = getBotConfig(conn, 'botname')
-  const banner  = getBotConfig(conn, 'banner')
-  const dev     = global.dev
+  const botname = getBotConfig(conn, 'botname');
+  const banner  = getBotConfig(conn, 'banner');
+  const dev     = global.dev;
+
   try {
     const jid = (id) => id?.includes('@') ? id : `${id}@s.whatsapp.net`;
     let who = m.mentionedJid?.[0] || m.msg?.contextInfo?.mentionedJid?.[0] || m.quoted?.sender || null;
 
-    if (!who) {
-      return m.reply(`
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐀𝐂𝐂𝐈𝐎́𝐍 𝐃𝐄 𝐀𝐃𝐌𝐈𝐍 ⚙️╮
-┃֪࣪
-├ׁ̟̇❍✎ Debes mencionar o responder a un usuario
-├ׁ̟̇❍✎ para ejecutar esta acción
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim());
-    }
+    if (!who) return m.reply(`⚙️ Debes mencionar o responder a un usuario`);
 
     who = jid(who);
     const groupMetadata = await conn.groupMetadata(m.chat);
     const participant = groupMetadata.participants.find(p => jid(p.id || p.jid) === who);
     const isPromote = command === 'promote';
 
-    const context = {
-      mentionedJid: [who],
-      isForwarded: true,
-      externalAdReply: {
-        title: `${botname}`,
-        body: `${dev}`,
-        thumbnailUrl: `${banner}`, 
-        sourceUrl: '',
-        mediaType: 1,
-        renderLargerThumbnail: true
+    const bufferBanner = await getBuffer(banner);
+    const mediaBanner  = await prepareWAMessageMedia(
+      { image: bufferBanner },
+      { upload: conn.waUploadToServer, mediaTypeOverride: "thumbnail-link" }
+    );
+    const imgBanner = mediaBanner.imageMessage;
+    const getTs = (ts) => typeof ts === "object" ? Number(ts.low || ts) : Number(ts);
+
+    const buildContent = (texto) => ({
+      extendedTextMessage: {
+        text: texto,
+        canonicalUrl: '',
+        description: `Powered by ${dev} | ${botname}`,
+        title: botname.toUpperCase(),
+        previewType: 0,
+        jpegThumbnail: imgBanner.jpegThumbnail,
+        thumbnailDirectPath: imgBanner.directPath,
+        thumbnailSha256: imgBanner.fileSha256,
+        thumbnailEncSha256: imgBanner.fileEncSha256,
+        mediaKey: imgBanner.mediaKey,
+        mediaKeyTimestamp: getTs(imgBanner.mediaKeyTimestamp),
+        thumbnailHeight: imgBanner.height || 1080,
+        thumbnailWidth: imgBanner.width || 1920,
+        inviteLinkGroupTypeV2: 0,
+        contextInfo: {
+          mentionedJid: [who],
+          isForwarded: true,
+          forwardingScore: 1
+        }
       }
-    };
+    });
 
     if (isPromote) {
       if (participant?.admin) {
-        return conn.sendMessage(m.chat, {
-          text: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼👑 𝐘𝐀 𝐄𝐒 𝐀𝐃𝐌𝐈𝐍 👑╮
-┃֪࣪
-├ׁ̟̇❍✎ @${who.split('@')[0]} ya es administrador
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim(),
-          contextInfo: context
-        }, { quoted: m });
+        const waMsg = generateWAMessageFromContent(m.chat, buildContent(`👑 @${who.split('@')[0]} ya es administrador`), { userJid: conn.user?.id, quoted: m });
+        return conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
       }
-
       await conn.groupParticipantsUpdate(m.chat, [who], 'promote');
-      return conn.sendMessage(m.chat, {
-        text: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼👑 𝐍𝐔𝐄𝐕𝐎 𝐀𝐃𝐌𝐈𝐍 👑╮
-┃֪࣪
-├ׁ̟̇❍✎ @${who.split('@')[0]}
-├ׁ̟̇❍✎ ahora es administrador
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim(),
-        contextInfo: context
-      }, { quoted: m });
+      const waMsg = generateWAMessageFromContent(m.chat, buildContent(`👑 @${who.split('@')[0]} ahora es administrador`), { userJid: conn.user?.id, quoted: m });
+      return conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
     }
 
     if (!participant?.admin) {
-      return conn.sendMessage(m.chat, {
-        text: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚠️ 𝐍𝐎 𝐄𝐒 𝐀𝐃𝐌𝐈𝐍 ⚠️╮
-┃֪࣪
-├ׁ̟̇❍✎ @${who.split('@')[0]} no es administrador
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim(),
-        contextInfo: context
-      }, { quoted: m });
+      const waMsg = generateWAMessageFromContent(m.chat, buildContent(`⚠️ @${who.split('@')[0]} no es administrador`), { userJid: conn.user?.id, quoted: m });
+      return conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
     }
 
-    if (who === groupMetadata.owner) {
-      return m.reply(`
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐏𝐑𝐎𝐓𝐄𝐂𝐂𝐈𝐎́𝐍 ⛔╮
-┃֪࣪
-├ׁ̟̇❍✎ No puedes degradar al creador
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
-    }
-
-    if (who === conn.user.jid) {
-      return m.reply(`
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼🤖 𝐁𝐎𝐓 𝐏𝐑𝐎𝐓𝐄𝐆𝐈𝐃𝐎 🤖╮
-┃֪࣪
-├ׁ̟̇❍✎ No puedes degradar al bot
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
-    }
+    if (who === groupMetadata.owner) return m.reply(`⛔ No puedes degradar al creador`);
+    if (who === conn.user.jid) return m.reply(`🤖 No puedes degradar al bot`);
 
     await conn.groupParticipantsUpdate(m.chat, [who], 'demote');
-    return conn.sendMessage(m.chat, {
-      text: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⬇️ 𝐀𝐃𝐌𝐈𝐍 𝐑𝐄𝐌𝐎𝐕𝐈𝐃𝐎 ⬇️╮
-┃֪࣪
-├ׁ̟̇❍✎ @${who.split('@')[0]}
-├ׁ̟̇❍✎ fue degradado a usuario
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim(),
-      contextInfo: context
-    }, { quoted: m });
+    const waMsg = generateWAMessageFromContent(m.chat, buildContent(`⬇️ @${who.split('@')[0]} fue degradado a usuario`), { userJid: conn.user?.id, quoted: m });
+    return conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id });
 
   } catch (e) {
-    m.reply(`
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐄𝐑𝐑𝐎𝐑 ⛔╮
-┃֪࣪
-├ׁ̟̇❍✎ ${e.message}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim());
+    m.reply(`⛔ Error: ${e.message}`);
   }
 };
 
