@@ -11,7 +11,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!numero || !mensaje) {
     return conn.reply(
       m.chat,
-      `《✧》 Formato incorrecto.\nUsa: ${usedPrefix + command} +1234567890|Mensaje`,
+      `《✧》 Formato incorrecto.\nUsa: ${usedPrefix + command} +1234567890|Mensaje.`,
       m
     )
   }
@@ -24,7 +24,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     await conn.sendMessage(jid, { text: mensaje })
     await conn.reply(
       m.chat,
-      `《✧》 *Mensaje enviado a:* ${numero}\n✰ *Contenido:* ${mensaje}`,
+      `《✧》 *Mensaje enviado a:* ${numero.replace('@s.whatsapp.net', '')}\n✰ *Contenido:* ${mensaje}`,
       m
     )
   } catch (e) {
