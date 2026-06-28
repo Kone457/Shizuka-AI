@@ -61,5 +61,6 @@ async function myCloud(content) {
 
   if (!response.ok) throw new Error()
 
+  // Catbox devuelve la URL en texto plano
   return await response.text()
 }
