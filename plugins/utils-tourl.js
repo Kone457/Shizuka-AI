@@ -8,18 +8,18 @@ let handler = async (m, { conn }) => {
   let mime = (q.msg || q).mimetype || "";
 
   if (!mime) {
-    return conn.reply(m.chat, "《✧》 Responde a un archivo válido.", m);
+    return conn.reply(m.chat, "《✧》 Por favor, responde a un archivo válido.", m);
   }
 
   try {
     const media = await q.download();
-    const link = await upload0x0(media);
+    const link = await uploadUguu(media);
 
-    const txt = `*乂 0x0.st - U P L O A D E R 乂*\n\n`
+    const txt = `*乂 U G U U - U P L O A D E R 乂*\n\n`
       + `*» Enlace:* ${link}\n`
-      + `*» Tamaño:* ${formatBytes(media.length)}\n`;
+      + `*» Tamaño:* ${formatBytes(media.length)}`;
 
-    await conn.sendFile(m.chat, media, "file", txt, m);
+    await conn.sendFile(m.chat, media, "archivo", txt, m);
   } catch (e) {
     console.error(e);
     m.reply(`《✧》 Error al subir el archivo.\n\n*Detalles:* ${e.message}`);
@@ -39,7 +39,7 @@ function formatBytes(bytes) {
   return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
 }
 
-async function upload0x0(buffer) {
+async function uploadUguu(buffer) {
   const type = await fileTypeFromBuffer(buffer);
 
   if (!type) throw new Error("No se pudo detectar el tipo de archivo.");
@@ -47,32 +47,29 @@ async function upload0x0(buffer) {
   const form = new FormData();
 
   form.set(
-    "file",
+    "files[]",
     new File(
       [buffer],
       `${crypto.randomBytes(6).toString("hex")}.${type.ext}`,
-      {
-        type: type.mime
-      }
+      { type: type.mime }
     )
   );
 
-  const res = await fetch("https://0x0.st", {
+  const res = await fetch("https://uguu.se/upload.php", {
     method: "POST",
     body: form,
-    headers: {
-      ...form.headers,
-      "User-Agent": "Shizuka-AI/3.5.1"
-    }
+    headers: form.headers
   });
 
-  const text = (await res.text()).trim();
+  const json = await res.json();
 
-  if (!res.ok) throw new Error(text);
-
-  if (!text.startsWith("https://")) {
-    throw new Error(text);
+  if (!res.ok) {
+    throw new Error(json.message || "Error al subir el archivo.");
   }
 
-  return text;
+  if (!json.success || !json.files?.length) {
+    throw new Error(json.message || "La subida falló.");
+  }
+
+  return json.files[0].url;
 }
