@@ -11,16 +11,18 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
     if (command === 'mute' || command === 'silenciar') {
         if (chat.mutedUsers.includes(who)) return m.reply('✿ *Este usuario ya está silenciado en este grupo*');
         chat.mutedUsers.push(who);
-        await m.reply(`✿ *@${who.split('@')[0]} ha sido silenciado.\n> Sus mensajes serán eliminados automáticamente.*`, { mentions: [who] });
+        await conn.reply(m.chat, `✿ *@${who.split('@')[0]} ha sido silenciado.\n> Sus mensajes serán eliminados automáticamente.*`, m, { mentions: [who] });
     } else if (command === 'unmute' || command === 'desilenciar') {
         if (!chat.mutedUsers.includes(who)) return m.reply('✿ *Este usuario no está silenciado en este grupo*');
         chat.mutedUsers = chat.mutedUsers.filter(u => u !== who);
-        await m.reply(`✿ *@${who.split('@')[0]} ha sido desilenciado.*`, { mentions: [who] });
+        await conn.reply(m.chat, `✿ *@${who.split('@')[0]} ha sido desilenciado.*`, m, { mentions: [who] });
     }
 };
 
 handler.before = async function (m, { conn, isBotAdmin, chat }) {
     if (!m.isGroup || m.fromMe) return false;
+    
+    if (m.text && m.text.startsWith('.')) return false;
 
     if (chat.mutedUsers && Array.isArray(chat.mutedUsers)) {
         if (chat.mutedUsers.includes(m.sender)) {
