@@ -1,7 +1,7 @@
 let handler = async (m, { conn, participants, isAdmin, isOwner, text }) => {
     if (!m.isGroup) return m.reply('✿ *Este comando solo se puede usar en grupos*');
     if (!isAdmin && !isOwner) return m.reply('✿ *Solo administradores pueden usar este comando*');
-    
+
     let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text ? text.replace(/[^0-9]/g, '') + '@s.whatsapp.net' : false;
     if (!who) return m.reply('✿ *Etiqueta o responde al mensaje del usuario que deseas silenciar*');
 
@@ -18,6 +18,19 @@ let handler = async (m, { conn, participants, isAdmin, isOwner, text }) => {
         chat.mutedUsers = chat.mutedUsers.filter(u => u !== who);
         await m.reply(`✿ *@${who.split('@')[0]} ha sido desilenciado.*`, { mentions: [who] });
     }
+};
+
+handler.before = async function (m, { conn, isBotAdmin, chat }) {
+    if (!m.isGroup || m.fromMe) return false;
+
+    if (chat.mutedUsers && Array.isArray(chat.mutedUsers)) {
+        if (chat.mutedUsers.includes(m.sender)) {
+            if (isBotAdmin) {
+                await conn.sendMessage(m.chat, { delete: m.key });
+            }
+        }
+    }
+    return true; 
 };
 
 handler.help = ['mute @user', 'unmute @user'];
