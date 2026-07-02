@@ -42,7 +42,7 @@ let handler = async (m, { conn, args }) => {
       promptWithContext = `Contexto de conversación:\n${contextString}\n\nUsuario: ${text}`;
     }
 
-    const res = await fetch(`${api.url}/ai/cenix?text=${encodeURIComponent(promptWithContext)}&apikey=${api.key}`);
+    const res = await fetch(`${api.url}/ai/oscar?text=${encodeURIComponent(promptWithContext)}&apikey=${api.key}`);
     const json = await res.json();
 
     const response = json?.result;
