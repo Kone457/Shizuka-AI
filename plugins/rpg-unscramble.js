@@ -1,9 +1,13 @@
+
 import { promises as fs } from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { getBotConfig } from '../lib/botconfig.js'
 
 let timeout = 60000 
 let reward = 500   
-const jsonPath = '../lib/unscramble.json'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const jsonPath = path.join(__dirname, '..', 'lib', 'unscramble.json')
 
 let handler = async (m, { conn }) => {
     conn.unscramble = conn.unscramble ? conn.unscramble : {}
