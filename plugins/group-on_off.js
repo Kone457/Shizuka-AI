@@ -17,6 +17,7 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 ├ׁ̟̇❍✎ reaccion ${statusIcon(chatData.reaction)}
 ├ׁ̟̇❍✎ nsfw ${statusIcon(chatData.nsfw)}
 ├ׁ̟̇❍✎ alertas ${statusIcon(chatData.alerts)}
+├ׁ̟̇❍✎ notprefix ${statusIcon(chatData.notprefix)}
 ├ׁ̟̇❍✎ serbot ${statusIcon(botSettings?.jadibotmd)}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
@@ -88,6 +89,13 @@ ${command} welcome
     case 'alertas':
       chatData.alerts = status;
       reply('Alertas');
+      break;
+
+    case 'notprefix':
+    case 'noprefix':
+    case 'sinprefijo':
+      chatData.notprefix = status;
+      reply('Sin Prefijo (NotPrefix)');
       break;
 
     case 'serbot':
