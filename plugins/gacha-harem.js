@@ -75,5 +75,6 @@ handler.help = ['harem']
 handler.tags = ['gacha']
 handler.command = ['harem', 'claims', 'waifus']
 handler.group = true
+handler.gacha = true
 
 export default handler
