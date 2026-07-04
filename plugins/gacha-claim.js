@@ -122,5 +122,6 @@ handler.help = ['claim']
 handler.tags = ['gacha']
 handler.command = ['c', 'claim', 'reclamar']
 handler.group = true
+handler.gacha = true
 
 export default handler
