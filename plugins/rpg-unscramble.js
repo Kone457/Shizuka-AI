@@ -104,11 +104,8 @@ handler.before = async function (m) {
     delete this.unscramble[m.chat]
 
     await this.sendMessage(m.chat, {
-        text: `🎉 ¡Correcto!
-
-@${m.sender.split('@')[0]}
-
-Ganaste *${reward} ${currency}*`,
+        text: `🎉 ¡Correcto! @${m.sender.split('@')[0]}
+> Ganaste *${reward} ${currency}*`,
         mentions: [m.sender]
     }, {
         quoted: m
