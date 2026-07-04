@@ -1,8 +1,15 @@
 let handler = async (m, { conn }) => {
-    let user = m.mentionedJid?.[0] || m.quoted?.sender
+    let mentioned = await m.mentionedJid
+    let user = mentioned.length > 0
+        ? mentioned[0]
+        : (m.quoted ? m.quoted.sender : false)
 
     if (!user) {
-        return conn.reply(m.chat, '《✧》Debes mencionar o responder al usuario.', m)
+        return conn.reply(
+            m.chat,
+            '《✧》 Debes mencionar o responder al usuario.',
+            m
+        )
     }
 
     let users = global.db.data.users
@@ -11,12 +18,16 @@ let handler = async (m, { conn }) => {
     users[user].warn = users[user].warn || 0
 
     if (users[user].warn <= 0) {
-        return conn.reply(m.chat, '❏ Ese usuario no tiene advertencias.', m)
+        return conn.reply(
+            m.chat,
+            '❏ Ese usuario no tiene advertencias.',
+            m
+        )
     }
 
     users[user].warn--
 
-    conn.reply(
+    await conn.reply(
         m.chat,
         `✅ Se eliminó una advertencia a @${user.split('@')[0]}\n> ✦ Advertencias actuales: *${users[user].warn}*`,
         m,
