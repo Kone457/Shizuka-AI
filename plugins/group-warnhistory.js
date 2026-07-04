@@ -1,14 +1,25 @@
 let handler = async (m, { conn }) => {
-    let user = m.mentionedJid?.[0] || m.quoted?.sender
+    let mentioned = await m.mentionedJid
+    let user = mentioned.length > 0
+        ? mentioned[0]
+        : (m.quoted ? m.quoted.sender : false)
 
     if (!user) {
-        return conn.reply(m.chat, '《✧》Debes mencionar o responder al usuario.', m)
+        return conn.reply(
+            m.chat,
+            '《✧》 Debes mencionar o responder al usuario.',
+            m
+        )
     }
 
     let data = global.db.data.users[user]
 
     if (!data?.warnHistory?.length) {
-        return conn.reply(m.chat, '❏ Sin historial de advertencias.', m)
+        return conn.reply(
+            m.chat,
+            '❏ Sin historial de advertencias.',
+            m
+        )
     }
 
     let txt = `📋 Historial de @${user.split('@')[0]}\n\n`
@@ -19,11 +30,16 @@ let handler = async (m, { conn }) => {
         txt += `➥ Razón: ${w.reason}\n\n`
     }
 
-    conn.reply(
+    await conn.reply(
         m.chat,
         txt.trim(),
         m,
-        { mentions: [user, ...data.warnHistory.map(v => v.by)] }
+        {
+            mentions: [
+                user,
+                ...data.warnHistory.map(v => v.by)
+            ]
+        }
     )
 }
 
