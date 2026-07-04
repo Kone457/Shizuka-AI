@@ -40,5 +40,6 @@ handler.help = ['waifulibres']
 handler.tags = ['gacha']
 handler.command = ['waifulibres']
 handler.group = true
+handler.gacha = true
 
 export default handler
