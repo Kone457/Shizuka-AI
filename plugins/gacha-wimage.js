@@ -54,5 +54,6 @@ handler.help = ['wimage']
 handler.tags = ['gacha']
 handler.command = ['charimage', 'wimage', 'waifuimage']
 handler.group = true
+handler.gacha = true
 
 export default handler
