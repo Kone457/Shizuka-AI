@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs'
+import { getBotConfig } from '../lib/botconfig.js'
 
 let timeout = 60000 
 let reward = 500   
@@ -12,12 +13,17 @@ let handler = async (m, { conn }) => {
         return conn.reply(m.chat, '⚠️ Ya hay una palabra sin ordenar en este chat. ¡Respóndela antes de pedir otra!', conn.unscramble[id][0])
     }
 
+    if (!global.db.data.chats[m.chat].economy && m.isGroup) {
+        return m.reply('《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *.on economy*')
+    }
+
     try {
         const data = await fs.readFile(jsonPath, 'utf-8')
         let words = JSON.parse(data)
         let randomWord = words[Math.floor(Math.random() * words.length)]
+        const currency = getBotConfig(conn, 'currency')
 
-        let caption = `🧩 *JUEGO: UNSCRAMBLE* 🧩\n\nOrdena las letras de la palabra:\n*${randomWord.scrambled.toUpperCase()}*\n\n⏳ Tiempo: ${(timeout / 1000)} segundos\nPremio: +${reward} ${global.currency}\n\n_Responde a este mensaje con la palabra correcta._`.trim()
+        let caption = `🧩 *JUEGO: UNSCRAMBLE* 🧩\n\nOrdena las letras de la palabra:\n*${randomWord.scrambled.toUpperCase()}*\n\n⏳ Tiempo: ${(timeout / 1000)} segundos\nPremio: +${reward} ${currency}\n\n_Responde a este mensaje con la palabra correcta._`.trim()
 
         conn.unscramble[id] = [
             await conn.reply(m.chat, caption, m),
@@ -44,10 +50,13 @@ handler.before = async function (m) {
     let [msg, randomWord, timer] = this.unscramble[id]
 
     if (m.text.toLowerCase().trim() === randomWord.respuesta.toLowerCase().trim()) {
-        if (!global.db.data.users[m.sender]) global.db.data.users[m.sender] = {}
-        global.db.data.users[m.sender].economy = (global.db.data.users[m.sender].economy || 0) + reward
+        if (!global.db.data.chats[m.chat].economy && m.isGroup) return !0
 
-        let successMessage = `🎉 *¡GANASTE!* 🎉\n\n@${m.sender.split`@`[0]} ordenó la palabra correctamente.\nPalabra: *${randomWord.respuesta}*\nPremio: +${reward} ${global.currency}`.trim()
+        if (!global.db.data.users[m.sender]) global.db.data.users[m.sender] = {}
+        global.db.data.users[m.sender].coin = (global.db.data.users[m.sender].coin || 0) + reward
+        const currency = getBotConfig(this, 'currency')
+
+        let successMessage = `🎉 *¡GANASTE!* 🎉\n\n@${m.sender.split`@`[0]} ordenó la palabra correctamente.\nPalabra: *${randomWord.respuesta}*\nPremio: +${reward} ${currency}`.trim()
 
         await this.reply(m.chat, successMessage, m, { mentions: [m.sender] })
         clearTimeout(timer)
