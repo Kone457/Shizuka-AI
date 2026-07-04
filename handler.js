@@ -72,9 +72,11 @@ export async function handler(chatUpdate) {
                 if (!("sBye" in chat)) chat.sBye = ''
                 if (!("welcome" in chat)) chat.welcome = true
                 if (!("nsfw" in chat)) chat.nsfw = false
+                if (!("gacha" in chat)) chat.gacha = true
                 if (!("alerts" in chat)) chat.alerts = true
                 if (!("adminonly" in chat)) chat.adminonly = false
                 if (!("antilinks" in chat)) chat.antilinks = true
+                if (!("notprefix" in chat)) chat.notprefix = false
                 if (!("bannedGrupo" in chat)) chat.bannedGrupo = false
                 if (!("economy" in chat)) chat.economy = true
                 if (!isNumber(chat.expired)) chat.expired = 0
@@ -84,9 +86,11 @@ export async function handler(chatUpdate) {
                     sBye: '',
                     welcome: true,
                     nsfw: false,
+                    gacha: true,
                     alerts: true,
                     adminonly: false,
                     antilinks: true,
+                    notprefix: false,
                     bannedGrupo: false,
                     economy: true,
                     expired: 0
@@ -137,7 +141,6 @@ export async function handler(chatUpdate) {
                 if (this.user.jid !== chat.primaryBot) return
             }
         }
-      
 
         globalThis.setting = globalThis.db.data.settings[this.user.jid]
 
@@ -202,7 +205,21 @@ export async function handler(chatUpdate) {
                 if (plugin.tags && plugin.tags.includes("admin")) continue
 
             const strRegex = (str) => str.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
-            const pluginPrefix = plugin.customPrefix || this.prefix || globalThis.prefix
+            let pluginPrefix = plugin.customPrefix || this.prefix || globalThis.prefix
+
+            if (chat?.notprefix && !plugin.customPrefix) {
+                if (Array.isArray(pluginPrefix)) {
+                    pluginPrefix = pluginPrefix.map(p => {
+                        let src = p instanceof RegExp ? p.source : strRegex(p);
+                        if (src.startsWith('^')) src = src.slice(1);
+                        return new RegExp(`^(${src})?`, 'i');
+                    });
+                } else {
+                    let src = pluginPrefix instanceof RegExp ? pluginPrefix.source : strRegex(pluginPrefix);
+                    if (src.startsWith('^')) src = src.slice(1);
+                    pluginPrefix = new RegExp(`^(${src})?`, 'i');
+                }
+            }
 
             const match = (pluginPrefix instanceof RegExp ?
                 [[pluginPrefix.exec(m.text), pluginPrefix]] :
@@ -237,7 +254,8 @@ export async function handler(chatUpdate) {
 
             if (typeof plugin !== "function") continue
 
-            if ((usedPrefix = (match[0] || "")[0])) {
+            if (match && match[0] !== null && match[0] !== undefined) {
+                usedPrefix = match[0][0] || "";
                 const noPrefix = m.text.replace(usedPrefix, "")
                 let [command, ...args] = noPrefix.trim().split(" ").filter(v => v)
                 args = args || []
@@ -286,6 +304,11 @@ export async function handler(chatUpdate) {
 
                 if (plugin.nsfw && !chat.nsfw && m.isGroup) {
                     fail("nsfw", m, this)
+                    continue
+                }
+                
+                if (plugin.gacha && !chat.gacha && m.isGroup) {
+                    fail("gacha", m, this)
                     continue
                 }
 
@@ -376,6 +399,7 @@ global.dfail = (type, m, conn) => {
         admin: `✿ El comando *${comando}* solo puede ser ejecutado por los admins del Grupo.`,
         botAdmin: `✿ Para usar el comando  *${comando}* debo ser admin del Grupo.`,
         nsfw: `✿ Los comandos *NSFW* están desáctivados.\n> Un admin puede activarlo con:\n> *.on nsfw*`,
+        gacha: `✿ Los comandos *Gacha* están desáctivados.\n> Un admin puede activarlo con:\n> *.on gacha*`,
         restrict: "✿ *_¡Esta característica está -deshabilitada-_*"
     }[type]
     if (msg) return m.reply(msg)
