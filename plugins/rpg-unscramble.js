@@ -3,7 +3,7 @@ import { getBotConfig } from '../lib/botconfig.js'
 
 let timeout = 60000 
 let reward = 500   
-const jsonPath = './lib/unscramble.json'
+const jsonPath = '../lib/unscramble.json'
 
 let handler = async (m, { conn }) => {
     conn.unscramble = conn.unscramble ? conn.unscramble : {}
