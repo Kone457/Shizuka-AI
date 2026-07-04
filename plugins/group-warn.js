@@ -1,10 +1,13 @@
 let handler = async (m, { conn, text }) => {
-    let user = m.mentionedJid?.[0] || m.quoted?.sender
+    let mentioned = await m.mentionedJid
+    let user = mentioned.length > 0
+        ? mentioned[0]
+        : (m.quoted ? m.quoted.sender : false)
 
     if (!user) {
         return conn.reply(
             m.chat,
-            '《✧》Debes mencionar o responder al usuario.',
+            '《✧》 Debes mencionar o responder al usuario.',
             m
         )
     }
@@ -24,13 +27,25 @@ let handler = async (m, { conn, text }) => {
     const ownerGroup = groupInfo.owner || m.chat.split('-')[0] + '@s.whatsapp.net'
     const ownerBot = global.owner[0][0] + '@s.whatsapp.net'
 
+    if (user === m.sender) {
+        return conn.reply(
+            m.chat,
+            '❏ No puedes advertirte a ti mismo.',
+            m
+        )
+    }
+
     if (user === conn.user.jid || user === ownerGroup || user === ownerBot) {
-        return conn.reply(m.chat, '❏ No puedes advertir a ese usuario.', m)
+        return conn.reply(
+            m.chat,
+            '❏ No puedes advertir a ese usuario.',
+            m
+        )
     }
 
     let reason = text.replace(/@\d+/g, '').trim() || 'Sin razón'
 
-    users[user].warn += 1
+    users[user].warn++
 
     users[user].warnHistory.push({
         by: m.sender,
@@ -43,7 +58,7 @@ let handler = async (m, { conn, text }) => {
     if (users[user].warn >= max) {
         await conn.reply(
             m.chat,
-            `⚠️ @${user.split('@')[0]} alcanzó *${max}/${max} advertencias* y será expulsado.\n\n✦ Razón: ${reason}`,
+            `⚠️ @${user.split('@')[0]} alcanzó *${max}/${max}* advertencias y será expulsado.\n\n✦ Razón: ${reason}`,
             m,
             { mentions: [user] }
         )
