@@ -1,4 +1,3 @@
-
 import { promises as fs } from 'fs'
 
 let timeout = 60000 
@@ -18,7 +17,7 @@ let handler = async (m, { conn }) => {
         let words = JSON.parse(data)
         let randomWord = words[Math.floor(Math.random() * words.length)]
 
-        let caption = `🧩 *JUEGO: UNSCRAMBLE* 🧩\n\nOrdena las letras de la palabra:\n*${randomWord.scrambled.toUpperCase()}*\n\n⏳ Tiempo: ${(timeout / 1000)} segundos\n Premio: +${reward} ${global.currency}\n\n_Responde a este mensaje con la palabra correcta._`.trim()
+        let caption = `🧩 *JUEGO: UNSCRAMBLE* 🧩\n\nOrdena las letras de la palabra:\n*${randomWord.scrambled.toUpperCase()}*\n\n⏳ Tiempo: ${(timeout / 1000)} segundos\nPremio: +${reward} ${global.currency}\n\n_Responde a este mensaje con la palabra correcta._`.trim()
 
         conn.unscramble[id] = [
             await conn.reply(m.chat, caption, m),
