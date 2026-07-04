@@ -1,0 +1,877 @@
+[
+  {
+    "id": "1",
+    "scrambled": "scaa",
+    "respuesta": "casa"
+  },
+  {
+    "id": "2",
+    "scrambled": "oprerr",
+    "respuesta": "perro"
+  },
+  {
+    "id": "3",
+    "scrambled": "toag",
+    "respuesta": "gato"
+  },
+  {
+    "id": "4",
+    "scrambled": "lobra",
+    "respuesta": "arbol"
+  },
+  {
+    "id": "5",
+    "scrambled": "olrf",
+    "respuesta": "flor"
+  },
+  {
+    "id": "6",
+    "scrambled": "samde",
+    "respuesta": "mesa"
+  },
+  {
+    "id": "7",
+    "scrambled": "llias",
+    "respuesta": "silla"
+  },
+  {
+    "id": "8",
+    "scrambled": "nrte",
+    "respuesta": "tren"
+  },
+  {
+    "id": "9",
+    "scrambled": "croba",
+    "respuesta": "barco"
+  },
+  {
+    "id": "10",
+    "scrambled": "lso",
+    "respuesta": "sol"
+  },
+  {
+    "id": "11",
+    "scrambled": "lanu",
+    "respuesta": "luna"
+  },
+  {
+    "id": "12",
+    "scrambled": "rma",
+    "respuesta": "mar"
+  },
+  {
+    "id": "13",
+    "scrambled": "ior",
+    "respuesta": "rio"
+  },
+  {
+    "id": "14",
+    "scrambled": "uaga",
+    "respuesta": "agua"
+  },
+  {
+    "id": "15",
+    "scrambled": "fugeo",
+    "respuesta": "fuego"
+  },
+  {
+    "id": "16",
+    "scrambled": "naep",
+    "respuesta": "pena"
+  },
+  {
+    "id": "17",
+    "scrambled": "anp",
+    "respuesta": "pan"
+  },
+  {
+    "id": "18",
+    "scrambled": "ozarr",
+    "respuesta": "arroz"
+  },
+  {
+    "id": "19",
+    "scrambled": "opas",
+    "respuesta": "sopa"
+  },
+  {
+    "id": "20",
+    "scrambled": "feca",
+    "respuesta": "cafe"
+  },
+  {
+    "id": "21",
+    "scrambled": "hlcee",
+    "respuesta": "leche"
+  },
+  {
+    "id": "22",
+    "scrambled": "saum",
+    "respuesta": "uvas"
+  },
+  {
+    "id": "23",
+    "scrambled": "nabnaa",
+    "respuesta": "banana"
+  },
+  {
+    "id": "24",
+    "scrambled": "nazamna",
+    "respuesta": "manzana"
+  },
+  {
+    "id": "25",
+    "scrambled": "jananra",
+    "respuesta": "naranja"
+  },
+  {
+    "id": "26",
+    "scrambled": "tolape",
+    "respuesta": "pelota"
+  },
+  {
+    "id": "27",
+    "scrambled": "tob",
+    "respuesta": "bot"
+  },
+  {
+    "id": "28",
+    "scrambled": "gpluin",
+    "respuesta": "plugin"
+  },
+  {
+    "id": "29",
+    "scrambled": "nodeljs",
+    "respuesta": "nodejs"
+  },
+  {
+    "id": "30",
+    "scrambled": "jvasarcpit",
+    "respuesta": "javascript"
+  },
+  {
+    "id": "31",
+    "scrambled": "lmth",
+    "respuesta": "html"
+  },
+  {
+    "id": "32",
+    "scrambled": "ssc",
+    "respuesta": "css"
+  },
+  {
+    "id": "33",
+    "scrambled": "doicgo",
+    "respuesta": "codigo"
+  },
+  {
+    "id": "34",
+    "scrambled": "otdsa",
+    "respuesta": "datos"
+  },
+  {
+    "id": "35",
+    "scrambled": "ntretien",
+    "respuesta": "internet"
+  },
+  {
+    "id": "36",
+    "scrambled": "reisrvdor",
+    "respuesta": "servidor"
+  },
+  {
+    "id": "37",
+    "scrambled": "gaiom",
+    "respuesta": "amigo"
+  },
+  {
+    "id": "38",
+    "scrambled": "gamia",
+    "respuesta": "magia"
+  },
+  {
+    "id": "39",
+    "scrambled": "lmfaiia",
+    "respuesta": "familia"
+  },
+  {
+    "id": "40",
+    "scrambled": "mnorahe",
+    "respuesta": "hermano"
+  },
+  {
+    "id": "41",
+    "scrambled": "erdap",
+    "respuesta": "padre"
+  },
+  {
+    "id": "42",
+    "scrambled": "drame",
+    "respuesta": "madre"
+  },
+  {
+    "id": "43",
+    "scrambled": "ñoin",
+    "respuesta": "niño"
+  },
+  {
+    "id": "44",
+    "scrambled": "ebbe",
+    "respuesta": "bebe"
+  },
+  {
+    "id": "45",
+    "scrambled": "suelace",
+    "respuesta": "escuela"
+  },
+  {
+    "id": "46",
+    "scrambled": "trsomae",
+    "respuesta": "maestro"
+  },
+  {
+    "id": "47",
+    "scrambled": "onamlu",
+    "respuesta": "alumno"
+  },
+  {
+    "id": "48",
+    "scrambled": "lpiaz",
+    "respuesta": "lapiz"
+  },
+  {
+    "id": "49",
+    "scrambled": "cuhcara",
+    "respuesta": "cuchara"
+  },
+  {
+    "id": "50",
+    "scrambled": "netefolo",
+    "respuesta": "telefono"
+  },
+  {
+    "id": "51",
+    "scrambled": "odarpctamou",
+    "respuesta": "computadora"
+  },
+  {
+    "id": "52",
+    "scrambled": "tadolcye",
+    "respuesta": "teclado"
+  },
+  {
+    "id": "53",
+    "scrambled": "eosum",
+    "respuesta": "mouse"
+  },
+  {
+    "id": "54",
+    "scrambled": "llatpanaa",
+    "respuesta": "pantalla"
+  },
+  {
+    "id": "55",
+    "scrambled": "tauepr",
+    "respuesta": "puerta"
+  },
+  {
+    "id": "56",
+    "scrambled": "anetvna",
+    "respuesta": "ventana"
+  },
+  {
+    "id": "57",
+    "scrambled": "chote",
+    "respuesta": "techo"
+  },
+  {
+    "id": "58",
+    "scrambled": "lseuo",
+    "respuesta": "suelo"
+  },
+  {
+    "id": "59",
+    "scrambled": "raepd",
+    "respuesta": "pared"
+  },
+  {
+    "id": "60",
+    "scrambled": "ccinoa",
+    "respuesta": "cocina"
+  },
+  {
+    "id": "61",
+    "scrambled": "jdarin",
+    "respuesta": "jardin"
+  },
+  {
+    "id": "62",
+    "scrambled": "ehcoc",
+    "respuesta": "coche"
+  },
+  {
+    "id": "63",
+    "scrambled": "olrjee",
+    "respuesta": "reloj"
+  },
+  {
+    "id": "64",
+    "scrambled": "aptoza",
+    "respuesta": "zapato"
+  },
+  {
+    "id": "65",
+    "scrambled": "masica",
+    "respuesta": "camisa"
+  },
+  {
+    "id": "66",
+    "scrambled": "tnaalnop",
+    "respuesta": "pantalon"
+  },
+  {
+    "id": "67",
+    "scrambled": "orbesmro",
+    "respuesta": "sombrero"
+  },
+  {
+    "id": "68",
+    "scrambled": "igobra",
+    "respuesta": "abrigo"
+  },
+  {
+    "id": "69",
+    "scrambled": "tnsugae",
+    "respuesta": "guantes"
+  },
+  {
+    "id": "70",
+    "scrambled": "dfabnua",
+    "respuesta": "bufanda"
+  },
+  {
+    "id": "71",
+    "scrambled": "toau",
+    "respuesta": "auto"
+  },
+  {
+    "id": "72",
+    "scrambled": "aivon",
+    "respuesta": "avion"
+  },
+  {
+    "id": "73",
+    "scrambled": "ibiclceta",
+    "respuesta": "bicicleta"
+  },
+  {
+    "id": "74",
+    "scrambled": "motocliiceta",
+    "respuesta": "motocicleta"
+  },
+  {
+    "id": "75",
+    "scrambled": "toblfu",
+    "respuesta": "futbol"
+  },
+  {
+    "id": "76",
+    "scrambled": "loerb",
+    "respuesta": "libro"
+  },
+  {
+    "id": "77",
+    "scrambled": "drceauno",
+    "respuesta": "cuaderno"
+  },
+  {
+    "id": "78",
+    "scrambled": "drrobaor",
+    "respuesta": "borrador"
+  },
+  {
+    "id": "79",
+    "scrambled": "itnpaura",
+    "respuesta": "pintura"
+  },
+  {
+    "id": "80",
+    "scrambled": "ptrincael",
+    "respuesta": "principal"
+  },
+  {
+    "id": "81",
+    "scrambled": "naevtidor",
+    "respuesta": "ventilador"
+  },
+  {
+    "id": "82",
+    "scrambled": "rrvefaa",
+    "respuesta": "farera"
+  },
+  {
+    "id": "83",
+    "scrambled": "lapmar",
+    "respuesta": "lampara"
+  },
+  {
+    "id": "84",
+    "scrambled": "nceoagdr",
+    "respuesta": "cargador"
+  },
+  {
+    "id": "85",
+    "scrambled": "rbaitea",
+    "respuesta": "bateria"
+  },
+  {
+    "id": "86",
+    "scrambled": "uariclaesr",
+    "respuesta": "auriculares"
+  },
+  {
+    "id": "87",
+    "scrambled": "naavca",
+    "respuesta": "cabana"
+  },
+  {
+    "id": "88",
+    "scrambled": "ncaim",
+    "respuesta": "camina"
+  },
+  {
+    "id": "89",
+    "scrambled": "cmaia",
+    "respuesta": "cama"
+  },
+  {
+    "id": "90",
+    "scrambled": "laomdiah",
+    "respuesta": "almohada"
+  },
+  {
+    "id": "91",
+    "scrambled": "zbafrao",
+    "respuesta": "bufarazo"
+  },
+  {
+    "id": "92",
+    "scrambled": "tanflea",
+    "respuesta": "elefanta"
+  },
+  {
+    "id": "93",
+    "scrambled": "gliaua",
+    "respuesta": "aguila"
+  },
+  {
+    "id": "94",
+    "scrambled": "turgoa",
+    "respuesta": "tortuga"
+  },
+  {
+    "id": "95",
+    "scrambled": "dracliooc",
+    "respuesta": "cocodrilo"
+  },
+  {
+    "id": "96",
+    "scrambled": "farinaj",
+    "respuesta": "jirafa"
+  },
+  {
+    "id": "97",
+    "scrambled": "llaabne",
+    "respuesta": "ballena"
+  },
+  {
+    "id": "98",
+    "scrambled": "eflindi",
+    "respuesta": "delfin"
+  },
+  {
+    "id": "99",
+    "scrambled": "toneelaf",
+    "respuesta": "elefante"
+  },
+  {
+    "id": "100",
+    "scrambled": "oejnoc",
+    "respuesta": "conejo"
+  },
+  {
+    "id": "101",
+    "scrambled": "maplo",
+    "respuesta": "paloma"
+  },
+  {
+    "id": "102",
+    "scrambled": "alngo",
+    "respuesta": "golan"
+  },
+  {
+    "id": "103",
+    "scrambled": "sepdaco",
+    "respuesta": "pescado"
+  },
+  {
+    "id": "104",
+    "scrambled": "dcaabio",
+    "respuesta": "abogado"
+  },
+  {
+    "id": "105",
+    "scrambled": "omrcedio",
+    "respuesta": "comedor"
+  },
+  {
+    "id": "106",
+    "scrambled": "soaf",
+    "respuesta": "sofa"
+  },
+  {
+    "id": "107",
+    "scrambled": "troanils",
+    "respuesta": "sillon"
+  },
+  {
+    "id": "108",
+    "scrambled": "jepseo",
+    "respuesta": "espejo"
+  },
+  {
+    "id": "109",
+    "scrambled": "trrceina",
+    "respuesta": "cortina"
+  },
+  {
+    "id": "110",
+    "scrambled": "dbalec",
+    "respuesta": "cable"
+  },
+  {
+    "id": "111",
+    "scrambled": "blmirosa",
+    "respuesta": "sombrilla"
+  },
+  {
+    "id": "112",
+    "scrambled": "plreaa",
+    "respuesta": "perla"
+  },
+  {
+    "id": "113",
+    "scrambled": "rlaeoj",
+    "respuesta": "oreja"
+  },
+  {
+    "id": "114",
+    "scrambled": "nizra",
+    "respuesta": "nariz"
+  },
+  {
+    "id": "115",
+    "scrambled": "cbaeza",
+    "respuesta": "cabeza"
+  },
+  {
+    "id": "116",
+    "scrambled": "boac",
+    "respuesta": "boca"
+  },
+  {
+    "id": "117",
+    "scrambled": "glnuea",
+    "respuesta": "lengua"
+  },
+  {
+    "id": "118",
+    "scrambled": "onma",
+    "respuesta": "mano"
+  },
+  {
+    "id": "119",
+    "scrambled": "ddeos",
+    "respuesta": "dedos"
+  },
+  {
+    "id": "120",
+    "scrambled": "erpian",
+    "respuesta": "pierna"
+  },
+  {
+    "id": "121",
+    "scrambled": "bzroa",
+    "respuesta": "brazo"
+  },
+  {
+    "id": "122",
+    "scrambled": "plie",
+    "respuesta": "pie"
+  },
+  {
+    "id": "123",
+    "scrambled": "ooj",
+    "respuesta": "ojo"
+  },
+  {
+    "id": "124",
+    "scrambled": "elclou",
+    "respuesta": "cuello"
+  },
+  {
+    "id": "125",
+    "scrambled": "splaeda",
+    "respuesta": "espalda"
+  },
+  {
+    "id": "126",
+    "scrambled": "anesamt",
+    "respuesta": "semana"
+  },
+  {
+    "id": "127",
+    "scrambled": "doignom",
+    "respuesta": "domingo"
+  },
+  {
+    "id": "128",
+    "scrambled": "raeusjv",
+    "respuesta": "jueves"
+  },
+  {
+    "id": "129",
+    "scrambled": "rnesvie",
+    "respuesta": "viernes"
+  },
+  {
+    "id": "130",
+    "scrambled": "bdaaso",
+    "respuesta": "sabado"
+  },
+  {
+    "id": "131",
+    "scrambled": "elibnro",
+    "respuesta": "invierno"
+  },
+  {
+    "id": "132",
+    "scrambled": "vorneera",
+    "respuesta": "verano"
+  },
+  {
+    "id": "133",
+    "scrambled": "toñoo",
+    "respuesta": "otoño"
+  },
+  {
+    "id": "134",
+    "scrambled": "rmivaeap",
+    "respuesta": "primavera"
+  },
+  {
+    "id": "135",
+    "scrambled": "ullaiv",
+    "respuesta": "lluvia"
+  },
+  {
+    "id": "136",
+    "scrambled": "mtaepon",
+    "respuesta": "tormenta"
+  },
+  {
+    "id": "137",
+    "scrambled": "nrytaeu",
+    "respuesta": "trueno"
+  },
+  {
+    "id": "138",
+    "scrambled": "plaramego",
+    "respuesta": "relampago"
+  },
+  {
+    "id": "139",
+    "scrambled": "envei",
+    "respuesta": "nieve"
+  },
+  {
+    "id": "140",
+    "scrambled": "caublen",
+    "respuesta": "nube"
+  },
+  {
+    "id": "141",
+    "scrambled": "onlaa",
+    "respuesta": "ola"
+  },
+  {
+    "id": "142",
+    "scrambled": "topeur",
+    "respuesta": "puerto"
+  },
+  {
+    "id": "143",
+    "scrambled": "telupen",
+    "respuesta": "puente"
+  },
+  {
+    "id": "144",
+    "scrambled": "llace",
+    "respuesta": "calle"
+  },
+  {
+    "id": "145",
+    "scrambled": "deavnai",
+    "respuesta": "avenida"
+  },
+  {
+    "id": "146",
+    "scrambled": "laazp",
+    "respuesta": "plaza"
+  },
+  {
+    "id": "147",
+    "scrambled": "qupresa",
+    "respuesta": "parque"
+  },
+  {
+    "id": "148",
+    "scrambled": "spehoital",
+    "respuesta": "hospital"
+  },
+  {
+    "id": "149",
+    "scrambled": "afrmacia",
+    "respuesta": "farmacia"
+  },
+  {
+    "id": "150",
+    "scrambled": "abcon",
+    "respuesta": "banco"
+  },
+  {
+    "id": "151",
+    "scrambled": "tiaedn",
+    "respuesta": "tienda"
+  },
+  {
+    "id": "152",
+    "scrambled": "cemardo",
+    "respuesta": "mercado"
+  },
+  {
+    "id": "153",
+    "scrambled": "estoruanrate",
+    "respuesta": "restaurante"
+  },
+  {
+    "id": "154",
+    "scrambled": "hotle",
+    "respuesta": "hotel"
+  },
+  {
+    "id": "155",
+    "scrambled": "gaelisi",
+    "respuesta": "iglesia"
+  },
+  {
+    "id": "156",
+    "scrambled": "lmiasuq",
+    "respuesta": "maquina"
+  },
+  {
+    "id": "157",
+    "scrambled": "rhamlilo",
+    "respuesta": "martillo"
+  },
+  {
+    "id": "158",
+    "scrambled": "loivtnlrnadi",
+    "respuesta": "destornillador"
+  },
+  {
+    "id": "159",
+    "scrambled": "llvea",
+    "respuesta": "llave"
+  },
+  {
+    "id": "160",
+    "scrambled": "uadclon",
+    "respuesta": "candado"
+  },
+  {
+    "id": "161",
+    "scrambled": "sboliollo",
+    "respuesta": "bolsillo"
+  },
+  {
+    "id": "162",
+    "scrambled": "teacrra",
+    "respuesta": "cartera"
+  },
+  {
+    "id": "163",
+    "scrambled": "ndioreo",
+    "respuesta": "dinero"
+  },
+  {
+    "id": "164",
+    "scrambled": "nedoma",
+    "respuesta": "moneda"
+  },
+  {
+    "id": "165",
+    "scrambled": "tebillel",
+    "respuesta": "billete"
+  },
+  {
+    "id": "166",
+    "scrambled": "lregao",
+    "respuesta": "regalo"
+  },
+  {
+    "id": "167",
+    "scrambled": "fitesa",
+    "respuesta": "fiesta"
+  },
+  {
+    "id": "168",
+    "scrambled": "sicamua",
+    "respuesta": "musica"
+  },
+  {
+    "id": "169",
+    "scrambled": "caible",
+    "respuesta": "baile"
+  },
+  {
+    "id": "170",
+    "scrambled": "tearto",
+    "respuesta": "teatro"
+  },
+  {
+    "id": "171",
+    "scrambled": "cine",
+    "respuesta": "cine"
+  },
+  {
+    "id": "172",
+    "scrambled": "sriee",
+    "respuesta": "serie"
+  },
+  {
+    "id": "173",
+    "scrambled": "jegou",
+    "respuesta": "juego"
+  },
+  {
+    "id": "174",
+    "scrambled": "gnaar",
+    "respuesta": "ganar"
+  },
+  {
+    "id": "175",
+    "scrambled": "drper",
+    "respuesta": "perder"
+  }
+]
