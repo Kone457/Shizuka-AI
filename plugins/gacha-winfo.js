@@ -56,5 +56,6 @@ handler.help = ['winfo'];
 handler.tags = ['gacha'];
 handler.command = ['charinfo', 'winfo', 'waifuinfo'];
 handler.group = true;
+handler.gacha = true;
 
 export default handler;
