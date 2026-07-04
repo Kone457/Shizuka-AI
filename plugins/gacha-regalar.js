@@ -92,5 +92,6 @@ handler.help = ['regalar']
 handler.tags = ['gacha']
 handler.command = ['regalar', 'givewaifu', 'givechar']
 handler.group = true
+handler.gacha = true
 
 export default handler
