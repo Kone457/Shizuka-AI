@@ -1,12 +1,15 @@
 let handler = async (m, { conn }) => {
-    let user = m.mentionedJid?.[0] || m.quoted?.sender || m.sender
+    let mentioned = await m.mentionedJid
+    let user = mentioned.length > 0
+        ? mentioned[0]
+        : (m.quoted ? m.quoted.sender : m.sender)
 
     let users = global.db.data.users
     if (!users[user]) users[user] = {}
 
     users[user].warn = users[user].warn || 0
 
-    conn.reply(
+    await conn.reply(
         m.chat,
         `📋 Advertencias de @${user.split('@')[0]}\n\n> ✦ Total: *${users[user].warn}*`,
         m,
