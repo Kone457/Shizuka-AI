@@ -116,5 +116,6 @@ handler.help = ['vote'];
 handler.tags = ['gacha'];
 handler.command = ['vote', 'votar'];
 handler.group = true;
+handler.gacha = true;
 
 export default handler;
