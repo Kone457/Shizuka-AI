@@ -37,7 +37,7 @@ let rtx2 = `
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const MAX_SUBBOTS = 10
+const MAX_SUBBOTS = 100
 
 if (global.conns instanceof Array) console.log()
 else global.conns = []
