@@ -7,17 +7,11 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 ┃֪࣪
 ├ׁ̟̇❍✎ ✖️ USO DEL COMANDO
 ├ׁ̟̇❍✎ ${usedPrefix + command} <mensaje>
-┃֪࣪
-├ׁ̟̇❍✎ Este comando sirve para reportar
-├ׁ̟̇❍✎ errores o fallos del bot
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`, m)
     }
 
-    if (text.length < 10)
-        return conn.reply(m.chat, "⚠️ El reporte debe tener mínimo 10 caracteres.", m)
-
-    if (text.length > 1000)
-        return conn.reply(m.chat, "⚠️ El reporte no puede superar los 1000 caracteres.", m)
+    if (text.length < 10) return conn.reply(m.chat, "⚠️ El reporte debe tener mínimo 10 caracteres.", m)
+    if (text.length > 1000) return conn.reply(m.chat, "⚠️ El reporte no puede superar los 1000 caracteres.", m)
 
     const payload = {
         numero: `wa.me/${m.sender.split('@')[0]}`,
@@ -27,13 +21,12 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
     try {
-        const res = await fetch(`${api.url}/reportar`, {
+        const res = await fetch(`${api.url}/reportar?apikey=${api.key}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
         const json = await res.json()
-
         m.reply(`╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐑𝐄𝐏𝐎𝐑𝐓𝐄 𝐄𝐍𝐕𝐈𝐀𝐃𝐎 ☁️╮
 ┃֪࣪
