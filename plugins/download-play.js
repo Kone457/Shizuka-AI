@@ -93,6 +93,52 @@ const handler = async (m, { conn, command, text }) => {
   }
 }
 
+handler.before = async (m, { conn }) => {
+  const id = m.message?.buttonsResponseMessage?.selectedButtonId
+  if (!id) return
+
+  try {
+    if (id.startsWith('audio_')) {
+      const link = id.replace('audio_', '')
+      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
+      const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
+      const json = await res.json()
+      if (!json.status || !json.result?.url) {
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+        return m.reply('No se pudo obtener el audio.')
+      }
+      const data = json.result
+      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+      await conn.sendMessage(m.chat, {
+        audio: { url: data.url },
+        mimetype: 'audio/mpeg',
+        fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
+      }, { quoted: m })
+    }
+
+    if (id.startsWith('video_')) {
+      const link = id.replace('video_', '')
+      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
+      const res = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`)
+      const json = await res.json()
+      if (!json.status || !json.result?.dl_url) {
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+        return m.reply('No se pudo obtener el video.')
+      }
+      const data = json.result
+      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+      await conn.sendMessage(m.chat, {
+        video: { url: data.dl_url },
+        mimetype: 'video/mp4',
+        fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
+      }, { quoted: m })
+    }
+  } catch (e) {
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+    m.reply('Error inesperado, intenta nuevamente.')
+  }
+}
+
 handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4']
 handler.tags = ['descargas']
 handler.help = ['play']
