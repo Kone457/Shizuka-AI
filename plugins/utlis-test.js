@@ -5,7 +5,7 @@ const handler = async (m, { conn }) => {
 }
 
 handler.customPrefix = /^xd$/i
-handler.command = new RegExp // no usa comando, solo el prefijo
+handler.command = new RegExp 
 handler.tags = ['fun']
 handler.help = ['xd']
 
