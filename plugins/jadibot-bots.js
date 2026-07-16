@@ -13,13 +13,17 @@ let handler = async (m, { conn }) => {
 
     global.conns.forEach((connBot) => {
       if (connBot.user && connBot.ws?.socket && connBot.ws.socket.readyState !== ws.CLOSED) {
+        if (!connBot.chats) connBot.chats = new Set()
         uniqueUsers.set(connBot.user.jid, connBot)
       }
     })
 
+    let filteredUsers = [...uniqueUsers].filter(([jid, sock]) => sock.chats?.has(m.chat))
+    let totalUsersGroup = filteredUsers.length
     let totalUsersGlobal = uniqueUsers.size
+
     let subbotsInfo = []
-    for (let [jid] of uniqueUsers) {
+    for (let [jid] of filteredUsers) {
       const numberRaw = jid.split('@')[0]
       const number = `@${numberRaw}`
       subbotsInfo.push({ number })
@@ -27,12 +31,12 @@ let handler = async (m, { conn }) => {
 
     let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 🌐 SUB-BOTS EN ESTE GRUPO 🌐
-Subs › *${subbotsInfo.length}*
+Subs › *${totalUsersGroup}*
 Total activos › *${totalUsersGlobal}*
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n`
 
     if (subbotsInfo.length === 0) {
-      txt += `\n⚠️ No hay subbots activos\nUsa .qr o .code`
+      txt += `\n⚠️ No hay subbots activos aquí\nUsa .qr o .code`
     } else {
       subbotsInfo.forEach((subbot, i) => {
         txt += `\n${i + 1}) ${subbot.number}`
