@@ -1,5 +1,4 @@
 import ws from 'ws'
-import moment from 'moment-timezone'
 import { getBotConfig } from '../lib/botconfig.js'
 
 let handler = async (m, { conn }) => {
@@ -8,24 +7,28 @@ let handler = async (m, { conn }) => {
     await conn.sendMessage(m.chat, { react: { text: '🕯️', key: m.key } })
 
     const groupMetadata = await conn.groupMetadata(m.chat)
-    const groupMembers = groupMetadata.participants.map(p => p.id)
+    const groupMembers = groupMetadata.participants.map(p => p.id.split('@')[0])
 
     let uniqueUsers = new Map()
-    let subbotsInfo = []
     if (!global.conns || !Array.isArray(global.conns)) {
       global.conns = []
     }
 
     global.conns.forEach((connBot) => {
       if (connBot.user && connBot.ws?.socket) {
-        uniqueUsers.set(connBot.user.jid, { bot: connBot, connectionTime: connBot.connectionTime })
+        uniqueUsers.set(connBot.user.jid, connBot)
       }
     })
 
-    let filteredUsers = [...uniqueUsers].filter(([jid]) => groupMembers.includes(jid))
+    let filteredUsers = [...uniqueUsers].filter(([jid]) => {
+      let num = jid.split('@')[0]
+      return groupMembers.includes(num)
+    })
+
     let totalUsersGroup = filteredUsers.length
     let totalUsersGlobal = uniqueUsers.size
 
+    let subbotsInfo = []
     for (let [jid] of filteredUsers) {
       const numberRaw = jid.split('@')[0]
       const number = `@${numberRaw}`
