@@ -4,4 +4,9 @@ const handler = async (m, { conn }) => {
   }
 }
 
+handler.customPrefix = /^xd$/i
+handler.command = new RegExp // no usa comando, solo el prefijo
+handler.tags = ['fun']
+handler.help = ['xd']
+
 export default handler
