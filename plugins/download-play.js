@@ -22,19 +22,15 @@ const handler = async (m, { conn, text }) => {
 
     if (isUrl(text)) {
       link = text
+      title = 'Enlace directo'
+      channel = 'YouTube'
+      duration = '-'
     } else {
       const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`)
       const json = await res.json()
       if (!json.status || !json.result?.length) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return m.reply(`
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐒𝐈𝐍 𝐑𝐄𝐒𝐔𝐋𝐓𝐀𝐃𝐎𝐒 ☁️╮
-┃֪࣪
-├ׁ̟̇❍✎ No se encontró coincidencia
-├ׁ̟̇❍✎ Intenta otro nombre
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim())
+        return m.reply('No se encontró coincidencia, intenta otro nombre.')
       }
       const data = json.result[0]
       link = data.link
