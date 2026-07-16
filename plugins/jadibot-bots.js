@@ -16,10 +16,7 @@ let handler = async (m, { conn }) => {
       global.conns = []
     }
 
-    const metadata = await conn.groupMetadata(m.chat)
-    const participants = metadata.participants || []
-
-    const uniqueUsers = new Map()
+    let uniqueUsers = new Map()
 
     for (const connBot of global.conns) {
       if (
@@ -28,29 +25,35 @@ let handler = async (m, { conn }) => {
         connBot.ws.socket.readyState === ws.CLOSED
       ) continue
 
-      const isInGroup = participants.some(
-        p => p.id === connBot.user.jid
-      )
+      let isInGroup = false
+
+      try {
+        const groups = await connBot.groupFetchAllParticipating()
+        isInGroup = Object.keys(groups).includes(m.chat)
+      } catch {
+        isInGroup = false
+      }
 
       if (!isInGroup) continue
 
       uniqueUsers.set(connBot.user.jid, connBot)
     }
 
-    const subbotsInfo = []
+    let subbotsInfo = []
 
     for (const [jid] of uniqueUsers) {
-      const number = `@${jid.split('@')[0]}`
-      subbotsInfo.push({ number })
+      subbotsInfo.push({
+        number: `@${jid.split('@')[0]}`
+      })
     }
 
     let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 🌐 SUB-BOTS EN ESTE GRUPO 🌐
 Subs › *${subbotsInfo.length}*
-Total activos › *${subbotsInfo.length}*
+Total activos › *${uniqueUsers.size}*
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n`
 
-    if (!subbotsInfo.length) {
+    if (subbotsInfo.length === 0) {
       txt += `\n⚠️ No hay subbots activos en este grupo.\nUsa .qr o .code`
     } else {
       subbotsInfo.forEach((subbot, i) => {
@@ -61,13 +64,17 @@ Total activos › *${subbotsInfo.length}*
     await conn.sendMessage(
       m.chat,
       {
-        image: { url: BANNER_URL },
+        image: {
+          url: BANNER_URL
+        },
         caption: txt.trim(),
         mentions: subbotsInfo.map(
           s => s.number.replace('@', '') + '@s.whatsapp.net'
         )
       },
-      { quoted: m }
+      {
+        quoted: m
+      }
     )
 
   } catch (e) {
@@ -80,7 +87,9 @@ Total activos › *${subbotsInfo.length}*
 ├ׁ̟̇❍✎ ${e.message}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`
       },
-      { quoted: m }
+      {
+        quoted: m
+      }
     )
   }
 }
