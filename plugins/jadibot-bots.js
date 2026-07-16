@@ -3,112 +3,64 @@ import moment from 'moment-timezone'
 import { getBotConfig } from '../lib/botconfig.js'
 
 let handler = async (m, { conn }) => {
-const BANNER_URL = getBotConfig(conn, 'banner')
-try {
-await conn.sendMessage(m.chat, { react: { text: '🕯️', key: m.key } })
+  const BANNER_URL = getBotConfig(conn, 'banner')
+  try {
+    await conn.sendMessage(m.chat, { react: { text: '🕯️', key: m.key } })
 
-let uniqueUsers = new Map() 
-let subbotsInfo = [] 
-if (!global.conns || !Array.isArray(global.conns)) { 
-  global.conns = [] 
-} 
-global.conns.forEach((connBot) => { 
-  if (connBot.user && connBot.ws?.socket) { 
-    uniqueUsers.set(connBot.user.jid, { bot: connBot, connectionTime: connBot.connectionTime }) 
-  } 
-}) 
+    const groupMetadata = await conn.groupMetadata(m.chat)
+    const groupMembers = groupMetadata.participants.map(p => p.id)
 
-let totalUsers = uniqueUsers.size 
-for (let [jid, data] of uniqueUsers) { 
-  const connBot = data.bot 
-  const connectionTime = data.connectionTime || Date.now() 
-  const uptimeMs = Date.now() - connectionTime 
-  const tiempoActivo = formatTime(uptimeMs) 
-  const username = connBot.user?.name || connBot.user?.notify || 'Sin nombre' 
-  const numberRaw = jid.split('@')[0] 
-  const number = `https://wa.me/${numberRaw}` 
-  const connectionState = connBot.ws?.socket?.readyState 
-  let estado = '❓ Desconocido' 
-  switch(connectionState) { 
-    case ws.OPEN: estado = '🟢 Conectado'; break 
-    case ws.CONNECTING: estado = '🟡 Conectando...'; break 
-    case ws.CLOSING: estado = '🟠 Cerrando...'; break 
-    case ws.CLOSED: estado = '🔴 Desconectado'; break 
-  } 
-  let platform = 'Chrome' 
-  subbotsInfo.push({ 
-    username, 
-    number, 
-    estado, 
-    tiempoActivo, 
-    uptimeMs, 
-    platform, 
-    connectionTime: moment(connectionTime).tz('America/Havana').format('DD/MM/YY hh:mm:ss A') 
-  }) 
-} 
+    let uniqueUsers = new Map()
+    let subbotsInfo = []
+    if (!global.conns || !Array.isArray(global.conns)) {
+      global.conns = []
+    }
 
-subbotsInfo.sort((a, b) => b.uptimeMs - a.uptimeMs) 
+    global.conns.forEach((connBot) => {
+      if (connBot.user && connBot.ws?.socket) {
+        uniqueUsers.set(connBot.user.jid, { bot: connBot, connectionTime: connBot.connectionTime })
+      }
+    })
 
-let txt = ` 
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼🌐 𝐒𝐔𝐁-𝐁𝐎𝐓𝐒 𝐀𝐂𝐓𝐈𝐕𝐎𝐒 🌐╮
-┃֪࣪
-├ׁ̟̇❍✎ Total: ${totalUsers}
-├ׁ̟̇❍✎ Fecha: ${moment().tz('America/Havana').format('DD/MM/YYYY')}
-├ׁ̟̇❍✎ Hora: ${moment().tz('America/Havana').format('hh:mm A')}
-├ׁ̟̇❍✎ Bot: ${conn.user.name || 'Principal'}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim()
+    let filteredUsers = [...uniqueUsers].filter(([jid]) => groupMembers.includes(jid))
+    let totalUsersGroup = filteredUsers.length
+    let totalUsersGlobal = uniqueUsers.size
 
-if (subbotsInfo.length === 0) { 
-  txt += ` 
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚠️ 𝐒𝐈𝐍 𝐒𝐔𝐁𝐁𝐎𝐓𝐒 ⚠️╮
-┃֪࣪
-├ׁ̟̇❍✎ No hay subbots activos
-├ׁ̟̇❍✎ Usa .qr o .code
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-` 
-} else { 
-  subbotsInfo.forEach((subbot, index) => { 
-    txt += `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼🤖 𝐒𝐔𝐁-𝐁𝐎𝐓 ${index + 1} 🤖╮
-┃֪࣪
-├ׁ̟̇❍✎ Nombre: ${subbot.username}
-├ׁ̟̇❍✎ Número: ${subbot.number}
-├ׁ̟̇❍✎ Estado: ${subbot.estado}
-├ׁ̟̇❍✎ Tiempo: ${subbot.tiempoActivo}
-├ׁ̟̇❍✎ Desde: ${subbot.connectionTime}
-├ׁ̟̇❍✎ Plataforma: ${subbot.platform}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-` 
-  }) 
-}
+    for (let [jid] of filteredUsers) {
+      const numberRaw = jid.split('@')[0]
+      const number = `@${numberRaw}`
+      subbotsInfo.push({ number })
+    }
 
-await conn.sendMessage(m.chat, { 
-  image: { url: BANNER_URL }, 
-  caption: txt.trim() 
-}, { quoted: m }) 
+    let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+🌐 SUB-BOTS EN ESTE GRUPO 🌐
+Subs › *${totalUsersGroup}*
+Total activos › *${totalUsersGlobal}*
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n`
 
-} catch (e) {
-await conn.sendMessage(m.chat, {
-text: `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+    if (subbotsInfo.length === 0) {
+      txt += `\n⚠️ No hay subbots activos aquí\nUsa .qr o .code`
+    } else {
+      subbotsInfo.forEach((subbot, i) => {
+        txt += `\n${i + 1}) ${subbot.number}`
+      })
+    }
+
+    await conn.sendMessage(m.chat, {
+      image: { url: BANNER_URL },
+      caption: txt.trim(),
+      mentions: subbotsInfo.map(s => s.number.replace('@', '') + '@s.whatsapp.net')
+    }, { quoted: m })
+
+  } catch (e) {
+    await conn.sendMessage(m.chat, {
+      text: `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼⛔ 𝐄𝐑𝐑𝐎𝐑 ⛔╮
 ┃֪࣪
 ├ׁ̟̇❍✎ ${e.message}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`.trim()
-}, { quoted: m })
-}
-}
-
-function formatTime(ms) {
-let totalSeconds = Math.floor(ms / 1000)
-let h = Math.floor(totalSeconds / 3600)
-let m = Math.floor((totalSeconds % 3600) / 60)
-let s = totalSeconds % 60
-
-return `${h ? h + 'h ' : ''}${m ? m + 'm ' : ''}${s}s`.trim()
+    }, { quoted: m })
+  }
 }
 
 handler.command = ['bots']
