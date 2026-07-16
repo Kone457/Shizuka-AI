@@ -18,7 +18,7 @@ let handler = async (m, { conn }) => {
       }
     })
 
-    let filteredUsers = [...uniqueUsers].filter(([jid, sock]) => sock.chats?.has(m.chat))
+    let filteredUsers = [...uniqueUsers].filter(([jid, sock]) => sock.chats && sock.chats.has(m.chat))
     let totalUsersGroup = filteredUsers.length
     let totalUsersGlobal = uniqueUsers.size
 
