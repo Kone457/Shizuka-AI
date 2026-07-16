@@ -114,16 +114,26 @@ handler.before = async (m, { conn }) => {
       await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
       const res = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`)
       const json = await res.json()
-      if (!json.status || !json.result?.url) {
+      if (!json.status || !json.result?.dl_url) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
         return m.reply('No se pudo obtener el video.')
       }
       const data = json.result
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
       await conn.sendMessage(m.chat, {
-        video: { url: data.url },
+        video: { url: data.dl_url },
         mimetype: 'video/mp4',
-        fileName: `${(data.info?.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
+        fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`,
+        caption: `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼☁️ 𝐕𝐈𝐃𝐄𝐎 ☁️╮
+┃֪࣪
+├ׁ̟̇❍✎ ${data.title}
+├ׁ̟̇❍✎ ✿ Canal: ${data.author}
+├ׁ̟̇❍✎ ⏱️ ${data.duration || 'Desconocido'}
+├ׁ̟̇❍✎ ⚡ ${data.quality}
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim()
       }, { quoted: m })
     }
   } catch (e) {
