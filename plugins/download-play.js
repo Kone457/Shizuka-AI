@@ -2,51 +2,67 @@ import fetch from 'node-fetch'
 
 const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text)
 
-const handler = async (m, { conn, text }) => {
+const handler = async (m, { conn, command, text }) => {
   if (!text) {
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
-    return m.reply(`
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 𝐏𝐋𝐀𝐘 ☁️╮
-┃֪࣪
-├ׁ̟̇❍✎ Ingresa el nombre de la música
-├ׁ̟̇❍✎ Ej: play imagine dragons
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim())
+    return m.reply('Ingresa el nombre o link de YouTube.')
   }
 
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
-    let link, title = 'YouTube', channel = '-', duration = '-', imageUrl = null
-
     if (isUrl(text)) {
-      link = text
-      title = 'Enlace directo'
-      channel = 'YouTube'
-      duration = '-'
-    } else {
-      const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`)
-      const json = await res.json()
-      if (!json.status || !json.result?.length) {
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return m.reply('No se encontró coincidencia, intenta otro nombre.')
+      if (command === 'play' || command === 'mp3' || command === 'ytmp3') {
+        const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(text)}&apikey=${api.key}`)
+        const json = await res.json()
+        if (!json.status || !json.result?.url) {
+          await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+          return m.reply('No se pudo obtener el audio.')
+        }
+        const data = json.result
+        await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+        await conn.sendMessage(m.chat, {
+          audio: { url: data.url },
+          mimetype: 'audio/mpeg',
+          fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
+        }, { quoted: m })
       }
-      const data = json.result[0]
-      link = data.link
-      title = data.title
-      channel = data.channel
-      duration = data.duration
-      imageUrl = data.imageUrl
+
+      if (command === 'mp4' || command === 'ytmp4' || command === 'play2') {
+        const res = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(text)}&apikey=${api.key}`)
+        const json = await res.json()
+        if (!json.status || !json.result?.dl_url) {
+          await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+          return m.reply('No se pudo obtener el video.')
+        }
+        const data = json.result
+        await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+        await conn.sendMessage(m.chat, {
+          video: { url: data.dl_url },
+          mimetype: 'video/mp4',
+          fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
+        }, { quoted: m })
+      }
+
+      return
     }
 
+    const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`)
+    const json = await res.json()
+    if (!json.status || !json.result?.length) {
+      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+      return m.reply('No se encontró coincidencia, intenta otro nombre.')
+    }
+
+    const data = json.result[0]
+    const link = data.link
     const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
 ┃֪࣪
-├ׁ̟̇❍✎ ❖ ${title}
-├ׁ̟̇❍✎ ✿ Canal: ${channel}
-├ׁ̟̇❍✎ ⏱️ Duración: ${duration}
+├ׁ̟̇❍✎ ❖ ${data.title}
+├ׁ̟̇❍✎ ✿ Canal: ${data.channel}
+├ׁ̟̇❍✎ ⏱️ Duración: ${data.duration}
 ┃֪࣪
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
@@ -64,59 +80,13 @@ const handler = async (m, { conn, text }) => {
       headerType: 4
     }
 
-    if (imageUrl) {
-      const thumb = await (await fetch(imageUrl)).buffer()
+    if (data.imageUrl) {
+      const thumb = await (await fetch(data.imageUrl)).buffer()
       message.image = thumb
     }
 
     await conn.sendMessage(m.chat, message, { quoted: m })
 
-  } catch (e) {
-    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    m.reply('Error inesperado, intenta nuevamente.')
-  }
-}
-
-handler.before = async (m, { conn }) => {
-  const id = m.message?.buttonsResponseMessage?.selectedButtonId
-  if (!id) return
-
-  try {
-    if (id.startsWith('audio_')) {
-      const link = id.replace('audio_', '')
-      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
-      const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
-      const json = await res.json()
-      if (!json.status || !json.result?.url) {
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return m.reply('No se pudo obtener el audio.')
-      }
-      const data = json.result
-      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-      await conn.sendMessage(m.chat, {
-        audio: { url: data.url },
-        mimetype: 'audio/mpeg',
-        fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
-      }, { quoted: m })
-    }
-
-    if (id.startsWith('video_')) {
-      const link = id.replace('video_', '')
-      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
-      const res = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`)
-      const json = await res.json()
-      if (!json.status || !json.result?.dl_url) {
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return m.reply('No se pudo obtener el video.')
-      }
-      const data = json.result
-      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-      await conn.sendMessage(m.chat, {
-        video: { url: data.dl_url },
-        mimetype: 'video/mp4',
-        fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
-      }, { quoted: m })
-    }
   } catch (e) {
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
     m.reply('Error inesperado, intenta nuevamente.')
