@@ -17,6 +17,7 @@ let handler = async (m, { conn }) => {
     }
 
     let uniqueUsers = new Map()
+    let totalActive = 0
 
     for (const connBot of global.conns) {
       if (
@@ -24,6 +25,8 @@ let handler = async (m, { conn }) => {
         !connBot.ws?.socket ||
         connBot.ws.socket.readyState === ws.CLOSED
       ) continue
+
+      totalActive++
 
       let isInGroup = false
 
@@ -50,7 +53,7 @@ let handler = async (m, { conn }) => {
     let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 🌐 SUB-BOTS EN ESTE GRUPO 🌐
 Subs › *${subbotsInfo.length}*
-Total activos › *${uniqueUsers.size}*
+Total activos › *${totalActive}*
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n`
 
     if (subbotsInfo.length === 0) {
