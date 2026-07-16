@@ -20,12 +20,14 @@ const handler = async (m, { conn, text }) => {
 
     let link, title = 'YouTube', channel = '-', duration = '-', imageUrl = null
 
-    const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`)
-    const json = await res.json()
-
-    if (!json.status || !json.result?.length) {
-      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-      return m.reply(`
+    if (isUrl(text)) {
+      link = text
+    } else {
+      const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`)
+      const json = await res.json()
+      if (!json.status || !json.result?.length) {
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+        return m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐒𝐈𝐍 𝐑𝐄𝐒𝐔𝐋𝐓𝐀𝐃𝐎𝐒 ☁️╮
 ┃֪࣪
@@ -33,14 +35,14 @@ const handler = async (m, { conn, text }) => {
 ├ׁ̟̇❍✎ Intenta otro nombre
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim())
+      }
+      const data = json.result[0]
+      link = data.link
+      title = data.title
+      channel = data.channel
+      duration = data.duration
+      imageUrl = data.imageUrl
     }
-
-    const data = json.result[0]
-    link = data.link
-    title = data.title
-    channel = data.channel
-    duration = data.duration
-    imageUrl = data.imageUrl
 
     const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -75,14 +77,7 @@ const handler = async (m, { conn, text }) => {
 
   } catch (e) {
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    m.reply(`
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐄𝐑𝐑𝐎𝐑 ☁️╮
-┃֪࣪
-├ׁ̟̇❍✎ No se pudo procesar la solicitud
-├ׁ̟̇❍✎ Intenta nuevamente
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim())
+    m.reply('Error inesperado, intenta nuevamente.')
   }
 }
 
@@ -123,17 +118,7 @@ handler.before = async (m, { conn }) => {
       await conn.sendMessage(m.chat, {
         video: { url: data.dl_url },
         mimetype: 'video/mp4',
-        fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`,
-        caption: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐕𝐈𝐃𝐄𝐎 ☁️╮
-┃֪࣪
-├ׁ̟̇❍✎ ${data.title}
-├ׁ̟̇❍✎ ✿ Canal: ${data.author}
-├ׁ̟̇❍✎ ⏱️ ${data.duration || 'Desconocido'}
-├ׁ̟̇❍✎ ⚡ ${data.quality}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim()
+        fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
       }, { quoted: m })
     }
   } catch (e) {
