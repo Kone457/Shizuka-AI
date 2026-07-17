@@ -150,8 +150,10 @@ export default handler
 
 
 
+
 import { Audio, Video } from "@spoky/nex";
 import yts from "yt-search";
+import fetch from "node-fetch";
 
 const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text);
 
@@ -229,8 +231,9 @@ const handler = async (m, { conn, command, text }) => {
     };
 
     if (data.thumbnail) {
-      const thumb = await (await fetch(data.thumbnail)).buffer();
-      message.image = thumb;
+      const resp = await fetch(data.thumbnail);
+      const buff = Buffer.from(await resp.arrayBuffer());
+      message.image = buff;
     }
 
     await conn.sendMessage(m.chat, message, { quoted: m });
