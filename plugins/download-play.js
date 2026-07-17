@@ -147,6 +147,9 @@ handler.group = true
 export default handler
 */
 
+
+
+
 import { Audio, Video } from "@spoky/nex";
 import yts from "yt-search";
 
@@ -163,10 +166,10 @@ const handler = async (m, { conn, command, text }) => {
 
     if (isUrl(text)) {
       if (command === 'play' || command === 'mp3' || command === 'ytmp3') {
-        const data = await Audio(text, 192);
+        const data = await Audio(text, 192).catch(err => err);
         if (!data?.url) {
           await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-          return m.reply('No se pudo obtener el audio.');
+          return m.reply(`Error en scraper:\n${JSON.stringify(data, null, 2)}`);
         }
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
         await conn.sendMessage(m.chat, {
@@ -177,10 +180,10 @@ const handler = async (m, { conn, command, text }) => {
       }
 
       if (command === 'play2' || command === 'mp4' || command === 'ytmp4') {
-        const data = await Video(text, 720);
+        const data = await Video(text, 720).catch(err => err);
         if (!data?.url) {
           await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-          return m.reply('No se pudo obtener el video.');
+          return m.reply(`Error en scraper:\n${JSON.stringify(data, null, 2)}`);
         }
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
         await conn.sendMessage(m.chat, {
@@ -233,9 +236,8 @@ const handler = async (m, { conn, command, text }) => {
     await conn.sendMessage(m.chat, message, { quoted: m });
 
   } catch (e) {
-    console.error(e);
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-    m.reply('Error inesperado, intenta nuevamente.');
+    m.reply(`Error inesperado:\n${e?.stack || e}`);
   }
 };
 
@@ -247,10 +249,10 @@ handler.before = async (m, { conn }) => {
     if (id.startsWith('audio_')) {
       const link = id.replace('audio_', '');
       await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-      const data = await Audio(link, 192);
+      const data = await Audio(link, 192).catch(err => err);
       if (!data?.url) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-        return m.reply('No se pudo obtener el audio.');
+        return m.reply(`Error en scraper:\n${JSON.stringify(data, null, 2)}`);
       }
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
       await conn.sendMessage(m.chat, {
@@ -263,10 +265,10 @@ handler.before = async (m, { conn }) => {
     if (id.startsWith('video_')) {
       const link = id.replace('video_', '');
       await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-      const data = await Video(link, 720);
+      const data = await Video(link, 720).catch(err => err);
       if (!data?.url) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-        return m.reply('No se pudo obtener el video.');
+        return m.reply(`Error en scraper:\n${JSON.stringify(data, null, 2)}`);
       }
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
       await conn.sendMessage(m.chat, {
@@ -276,9 +278,8 @@ handler.before = async (m, { conn }) => {
       }, { quoted: m });
     }
   } catch (e) {
-    console.error(e);
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
-    m.reply('Error inesperado, intenta nuevamente.');
+    m.reply(`Error inesperado:\n${e?.stack || e}`);
   }
 };
 
