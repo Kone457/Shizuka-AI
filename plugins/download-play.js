@@ -149,13 +149,21 @@ export default handler
 
 
 
-
-
 import { Audio, Video } from "@spoky/nex";
 import yts from "yt-search";
 import fetch from "node-fetch";
 
 const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text);
+
+async function getAudio(link) {
+  const bitrates = [128, 160, 320];
+  for (const br of bitrates) {
+    const data = await Audio(link, br).catch(err => err);
+    if (data?.url) return data;
+    if (data?.error) return data; // devuelve error crudo para depuración
+  }
+  return { error: "No bitrate válido" };
+}
 
 const handler = async (m, { conn, command, text }) => {
   if (!text) {
@@ -168,7 +176,7 @@ const handler = async (m, { conn, command, text }) => {
 
     if (isUrl(text)) {
       if (command === 'play' || command === 'mp3' || command === 'ytmp3') {
-        const data = await Audio(text, 192).catch(err => err);
+        const data = await getAudio(text);
         if (!data?.url) {
           await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
           return m.reply(`Error en scraper:\n${JSON.stringify(data, null, 2)}`);
@@ -252,7 +260,7 @@ handler.before = async (m, { conn }) => {
     if (id.startsWith('audio_')) {
       const link = id.replace('audio_', '');
       await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-      const data = await Audio(link, 192).catch(err => err);
+      const data = await getAudio(link);
       if (!data?.url) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
         return m.reply(`Error en scraper:\n${JSON.stringify(data, null, 2)}`);
