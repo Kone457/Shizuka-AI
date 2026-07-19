@@ -22,7 +22,47 @@ let handler = async (m, { conn, command }) => {
         return m.reply('❌ Error al leer el archivo `lib/reaction.json`. Asegúrate de que exista y esté bien estructurado.')
     }
 
+    const aliasMap = {
+        enojado: 'angry',
+        baño: 'bath',
+        morder: 'bite',
+        bleh: 'bleh',
+        sonrojar: 'blush',
+        aburrido: 'bored',
+        aplauso: 'clap',
+        café: 'coffee',
+        llorar: 'cry',
+        acurrucar: 'cuddle',
+        bailar: 'dance',
+        borracho: 'drunk',
+        comer: 'eat',
+        facepalm: 'facepalm',
+        feliz: 'happy',
+        abrazo: 'hug',
+        matar: 'kill',
+        beso: 'kiss',
+        besar: 'kiss',
+        reír: 'laugh',
+        lamer: 'lick',
+        amor: 'love',
+        acariciar: 'pat',
+        poke: 'poke',
+        puchero: 'pout',
+        golpear: 'punch',
+        correr: 'run',
+        triste: 'sad',
+        asustado: 'scared',
+        seducir: 'seduce',
+        tímido: 'shy',
+        bofetada: 'slap',
+        dormir: 'sleep',
+        fumar: 'smoke',
+        pensar: 'think'
+    }
+
     let cmd = command.toLowerCase()
+    if (aliasMap[cmd]) cmd = aliasMap[cmd]
+
     let videos = reactions[cmd]
     let texts = reactions[`text-${cmd}`]
 
@@ -51,45 +91,23 @@ let handler = async (m, { conn, command }) => {
 }
 
 const sfwCommands = [
-    'angry',
-    'bath',
-    'bite',
-    'bleh',
-    'blush',
-    'bored',
-    'clap',
-    'coffee',
-    'cry',
-    'cuddle',
-    'dance',
-    'drunk',
-    'eat',
-    'facepalm',
-    'happy',
-    'hug',
-    'kill',
-    'kiss',
-    'laugh',
-    'lick',
-    'love',
-    'pat',
-    'poke',
-    'pout',
-    'punch',
-    'run',
-    'sad',
-    'scared',
-    'seduce',
-    'shy',
-    'slap',
-    'sleep',
-    'smoke',
-    'think'
+    'angry','bath','bite','bleh','blush','bored','clap','coffee','cry',
+    'cuddle','dance','drunk','eat','facepalm','happy','hug','kill','kiss',
+    'laugh','lick','love','pat','poke','pout','punch','run','sad','scared',
+    'seduce','shy','slap','sleep','smoke','think'
+]
+
+const allAliases = [
+    'enojado','baño','morder','bleh','sonrojar','aburrido','aplauso','café',
+    'llorar','acurrucar','bailar','borracho','comer','facepalm','feliz','abrazo',
+    'matar','beso','besar','reír','lamer','amor','acariciar','poke','puchero',
+    'golpear','correr','triste','asustado','seducir','tímido','bofetada','dormir',
+    'fumar','pensar'
 ]
 
 handler.help = sfwCommands
 handler.tags = ['anime']
-handler.command = new RegExp(`^(${sfwCommands.join('|')})$`, 'i')
+handler.command = new RegExp(`^(${[...sfwCommands, ...allAliases].join('|')})$`, 'i')
 handler.group = true
 
 export default handler
