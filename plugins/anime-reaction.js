@@ -94,20 +94,16 @@ const sfwCommands = [
     'angry','bath','bite','bleh','blush','bored','clap','coffee','cry',
     'cuddle','dance','drunk','eat','facepalm','happy','hug','kill','kiss',
     'laugh','lick','love','pat','poke','pout','punch','run','sad','scared',
-    'seduce','shy','slap','sleep','smoke','think'
-]
-
-const allAliases = [
-    'enojado','baño','morder','bleh','sonrojar','aburrido','aplauso','café',
-    'llorar','acurrucar','bailar','borracho','comer','facepalm','feliz','abrazo',
-    'matar','beso','besar','reír','lamer','amor','acariciar','poke','puchero',
-    'golpear','correr','triste','asustado','seducir','tímido','bofetada','dormir',
-    'fumar','pensar'
+    'seduce','shy','slap','sleep','smoke','think',
+    'enojado','baño','morder','sonrojar','aburrido','aplauso','café','llorar',
+    'acurrucar','bailar','borracho','comer','feliz','abrazo','matar','beso','besar',
+    'reír','lamer','amor','acariciar','puchero','golpear','correr','triste','asustado',
+    'seducir','tímido','bofetada','dormir','fumar','pensar'
 ]
 
 handler.help = sfwCommands
 handler.tags = ['anime']
-handler.command = new RegExp(`^(${[...sfwCommands, ...allAliases].join('|')})$`, 'i')
+handler.command = new RegExp(`^(${sfwCommands.join('|')})$`, 'i')
 handler.group = true
 
 export default handler
