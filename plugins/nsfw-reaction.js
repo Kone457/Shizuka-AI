@@ -1,3 +1,4 @@
+
 import fs from 'fs'
 import path from 'path'
 
@@ -22,7 +23,31 @@ let handler = async (m, { conn, command }) => {
         return m.reply('❌ Error al leer el archivo `lib/reaction.json`. Asegúrate de que exista y esté bien estructurado.')
     }
 
+    const aliasMap = {
+        embarazo: 'preg',
+        sesenta: '69',
+        anal: 'anal',
+        mamada: 'blowjob',
+        sexooral: 'blowjob',
+        bj: 'blowjob',
+        pechos: 'boobjob',
+        correrse: 'cum',
+        masturbar: 'fap',
+        pies: 'footjob',
+        follar: 'fuck',
+        coger: 'fuck',
+        agarrar: 'grabboobs',
+        lamerpussy: 'lickpussy',
+        nalgada: 'spank',
+        chupar: 'suckboobs',
+        desvestir: 'undress',
+        lésbico: 'yuri',
+        lesbianas: 'yuri'
+    }
+
     let cmd = command.toLowerCase()
+    if (aliasMap[cmd]) cmd = aliasMap[cmd]
+
     let videos = reactions[cmd]
     let texts = reactions[`text-${cmd}`]
 
@@ -51,21 +76,11 @@ let handler = async (m, { conn, command }) => {
 }
 
 const nsfwCommands = [
-    'preg',
-    '69',
-    'anal',
-    'blowjob',
-    'boobjob',
-    'cum',
-    'fap',
-    'footjob',
-    'fuck',
-    'grabboobs',
-    'lickpussy',
-    'spank',
-    'suckboobs',
-    'undress',
-    'yuri'
+    'preg','69','anal','blowjob','boobjob','cum','fap','footjob','fuck',
+    'grabboobs','lickpussy','spank','suckboobs','undress','yuri',
+    'embarazo','sesenta','mamada','sexooral','bj','pechos','correrse','masturbar',
+    'pies','follar','coger','agarrar','lamerpussy','nalgada','chupar',
+    'desvestir','lésbico','lesbianas'
 ]
 
 handler.help = nsfwCommands
