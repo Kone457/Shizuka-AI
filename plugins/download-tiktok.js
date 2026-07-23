@@ -67,7 +67,7 @@ const handler = async (m, { conn, args }) => {
         video = fb.video  
         if (fb.desc) text += `\n\n📝 ${fb.desc}`  
       }  
-    } else { 
+    } else {  
       const res = await fetch(  
         `\( {api.url}/search/tiktok?q= \){encodeURIComponent(args.join(' '))}&apikey=${api.key}`  
       )  
@@ -78,16 +78,15 @@ const handler = async (m, { conn, args }) => {
       }  
 
       const first = json.result[0]
-      const tiktokUrl = `https://www.tiktok.com/video/${first.video_id}`
-
+      
       try {  
-        const apiRes = await tiktokApi(tiktokUrl)  
+        const apiRes = await tiktokApi(first.video_id)  
         if (apiRes?.data) {  
           video = apiRes.data.play || apiRes.data.hdplay  
           if (apiRes.data.title) text += `\n\n📝 ${apiRes.data.title}`  
         }  
       } catch (e) {
-        console.error('Error en tiktokApi (búsqueda):', e.message)
+        console.error('Error tiktokApi búsqueda:', e.message)
       }  
 
       if (!video && first.play) {
