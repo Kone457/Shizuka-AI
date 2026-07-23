@@ -12,7 +12,8 @@ async function tiktokApi(url) {
   const res = await axios.post('https://tikwm.com/api/', params, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'User-Agent': 'Mozilla/5.0'
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Referer': 'https://tikwm.com/'
     }
   })
 
@@ -21,7 +22,7 @@ async function tiktokApi(url) {
 
 async function tiktokFallback(url) {
   const headers = {
-    "accept": "*/*",
+    "accept": "/",
     "origin": "https://ttsave.app",
     "referer": "https://ttsave.app/en",
     "user-agent": "Mozilla/5.0"
@@ -52,36 +53,51 @@ const handler = async (m, { conn, args }) => {
     let video
     let text = '✿ Aquí tienes.'
 
-    if (isUrl(args[0])) {
-      try {
-        const res = await tiktokApi(args[0])
-        if (res?.data) {
-          video = res.data.play || res.data.hdplay
-          if (res.data.title) text += `\n\n📝 ${res.data.title}`
-        }
-      } catch {}
+    if (isUrl(args[0])) {  
+      try {  
+        const res = await tiktokApi(args[0])  
+        if (res?.data) {  
+          video = res.data.play || res.data.hdplay  
+          if (res.data.title) text += `\n\n📝 ${res.data.title}`  
+        }  
+      } catch {}  
 
-      if (!video) {
-        const fb = await tiktokFallback(args[0])
-        video = fb.video
-        if (fb.desc) text += `\n\n📝 ${fb.desc}`
+      if (!video) {  
+        const fb = await tiktokFallback(args[0])  
+        video = fb.video  
+        if (fb.desc) text += `\n\n📝 ${fb.desc}`  
+      }  
+    } else { 
+      const res = await fetch(  
+        `\( {api.url}/search/tiktok?q= \){encodeURIComponent(args.join(' '))}&apikey=${api.key}`  
+      )  
+      const json = await res.json()  
+
+      if (!json.status || !json.result?.length) {  
+        throw new Error('No se encontró ningún video')  
+      }  
+
+      const first = json.result[0]
+      const tiktokUrl = `https://www.tiktok.com/video/${first.video_id}`
+
+      try {  
+        const apiRes = await tiktokApi(tiktokUrl)  
+        if (apiRes?.data) {  
+          video = apiRes.data.play || apiRes.data.hdplay  
+          if (apiRes.data.title) text += `\n\n📝 ${apiRes.data.title}`  
+        }  
+      } catch (e) {
+        console.error('Error en tiktokApi (búsqueda):', e.message)
+      }  
+
+      if (!video && first.play) {
+        video = first.play
       }
-    } else {
-      const res = await fetch(
-        `${api.url}/search/tiktok?q=${encodeURIComponent(args.join(' '))}&apikey=${api.key}`
-      )
-      const json = await res.json()
+    }  
 
-      if (!json.status || !json.result?.length) {
-        throw new Error('No se pudo obtener el video')
-      }
+    if (!video) throw new Error('No se pudo obtener el video')  
 
-      video = json.result[0].play
-    }
-
-    if (!video) throw new Error('No se pudo obtener el video')
-
-    await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)
+    await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)  
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
