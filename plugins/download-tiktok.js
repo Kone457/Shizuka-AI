@@ -1,6 +1,5 @@
 import axios from 'axios'
 import * as cheerio from 'cheerio'
-import fetch from 'node-fetch'
 
 const isUrl = (text) => /^https?:\/\/[^\s]+$/i.test(text)
 
@@ -53,51 +52,57 @@ const handler = async (m, { conn, args }) => {
     let video
     let text = '✿ Aquí tienes.'
 
-    if (isUrl(args[0])) {  
-      try {  
-        const res = await tiktokApi(args[0])  
-        if (res?.data) {  
-          video = res.data.play || res.data.hdplay  
-          if (res.data.title) text += `\n\n📝 ${res.data.title}`  
-        }  
-      } catch {}  
+    if (isUrl(args[0])) {
+      
+      try {
+        const res = await tiktokApi(args[0])
+        if (res?.result?.data) {
+          video = res.result.data.play || res.result.data.hdplay
+          if (res.result.data.title) text += `\n\n📝 ${res.result.data.title}`
+        }
+      } catch {}
 
-      if (!video) {  
-        const fb = await tiktokFallback(args[0])  
-        video = fb.video  
-        if (fb.desc) text += `\n\n📝 ${fb.desc}`  
-      }  
-    } else {  
-      const res = await fetch(  
-        `\( {api.url}/search/tiktok?q= \){encodeURIComponent(args.join(' '))}&apikey=${api.key}`  
-      )  
-      const json = await res.json()  
+      if (!video) {
+        const fb = await tiktokFallback(args[0])
+        video = fb.video
+        if (fb.desc) text += `\n\n📝 ${fb.desc}`
+      }
+    } else {
+      
+      const res = await fetch(
+        `${api.url}/search/tiktok?q=${encodeURIComponent(args.join(' '))}&apikey=${api.key}`
+      )
+      const json = await res.json()
 
-      if (!json.status || !json.result?.length) {  
-        throw new Error('No se encontró ningún video')  
-      }  
+      if (!json.status || !json.result?.length) {
+        throw new Error('No se encontró ningún video')
+      }
 
       const first = json.result[0]
-      
-      try {  
-        const apiRes = await tiktokApi(first.video_id)  
-        if (apiRes?.data) {  
-          video = apiRes.data.play || apiRes.data.hdplay  
-          if (apiRes.data.title) text += `\n\n📝 ${apiRes.data.title}`  
-        }  
+
+      try {
+        const username = first.author?.unique_id
+        if (username) {
+          const fullUrl = `https://www.tiktok.com/@${username}/video/${first.video_id}`
+          const apiRes = await tiktokApi(fullUrl)
+          if (apiRes?.result?.data) {
+            video = apiRes.result.data.play || apiRes.result.data.hdplay
+            if (apiRes.result.data.title) text += `\n\n📝 ${apiRes.result.data.title}`
+          }
+        }
       } catch (e) {
         console.error('Error tiktokApi búsqueda:', e.message)
-      }  
+      }
 
       if (!video && first.play) {
         video = first.play
+        if (first.title) text += `\n\n📝 ${first.title}`
       }
-    }  
+    }
 
-    if (!video) throw new Error('No se pudo obtener el video')  
+    if (!video) throw new Error('No se pudo obtener el video')
 
-    await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)  
-
+    await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
   } catch (e) {
