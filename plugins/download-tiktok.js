@@ -1,11 +1,11 @@
 import axios from 'axios'
-import * as cheerio from 'cheerio'
 
 const isUrl = (text) => /^https?:\/\/[^\s]+$/i.test(text)
 
 const isTikTokUrl = (text) => {
   try {
     const { hostname } = new URL(text)
+
     return [
       'tiktok.com',
       'www.tiktok.com',
@@ -22,7 +22,6 @@ async function resolveTikTokUrl(url) {
   try {
     const res = await axios.get(url, {
       maxRedirects: 5,
-      validateStatus: null,
       headers: {
         'User-Agent': 'Mozilla/5.0'
       }
@@ -34,60 +33,34 @@ async function resolveTikTokUrl(url) {
   }
 }
 
-async function tiktokApi(url) {
-  const params = new URLSearchParams()
-  params.set('url', url)
-  params.set('hd', '1')
-
-  const res = await axios.post('https://tikwm.com/api/', params, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      Referer: 'https://tikwm.com/'
-    }
-  })
-
-  return res.data
-}
-
-async function tiktokFallback(url) {
-  const headers = {
-    accept: '*/*',
-    origin: 'https://ttsave.app',
-    referer: 'https://ttsave.app/en',
-    'user-agent': 'Mozilla/5.0'
-  }
-
-  const { data } = await axios.post(
-    'https://ttsave.app/download',
-    { query: url, language_id: '1' },
-    { headers }
-  )
-
-  const $ = cheerio.load(data)
-
-  return {
-    video: $('a.w-full.text-white.font-bold').attr('href'),
-    desc: $('p.text-gray-600').text().trim()
-  }
-}
-
 const handler = async (m, { conn, args }) => {
-  if (!args[0]) {
-    return conn.reply(m.chat, '《✧》 Ingresa un enlace o búsqueda válida.', m)
+  if (!args.length) {
+    return conn.reply(
+      m.chat,
+      '《✧》 Ingresa un enlace o una búsqueda.',
+      m
+    )
   }
 
   await conn.sendMessage(m.chat, {
-    react: { text: '⏳', key: m.key }
+    react: {
+      text: '⏳',
+      key: m.key
+    }
   })
 
   try {
     let video
     let text = '✿ Aquí tienes.'
 
-    if (isTikTokUrl(args[0])) {
-      let url = args[0]
+    const query = args.join(' ')
+
+    if (isUrl(query)) {
+      if (!isTikTokUrl(query)) {
+        throw new Error('El enlace no pertenece a TikTok.')
+      }
+
+      let url = query
 
       if (
         url.includes('vt.tiktok.com') ||
@@ -96,79 +69,75 @@ const handler = async (m, { conn, args }) => {
         url = await resolveTikTokUrl(url)
       }
 
-      try {
-        const res = await tiktokApi(url)
+      const res = await fetch(
+        `${api.url}/download/tiktok?url=${encodeURIComponent(
+          url
+        )}&apikey=${api.key}`
+      )
 
-        if (res?.result?.data) {
-          video = res.result.data.play || res.result.data.hdplay
+      const json = await res.json()
 
-          if (res.result.data.title) {
-            text += `\n\n📝 ${res.result.data.title}`
-          }
-        }
-      } catch {}
-
-      if (!video) {
-        const fb = await tiktokFallback(url)
-
-        video = fb.video
-
-        if (fb.desc) {
-          text += `\n\n📝 ${fb.desc}`
-        }
+      if (!json.status || !json.result?.data) {
+        throw new Error('No se pudo descargar el video.')
       }
-    } else if (!isUrl(args[0])) {
+
+      const data = json.result.data
+
+      video =
+        data.hdplay ||
+        data.play ||
+        data.wmplay
+
+      text += `\n\n📝 ${data.title || 'Sin título'}`
+    }
+
+    else {
       const res = await fetch(
         `${api.url}/search/tiktok?q=${encodeURIComponent(
-          args.join(' ')
+          query
         )}&apikey=${api.key}`
       )
 
       const json = await res.json()
 
       if (!json.status || !json.result?.length) {
-        throw new Error('No se encontró ningún video')
+        throw new Error(
+          'No se encontró ningún video.'
+        )
       }
 
       const first = json.result[0]
 
-      try {
-        const username = first.author?.unique_id
+      const url = `https://www.tiktok.com/@${first.author.unique_id}/video/${first.video_id}`
 
-        if (username) {
-          const fullUrl = `https://www.tiktok.com/@${username}/video/${first.video_id}`
+      const dl = await fetch(
+        `${api.url}/download/tiktok?url=${encodeURIComponent(
+          url
+        )}&apikey=${api.key}`
+      )
 
-          const apiRes = await tiktokApi(fullUrl)
+      const data = await dl.json()
 
-          if (apiRes?.result?.data) {
-            video =
-              apiRes.result.data.play || apiRes.result.data.hdplay
-
-            if (apiRes.result.data.title) {
-              text += `\n\n📝 ${apiRes.result.data.title}`
-            }
-          }
-        }
-      } catch (e) {
-        console.error(
-          'Error tiktokApi búsqueda:',
-          e.message
+      if (!data.status || !data.result?.data) {
+        throw new Error(
+          'No se pudo descargar el resultado encontrado.'
         )
       }
 
-      if (!video && first.play) {
-        video = first.play
+      const result = data.result.data
 
-        if (first.title) {
-          text += `\n\n📝 ${first.title}`
-        }
-      }
-    } else {
-      throw new Error('El enlace proporcionado no es de TikTok')
+      video =
+        result.hdplay ||
+        result.play ||
+        result.wmplay
+
+      text += `\n\n📝 ${result.title || 'Sin título'}`
     }
 
     if (!video) {
-      throw new Error('No se pudo obtener el video')
+      throw new Error(
+        'No se pudo obtener el archivo de video.'
+      )
     }
 
     await conn.sendFile(
@@ -180,7 +149,10 @@ const handler = async (m, { conn, args }) => {
     )
 
     await conn.sendMessage(m.chat, {
-      react: { text: '✅', key: m.key }
+      react: {
+        text: '✅',
+        key: m.key
+      }
     })
   } catch (e) {
     await conn.reply(
@@ -190,14 +162,17 @@ const handler = async (m, { conn, args }) => {
     )
 
     await conn.sendMessage(m.chat, {
-      react: { text: '⚠️', key: m.key }
+      react: {
+        text: '⚠️',
+        key: m.key
+      }
     })
   }
 }
 
 handler.command = ['tiktok', 'tt']
+handler.help = ['tiktok <url|texto>']
 handler.tags = ['descargas']
-handler.help = ['tiktok']
 handler.group = true
 
 export default handler
