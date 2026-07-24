@@ -53,7 +53,6 @@ const handler = async (m, { conn, args }) => {
     let text = '✿ Aquí tienes.'
 
     if (isUrl(args[0])) {
-      
       try {
         const res = await tiktokApi(args[0])
         if (res?.result?.data) {
@@ -68,7 +67,6 @@ const handler = async (m, { conn, args }) => {
         if (fb.desc) text += `\n\n📝 ${fb.desc}`
       }
     } else {
-      
       const res = await fetch(
         `${api.url}/search/tiktok?q=${encodeURIComponent(args.join(' '))}&apikey=${api.key}`
       )
@@ -79,25 +77,8 @@ const handler = async (m, { conn, args }) => {
       }
 
       const first = json.result[0]
-
-      try {
-        const username = first.author?.unique_id
-        if (username) {
-          const fullUrl = `https://www.tiktok.com/@${username}/video/${first.video_id}`
-          const apiRes = await tiktokApi(fullUrl)
-          if (apiRes?.result?.data) {
-            video = apiRes.result.data.play || apiRes.result.data.hdplay
-            if (apiRes.result.data.title) text += `\n\n📝 ${apiRes.result.data.title}`
-          }
-        }
-      } catch (e) {
-        console.error('Error tiktokApi búsqueda:', e.message)
-      }
-
-      if (!video && first.play) {
-        video = first.play
-        if (first.title) text += `\n\n📝 ${first.title}`
-      }
+      video = first.play
+      if (first.title) text += `\n\n📝 ${first.title}`
     }
 
     if (!video) throw new Error('No se pudo obtener el video')
