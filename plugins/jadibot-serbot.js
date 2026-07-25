@@ -48,7 +48,7 @@ async function loadSubbots() {
   for (const folder of folders) {
     const pathSkyJadiBot = path.join(`./${global.jadi}/`, folder)
     if (fs.statSync(pathSkyJadiBot).isDirectory() && fs.existsSync(path.join(pathSkyJadiBot, 'creds.json'))) {
-      skyJadiBot({ pathSkyJadiBot, fromCommand: false })
+      skyJadiBot({ pathSkyJadiBot, fromCommand: true })
     }
   }
 }
@@ -115,7 +115,7 @@ export async function skyJadiBot(options) {
 
   let sock = makeWASocket(connectionOptions)
 
-  // ✔ guardar plataforma/navegador correctamente
+  
   sock.browserInfo = browserInfo
 
   async function connectionUpdate(update) {
