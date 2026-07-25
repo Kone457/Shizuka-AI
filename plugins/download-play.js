@@ -1,11 +1,42 @@
 import fetch from 'node-fetch'
+import axios from 'axios'
+import fs from 'fs'
 
 const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text)
 
+async function buildContact(m, conn) {
+  let thumb = null
+  try {
+    const ppUrl = await conn.profilePictureUrl(m.sender, 'image')
+    if (ppUrl) {
+      const res = await axios.get(ppUrl, { responseType: 'arraybuffer' })
+      thumb = Buffer.from(res.data, 'binary')
+    }
+  } catch {
+    try {
+      thumb = fs.readFileSync('./src/logo.jpg')
+    } catch {
+      thumb = null
+    }
+  }
+  return {
+    key: { fromMe: false, participant: '0@s.whatsapp.net' },
+    message: {
+      contactMessage: {
+        displayName: m.pushName || 'Usuario',
+        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;${m.pushName || 'Usuario'};;;\nFN:${m.pushName || 'Usuario'}\nitem1.TEL;waid=${(m.sender || '').replace(/[^0-9]/g,'')}:${m.sender || ''}\nitem1.X-ABLabel:Cel\nEND:VCARD`,
+        jpegThumbnail: thumb || null
+      }
+    }
+  }
+}
+
 const handler = async (m, { conn, command, text }) => {
+  const fkontak = await buildContact(m, conn)
+
   if (!text) {
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
-    return m.reply('Ingresa el nombre o link de YouTube.')
+    return conn.sendMessage(m.chat, { text: 'Ingresa el nombre o link de YouTube.' }, { quoted: fkontak })
   }
 
   try {
@@ -17,7 +48,7 @@ const handler = async (m, { conn, command, text }) => {
         const json = await res.json()
         if (!json.status || !json.result?.url) {
           await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-          return m.reply('No se pudo obtener el audio.')
+          return conn.sendMessage(m.chat, { text: 'No se pudo obtener el audio.' }, { quoted: fkontak })
         }
         const data = json.result
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
@@ -25,7 +56,7 @@ const handler = async (m, { conn, command, text }) => {
           audio: { url: data.url },
           mimetype: 'audio/mpeg',
           fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
-        }, { quoted: m })
+        }, { quoted: fkontak })
       }
 
       if (command === 'mp4' || command === 'ytmp4' || command === 'play2') {
@@ -33,7 +64,7 @@ const handler = async (m, { conn, command, text }) => {
         const json = await res.json()
         if (!json.status || !json.result?.dl_url) {
           await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-          return m.reply('No se pudo obtener el video.')
+          return conn.sendMessage(m.chat, { text: 'No se pudo obtener el video.' }, { quoted: fkontak })
         }
         const data = json.result
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
@@ -41,7 +72,7 @@ const handler = async (m, { conn, command, text }) => {
           video: { url: data.dl_url },
           mimetype: 'video/mp4',
           fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
-        }, { quoted: m })
+        }, { quoted: fkontak })
       }
 
       return
@@ -51,7 +82,7 @@ const handler = async (m, { conn, command, text }) => {
     const json = await res.json()
     if (!json.status || !json.result?.length) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-      return m.reply('No se encontró coincidencia, intenta otro nombre.')
+      return conn.sendMessage(m.chat, { text: 'No se encontró coincidencia, intenta otro nombre.' }, { quoted: fkontak })
     }
 
     const data = json.result[0]
@@ -85,17 +116,19 @@ const handler = async (m, { conn, command, text }) => {
       message.image = thumb
     }
 
-    await conn.sendMessage(m.chat, message, { quoted: m })
+    await conn.sendMessage(m.chat, message, { quoted: fkontak })
 
   } catch (e) {
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    m.reply('Error inesperado, intenta nuevamente.')
+    conn.sendMessage(m.chat, { text: 'Error inesperado, intenta nuevamente.' }, { quoted: fkontak })
   }
 }
 
 handler.before = async (m, { conn }) => {
   const id = m.message?.buttonsResponseMessage?.selectedButtonId
   if (!id) return
+
+  const fkontak = await buildContact(m, conn)
 
   try {
     if (id.startsWith('audio_')) {
@@ -105,7 +138,7 @@ handler.before = async (m, { conn }) => {
       const json = await res.json()
       if (!json.status || !json.result?.url) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return m.reply('No se pudo obtener el audio.')
+        return conn.sendMessage(m.chat, { text: 'No se pudo obtener el audio.' }, { quoted: fkontak })
       }
       const data = json.result
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
@@ -113,7 +146,7 @@ handler.before = async (m, { conn }) => {
         audio: { url: data.url },
         mimetype: 'audio/mpeg',
         fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
-      }, { quoted: m })
+      }, { quoted: fkontak })
     }
 
     if (id.startsWith('video_')) {
@@ -123,7 +156,7 @@ handler.before = async (m, { conn }) => {
       const json = await res.json()
       if (!json.status || !json.result?.dl_url) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return m.reply('No se pudo obtener el video.')
+        return conn.sendMessage(m.chat, { text: 'No se pudo obtener el video.' }, { quoted: fkontak })
       }
       const data = json.result
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
@@ -131,11 +164,11 @@ handler.before = async (m, { conn }) => {
         video: { url: data.dl_url },
         mimetype: 'video/mp4',
         fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
-      }, { quoted: m })
+      }, { quoted: fkontak })
     }
   } catch (e) {
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    m.reply('Error inesperado, intenta nuevamente.')
+    conn.sendMessage(m.chat, { text: 'Error inesperado, intenta nuevamente.' }, { quoted: fkontak })
   }
 }
 
