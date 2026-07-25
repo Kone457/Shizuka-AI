@@ -28,8 +28,10 @@ let handler = async (m, { conn, args }) => {
   const isOwner = userId === ownerNumber;
   const botname = getBotConfig(conn, 'botname') || global.botname || 'Bot';
 
-  if (!text) {
-    return m.reply(`《✧》 Escribe una *petición* para que *${botname}* responda.`);
+  const botMentioned = m.mentionedJid?.includes(conn.user.jid);
+
+  if (!text && !botMentioned) {
+    return;
   }
 
   const ROLE = [
@@ -51,7 +53,7 @@ let handler = async (m, { conn, args }) => {
     );
 
     if (!memoryDB[userId]) memoryDB[userId] = [];
-    memoryDB[userId].push({ role: 'user', text });
+    memoryDB[userId].push({ role: 'user', text: text || '[Mención]' });
 
     const shortHistory = memoryDB[userId].slice(-6);
 
