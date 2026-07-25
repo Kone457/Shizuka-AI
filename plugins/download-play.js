@@ -33,9 +33,26 @@ async function buildContact(m, conn) {
 }
 
 async function getSize(url) {
+  if (!url) return 0
   try {
-    const res = await axios.head(url, { timeout: 10000 })
-    const size = parseInt(res.headers['content-length'] || '0')
+    const res = await axios.head(url, { 
+      timeout: 10000, 
+      maxRedirects: 5,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    })
+    let size = parseInt(res.headers['content-length'] || '0', 10)
+    
+    if (!size || isNaN(size)) {
+      const resGet = await axios.get(url, {
+        headers: { Range: 'bytes=0-0', 'User-Agent': 'Mozilla/5.0' },
+        timeout: 10000,
+        maxRedirects: 5
+      })
+      const contentRange = resGet.headers['content-range']
+      if (contentRange) {
+        size = parseInt(contentRange.split('/')[1] || '0', 10)
+      }
+    }
     return isNaN(size) ? 0 : size
   } catch {
     return 0
@@ -43,7 +60,7 @@ async function getSize(url) {
 }
 
 function formatSize(bytes) {
-  if (!bytes) return 'Desconocido'
+  if (!bytes || bytes <= 0) return 'Desconocido'
   const mb = bytes / (1024 * 1024)
   if (mb >= 1024) {
     const gb = mb / 1024
@@ -73,7 +90,7 @@ const handler = async (m, { conn, command, text }) => {
           return conn.sendMessage(m.chat, { text: 'No se pudo obtener el audio.' }, { quoted: fkontak })
         }
         const data = json.result
-        const size = await getSize(data.url)
+        const size = json.result.size || await getSize(data.url)
         if (size > MAX_BYTES) {
           await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
           return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
@@ -94,7 +111,7 @@ const handler = async (m, { conn, command, text }) => {
           return conn.sendMessage(m.chat, { text: 'No se pudo obtener el video.' }, { quoted: fkontak })
         }
         const data = json.result
-        const size = await getSize(data.dl_url)
+        const size = json.result.size || await getSize(data.dl_url)
         if (size > MAX_BYTES) {
           await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
           return conn.sendMessage(m.chat, { text: `El archivo supera el límite de 50 MB (${formatSize(size)}).` }, { quoted: fkontak })
@@ -107,33 +124,33 @@ const handler = async (m, { conn, command, text }) => {
         }, { quoted: fkontak })
       }
 
-
       const link = text
-      let peso = 'Desconocido'
+      let pesoAudio = 'Desconocido'
+      let pesoVideo = 'Desconocido'
+
       try {
-        const audioRes = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
-        const audioJson = await audioRes.json()
-        if (audioJson.status && audioJson.result?.url) {
-          const size = await getSize(audioJson.result.url)
-          if (size) peso = formatSize(size)
-        } else {
-          const videoRes = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`)
-          const videoJson = await videoRes.json()
-          if (videoJson.status && videoJson.result?.dl_url) {
-            const size = await getSize(videoJson.result.dl_url)
-            if (size) peso = formatSize(size)
-          }
+        const [audioRes, videoRes] = await Promise.allSettled([
+          fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`).then(r => r.json()),
+          fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`).then(r => r.json())
+        ])
+
+        if (audioRes.status === 'fulfilled' && audioRes.value.status && audioRes.value.result?.url) {
+          const sz = audioRes.value.result.size || await getSize(audioRes.value.result.url)
+          if (sz) pesoAudio = formatSize(sz)
         }
-      } catch {
-        peso = 'Desconocido'
-      }
+
+        if (videoRes.status === 'fulfilled' && videoRes.value.status && videoRes.value.result?.dl_url) {
+          const sz = videoRes.value.result.size || await getSize(videoRes.value.result.dl_url)
+          if (sz) pesoVideo = formatSize(sz)
+        }
+      } catch {}
 
       const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
 ┃֪࣪
-├ׁ̟̇❍✎ ❖ ${link}
-├ׁ̟̇❍✎ ⚖️ Peso: ${peso}
+├ׁ̟̇❍✎ 🎵 Audio: ${pesoAudio}
+├ׁ̟̇❍✎ 🎬 Video: ${pesoVideo}
 ┃֪࣪
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
@@ -165,25 +182,25 @@ const handler = async (m, { conn, command, text }) => {
     const data = json.result[0]
     const link = data.link
 
+    let pesoAudio = 'Desconocido'
+    let pesoVideo = 'Desconocido'
 
-    let peso = 'Desconocido'
     try {
-      const audioRes = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
-      const audioJson = await audioRes.json()
-      if (audioJson.status && audioJson.result?.url) {
-        const size = await getSize(audioJson.result.url)
-        if (size) peso = formatSize(size)
-      } else {
-        const videoRes = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`)
-        const videoJson = await videoRes.json()
-        if (videoJson.status && videoJson.result?.dl_url) {
-          const size = await getSize(videoJson.result.dl_url)
-          if (size) peso = formatSize(size)
-        }
+      const [audioRes, videoRes] = await Promise.allSettled([
+        fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`).then(r => r.json()),
+        fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`).then(r => r.json())
+      ])
+
+      if (audioRes.status === 'fulfilled' && audioRes.value.status && audioRes.value.result?.url) {
+        const sz = audioRes.value.result.size || await getSize(audioRes.value.result.url)
+        if (sz) pesoAudio = formatSize(sz)
       }
-    } catch {
-      peso = 'Desconocido'
-    }
+
+      if (videoRes.status === 'fulfilled' && videoRes.value.status && videoRes.value.result?.dl_url) {
+        const sz = videoRes.value.result.size || await getSize(videoRes.value.result.dl_url)
+        if (sz) pesoVideo = formatSize(sz)
+      }
+    } catch {}
 
     const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -192,7 +209,8 @@ const handler = async (m, { conn, command, text }) => {
 ├ׁ̟̇❍✎ ❖ ${data.title}
 ├ׁ̟̇❍✎ ✿ Canal: ${data.channel}
 ├ׁ̟̇❍✎ ⏱️ Duración: ${data.duration}
-├ׁ̟̇❍✎ ⚖️ Peso: ${peso}
+├ׁ̟̇❍✎ 🎵 Peso Audio: ${pesoAudio}
+├ׁ̟̇❍✎ 🎬 Peso Video: ${pesoVideo}
 ┃֪࣪
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
@@ -214,7 +232,7 @@ const handler = async (m, { conn, command, text }) => {
       try {
         const thumb = await (await fetch(data.imageUrl)).buffer()
         message.image = thumb
-      } catch { /* ignore thumb errors */ }
+      } catch {}
     }
 
     await conn.sendMessage(m.chat, message, { quoted: fkontak })
@@ -242,7 +260,7 @@ handler.before = async (m, { conn }) => {
         return conn.sendMessage(m.chat, { text: 'No se pudo obtener el audio.' }, { quoted: fkontak })
       }
       const data = json.result
-      const size = await getSize(data.url)
+      const size = json.result.size || await getSize(data.url)
       if (size > MAX_BYTES) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
         return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
@@ -265,7 +283,7 @@ handler.before = async (m, { conn }) => {
         return conn.sendMessage(m.chat, { text: 'No se pudo obtener el video.' }, { quoted: fkontak })
       }
       const data = json.result
-      const size = await getSize(data.dl_url)
+      const size = json.result.size || await getSize(data.dl_url)
       if (size > MAX_BYTES) {
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
         return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
