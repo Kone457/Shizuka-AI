@@ -9,14 +9,16 @@ import {
 async function pinterestDownload(url) {
   const res = await axios.get(url, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
     },
     maxRedirects: 5
   })
-  const finalUrl = res.request.res.responseUrl || url
+  const finalUrl = res.request?.res?.responseUrl || url
   const { data } = await axios.get(finalUrl, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
     }
   })
   const $ = cheerio.load(data)
@@ -24,15 +26,17 @@ async function pinterestDownload(url) {
   const ogVideo = $('meta[property="og:video"]').attr('content')
   const ogVideoSecure = $('meta[property="og:video:secure_url"]').attr('content')
   const ogImage = $('meta[property="og:image"]').attr('content')
-  if (ogVideo) results.push(ogVideo)
-  if (ogVideoSecure && !results.includes(ogVideoSecure)) results.push(ogVideoSecure)
-  if (!results.length && ogImage) results.push(ogImage)
+  if (ogVideo) results.push({ url: ogVideo, type: 'video' })
+  if (ogVideoSecure && !results.find(r => r.url === ogVideoSecure)) results.push({ url: ogVideoSecure, type: 'video' })
+  if (!results.length && ogImage) results.push({ url: ogImage, type: 'image' })
   if (!results.length) {
     const match = data.match(/"url":"(https:\/\/[^"]+\.(?:mp4|jpg|png))"/g)
     if (match) {
       for (const m of match) {
         const u = m.match(/"url":"([^"]+)"/)?.[1]
-        if (u && !results.includes(u)) results.push(u)
+        if (u && !results.find(r => r.url === u)) {
+          results.push({ url: u, type: u.includes('.mp4') ? 'video' : 'image' })
+        }
       }
     }
   }
@@ -51,16 +55,38 @@ async function searchPinterest(query, limit = 10) {
   if (!text.startsWith('{')) throw new Error('Pinterest bloqueó la petición')
   const json = JSON.parse(text)
   const results = json?.resource_response?.data?.results || []
-  const images = []
+  const medias = []
   for (const item of results) {
-    const img =
-      item?.images?.orig?.url ||
-      item?.images?.['564x']?.url ||
-      item?.images?.['236x']?.url
-    if (img) images.push(img)
-    if (images.length >= limit) break
+    if (!item) continue
+    let added = false
+    if (item.videos) {
+      const vlist = item.videos.video_list || item.videos.video_list || item.videos
+      if (vlist && typeof vlist === 'object') {
+        for (const k of Object.keys(vlist)) {
+          const v = vlist[k]
+          const vurl = v?.url || v?.src
+          if (vurl) {
+            medias.push({ url: vurl, type: 'video' })
+            added = true
+            break
+          }
+        }
+      }
+    }
+    if (!added) {
+      const img =
+        item?.images?.orig?.url ||
+        item?.images?.['564x']?.url ||
+        item?.images?.['236x']?.url ||
+        item?.image?.original?.url ||
+        item?.image?.url
+      if (img) {
+        medias.push({ url: img, type: 'image' })
+      }
+    }
+    if (medias.length >= limit) break
   }
-  return images
+  return medias
 }
 
 let handler = async (m, { conn, args, text }) => {
@@ -71,7 +97,9 @@ let handler = async (m, { conn, args, text }) => {
     if (/^https?:\/\/(www\.)?pin/i.test(input)) {
       const data = await pinterestDownload(input)
       if (!data.length) throw new Error('Sin resultados en el link')
-      for (let url of data) {
+      for (let item of data) {
+        const url = item.url
+        if (!url) continue
         await conn.sendFile(
           m.chat,
           url,
@@ -81,26 +109,32 @@ let handler = async (m, { conn, args, text }) => {
         )
       }
     } else {
-      const images = await searchPinterest(input, 10)
-      if (!images.length) throw new Error('No se encontraron resultados')
+      const results = await searchPinterest(input, 10)
+      if (!results.length) throw new Error('No se encontraron resultados')
       const medias = []
-      for (let i = 0; i < images.length; i++) {
-        const imgBuffer = await (await fetch(images[i])).buffer()
-        medias.push({ type: "image", data: imgBuffer })
+      for (let i = 0; i < results.length; i++) {
+        const r = results[i]
+        try {
+          const buf = await (await fetch(r.url)).buffer()
+          medias.push({ type: r.type === 'video' ? 'video' : 'image', data: buf })
+        } catch (err) {
+          continue
+        }
       }
       const album = generateWAMessageFromContent(m.chat, {
         albumMessage: { expectedImageCount: medias.length }
       }, {})
       await conn.relayMessage(m.chat, album.message, { messageId: album.key.id })
       for (let i = 0; i < medias.length; i++) {
+        const media = medias[i]
         const msg = await prepareWAMessageMedia(
-          { image: medias[i].data },
+          media.type === 'video' ? { video: media.data } : { image: media.data },
           { upload: conn.waUploadToServer }
         )
-        const message = generateWAMessageFromContent(m.chat, {
-          imageMessage: msg.imageMessage,
-          caption: i === 0 ? `✧ Álbum de Pinterest para *${input}*` : undefined
-        }, {})
+        const content = media.type === 'video'
+          ? { videoMessage: msg.videoMessage, caption: i === 0 ? `✧ Álbum de Pinterest para *${input}*` : undefined }
+          : { imageMessage: msg.imageMessage, caption: i === 0 ? `✧ Álbum de Pinterest para *${input}*` : undefined }
+        const message = generateWAMessageFromContent(m.chat, content, {})
         message.message.messageContextInfo = {
           messageAssociation: { associationType: 1, parentMessageKey: album.key }
         }
