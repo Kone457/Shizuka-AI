@@ -15,20 +15,12 @@ let handler = async (m, { conn, args }) => {
   const wm = getBotConfig(conn, 'wm')
   const pack = getBotConfig(conn, 'packname')
 
-  let ppUrl
-  try {
-    ppUrl = await conn.profilePictureUrl(m.sender, 'image')
-  } catch {
-    ppUrl = null
-  }
   let thumb = null
-  if (ppUrl) {
-    try {
-      const res = await axios.get(ppUrl, { responseType: 'arraybuffer' })
-      thumb = Buffer.from(res.data, 'binary')
-    } catch {
-      thumb = null
-    }
+  try {
+    const res = await axios.get('https://files.evogb.win/UTpc8M.jpg', { responseType: 'arraybuffer' })
+    thumb = Buffer.from(res.data, 'binary')
+  } catch {
+    thumb = null
   }
 
   const fkontak = {
