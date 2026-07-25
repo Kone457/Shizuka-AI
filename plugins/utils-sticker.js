@@ -17,10 +17,18 @@ let handler = async (m, { conn, args }) => {
 
   let thumb = null
   try {
-    const res = await axios.get('https://files.evogb.win/UTpc8M.jpg', { responseType: 'arraybuffer' })
-    thumb = Buffer.from(res.data, 'binary')
+    const ppUrl = await conn.profilePictureUrl(m.sender, 'image')
+    if (ppUrl) {
+      const res = await axios.get(ppUrl, { responseType: 'arraybuffer' })
+      thumb = Buffer.from(res.data, 'binary')
+    }
   } catch {
-    thumb = null
+    try {
+      const res = await axios.get('https://files.evogb.win/UTpc8M.jpg', { responseType: 'arraybuffer' })
+      thumb = Buffer.from(res.data, 'binary')
+    } catch {
+      thumb = null
+    }
   }
 
   const fkontak = {
@@ -40,11 +48,11 @@ let handler = async (m, { conn, args }) => {
 
     if (/webp|image|video/g.test(mime)) {
       if (/video/g.test(mime) && (q.msg || q).seconds > 10) {
-        return m.reply(`《✧》 *¡El video no puede durar mas de 10 segundos!*`)
+        return m.reply(`《✧》 *¡El video no puede durar mas de 10 segundos!*`, m, { quoted: fkontak })
       }
 
       let img = await q.download?.()
-      if (!img) return conn.reply(m.chat, `> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*`, m)
+      if (!img) return conn.reply(m.chat, `> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*`, m, { quoted: fkontak })
 
       let out
       try {
@@ -65,7 +73,7 @@ let handler = async (m, { conn, args }) => {
       if (isUrl(args[0])) {
         stiker = await sticker(false, args[0], pack, wm)
       } else {
-        return m.reply(`《✧》 El url es incorrecto`)
+        return m.reply(`《✧》 El url es incorrecto`, m, { quoted: fkontak })
       }
     }
   } catch (e) {
@@ -79,7 +87,7 @@ let handler = async (m, { conn, args }) => {
         isForwarded: false
       }, { quoted: fkontak })
     } else {
-      return conn.reply(m.chat, '> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*', m)
+      return conn.reply(m.chat, '> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*', m, { quoted: fkontak })
     }
   }
 }
