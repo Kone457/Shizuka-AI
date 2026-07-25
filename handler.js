@@ -210,13 +210,24 @@ export async function handler(chatUpdate) {
 
         const fkontak = await buildContact(m, this)
         this.fkontak = fkontak
-        this.sendWithContact = async (jid, content, opts = {}) => {
-            opts.quoted = opts.quoted || this.fkontak
-            return this.sendMessage(jid, content, opts)
+
+        const _origSendMessage = this.sendMessage.bind(this)
+        this.sendMessage = async (jid, content, opts = {}) => {
+            opts = opts || {}
+            if (!opts.quoted) opts.quoted = this.fkontak
+            return _origSendMessage(jid, content, opts)
         }
-        this.replyWithContact = async (jid, text, opts = {}) => {
-            opts.quoted = opts.quoted || this.fkontak
-            return this.sendMessage(jid, { text }, opts)
+
+        this.reply = async (jid, text, quoted = null, opts = {}) => {
+            opts = opts || {}
+            if (!opts.quoted) opts.quoted = this.fkontak
+            return _origSendMessage(jid, { text }, opts)
+        }
+
+        this.sendContact = async (jid, contact, opts = {}) => {
+            opts = opts || {}
+            if (!opts.quoted) opts.quoted = this.fkontak
+            return _origSendMessage(jid, contact, opts)
         }
 
         for (const name in globalThis.plugins) {
