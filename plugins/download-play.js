@@ -3,6 +3,7 @@ import axios from 'axios'
 import fs from 'fs'
 
 const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text)
+const MAX_BYTES = 50 * 1024 * 1024
 
 async function buildContact(m, conn) {
   let thumb = null
@@ -31,6 +32,26 @@ async function buildContact(m, conn) {
   }
 }
 
+async function getSize(url) {
+  try {
+    const res = await axios.head(url, { timeout: 10000 })
+    const size = parseInt(res.headers['content-length'] || '0')
+    return isNaN(size) ? 0 : size
+  } catch {
+    return 0
+  }
+}
+
+function formatSize(bytes) {
+  if (!bytes) return 'Desconocido'
+  const mb = bytes / (1024 * 1024)
+  if (mb >= 1024) {
+    const gb = mb / 1024
+    return `${gb.toFixed(2)} GB`
+  }
+  return `${mb.toFixed(2)} MB`
+}
+
 const handler = async (m, { conn, command, text }) => {
   const fkontak = await buildContact(m, conn)
 
@@ -43,7 +64,8 @@ const handler = async (m, { conn, command, text }) => {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
     if (isUrl(text)) {
-      if (command === 'play' || command === 'mp3' || command === 'ytmp3') {
+
+      if (['play', 'mp3', 'ytmp3'].includes(command)) {
         const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(text)}&apikey=${api.key}`)
         const json = await res.json()
         if (!json.status || !json.result?.url) {
@@ -51,15 +73,20 @@ const handler = async (m, { conn, command, text }) => {
           return conn.sendMessage(m.chat, { text: 'No se pudo obtener el audio.' }, { quoted: fkontak })
         }
         const data = json.result
+        const size = await getSize(data.url)
+        if (size > MAX_BYTES) {
+          await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+          return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
+        }
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-        await conn.sendMessage(m.chat, {
+        return conn.sendMessage(m.chat, {
           audio: { url: data.url },
           mimetype: 'audio/mpeg',
           fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
         }, { quoted: fkontak })
       }
 
-      if (command === 'mp4' || command === 'ytmp4' || command === 'play2') {
+      if (['mp4', 'ytmp4', 'play2'].includes(command)) {
         const res = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(text)}&apikey=${api.key}`)
         const json = await res.json()
         if (!json.status || !json.result?.dl_url) {
@@ -67,14 +94,64 @@ const handler = async (m, { conn, command, text }) => {
           return conn.sendMessage(m.chat, { text: 'No se pudo obtener el video.' }, { quoted: fkontak })
         }
         const data = json.result
+        const size = await getSize(data.dl_url)
+        if (size > MAX_BYTES) {
+          await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+          return conn.sendMessage(m.chat, { text: `El archivo supera el límite de 50 MB (${formatSize(size)}).` }, { quoted: fkontak })
+        }
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-        await conn.sendMessage(m.chat, {
+        return conn.sendMessage(m.chat, {
           video: { url: data.dl_url },
           mimetype: 'video/mp4',
           fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
         }, { quoted: fkontak })
       }
 
+
+      const link = text
+      let peso = 'Desconocido'
+      try {
+        const audioRes = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
+        const audioJson = await audioRes.json()
+        if (audioJson.status && audioJson.result?.url) {
+          const size = await getSize(audioJson.result.url)
+          if (size) peso = formatSize(size)
+        } else {
+          const videoRes = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`)
+          const videoJson = await videoRes.json()
+          if (videoJson.status && videoJson.result?.dl_url) {
+            const size = await getSize(videoJson.result.dl_url)
+            if (size) peso = formatSize(size)
+          }
+        }
+      } catch {
+        peso = 'Desconocido'
+      }
+
+      const caption = `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
+┃֪࣪
+├ׁ̟̇❍✎ ❖ ${link}
+├ׁ̟̇❍✎ ⚖️ Peso: ${peso}
+┃֪࣪
+├ׁ̟̇❍✎ 🔗 Link:
+├ׁ̟̇❍✎ ${link}
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+
+✰ Selecciona una opción
+`.trim()
+
+      const message = {
+        caption,
+        buttons: [
+          { buttonId: `audio_${link}`, buttonText: { displayText: '❖ AUDIO' }, type: 1 },
+          { buttonId: `video_${link}`, buttonText: { displayText: '❖ VIDEO' }, type: 1 }
+        ],
+        headerType: 4
+      }
+
+      await conn.sendMessage(m.chat, message, { quoted: fkontak })
       return
     }
 
@@ -87,6 +164,27 @@ const handler = async (m, { conn, command, text }) => {
 
     const data = json.result[0]
     const link = data.link
+
+
+    let peso = 'Desconocido'
+    try {
+      const audioRes = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
+      const audioJson = await audioRes.json()
+      if (audioJson.status && audioJson.result?.url) {
+        const size = await getSize(audioJson.result.url)
+        if (size) peso = formatSize(size)
+      } else {
+        const videoRes = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`)
+        const videoJson = await videoRes.json()
+        if (videoJson.status && videoJson.result?.dl_url) {
+          const size = await getSize(videoJson.result.dl_url)
+          if (size) peso = formatSize(size)
+        }
+      }
+    } catch {
+      peso = 'Desconocido'
+    }
+
     const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
@@ -94,6 +192,7 @@ const handler = async (m, { conn, command, text }) => {
 ├ׁ̟̇❍✎ ❖ ${data.title}
 ├ׁ̟̇❍✎ ✿ Canal: ${data.channel}
 ├ׁ̟̇❍✎ ⏱️ Duración: ${data.duration}
+├ׁ̟̇❍✎ ⚖️ Peso: ${peso}
 ┃֪࣪
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
@@ -112,8 +211,10 @@ const handler = async (m, { conn, command, text }) => {
     }
 
     if (data.imageUrl) {
-      const thumb = await (await fetch(data.imageUrl)).buffer()
-      message.image = thumb
+      try {
+        const thumb = await (await fetch(data.imageUrl)).buffer()
+        message.image = thumb
+      } catch { /* ignore thumb errors */ }
     }
 
     await conn.sendMessage(m.chat, message, { quoted: fkontak })
@@ -141,8 +242,13 @@ handler.before = async (m, { conn }) => {
         return conn.sendMessage(m.chat, { text: 'No se pudo obtener el audio.' }, { quoted: fkontak })
       }
       const data = json.result
+      const size = await getSize(data.url)
+      if (size > MAX_BYTES) {
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+        return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
+      }
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-      await conn.sendMessage(m.chat, {
+      return conn.sendMessage(m.chat, {
         audio: { url: data.url },
         mimetype: 'audio/mpeg',
         fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
@@ -159,8 +265,13 @@ handler.before = async (m, { conn }) => {
         return conn.sendMessage(m.chat, { text: 'No se pudo obtener el video.' }, { quoted: fkontak })
       }
       const data = json.result
+      const size = await getSize(data.dl_url)
+      if (size > MAX_BYTES) {
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+        return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
+      }
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-      await conn.sendMessage(m.chat, {
+      return conn.sendMessage(m.chat, {
         video: { url: data.dl_url },
         mimetype: 'video/mp4',
         fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
