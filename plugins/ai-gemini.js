@@ -1,4 +1,3 @@
-
 import fetch from 'node-fetch';
 import fs from 'fs';
 import { getBotConfig } from '../lib/botconfig.js';
@@ -23,7 +22,7 @@ let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
   const userId = m.sender.replace(/[^0-9]/g, '');
   const pushName = m.pushName || 'Usuario';
-  
+
   const ownerNumber = global.owner[0][0];
   const ownerName = global.owner[0][1];
   const isOwner = userId === ownerNumber;
@@ -45,65 +44,36 @@ let handler = async (m, { conn, args }) => {
   ].join(' ');
 
   try {
-    const classifyPrompt = `Clasifica la siguiente petición en UNA palabra: "imagen" o "texto". Petición: "${text}"`;
-    
-    const classifyRes = await fetch(`${api.url}/ai/mistral?text=${encodeURIComponent(classifyPrompt)}&apikey=${api.key}`);  
-    const classifyJson = await classifyRes.json();  
-    const intent = (classifyJson?.result || '').toLowerCase().trim();  
+    const { key } = await conn.sendMessage(
+      m.chat,
+      { text: `ⴵ ${botname} está procesando tu solicitud...` },
+      { quoted: m }
+    );
 
-    if (intent.includes('imagen')) {  
-      await conn.sendMessage(m.chat, {  
-        text: `ⴵ ${botname} está creando tu imagen...`  
-      }, { quoted: m });  
+    if (!memoryDB[userId]) memoryDB[userId] = [];
+    memoryDB[userId].push({ role: 'user', text });
 
-      const imageUrl = `${api.url}/ai/flux?prompt=${encodeURIComponent(text)}&apikey=${api.key}`;  
-
-      await conn.sendMessage(m.chat, {  
-        image: { url: imageUrl },  
-        caption: `《✧》 ${text}`  
-      }, { quoted: m });  
-
-      if (!memoryDB[userId]) memoryDB[userId] = [];  
-      memoryDB[userId].push({ role: 'user', text });  
-      memoryDB[userId].push({ role: 'assistant', text: `[Imagen generada]` });  
-      saveDB();  
-
-      return;  
-    }  
-
-    
-    const { key } = await conn.sendMessage(  
-      m.chat,  
-      { text: `ⴵ ${botname} está procesando tu solicitud...` },  
-      { quoted: m }  
-    );  
-
-    if (!memoryDB[userId]) memoryDB[userId] = [];  
-    memoryDB[userId].push({ role: 'user', text });  
-    
-    
     const shortHistory = memoryDB[userId].slice(-6);
 
-    const payload = {  
-      role: ROLE,  
-      history: shortHistory  
-    };  
+    const payload = {
+      role: ROLE,
+      history: shortHistory
+    };
 
-    const res = await fetch(`${api.url}/ai/mistral?text=${encodeURIComponent(JSON.stringify(payload))}&apikey=${api.key}`);  
-    const json = await res.json();  
-    const response = json?.result;  
+    const res = await fetch(`${api.url}/ai/mistral?text=${encodeURIComponent(JSON.stringify(payload))}&apikey=${api.key}`);
+    const json = await res.json();
+    const response = json?.result;
 
-    if (!response) {  
+    if (!response) {
       return conn.sendMessage(m.chat, { text: '《✧》 No se pudo obtener una respuesta de la API.', edit: key });
-    }  
+    }
 
-    memoryDB[userId].push({ role: 'assistant', text: response });  
-    saveDB();  
+    memoryDB[userId].push({ role: 'assistant', text: response });
+    saveDB();
 
     await conn.sendMessage(m.chat, { text: response.trim(), edit: key });
 
   } catch (error) {
-    
     console.error("Felicidades, rompiste algo:", error);
     await m.reply('《✧》 Ocurrió un error al procesar tu solicitud.');
   }
