@@ -36,7 +36,7 @@ async function getSize(url) {
   if (!url) return 0
   try {
     const res = await axios.head(url, { 
-      timeout: 10000, 
+      timeout: 5000, 
       maxRedirects: 5,
       headers: { 'User-Agent': 'Mozilla/5.0' }
     })
@@ -45,7 +45,7 @@ async function getSize(url) {
     if (!size || isNaN(size)) {
       const resGet = await axios.get(url, {
         headers: { Range: 'bytes=0-0', 'User-Agent': 'Mozilla/5.0' },
-        timeout: 10000,
+        timeout: 5000,
         maxRedirects: 5
       })
       const contentRange = resGet.headers['content-range']
@@ -125,32 +125,9 @@ const handler = async (m, { conn, command, text }) => {
       }
 
       const link = text
-      let pesoAudio = 'Desconocido'
-      let pesoVideo = 'Desconocido'
-
-      try {
-        const [audioRes, videoRes] = await Promise.allSettled([
-          fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`).then(r => r.json()),
-          fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`).then(r => r.json())
-        ])
-
-        if (audioRes.status === 'fulfilled' && audioRes.value.status && audioRes.value.result?.url) {
-          const sz = audioRes.value.result.size || await getSize(audioRes.value.result.url)
-          if (sz) pesoAudio = formatSize(sz)
-        }
-
-        if (videoRes.status === 'fulfilled' && videoRes.value.status && videoRes.value.result?.dl_url) {
-          const sz = videoRes.value.result.size || await getSize(videoRes.value.result.dl_url)
-          if (sz) pesoVideo = formatSize(sz)
-        }
-      } catch {}
-
       const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
-┃֪࣪
-├ׁ̟̇❍✎ 🎵 Audio: ${pesoAudio}
-├ׁ̟̇❍✎ 🎬 Video: ${pesoVideo}
 ┃֪࣪
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
@@ -182,26 +159,6 @@ const handler = async (m, { conn, command, text }) => {
     const data = json.result[0]
     const link = data.link
 
-    let pesoAudio = 'Desconocido'
-    let pesoVideo = 'Desconocido'
-
-    try {
-      const [audioRes, videoRes] = await Promise.allSettled([
-        fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`).then(r => r.json()),
-        fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`).then(r => r.json())
-      ])
-
-      if (audioRes.status === 'fulfilled' && audioRes.value.status && audioRes.value.result?.url) {
-        const sz = audioRes.value.result.size || await getSize(audioRes.value.result.url)
-        if (sz) pesoAudio = formatSize(sz)
-      }
-
-      if (videoRes.status === 'fulfilled' && videoRes.value.status && videoRes.value.result?.dl_url) {
-        const sz = videoRes.value.result.size || await getSize(videoRes.value.result.dl_url)
-        if (sz) pesoVideo = formatSize(sz)
-      }
-    } catch {}
-
     const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
@@ -209,8 +166,6 @@ const handler = async (m, { conn, command, text }) => {
 ├ׁ̟̇❍✎ ❖ ${data.title}
 ├ׁ̟̇❍✎ ✿ Canal: ${data.channel}
 ├ׁ̟̇❍✎ ⏱️ Duración: ${data.duration}
-├ׁ̟̇❍✎ 🎵 Peso Audio: ${pesoAudio}
-├ׁ̟̇❍✎ 🎬 Peso Video: ${pesoVideo}
 ┃֪࣪
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
