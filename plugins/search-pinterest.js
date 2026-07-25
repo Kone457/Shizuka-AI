@@ -7,12 +7,19 @@ import {
 } from '@whiskeysockets/baileys'
 
 async function pinterestDownload(url) {
-  const { data } = await axios.get(url, {
+  const res = await axios.get(url, {
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
     },
     maxRedirects: 5
+  })
+  const finalUrl = res.request.res.responseUrl || url
+  const { data } = await axios.get(finalUrl, {
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
+    }
   })
   const $ = cheerio.load(data)
   const results = []
@@ -112,7 +119,7 @@ let handler = async (m, { conn, args, text }) => {
 
 handler.help = ['pinterest']
 handler.tags = ['buscadores']
-handler.command = ['pinterest', 'pin'']
+handler.command = ['pinterest', 'pin']
 handler.group = true
 
 export default handler
