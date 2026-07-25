@@ -10,7 +10,7 @@ async function pinterestDownload(url) {
   const res = await axios.get(url, {
     headers: {
       'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     },
     maxRedirects: 5
   })
@@ -18,63 +18,64 @@ async function pinterestDownload(url) {
   const { data } = await axios.get(finalUrl, {
     headers: {
       'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
   })
   const $ = cheerio.load(data)
   const results = []
 
-  const ogVideo = $('meta[property="og:video"]').attr('content')
-  const ogVideoSecure = $('meta[property="og:video:secure_url"]').attr('content')
-  const ogVideoType = $('meta[property="og:video:type"]').attr('content')
+  const scriptTag = $('#__PBN_DATA__').html() || $('#initial-state').html()
+  if (scriptTag) {
+    try {
+      const parsed = JSON.parse(scriptTag)
+      const pinsData = parsed.resources?.data?.PinResource || parsed.pins || {}
+      for (const key in pinsData) {
+        const pin = pinsData[key]?.data || pinsData[key]
+        if (pin?.videos?.video_list) {
+          const vlist = pin.videos.video_list
+          let bestVideo = null
+          for (const k in vlist) {
+            if (!bestVideo || (vlist[k].width && vlist[k].width > (bestVideo.width || 0))) {
+              bestVideo = vlist[k]
+            }
+          }
+          if (bestVideo?.url) {
+            results.push({ url: bestVideo.url, type: 'video' })
+            return results
+          }
+        }
+      }
+    } catch (e) {}
+  }
+
+  const vMatch = data.match(/"v720P":\s*\{\s*"url":\s*"([^"]+)"/i) ||
+                 data.match(/"vEXP":\s*\{\s*"url":\s*"([^"]+)"/i) ||
+                 data.match(/"vHLS":\s*\{\s*"url":\s*"([^"]+)"/i) ||
+                 data.match(/"video_list":\s*\{[^}]*"url":\s*"([^"]+)"/i)
+  if (vMatch && vMatch[1]) {
+    const videoUrl = vMatch[1].replace(/\\/g, '')
+    results.push({ url: videoUrl, type: 'video' })
+    return results
+  }
+
+  const ogVideo = $('meta[property="og:video"]').attr('content') || $('meta[property="og:video:secure_url"]').attr('content')
+  if (ogVideo) {
+    results.push({ url: ogVideo, type: 'video' })
+    return results
+  }
+
   const ogImage = $('meta[property="og:image"]').attr('content')
-
-  if (ogVideo) results.push({ url: ogVideo, type: 'video' })
-  if (ogVideoSecure && !results.find(r => r.url === ogVideoSecure)) results.push({ url: ogVideoSecure, type: 'video' })
-
-  if (!results.length && ogImage) results.push({ url: ogImage, type: 'image' })
-
-  if (!results.length) {
-    const videoMatch = data.match(/"contentUrl":"(https:\/\/[^"]+\.mp4[^"]*)"/)
-    if (videoMatch) {
-      results.push({ url: videoMatch[1].replace(/\\/g, ''), type: 'video' })
-    }
+  if (ogImage) {
+    results.push({ url: ogImage, type: 'image' })
+    return results
   }
 
-  if (!results.length) {
-    const scriptMatch = data.match(/<script id="__PWS_INITIAL_PROPS__" type="application\/json">([^<]+)<\/script>/)
-    if (scriptMatch) {
-      try {
-        const json = JSON.parse(scriptMatch[1])
-        const pinData = json?.initialReduxState?.pin || json?.initialReduxState?.pinData
-        if (pinData) {
-          const videos = pinData?.videos?.videoList || pinData?.videos?.video_list || pinData?.videos
-          if (videos && typeof videos === 'object') {
-            const bestVideo = videos['V_HLSV4'] || videos['V_720P'] || videos['V_480P'] || Object.values(videos)[0]
-            if (bestVideo?.url) {
-              results.push({ url: bestVideo.url, type: 'video' })
-            }
-          }
-          if (!results.length) {
-            const images = pinData?.images || pinData?.image
-            if (images) {
-              const imgUrl = images?.orig?.url || images?.original?.url || images?.['736x']?.url || images?.url
-              if (imgUrl) results.push({ url: imgUrl, type: 'image' })
-            }
-          }
-        }
-      } catch (e) {}
-    }
-  }
-
-  if (!results.length) {
-    const match = data.match(/"url":"(https:\/\/[^"]+\.(?:mp4|jpg|png|jpeg|gif))"/g)
-    if (match) {
-      for (const m of match) {
-        const u = m.match(/"url":"([^"]+)"/)?.[1]
-        if (u && !results.find(r => r.url === u)) {
-          results.push({ url: u, type: u.includes('.mp4') ? 'video' : 'image' })
-        }
+  const imgMatch = data.match(/"url":"(https:\/\/[^"]+\.(?:mp4|jpg|png|webp))"/g)
+  if (imgMatch) {
+    for (const m of imgMatch) {
+      const u = m.match(/"url":"([^"]+)"/)?.[1]
+      if (u && !results.find(r => r.url === u)) {
+        results.push({ url: u, type: u.includes('.mp4') ? 'video' : 'image' })
       }
     }
   }
@@ -83,12 +84,12 @@ async function pinterestDownload(url) {
 }
 
 async function searchPinterest(query, limit = 10) {
-  const url = `https://id.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}%26rs%3Dtyped&data=%7B%22options%22%3A%7B%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%2C%22rs%22%3A%22typed%22%2C%22redux_normalize_feed%22%3Atrue%2C%22source_url%22%3A%22%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}%26rs%3Dtyped%22%7D%2C%22context%22%3A%7B%7D%7D`
+  const url = `https://www.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}&data=%7B%22options%22%3A%7B%22isPrefetch%22%3Afalse%2C%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%2C%22no_fetch_context_on_resource%22%3Afalse%7D%2C%22context%22%3A%7B%7D%7D`
   const headers = {
     'accept': 'application/json, text/javascript, */*; q=0.01',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/133 Safari/537.36',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'x-requested-with': 'XMLHttpRequest',
-    'cookie': 'csrftoken=; __cf_bm=; sessionFunnelEventLogged=1; _pinterest_sess=TWc9PSZZa3hLQ0VOTGdSWXNXTXBRdE5Sbkpjb1I5VjlVV2x2cWxUeG9LcWZwaGtCQldzY0JUcnB1Rk9ZTVBhMzZ6ZFB2SHN3Q3VVSjNQamJwaXNpeEdDckEydEFqcURNWXlOTGFISnBqZThCQTNCUk5XUk1QMUpMYnJVdHB1bmJhWU9CeXl2U3NLMDUzRko3TWh4WDFXUU1mWWFnPT0meUZhaTR5UldhbVlmUkdoYkFzbUlnSk52b2xVPQ=='
+    'referer': 'https://www.pinterest.com/'
   }
   const res = await fetch(url, { headers })
   const text = await res.text()
@@ -99,24 +100,23 @@ async function searchPinterest(query, limit = 10) {
   for (const item of results) {
     if (!item) continue
     let added = false
-    if (item.videos) {
-      const vlist = item.videos.video_list || item.videos.videoList || item.videos
-      if (vlist && typeof vlist === 'object') {
-        const bestVideo = vlist['V_HLSV4'] || vlist['V_720P'] || vlist['V_480P'] || Object.values(vlist)[0]
-        if (bestVideo?.url) {
-          medias.push({ url: bestVideo.url, type: 'video' })
+    if (item.videos?.video_list) {
+      const vlist = item.videos.video_list
+      for (const k of Object.keys(vlist)) {
+        const vurl = vlist[k]?.url || vlist[k]?.src
+        if (vurl) {
+          medias.push({ url: vurl, type: 'video' })
           added = true
+          break
         }
       }
     }
     if (!added) {
       const img =
         item?.images?.orig?.url ||
-        item?.images?.original?.url ||
-        item?.images?.['736x']?.url ||
         item?.images?.['564x']?.url ||
-        item?.images?.['474x']?.url ||
         item?.images?.['236x']?.url ||
+        item?.image?.original?.url ||
         item?.image?.url
       if (img) {
         medias.push({ url: img, type: 'image' })
@@ -128,11 +128,11 @@ async function searchPinterest(query, limit = 10) {
 }
 
 let handler = async (m, { conn, args, text }) => {
-  const input = args.join(' ') || text
+  const input = args[0] || text
   if (!input) return m.reply('《✧》 Ingresa un link o palabra clave para Pinterest.')
   try {
     await conn.sendMessage(m.chat, { react: { text: '⌛', key: m.key } })
-    if (/^https?:\/\/(www\.)?(pin\.it|pinterest\.\w+\/pin)/i.test(input)) {
+    if (/^https?:\/\/(www\.)?(pin\.it|pinterest\.[a-z.]+)/i.test(input)) {
       const data = await pinterestDownload(input)
       if (!data.length) throw new Error('Sin resultados en el link')
       for (let item of data) {
@@ -141,7 +141,7 @@ let handler = async (m, { conn, args, text }) => {
         await conn.sendFile(
           m.chat,
           url,
-          item.type === 'video' ? 'pinterest.mp4' : 'pinterest.jpg',
+          item.type === 'video' || url.includes('.mp4') ? 'pinterest.mp4' : 'pinterest.jpg',
           '',
           m
         )
@@ -153,13 +153,14 @@ let handler = async (m, { conn, args, text }) => {
       for (let i = 0; i < results.length; i++) {
         const r = results[i]
         try {
-          const buf = await (await fetch(r.url)).buffer()
-          medias.push({ type: r.type, data: buf })
+          const res = await fetch(r.url)
+          const buf = await res.buffer()
+          medias.push({ type: r.type === 'video' ? 'video' : 'image', data: buf })
         } catch (err) {
           continue
         }
       }
-      if (!medias.length) throw new Error('No se pudieron descargar los medios')
+      if (!medias.length) throw new Error('Error al descargar el contenido multimedia')
       const album = generateWAMessageFromContent(m.chat, {
         albumMessage: { expectedImageCount: medias.length }
       }, {})
@@ -171,8 +172,8 @@ let handler = async (m, { conn, args, text }) => {
           { upload: conn.waUploadToServer }
         )
         const content = media.type === 'video'
-          ? { videoMessage: msg.videoMessage, caption: i === 0 ? `✧ Pinterest: *${input}*` : undefined }
-          : { imageMessage: msg.imageMessage, caption: i === 0 ? `✧ Pinterest: *${input}*` : undefined }
+          ? { videoMessage: msg.videoMessage, caption: i === 0 ? `✧ Álbum de Pinterest para *${input}*` : undefined }
+          : { imageMessage: msg.imageMessage, caption: i === 0 ? `✧ Álbum de Pinterest para *${input}*` : undefined }
         const message = generateWAMessageFromContent(m.chat, content, {})
         message.message.messageContextInfo = {
           messageAssociation: { associationType: 1, parentMessageKey: album.key }
