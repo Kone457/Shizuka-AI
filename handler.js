@@ -212,22 +212,23 @@ export async function handler(chatUpdate) {
         this.fkontak = fkontak
 
         const _origSendMessage = this.sendMessage.bind(this)
-        this.sendMessage = async (jid, content, opts = {}) => {
-            opts = opts || {}
-            if (!opts.quoted) opts.quoted = this.fkontak
-            return _origSendMessage(jid, content, opts)
-        }
-
-        this.reply = async (jid, text, quoted = null, opts = {}) => {
-            opts = opts || {}
-            if (!opts.quoted) opts.quoted = this.fkontak
-            return _origSendMessage(jid, { text }, opts)
-        }
-
-        this.sendContact = async (jid, contact, opts = {}) => {
-            opts = opts || {}
-            if (!opts.quoted) opts.quoted = this.fkontak
-            return _origSendMessage(jid, contact, opts)
+        try {
+            Object.defineProperty(this, 'sendMessage', {
+                value: async (jid, content, opts = {}) => {
+                    opts = opts || {}
+                    if (!opts.quoted) opts.quoted = this.fkontak
+                    return _origSendMessage(jid, content, opts)
+                },
+                writable: true,
+                configurable: true,
+                enumerable: false
+            })
+        } catch {
+            this.sendMessageWithContact = async (jid, content, opts = {}) => {
+                opts = opts || {}
+                if (!opts.quoted) opts.quoted = this.fkontak
+                return _origSendMessage(jid, content, opts)
+            }
         }
 
         for (const name in globalThis.plugins) {
@@ -453,5 +454,8 @@ global.dfail = async (type, m, conn) => {
         gacha: `✿ Los comandos *Gacha* están desáctivados.\n> Un admin puede activarlo con:\n> *.on gacha*`,
         restrict: "✿ *_¡Esta característica está -deshabilitada-_*"
     }[type]
-    if (msg) return conn.sendMessage(m.chat, { text: msg }, { quoted: fkontak })
+    if (msg) {
+        const send = conn.sendMessageWithContact || conn.sendMessage || conn.sendMessage
+        return send.call(conn, m.chat, { text: msg }, { quoted: fkontak })
+    }
 }
