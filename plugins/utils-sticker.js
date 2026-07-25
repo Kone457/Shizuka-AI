@@ -1,4 +1,5 @@
 import fs from 'fs'
+import axios from 'axios'
 import { sticker } from '../lib/sticker.js'
 import uploadFile from '../lib/uploadFile.js'
 import uploadImage from '../lib/uploadImage.js'
@@ -20,7 +21,15 @@ let handler = async (m, { conn, args }) => {
   } catch {
     ppUrl = null
   }
-  let thumb = ppUrl ? await (await conn.getFile(ppUrl)).data : null
+  let thumb = null
+  if (ppUrl) {
+    try {
+      const res = await axios.get(ppUrl, { responseType: 'arraybuffer' })
+      thumb = Buffer.from(res.data, 'binary')
+    } catch {
+      thumb = null
+    }
+  }
 
   const fkontak = {
     key: { fromMe: false, participant: '0@s.whatsapp.net' },
