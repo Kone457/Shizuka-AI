@@ -1,45 +1,17 @@
 import { smsg } from './lib/simple.js'
-import { format } from 'util'
+import { format } from 'util' 
 import { fileURLToPath } from 'url'
 import path, { join } from 'path'
 import fs, { unwatchFile, watchFile } from 'fs'
 import chalk from 'chalk'
 import fetch from 'node-fetch'
 import ws from 'ws'
-import axios from 'axios'
 
 const isNumber = x => typeof x === "number" && !isNaN(x)
 const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function () {
     clearTimeout(this)
     resolve()
 }, ms))
-
-async function buildContact(m, conn) {
-    let thumb = null
-    try {
-        const ppUrl = await conn.profilePictureUrl(m.sender, 'image')
-        if (ppUrl) {
-            const res = await axios.get(ppUrl, { responseType: 'arraybuffer' })
-            thumb = Buffer.from(res.data, 'binary')
-        }
-    } catch {
-        try {
-            thumb = fs.readFileSync('./src/logo.jpg')
-        } catch {
-            thumb = null
-        }
-    }
-    return {
-        key: { fromMe: false, participant: '0@s.whatsapp.net' },
-        message: {
-            contactMessage: {
-                displayName: m.pushName || 'Usuario',
-                vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;${m.pushName || 'Usuario'};;;\nFN:${m.pushName || 'Usuario'}\nitem1.TEL;waid=${(m.sender || '').replace(/[^0-9]/g,'')}:${m.sender || ''}\nitem1.X-ABLabel:Cel\nEND:VCARD`,
-                jpegThumbnail: thumb || null
-            }
-        }
-    }
-}
 
 export async function handler(chatUpdate) {
     this.msgqueque = this.msgqueque || []
@@ -164,7 +136,7 @@ export async function handler(chatUpdate) {
         if (m.isGroup && chat && chat.primaryBot) {
             const texto = (m.text || "").trim().toLowerCase()
             const esComandoDelPrimary = texto.startsWith(".delprimary") || texto.startsWith("#delprimary")
-
+            
             if (!esComandoDelPrimary) {
                 if (this.user.jid !== chat.primaryBot) return
             }
@@ -176,7 +148,7 @@ export async function handler(chatUpdate) {
             .map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
             .includes(m.sender)
 
-        const isMods = isOwner
+        const isMods = isOwner 
 
         if (opts["queque"] && m.text && !(isMods)) {
             const queque = this.msgqueque, time = 1000 * 5
@@ -207,29 +179,6 @@ export async function handler(chatUpdate) {
         const isBotAdmin = botGroup?.admin
 
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), "./plugins")
-
-        const fkontak = await buildContact(m, this)
-        this.fkontak = fkontak
-
-        const _origSendMessage = this.sendMessage.bind(this)
-        try {
-            Object.defineProperty(this, 'sendMessage', {
-                value: async (jid, content, opts = {}) => {
-                    opts = opts || {}
-                    if (!opts.quoted) opts.quoted = this.fkontak
-                    return _origSendMessage(jid, content, opts)
-                },
-                writable: true,
-                configurable: true,
-                enumerable: false
-            })
-        } catch {
-            this.sendMessageWithContact = async (jid, content, opts = {}) => {
-                opts = opts || {}
-                if (!opts.quoted) opts.quoted = this.fkontak
-                return _origSendMessage(jid, content, opts)
-            }
-        }
 
         for (const name in globalThis.plugins) {
             const plugin = globalThis.plugins[name]
@@ -354,30 +303,30 @@ export async function handler(chatUpdate) {
                 if (adminMode && !isOwner && m.isGroup && !isAdmin && wa) return
 
                 if (plugin.nsfw && !chat.nsfw && m.isGroup) {
-                    await fail("nsfw", m, this)
+                    fail("nsfw", m, this)
                     continue
                 }
-
+                
                 if (plugin.gacha && !chat.gacha && m.isGroup) {
-                    await fail("gacha", m, this)
+                    fail("gacha", m, this)
                     continue
                 }
 
                 if (plugin.restrict && !opts['restrict']) {
-                    await fail('restrict', m, this)
+                    fail('restrict', m, this)
                     continue
                 }
 
                 if (plugin.owner && !(isOwner)) {
-                    await fail("owner", m, this)
+                    fail("owner", m, this)
                     continue
                 }
 
                 if (plugin.botAdmin && !isBotAdmin) {
-                    await fail("botAdmin", m, this)
+                    fail("botAdmin", m, this)
                     continue
                 } else if (plugin.admin && !isAdmin) {
-                    await fail("admin", m, this)
+                    fail("admin", m, this)
                     continue
                 }
 
@@ -443,19 +392,15 @@ export async function handler(chatUpdate) {
     }
 }
 
-global.dfail = async (type, m, conn) => {
-    const fkontak = conn.fkontak || await buildContact(m, conn)
+global.dfail = (type, m, conn) => {
     const msg = {
-        owner: `✿ El comando *${global.comando}* solo puede ser ejecutado por mi Creador.`,
-        mods: `✿ El comando *${global.comando}* solo puede ser ejecutado por los mods.`,
-        admin: `✿ El comando *${global.comando}* solo puede ser ejecutado por los admins del Grupo.`,
-        botAdmin: `✿ Para usar el comando  *${global.comando}* debo ser admin del Grupo.`,
+        owner: `✿ El comando *${comando}* solo puede ser ejecutado por mi Creador.`,
+        mods: `✿ El comando *${comando}* solo puede ser ejecutado por los mods.`,
+        admin: `✿ El comando *${comando}* solo puede ser ejecutado por los admins del Grupo.`,
+        botAdmin: `✿ Para usar el comando  *${comando}* debo ser admin del Grupo.`,
         nsfw: `✿ Los comandos *NSFW* están desáctivados.\n> Un admin puede activarlo con:\n> *.on nsfw*`,
         gacha: `✿ Los comandos *Gacha* están desáctivados.\n> Un admin puede activarlo con:\n> *.on gacha*`,
         restrict: "✿ *_¡Esta característica está -deshabilitada-_*"
     }[type]
-    if (msg) {
-        const send = conn.sendMessageWithContact || conn.sendMessage || conn.sendMessage
-        return send.call(conn, m.chat, { text: msg }, { quoted: fkontak })
-    }
+    if (msg) return m.reply(msg)
 }
