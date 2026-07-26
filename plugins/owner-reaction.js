@@ -1,49 +1,68 @@
-let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply("《 ✧ 》 **SISTEMA**: Proporcione un enlace de canal válido.\n> *Uso:* .reactlink https://whatsapp.com/channel/0029Va4K")
+const letters = {
+  a: '🅐', b: '🅑', c: '🅒', d: '🅓', e: '🅔', f: '🅕', g: '🅖',
+  h: '🅗', i: '🅘', j: '🅙', k: '🅚', l: '🅛', m: '🅜', n: '🅝',
+  o: '🅞', p: '🅟', q: '🅠', r: '🅡', s: '🅢', t: '🅣', u: '🅤',
+  v: '🅥', w: '🅦', x: '🅧', y: '🅨', z: '🅩',
+  '0': '⓿', '1': '➊', '2': '➋', '3': '➌', '4': '➍',
+  '5': '➎', '6': '➏', '7': '➐', '8': '➑', '9': '➒'
+}
 
-  const processingMsg = await conn.sendMessage(m.chat, { text: '✨ **ESTADO**: Estableciendo conexión con el canal...' }, { quoted: m })
+const handler = async (m, { conn, text, command }) => {
+  if (!text) {
+    return m.reply(
+      ` Ejemplo de uso:\n.${command} https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O/215 Hola`
+    )
+  }
+
+  const args = text.trim().split(/\s+/)
+  const link = args.shift()
+
+  if (!link || !link.startsWith('https://whatsapp.com/channel/')) {
+    return m.reply('❌ Debes enviar un enlace válido del canal.')
+  }
+
+  const parts = link.split('/')
+
+  if (parts.length < 6) {
+    return m.reply('❌ El enlace del canal no es válido.')
+  }
+
+  const channelId = parts[4]
+  const messageId = parts[5]
+
+  const reactionText = args.join(' ').toLowerCase()
+
+  if (!reactionText) {
+    return m.reply('❌ Escribe el texto que deseas usar como reacción.')
+  }
+
+  const emoji = reactionText
+    .split('')
+    .map(c => c === ' ' ? '―' : (letters[c] || c))
+    .join('')
 
   try {
-    const channelCode = text.match(/https:\/\/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i)?.[1]
-    if (!channelCode) throw new Error("Vínculo de canal no identificado.")
+    const channel = await conn.newsletterMetadata('invite', channelId)
 
-    const metadata = await conn.newsletterMetadata('invite', channelCode)
-    const newsletterJid = metadata.id
+    await conn.newsletterReactMessage(
+      channel.id,
+      messageId,
+      emoji
+    )
 
-    await conn.sendMessage(m.chat, { text: '✨ **ESTADO**: Sincronizando metadatos y localizando contenido...', edit: processingMsg.key })
+    m.reply(`✅ Reacción enviada correctamente.
 
-    const messages = await conn.newsletterFetchMessages('invite', channelCode, 1)
-    
-    if (!messages || messages.length === 0) throw new Error("No se detectó actividad reciente en el canal.")
-
-    const lastMsgServerId = messages[0].server_id
-    const emojis = ['🔥', '👏', '❤️', '✨', '⚡']
-
-    await conn.sendMessage(m.chat, { text: '✨ **ESTADO**: Ejecutando secuencia de reacciones...', edit: processingMsg.key })
-
-    for (const emoji of emojis) {
-      await conn.newsletterReactMessage(newsletterJid, lastMsgServerId, emoji)
-      await new Promise(resolve => setTimeout(resolve, 800))
-    }
-
-    await conn.sendMessage(m.chat, {
-      text: `✅ **OPERACIÓN FINALIZADA**\n\n> **Canal:** ${metadata.name}\n> **Mensaje ID:** ${lastMsgServerId}\n> **Estado:** Reacciones enviadas con éxito.`,
-      edit: processingMsg.key
-    })
-
-  } catch (error) {
-    console.error(error)
-    await conn.sendMessage(m.chat, {
-      text: `❌ **ERROR DE SISTEMA**\n\n> **Detalle:** ${error.message}`,
-      edit: processingMsg.key
-    })
+📢 Canal: ${channel.name}
+🎭 Reacción: ${emoji}`)
+  } catch (e) {
+    console.error(e)
+    m.reply(`❌ No se pudo enviar la reacción.\n\n${e.message || e}`)
   }
 }
 
 handler.help = ['react']
-handler.tags = ['owner']
-handler.command = ['reaction', 'react']
-handler.group = true
+handler.tags = ['tools']
+handler.command = ['react']
 handler.owner = true
 
 export default handler
