@@ -13,10 +13,10 @@ const isUrl = (text) => {
 
 let handler = async (m, { conn, args }) => {
   let stiker = false
-  const pack = getBotConfig(conn, 'packname')
   const hora = moment.tz('America/Havana').locale('es').format('hh:mm A')
   const fecha = moment.tz('America/Havana').locale('es').format('dddd, DD [de] MMMM [de] YYYY')
-  const wm = `Bot: ${pack}\nUsuario: ${m.pushName || 'Usuario'}\nHora: ${hora}\nFecha: ${fecha}\nDueño: ${global.author}\n${global.dev}`
+  const wm = `Bot: ${getBotConfig(conn, 'packname')}\nUsuario: ${m.pushName || 'Usuario'}\nHora: ${hora}\nFecha: ${fecha}\nDueño: ${global.author}\n${global.dev}`
+  const pack = ''
 
   let thumb = null
   try {
