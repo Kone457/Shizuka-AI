@@ -1,18 +1,20 @@
 import moment from 'moment-timezone'
+import axios from 'axios'
+import { prepareWAMessageMedia, generateWAMessageFromContent } from '@whiskeysockets/baileys'
 import { getBotConfig } from '../lib/botconfig.js'
-import https from 'https'
-import http from 'http'
 
-const fetchBuffer = (url) => new Promise((resolve) => {
-  if (!url) return resolve(null)
-  const lib = url.startsWith('https') ? https : http;
-  lib.get(url, (res) => {
-    const chunks = [];
-    res.on('data', (c) => chunks.push(c));
-    res.on('end',  () => resolve(Buffer.concat(chunks)));
-    res.on('error', () => resolve(null));
-  }).on('error', () => resolve(null));
-});
+let mediaCache = null
+let mediaCacheTime = 0
+let lastUsedUrl = null
+
+async function getBuffer(url) {
+  try {
+    const res = await axios({ method: 'get', url, responseType: 'arraybuffer' })
+    return Buffer.from(res.data)
+  } catch (e) {
+    throw new Error(`Error descargando imagen: ${e.message}`)
+  }
+}
 
 const CATEGORY_META = {
 main: '⊹ Main ⊹',
@@ -110,26 +112,51 @@ menuTexto += `╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 }
 
 const bannerUrl = getBotConfig(conn, 'banner2')
-const bannerBuf = await fetchBuffer(bannerUrl)
+const linkMatch = 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O'
 
-const botJid = conn.user?.id ? conn.user.id.split(':')[0] + '@s.whatsapp.net' : m.sender
+let imgBanner
+if (mediaCache && lastUsedUrl === bannerUrl && Date.now() - mediaCacheTime < 3600000) {
+  imgBanner = mediaCache
+} else {
+  const bufferBanner = await getBuffer(bannerUrl)
+  const mediaBanner = await prepareWAMessageMedia(
+    { image: bufferBanner },
+    { upload: conn.waUploadToServer, mediaTypeOverride: 'thumbnail-link' }
+  )
+  imgBanner = mediaBanner.imageMessage
+  mediaCache = imgBanner
+  mediaCacheTime = Date.now()
+  lastUsedUrl = bannerUrl
+}
 
-await conn.sendMessage(m.chat, {
-  product: {
-    productImage: {
-      url: bannerUrl
-    },
-    productId: 'menu',
-    title: `👋 Hola ${userName}`,
-    description: menuTexto.trim(),
-    currencyCode: 'USD',
-    priceAmount1000: '0',
-    retailerId: botnameConfig,
-    url: 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O',
-    productImageCount: 1
-  },
-  businessOwnerJid: botJid
-}, { quoted: m })
+const getTs = (ts) => typeof ts === 'object' ? Number(ts.low || ts) : Number(ts);
+
+const content = {
+  extendedTextMessage: {
+    endCardTiles: [],
+    text: menuTexto.trim(),
+    matchedText: linkMatch,
+    canonicalUrl: linkMatch,
+    description: `Powered by Carlos | ${botnameConfig}`,
+    title: botnameConfig.toUpperCase(),
+    previewType: 0,
+    jpegThumbnail: imgBanner.jpegThumbnail,
+    thumbnailDirectPath: imgBanner.directPath,
+    thumbnailSha256: imgBanner.fileSha256,
+    thumbnailEncSha256: imgBanner.fileEncSha256,
+    mediaKey: imgBanner.mediaKey,
+    mediaKeyTimestamp: getTs(imgBanner.mediaKeyTimestamp),
+    thumbnailHeight: imgBanner.height || 1080,
+    thumbnailWidth: imgBanner.width || 1920,
+    inviteLinkGroupTypeV2: 0,
+    contextInfo: {
+      mentionedJid: [m.sender]
+    }
+  }
+}
+
+const waMsg = generateWAMessageFromContent(m.chat, content, { userJid: conn.user?.id, quoted: m })
+await conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id })
 
 } catch (e) {
 await conn.sendMessage(m.chat, {
