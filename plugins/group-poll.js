@@ -12,7 +12,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
       name: title,
       values: options,
       selectableCount: 1,
-      toAnnouncementGroup: true
+      multicast: false
     }
   })
 }
