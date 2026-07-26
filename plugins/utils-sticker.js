@@ -1,5 +1,6 @@
 import fs from 'fs'
 import axios from 'axios'
+import moment from 'moment-timezone'
 import { sticker } from '../lib/sticker.js'
 import uploadFile from '../lib/uploadFile.js'
 import uploadImage from '../lib/uploadImage.js'
@@ -12,8 +13,10 @@ const isUrl = (text) => {
 
 let handler = async (m, { conn, args }) => {
   let stiker = false
-  const wm = getBotConfig(conn, 'wm')
   const pack = getBotConfig(conn, 'packname')
+  const hora = moment.tz('America/Havana').format('hh:mm A')
+  const fecha = moment.tz('America/Havana').format('dddd, DD [de] MMMM [de] YYYY')
+  const wm = `Hora: ${hora}\nFecha: ${fecha}\nDueño: ${global.author}\ ${global.dev}`
 
   let thumb = null
   try {
