@@ -16,7 +16,7 @@ let handler = async (m, { conn, args }) => {
   const pack = getBotConfig(conn, 'packname')
   const hora = moment.tz('America/Havana').format('hh:mm A')
   const fecha = moment.tz('America/Havana').format('dddd, DD [de] MMMM [de] YYYY')
-  const wm = `Hora: ${hora}\nFecha: ${fecha}\nDueño: ${global.author}\ ${global.dev}`
+  const wm = `Bot: ${pack}\nHora: ${hora}\nFecha: ${fecha}\nDueño: ${global.author}\n${global.dev}`
 
   let thumb = null
   try {
