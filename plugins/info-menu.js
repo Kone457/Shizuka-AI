@@ -112,17 +112,23 @@ menuTexto += `╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 const bannerUrl = getBotConfig(conn, 'banner2')
 const bannerBuf = await fetchBuffer(bannerUrl)
 
+const botJid = conn.user?.id ? conn.user.id.split(':')[0] + '@s.whatsapp.net' : m.sender
+
 await conn.sendMessage(m.chat, {
-  productMessage: {
-    title: `Hola *${userName}*`,
-    description: menuTexto.trim(),
-    thumbnail: bannerBuf || undefined,
+  product: {
+    productImage: {
+      url: bannerUrl
+    },
     productId: 'menu',
-    retailerId: '',
-    url: '',
-    body: '📌 Menú de comandos',
-    footer: ''
-  }
+    title: `👋 Hola ${userName}`,
+    description: menuTexto.trim(),
+    currencyCode: 'USD',
+    priceAmount1000: '0',
+    retailerId: botnameConfig,
+    url: 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O',
+    productImageCount: 1
+  },
+  businessOwnerJid: botJid
 }, { quoted: m })
 
 } catch (e) {
