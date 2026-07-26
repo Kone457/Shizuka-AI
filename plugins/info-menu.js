@@ -1,20 +1,5 @@
 import moment from 'moment-timezone'
-import axios from 'axios'
-import { prepareWAMessageMedia, generateWAMessageFromContent } from '@whiskeysockets/baileys'
 import { getBotConfig } from '../lib/botconfig.js'
-
-let mediaCache = null
-let mediaCacheTime = 0
-let lastUsedUrl = null
-
-async function getBuffer(url) {
-  try {
-    const res = await axios({ method: 'get', url, responseType: 'arraybuffer' })
-    return Buffer.from(res.data)
-  } catch (e) {
-    throw new Error(`Error descargando imagen: ${e.message}`)
-  }
-}
 
 const CATEGORY_META = {
 main: '⊹ Main ⊹',
@@ -46,7 +31,6 @@ react: { text: '💔', key: m.key }
 })
 
 const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)
-const pluginsCount = pluginsActivos.length
 
 const fecha = moment.tz('America/Havana').format('DD/MM/YYYY')
 const hora = moment.tz('America/Havana').format('hh:mm A')
@@ -112,51 +96,15 @@ menuTexto += `╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 }
 
 const bannerUrl = getBotConfig(conn, 'banner2')
-const linkMatch = 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O'
 
-let imgBanner
-if (mediaCache && lastUsedUrl === bannerUrl && Date.now() - mediaCacheTime < 3600000) {
-  imgBanner = mediaCache
-} else {
-  const bufferBanner = await getBuffer(bannerUrl)
-  const mediaBanner = await prepareWAMessageMedia(
-    { image: bufferBanner },
-    { upload: conn.waUploadToServer, mediaTypeOverride: 'thumbnail-link' }
-  )
-  imgBanner = mediaBanner.imageMessage
-  mediaCache = imgBanner
-  mediaCacheTime = Date.now()
-  lastUsedUrl = bannerUrl
-}
 
-const getTs = (ts) => typeof ts === 'object' ? Number(ts.low || ts) : Number(ts);
-
-const content = {
-  extendedTextMessage: {
-    endCardTiles: [],
-    text: menuTexto.trim(),
-    matchedText: linkMatch,
-    canonicalUrl: linkMatch,
-    description: `Powered by Carlos | ${botnameConfig}`,
-    title: botnameConfig.toUpperCase(),
-    previewType: 0,
-    jpegThumbnail: imgBanner.jpegThumbnail,
-    thumbnailDirectPath: imgBanner.directPath,
-    thumbnailSha256: imgBanner.fileSha256,
-    thumbnailEncSha256: imgBanner.fileEncSha256,
-    mediaKey: imgBanner.mediaKey,
-    mediaKeyTimestamp: getTs(imgBanner.mediaKeyTimestamp),
-    thumbnailHeight: imgBanner.height || 1080,
-    thumbnailWidth: imgBanner.width || 1920,
-    inviteLinkGroupTypeV2: 0,
-    contextInfo: {
-      mentionedJid: [m.sender]
-    }
+await conn.sendMessage(m.chat, {
+  image: { url: bannerUrl },
+  caption: menuTexto.trim(),
+  contextInfo: {
+    mentionedJid: [m.sender]
   }
-}
-
-const waMsg = generateWAMessageFromContent(m.chat, content, { userJid: conn.user?.id, quoted: m })
-await conn.relayMessage(m.chat, waMsg.message, { messageId: waMsg.key.id })
+}, { quoted: m })
 
 } catch (e) {
 await conn.sendMessage(m.chat, {
