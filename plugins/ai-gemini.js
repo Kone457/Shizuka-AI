@@ -60,7 +60,7 @@ let handler = async (m, { conn, args }) => {
       history: shortHistory
     };
 
-    const res = await fetch(`${api.url}/ai/mistral?text=${encodeURIComponent(JSON.stringify(payload))}&apikey=${api.key}`);
+    const res = await fetch(`${api.url}/ai/gemini?text=${encodeURIComponent(JSON.stringify(payload))}&apikey=${api.key}`);
     const json = await res.json();
     const response = json?.result;
 
