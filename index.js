@@ -301,13 +301,10 @@ watch(pluginFolder, globalThis.reload)
 await globalThis.reloadHandler()
 
 async function _quickTest() {
-await Promise.all([
-spawn('ffmpeg'),
-spawn('ffprobe'),
-spawn('convert'),
-spawn('magick'),
-spawn('gm')
-])
+    await Promise.all([
+        spawn('ffmpeg'),
+        spawn('ffprobe')
+    ])
 }
 
 setInterval(() => {
