@@ -21,7 +21,7 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
     const protectedOwners = global.owner.map(o => o[0] + '@s.whatsapp.net')
 
     if (who === conn.user.jid || who === ownerGroup || who === ownerBot || protectedOwners.includes(who)) {
-        return m.reply('❏ No puedes usar este comando mi creador.')
+        return m.reply('❏ No puedes usar este comando con mi creador.')
     }
 
     let chat = global.db.data.chats[m.chat]
