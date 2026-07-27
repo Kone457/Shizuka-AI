@@ -14,6 +14,13 @@ const handler = async (m, { conn, command }) => {
     const participant = groupMetadata.participants.find(p => jid(p.id || p.jid) === who);
     const isPromote = command === 'promote';
 
+    const ownerBot = global.owner[0][0] + '@s.whatsapp.net';
+    const protectedOwners = global.owner.map(o => o[0] + '@s.whatsapp.net');
+
+    if (protectedOwners.includes(who) || who === ownerBot) {
+      return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
+    }
+
     if (isPromote) {
       if (participant?.admin) {
         return conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
