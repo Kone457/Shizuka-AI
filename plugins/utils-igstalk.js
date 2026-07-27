@@ -16,8 +16,7 @@ let handler = async (m, { conn, text }) => {
 
     const ig = json.data;
 
-    const txt = `*乂 I N S T A G R A M - S T A L K 乂*\n\n`
-      + `*» Usuario:* ${ig.username}\n`
+    const txt = `*» Usuario:* ${ig.username}\n`
       + `*» Nombre:* ${ig.full_name}\n`
       + `*» ID:* ${ig.id}\n`
       + `*» URL:* ${ig.url}\n`
