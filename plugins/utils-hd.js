@@ -12,19 +12,22 @@ let handler = async (m, { conn }) => {
   }
 
   try {
+    await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
+
     const media = await q.download();
     const link = await uploadUguu(media);
 
     const upscaleUrl = `${global.api.url2}/ia/upscale?image=${encodeURIComponent(link)}`;
 
-    const txt = `*乂 H D - U P L O A D E R 乂*\n\n`
-      + `*» Original:* ${link}\n`
-      + `*» Upscale:* ${upscaleUrl}\n`
+    const txt = `*乂 H D - U P S C A L E R 乂*\n\n`
       + `*» Tamaño:* ${formatBytes(media.length)}`;
 
     await conn.sendFile(m.chat, upscaleUrl, "upscaled.jpg", txt, m);
+
+    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
   } catch (e) {
     console.error(e);
+    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
     m.reply(`《✧》 Error al procesar el archivo.\n\n*Detalles:* ${e.message}`);
   }
 };
