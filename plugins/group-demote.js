@@ -3,20 +3,27 @@ import { getBotConfig } from '../lib/botconfig.js'
 const handler = async (m, { conn, command }) => {
   try {
     const jid = (id) => id?.includes('@') ? id : `${id}@s.whatsapp.net`
-    let who = m.mentionedJid?.[0] || m.msg?.contextInfo?.mentionedJid?.[0] || m.quoted?.sender || null
+    let who =
+      m.mentionedJid?.[0] ||
+      m.msg?.contextInfo?.mentionedJid?.[0] ||
+      m.quoted?.sender ||
+      null
 
     if (!who) {
-      return conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
+      return conn.sendMessage(m.chat, {
+        react: { text: '⚠️', key: m.key }
+      })
     }
 
     who = jid(who)
+
     const groupMetadata = await conn.groupMetadata(m.chat)
     const participant = groupMetadata.participants.find(
       p => jid(p.id || p.jid) === who
     )
 
     const isPromote = command === 'promote'
-    const protectedOwners = globalThis.owner.map(
+    const protectedOwners = global.owner.map(
       o => o[0] + '@s.whatsapp.net'
     )
 
@@ -34,13 +41,19 @@ const handler = async (m, { conn, command }) => {
       })
     }
 
+    if (protectedOwners.includes(who)) {
+      return conn.sendMessage(m.chat, {
+        react: { text: '⛔', key: m.key }
+      })
+    }
+
     if (!participant?.admin) {
       return conn.sendMessage(m.chat, {
         react: { text: '⚠️', key: m.key }
       })
     }
 
-    if (protectedOwners.includes(who)) {
+    if (who === groupMetadata.owner) {
       return conn.sendMessage(m.chat, {
         react: { text: '⛔', key: m.key }
       })
