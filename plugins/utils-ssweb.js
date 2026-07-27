@@ -1,19 +1,35 @@
-import fetch from 'node-fetch'
+import fetch from "node-fetch";
 
-let handler = async (m, { conn, command, args }) => {
-if (!args[0]) return conn.reply(m.chat, `✰ Por favor, ingrese el Link de una página.`, m)
-try {
-await m.react(rwait)
-conn.reply(m.chat, `✰ Buscando su información....`, m)
-let ss = await (await fetch(`https://image.thum.io/get/fullpage/${args[0]}`)).buffer()
-conn.sendFile(m.chat, ss, 'error.png', args[0], m)
-await m.react(done)
-} catch {
-return conn.reply(m.chat, `✰ Ocurrió un error.`, m)
-await m.react(error)}}
+let handler = async (m, { conn, text }) => {
+  if (!text) {
+    return conn.reply(m.chat, "《✧》 Por favor, proporciona una URL válida.", m);
+  }
 
-handler.help = ['ssweb', 'ss']
-handler.tags = ['tools']
-handler.command = ['ssweb', 'ss']
+  try {
+    await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
 
-export default handler
+    const apiUrl = `${global.api.url2}/tools/ssweb?url=${encodeURIComponent(text)}`;
+    const res = await fetch(apiUrl);
+    const json = await res.json();
+
+    if (!json.status || !json.data?.download) {
+      throw new Error("No se pudo generar la captura.");
+    }
+
+    const txt = `*» URL:* ${text}`;
+
+    await conn.sendFile(m.chat, json.data.download, "screenshot.png", txt, m);
+
+    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+  } catch (e) {
+    console.error(e);
+    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+    m.reply(`《✧》 Error al procesar.\n\n*Detalles:* ${e.message}`);
+  }
+};
+
+handler.help = ["ssweb"];
+handler.tags = ["tools"];
+handler.command = ["ssweb", "ss"];
+
+export default handler;
