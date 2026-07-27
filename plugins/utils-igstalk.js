@@ -39,7 +39,7 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ["igstalk"];
+handler.help = ["igstalk <usuario>"];
 handler.tags = ["tools"];
 handler.command = ["igstalk"];
 
