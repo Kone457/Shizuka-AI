@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { FormData, File } from "formdata-node";
 import { fileTypeFromBuffer } from "file-type";
 
-let handler = async (m, { conn, api }) => {
+let handler = async (m, { conn }) => {
   let q = m.quoted ? m.quoted : m;
   let mime = (q.msg || q).mimetype || "";
 
@@ -15,9 +15,9 @@ let handler = async (m, { conn, api }) => {
     const media = await q.download();
     const link = await uploadUguu(media);
 
-    const upscaleUrl = `${api.url2}/ia/upscale?image=${encodeURIComponent(link)}`;
+    const upscaleUrl = `${global.api.url2}/ia/upscale?image=${encodeURIComponent(link)}`;
 
-    const txt = `*乂 H D - U P S C A L E R 乂*\n\n`
+    const txt = `*乂 H D - U P L O A D E R 乂*\n\n`
       + `*» Original:* ${link}\n`
       + `*» Upscale:* ${upscaleUrl}\n`
       + `*» Tamaño:* ${formatBytes(media.length)}`;
