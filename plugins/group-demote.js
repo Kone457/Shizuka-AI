@@ -44,6 +44,10 @@ const handler = async (m, { conn, command }) => {
       return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
     }
 
+    if (protectedOwners.includes(who)) {
+      return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
+    }
+
     await conn.groupParticipantsUpdate(m.chat, [who], 'demote');
     return conn.sendMessage(m.chat, { react: { text: '👍', key: m.key } });
 
