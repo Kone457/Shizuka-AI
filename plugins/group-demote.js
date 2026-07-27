@@ -14,13 +14,9 @@ const handler = async (m, { conn, command }) => {
     const participant = groupMetadata.participants.find(p => jid(p.id || p.jid) === who);
     const isPromote = command === 'promote';
 
-    const ownerBot = global.owner[0][0] + '@s.whatsapp.net';
     const protectedOwners = global.owner.map(o => o[0] + '@s.whatsapp.net');
 
     if (isPromote) {
-      if (protectedOwners.includes(who) || who === ownerBot) {
-        return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
-      }
       if (participant?.admin) {
         return conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       }
@@ -28,7 +24,7 @@ const handler = async (m, { conn, command }) => {
       return conn.sendMessage(m.chat, { react: { text: '👍', key: m.key } });
     }
 
-    if (protectedOwners.includes(who) || who === ownerBot) {
+    if (protectedOwners.includes(who)) {
       return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
     }
 
@@ -41,10 +37,6 @@ const handler = async (m, { conn, command }) => {
     }
 
     if (who === conn.user.jid) {
-      return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
-    }
-
-    if (protectedOwners.includes(who)) {
       return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
     }
 
