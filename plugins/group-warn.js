@@ -5,11 +5,7 @@ let handler = async (m, { conn, text }) => {
         : (m.quoted ? m.quoted.sender : false)
 
     if (!user) {
-        return conn.reply(
-            m.chat,
-            '《✧》 Debes mencionar o responder al usuario.',
-            m
-        )
+        return conn.reply(m.chat, '《✧》 Debes mencionar o responder al usuario.', m)
     }
 
     let users = global.db.data.users
@@ -26,27 +22,19 @@ let handler = async (m, { conn, text }) => {
     const groupInfo = await conn.groupMetadata(m.chat)
     const ownerGroup = groupInfo.owner || m.chat.split('-')[0] + '@s.whatsapp.net'
     const ownerBot = global.owner[0][0] + '@s.whatsapp.net'
+    const protectedOwners = global.owner.map(o => o[0] + '@s.whatsapp.net')
 
     if (user === m.sender) {
-        return conn.reply(
-            m.chat,
-            '❏ No puedes advertirte a ti mismo.',
-            m
-        )
+        return conn.reply(m.chat, '❏ No puedes advertirte a ti mismo.', m)
     }
 
-    if (user === conn.user.jid || user === ownerGroup || user === ownerBot) {
-        return conn.reply(
-            m.chat,
-            '❏ No puedes advertir a ese usuario.',
-            m
-        )
+    if (user === conn.user.jid || user === ownerGroup || user === ownerBot || protectedOwners.includes(user)) {
+        return conn.reply(m.chat, '❏ No puedes advertir a ese usuario.', m)
     }
 
     let reason = text.replace(/@\d+/g, '').trim() || 'Sin razón'
 
     users[user].warn++
-
     users[user].warnHistory.push({
         by: m.sender,
         reason,
@@ -62,7 +50,6 @@ let handler = async (m, { conn, text }) => {
             m,
             { mentions: [user] }
         )
-
         await conn.groupParticipantsUpdate(m.chat, [user], 'remove')
         users[user].warn = 0
     } else {
