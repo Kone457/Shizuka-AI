@@ -48,7 +48,7 @@ async function loadSubbots() {
   for (const folder of folders) {
     const pathSkyJadiBot = path.join(`./${global.jadi}/`, folder)
     if (fs.statSync(pathSkyJadiBot).isDirectory() && fs.existsSync(path.join(pathSkyJadiBot, 'creds.json'))) {
-      skyJadiBot({ pathSkyJadiBot, fromCommand: true })
+      skyJadiBot({ pathSkyJadiBot, fromCommand: false })
     }
   }
 }
