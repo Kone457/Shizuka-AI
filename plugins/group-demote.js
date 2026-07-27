@@ -17,17 +17,19 @@ const handler = async (m, { conn, command }) => {
     const ownerBot = global.owner[0][0] + '@s.whatsapp.net';
     const protectedOwners = global.owner.map(o => o[0] + '@s.whatsapp.net');
 
-    if (protectedOwners.includes(who) || who === ownerBot) {
-      return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
-    }
-
     if (isPromote) {
+      if (protectedOwners.includes(who) || who === ownerBot) {
+        return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
+      }
       if (participant?.admin) {
         return conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
       }
-
       await conn.groupParticipantsUpdate(m.chat, [who], 'promote');
       return conn.sendMessage(m.chat, { react: { text: '👍', key: m.key } });
+    }
+
+    if (protectedOwners.includes(who) || who === ownerBot) {
+      return conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } });
     }
 
     if (!participant?.admin) {
