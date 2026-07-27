@@ -1,48 +1,72 @@
-import fetch from 'node-fetch'
-import FormData from 'form-data'
+import fetch from "node-fetch";
+import crypto from "crypto";
+import { FormData, File } from "formdata-node";
+import { fileTypeFromBuffer } from "file-type";
 
-let handler = async (m, { conn, args }) => {
-  const quoted = m.quoted ? m.quoted : null
-  const mime = quoted?.mimetype || ''
-  if (!mime || !mime.startsWith('image/')) {
-    return conn.reply(m.chat, '⚠️ Responde a una *imagen* con el comando `.hd`.', m)
+let handler = async (m, { conn, api }) => {
+  let q = m.quoted ? m.quoted : m;
+  let mime = (q.msg || q).mimetype || "";
+
+  if (!mime) {
+    return conn.reply(m.chat, "《✧》 Por favor, responde a un archivo válido.", m);
   }
-
-  const img = await quoted.download()
-  if (!img) return conn.reply(m.chat, '❌ No se pudo obtener la imagen.', m)
 
   try {
-    const fd = new FormData()
-    fd.append('image', img, { filename: 'input.jpg', contentType: 'image/jpeg' })
+    const media = await q.download();
+    const link = await uploadUguu(media);
 
-    const model = args[0] || ''
-    const apiUrl = `${api.url}/ai/upscale?model=${encodeURIComponent(model)}&apikey=${api.key}`
+    const upscaleUrl = `${api.url2}/ia/upscale?image=${encodeURIComponent(link)}`;
 
-    const resApi = await fetch(apiUrl, {
-      method: 'POST',
-      body: fd,
-      headers: fd.getHeaders()
-    })
+    const txt = `*乂 H D - U P S C A L E R 乂*\n\n`
+      + `*» Original:* ${link}\n`
+      + `*» Upscale:* ${upscaleUrl}\n`
+      + `*» Tamaño:* ${formatBytes(media.length)}`;
 
-    if (!resApi.ok) {
-      return conn.reply(m.chat, `❌ Error: ${resApi.status}`, m)
-    }
-
-    const buffer = await resApi.buffer()
-
-    const txt = `*乂 H D - U P S C A L E R 乂*\n\n` +
-                `*» Modelo* : ${model || 'default'}\n` +
-                `*» Upscaled* : Imagen generada\n`
-
-    await conn.sendFile(m.chat, buffer, 'upscaled.jpg', txt, m)
-
+    await conn.sendFile(m.chat, upscaleUrl, "upscaled.jpg", txt, m);
   } catch (e) {
-    conn.reply(m.chat, `❌ Error al conectar con la API: ${e.message}`, m)
+    console.error(e);
+    m.reply(`《✧》 Error al procesar el archivo.\n\n*Detalles:* ${e.message}`);
   }
+};
+
+handler.help = ["hd"];
+handler.tags = ["tools"];
+handler.command = ["hd"];
+
+export default handler;
+
+function formatBytes(bytes) {
+  if (!bytes) return "0 B";
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
 }
 
-handler.help = ['hd']
-handler.tags = ['tools']
-handler.command = ['hd','upscale']
+async function uploadUguu(buffer) {
+  const type = await fileTypeFromBuffer(buffer);
 
-export default handler
+  if (!type) throw new Error("No se pudo detectar el tipo de archivo.");
+
+  const form = new FormData();
+  form.set(
+    "files[]",
+    new File(
+      [buffer],
+      `${crypto.randomBytes(6).toString("hex")}.${type.ext}`,
+      { type: type.mime }
+    )
+  );
+
+  const res = await fetch("https://uguu.se/upload.php", {
+    method: "POST",
+    body: form,
+    headers: form.headers
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) throw new Error(json.message || "Error al subir el archivo.");
+  if (!json.success || !json.files?.length) throw new Error("La subida falló.");
+
+  return json.files[0].url;
+}
