@@ -15,6 +15,15 @@ let handler = async (m, { conn, text, isAdmin, isOwner, command }) => {
         return m.reply('✿ *Etiqueta o responde al mensaje del usuario que deseas silenciar*')
     }
 
+    const groupInfo = await conn.groupMetadata(m.chat)
+    const ownerGroup = groupInfo.owner || m.chat.split('-')[0] + '@s.whatsapp.net'
+    const ownerBot = global.owner[0][0] + '@s.whatsapp.net'
+    const protectedOwners = global.owner.map(o => o[0] + '@s.whatsapp.net')
+
+    if (who === conn.user.jid || who === ownerGroup || who === ownerBot || protectedOwners.includes(who)) {
+        return m.reply('❏ No puedes usar este comando mi creador.')
+    }
+
     let chat = global.db.data.chats[m.chat]
     if (!chat.mutedUsers) chat.mutedUsers = []
 
