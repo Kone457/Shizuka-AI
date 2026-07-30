@@ -81,10 +81,6 @@ const handler = async (m, { conn, command, text }) => {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
     let link = text
-    let title = 'YouTube Content'
-    let channel = 'Desconocido'
-    let duration = 'Desconocido'
-    let imageUrl = null
 
     if (!isUrl(text)) {
       const resSearch = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`)
@@ -95,34 +91,29 @@ const handler = async (m, { conn, command, text }) => {
       }
       const item = jsonSearch.result[0]
       link = item.link
-      title = item.title || title
-      channel = item.channel || channel
-      duration = item.duration || duration
-      imageUrl = item.imageUrl || null
-    }
 
-    const caption = `
+      const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
 ┃֪࣪
-├ׁ̟̇❍✎ ❖ ${title}
-├ׁ̟̇❍✎ ✿ Canal: ${channel}
-├ׁ̟̇❍✎ ⏱️ Duración: ${duration}
-┃֪࣪
+├ׁ̟̇❍✎ ❖ ${item.title || 'YouTube Content'}
+├ׁ̟̇❍✎ ✿ Canal: ${item.channel || 'Desconocido'}
+├ׁ̟̇❍✎ ⏱️ Duración: ${item.duration || 'Desconocido'}
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
 
-    if (imageUrl) {
-      try {
-        const thumb = await (await fetch(imageUrl)).buffer()
-        await conn.sendMessage(m.chat, { image: thumb, caption }, { quoted: fkontak })
-      } catch {
+      if (item.imageUrl) {
+        try {
+          const thumb = await (await fetch(item.imageUrl)).buffer()
+          await conn.sendMessage(m.chat, { image: thumb, caption }, { quoted: fkontak })
+        } catch {
+          await conn.sendMessage(m.chat, { text: caption }, { quoted: fkontak })
+        }
+      } else {
         await conn.sendMessage(m.chat, { text: caption }, { quoted: fkontak })
       }
-    } else {
-      await conn.sendMessage(m.chat, { text: caption }, { quoted: fkontak })
     }
 
     const isAudio = ['play', 'mp3', 'ytmp3'].includes(command)
@@ -148,7 +139,7 @@ const handler = async (m, { conn, command, text }) => {
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
-    const cleanTitle = (data.title || title || 'descarga').replace(/[^\w\s]/gi, '')
+    const cleanTitle = (data.title || 'descarga').replace(/[^\w\s]/gi, '')
 
     if (isAudio) {
       return conn.sendMessage(m.chat, {
