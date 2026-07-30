@@ -41,7 +41,7 @@ async function getSize(url) {
       headers: { 'User-Agent': 'Mozilla/5.0' }
     })
     let size = parseInt(res.headers['content-length'] || '0', 10)
-    
+
     if (!size || isNaN(size)) {
       const resGet = await axios.get(url, {
         headers: { Range: 'bytes=0-0', 'User-Agent': 'Mozilla/5.0' },
@@ -80,179 +80,93 @@ const handler = async (m, { conn, command, text }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
-    if (isUrl(text)) {
+    let link = text
+    let title = 'YouTube Content'
+    let channel = 'Desconocido'
+    let duration = 'Desconocido'
+    let imageUrl = null
 
-      if (['play', 'mp3', 'ytmp3'].includes(command)) {
-        const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(text)}&apikey=${api.key}`)
-        const json = await res.json()
-        if (!json.status || !json.result?.url) {
-          await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-          return conn.sendMessage(m.chat, { text: 'No se pudo obtener el audio.' }, { quoted: fkontak })
-        }
-        const data = json.result
-        const size = json.result.size || await getSize(data.url)
-        if (size > MAX_BYTES) {
-          await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-          return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
-        }
-        await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-        return conn.sendMessage(m.chat, {
-          audio: { url: data.url },
-          mimetype: 'audio/mpeg',
-          fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
-        }, { quoted: fkontak })
+    if (!isUrl(text)) {
+      const resSearch = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`)
+      const jsonSearch = await resSearch.json()
+      if (!jsonSearch.status || !jsonSearch.result?.length) {
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+        return conn.sendMessage(m.chat, { text: 'No se encontró coincidencia, intenta otro nombre.' }, { quoted: fkontak })
       }
-
-      if (['mp4', 'ytmp4', 'play2'].includes(command)) {
-        const res = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(text)}&apikey=${api.key}`)
-        const json = await res.json()
-        if (!json.status || !json.result?.dl_url) {
-          await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-          return conn.sendMessage(m.chat, { text: 'No se pudo obtener el video.' }, { quoted: fkontak })
-        }
-        const data = json.result
-        const size = json.result.size || await getSize(data.dl_url)
-        if (size > MAX_BYTES) {
-          await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-          return conn.sendMessage(m.chat, { text: `El archivo supera el límite de 50 MB (${formatSize(size)}).` }, { quoted: fkontak })
-        }
-        await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-        return conn.sendMessage(m.chat, {
-          video: { url: data.dl_url },
-          mimetype: 'video/mp4',
-          fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
-        }, { quoted: fkontak })
-      }
-
-      const link = text
-      const caption = `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
-┃֪࣪
-├ׁ̟̇❍✎ 🔗 Link:
-├ׁ̟̇❍✎ ${link}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-
-✰ Selecciona una opción
-`.trim()
-
-      const message = {
-        caption,
-        buttons: [
-          { buttonId: `audio_${link}`, buttonText: { displayText: '❖ AUDIO' }, type: 1 },
-          { buttonId: `video_${link}`, buttonText: { displayText: '❖ VIDEO' }, type: 1 }
-        ],
-        headerType: 4
-      }
-
-      await conn.sendMessage(m.chat, message, { quoted: fkontak })
-      return
+      const item = jsonSearch.result[0]
+      link = item.link
+      title = item.title || title
+      channel = item.channel || channel
+      duration = item.duration || duration
+      imageUrl = item.imageUrl || null
     }
-
-    const res = await fetch(`${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`)
-    const json = await res.json()
-    if (!json.status || !json.result?.length) {
-      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-      return conn.sendMessage(m.chat, { text: 'No se encontró coincidencia, intenta otro nombre.' }, { quoted: fkontak })
-    }
-
-    const data = json.result[0]
-    const link = data.link
 
     const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
 ┃֪࣪
-├ׁ̟̇❍✎ ❖ ${data.title}
-├ׁ̟̇❍✎ ✿ Canal: ${data.channel}
-├ׁ̟̇❍✎ ⏱️ Duración: ${data.duration}
+├ׁ̟̇❍✎ ❖ ${title}
+├ׁ̟̇❍✎ ✿ Canal: ${channel}
+├ׁ̟̇❍✎ ⏱️ Duración: ${duration}
 ┃֪࣪
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-
-✰ Selecciona una opción
 `.trim()
 
-    let message = {
-      caption,
-      buttons: [
-        { buttonId: `audio_${link}`, buttonText: { displayText: '❖ AUDIO' }, type: 1 },
-        { buttonId: `video_${link}`, buttonText: { displayText: '❖ VIDEO' }, type: 1 }
-      ],
-      headerType: 4
-    }
-
-    if (data.imageUrl) {
+    if (imageUrl) {
       try {
-        const thumb = await (await fetch(data.imageUrl)).buffer()
-        message.image = thumb
-      } catch {}
+        const thumb = await (await fetch(imageUrl)).buffer()
+        await conn.sendMessage(m.chat, { image: thumb, caption }, { quoted: fkontak })
+      } catch {
+        await conn.sendMessage(m.chat, { text: caption }, { quoted: fkontak })
+      }
+    } else {
+      await conn.sendMessage(m.chat, { text: caption }, { quoted: fkontak })
     }
 
-    await conn.sendMessage(m.chat, message, { quoted: fkontak })
+    const isAudio = ['play', 'mp3', 'ytmp3'].includes(command)
+    const endpoint = isAudio ? `${api.url}/download/audio` : `${api.url}/download/ytv2`
 
-  } catch (e) {
-    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    conn.sendMessage(m.chat, { text: 'Error inesperado, intenta nuevamente.' }, { quoted: fkontak })
-  }
-}
+    const res = await fetch(`${endpoint}?url=${encodeURIComponent(link)}&apikey=${api.key}`)
+    const json = await res.json()
 
-handler.before = async (m, { conn }) => {
-  const id = m.message?.buttonsResponseMessage?.selectedButtonId
-  if (!id) return
+    const downloadUrl = isAudio ? json.result?.url : json.result?.dl_url
 
-  const fkontak = await buildContact(m, conn)
+    if (!json.status || !downloadUrl) {
+      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+      return conn.sendMessage(m.chat, { text: `No se pudo obtener el ${isAudio ? 'audio' : 'video'}.` }, { quoted: fkontak })
+    }
 
-  try {
-    if (id.startsWith('audio_')) {
-      const link = id.replace('audio_', '')
-      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
-      const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
-      const json = await res.json()
-      if (!json.status || !json.result?.url) {
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return conn.sendMessage(m.chat, { text: 'No se pudo obtener el audio.' }, { quoted: fkontak })
-      }
-      const data = json.result
-      const size = json.result.size || await getSize(data.url)
-      if (size > MAX_BYTES) {
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
-      }
-      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+    const data = json.result
+    const size = data.size || await getSize(downloadUrl)
+
+    if (size > MAX_BYTES) {
+      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+      return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
+    }
+
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+
+    const cleanTitle = (data.title || title || 'descarga').replace(/[^\w\s]/gi, '')
+
+    if (isAudio) {
       return conn.sendMessage(m.chat, {
-        audio: { url: data.url },
+        audio: { url: downloadUrl },
         mimetype: 'audio/mpeg',
-        fileName: `${(data.title || 'audio').replace(/[^\w\s]/gi, '')}.mp3`
+        fileName: `${cleanTitle}.mp3`
+      }, { quoted: fkontak })
+    } else {
+      return conn.sendMessage(m.chat, {
+        video: { url: downloadUrl },
+        mimetype: 'video/mp4',
+        fileName: `${cleanTitle}.mp4`
       }, { quoted: fkontak })
     }
 
-    if (id.startsWith('video_')) {
-      const link = id.replace('video_', '')
-      await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
-      const res = await fetch(`${api.url}/download/ytv2?url=${encodeURIComponent(link)}&apikey=${api.key}`)
-      const json = await res.json()
-      if (!json.status || !json.result?.dl_url) {
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return conn.sendMessage(m.chat, { text: 'No se pudo obtener el video.' }, { quoted: fkontak })
-      }
-      const data = json.result
-      const size = json.result.size || await getSize(data.dl_url)
-      if (size > MAX_BYTES) {
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        return conn.sendMessage(m.chat, { text: `El archivo supera el límite establecido (${formatSize(size)}).` }, { quoted: fkontak })
-      }
-      await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-      return conn.sendMessage(m.chat, {
-        video: { url: data.dl_url },
-        mimetype: 'video/mp4',
-        fileName: `${(data.title || 'video').replace(/[^\w\s]/gi, '')}.mp4`
-      }, { quoted: fkontak })
-    }
   } catch (e) {
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    conn.sendMessage(m.chat, { text: 'Error inesperado, intenta nuevamente.' }, { quoted: fkontak })
+    return conn.sendMessage(m.chat, { text: 'Error inesperado, intenta nuevamente.' }, { quoted: fkontak })
   }
 }
 
