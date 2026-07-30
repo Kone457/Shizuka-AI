@@ -31,7 +31,7 @@ let handler = async (m, { conn, usedPrefix }) => {
   }
 
   const texto = [
-    `✿ *》》Economia @${m.pushName || m.sender}《《* ✿`,
+    `✿ *》Economia ${m.pushName || m.sender}* `,
     ``,
     `ⴵ Work » *${tiempoRestante(user.lastwork, cds.work)}*`,
     `ⴵ Slut » *${tiempoRestante(user.lastslut, cds.slut)}*`,
