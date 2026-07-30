@@ -95,7 +95,6 @@ const handler = async (m, { conn, command, text }) => {
       const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
-┃֪࣪
 ├ׁ̟̇❍✎ ❖ ${item.title || 'YouTube Content'}
 ├ׁ̟̇❍✎ ✿ Canal: ${item.channel || 'Desconocido'}
 ├ׁ̟̇❍✎ ⏱️ Duración: ${item.duration || 'Desconocido'}
