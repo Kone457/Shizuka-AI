@@ -45,7 +45,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     `ⴵ Weekly » *${tiempoRestante(user.lastweekly, cds.weekly)}*`,
     `ⴵ Monthly » *${tiempoRestante(user.lastmonthly, cds.monthly)}*`,
     ``,
-    `⛁ Coins totales » ¥${user.coin.toLocaleString()} ${currency}`
+    `⛁ Coins totales » ${user.coin.toLocaleString()} ${currency}`
   ].join('\n')
 
   conn.reply(m.chat, texto, m)
