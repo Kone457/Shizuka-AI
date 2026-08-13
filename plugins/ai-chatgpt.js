@@ -11,7 +11,7 @@ let handler = async (m, { conn, args }) => {
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: 'ⴵ *ChatGPT* está procesando tu respuesta...' },
+      { text: 'ⴵ *ChatGPT* está procesando tu solicitud...' },
       { quoted: m }
     );
 
