@@ -1,6 +1,5 @@
-import fetch from 'node-fetch';
 
-const CHATGPT_PATH = `${api.url}/ai/chatgpt`;
+import fetch from 'node-fetch';
 
 let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
@@ -16,10 +15,11 @@ let handler = async (m, { conn, args }) => {
       { quoted: m }
     );
 
-    const res = await fetch(`${api.url}/ai/llama?text=${encodeURIComponent(text)}&apikey=${api.key}`);
+    
+    const res = await fetch(`${api.url2}/ia/chatgpt?q=${encodeURIComponent(text)}`);
     const json = await res.json();
 
-    const response = json?.result;
+    const response = json?.data;
 
     if (!response) {
       return conn.reply(m.chat, '❏ No se pudo obtener una *respuesta* válida.');
