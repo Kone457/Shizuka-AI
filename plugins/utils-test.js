@@ -43,7 +43,7 @@ async function myCloud(content) {
   const formData = new FormData()
   formData.append("file", blob, crypto.randomBytes(5).toString("hex") + "." + ext)
 
-  const response = await fetch("https://project-sxl.vercel.app/upload", {
+  const response = await fetch(`${api.url}/upload?apikey=${api.key}`, {
     method: "POST",
     body: formData
   })
