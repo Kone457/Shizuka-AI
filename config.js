@@ -25,7 +25,7 @@ global.sessions = 'sessions/session-bot'
 global.jadi = 'sessions/session-sub'
 
 global.api = {
-  url: 'https://nexevo.boxmine.xyz',
+  url: 'https://shizuka.wisp.uno',
   url2: 'https://api.delirius.online',
   key: 'NEX-Shizuka'
 }
