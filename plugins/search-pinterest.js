@@ -11,7 +11,7 @@ async function pinterestDownload(url) {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
     'accept-language': 'es-419,es;q=0.9,en;q=0.8'
   }
-  
+
   const res = await fetch(url, { headers, redirect: 'follow' })
   const html = await res.text()
   const $ = cheerio.load(html)
@@ -44,6 +44,8 @@ async function pinterestDownload(url) {
 }
 
 async function searchPinterest(query, limit = 10) {
+  query = String(query).trim()
+
   const url = `https://id.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}%26rs%3Dtyped&data=%7B%22options%22%3A%7B%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%2C%22rs%22%3A%22typed%22%2C%22redux_normalize_feed%22%3Atrue%2C%22source_url%22%3A%22%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}%26rs%3Dtyped%22%7D%2C%22context%22%3A%7B%7D%7D`
 
   const headers = {
@@ -69,7 +71,7 @@ async function searchPinterest(query, limit = 10) {
 
   for (const item of results) {
     let added = false
-    
+
     if (item?.videos?.video_list) {
       const vlist = item.videos.video_list
       for (const k in vlist) {
@@ -95,7 +97,7 @@ async function searchPinterest(query, limit = 10) {
 }
 
 let handler = async (m, { conn, args, text }) => {
-  const input = args[0] || text
+  const input = args.length ? args.join(' ').trim() : text?.trim()
   if (!input) return m.reply('《✧》 Ingresa un link o palabra clave para Pinterest.')
 
   try {
@@ -104,7 +106,7 @@ let handler = async (m, { conn, args, text }) => {
     if (/^https?:\/\/(www\.)?(pin\.it|pinterest\.[a-z.]+)/i.test(input)) {
       const data = await pinterestDownload(input)
       if (!data || !data.length) throw new Error('Sin resultados válidos en el enlace.')
-      
+
       for (const item of data) {
         const url = item.url
         if (!url) continue
@@ -138,7 +140,7 @@ let handler = async (m, { conn, args, text }) => {
       const album = generateWAMessageFromContent(m.chat, {
         albumMessage: { expectedImageCount: medias.length }
       }, {})
-      
+
       await conn.relayMessage(m.chat, album.message, { messageId: album.key.id })
 
       for (let i = 0; i < medias.length; i++) {
@@ -158,7 +160,7 @@ let handler = async (m, { conn, args, text }) => {
         await conn.relayMessage(m.chat, message.message, { messageId: message.key.id })
       }
     }
-    
+
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
   } catch (e) {
     console.error(e)
