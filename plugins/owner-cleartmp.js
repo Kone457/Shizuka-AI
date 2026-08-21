@@ -4,8 +4,13 @@ import os from 'os'
 
 let handler = async (m, { conn }) => {
 
+  const baseDir = process.cwd()
+
   const dirs = [
-    join(process.cwd(), 'tmp'),
+    baseDir,
+    join(baseDir, 'lib'),
+    join(baseDir, 'plugins'),
+    join(baseDir, 'tmp'),
     os.tmpdir()
   ]
 
@@ -22,12 +27,18 @@ let handler = async (m, { conn }) => {
         try {
           const stats = statSync(filePath)
 
-          totalSize += stats.size
-          totalFiles++
-
           if (stats.isDirectory()) {
-            rmSync(filePath, { recursive: true, force: true })
-          } else {
+            if (dir === join(baseDir, 'tmp') || dir === os.tmpdir()) {
+              totalSize += stats.size
+              totalFiles++
+              rmSync(filePath, { recursive: true, force: true })
+            }
+            continue
+          }
+
+          if (file.startsWith('.')) {
+            totalSize += stats.size
+            totalFiles++
             unlinkSync(filePath)
           }
 
