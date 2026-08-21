@@ -1,13 +1,12 @@
 import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
 
 const handler = async (m, { conn }) => {
-    const faseId =
+    const id =
         m.buttonId ||
-        m.message?.buttonsResponseMessage?.selectedButtonId ||
-        m.message?.listResponseMessage?.singleSelectReply?.selectedRowId
+        m.message?.buttonsResponseMessage?.selectedButtonId
 
-    if (faseId) {
-        await conn.sendMessage(m.chat, { text: `✅ Éxito` })
+    if (id) {
+        await conn.sendMessage(m.chat, { text: '✅ Éxito' })
         return
     }
 
@@ -22,8 +21,8 @@ const handler = async (m, { conn }) => {
             message: {
                 interactiveMessage: {
                     header: { title: '🎛️ Elije', hasMediaAttachment: false },
-                    body: { text: 'Pulsa un botón para probar la respuesta.' },
-                    footer: { text: 'Pervertidos' },
+                    body: { text: 'Pulsa un botón criatura.' },
+                    footer: { text: 'Pervertidos · ZoreDevTeam' },
                     nativeFlowMessage: { buttons },
                     contextInfo: { mentionedJid: [m.sender] }
                 }
@@ -35,6 +34,6 @@ const handler = async (m, { conn }) => {
     await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
 }
 
-handler.command = ['tes']
+handler.command = ['1']
 handler.tags = ['tools']
 export default handler
