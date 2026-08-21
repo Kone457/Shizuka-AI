@@ -229,8 +229,6 @@ Total activos › *${totalActive}*
           s => s.number.replace('@', '') + '@s.whatsapp.net'
         ),
         groupMentions: [],
-        forwardingScore: 777,
-        isForwarded: true,
         ...quotedContext(m)
       }
     }
