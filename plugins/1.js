@@ -22,7 +22,7 @@ const handler = async (m, { conn }) => {
                 interactiveMessage: {
                     header: { title: '🎛️ Elije', hasMediaAttachment: false },
                     body: { text: 'Pulsa un botón criatura.' },
-                    footer: { text: 'Pervertidos · ZoreDevTeam' },
+                    footer: { text: 'Pervertidos ·' },
                     nativeFlowMessage: { buttons },
                     contextInfo: { mentionedJid: [m.sender] }
                 }
