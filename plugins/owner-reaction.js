@@ -1,3 +1,5 @@
+import ws from 'ws'
+
 let handler = async (m, { conn, text, command }) => {
   if (!text) {
     return m.reply(`Ejemplo:\n.${command} https://whatsapp.com/channel/XXXX/123 😘`)
@@ -16,22 +18,32 @@ let handler = async (m, { conn, text, command }) => {
   const channelId = parts[4]
   const messageId = parts[5]
   const emoji = args.join(' ')
-
   if (!emoji) return m.reply('❌ Debes poner un emoji.')
 
-  try {
-    const channel = await conn.newsletterMetadata('invite', channelId)
-    await conn.newsletterReactMessage(channel.id, messageId, emoji)
-
-    m.reply(`✅ Reacción enviada correctamente.\n\n📢 Canal: ${channel.name}\n🎭 Emoji: ${emoji}`)
-  } catch (e) {
-    console.error(e)
-    m.reply(`❌ No se pudo enviar la reacción.\n\n${e.message || e}`)
+  const sendReaction = async (c) => {
+    try {
+      const channel = await c.newsletterMetadata('invite', channelId)
+      await c.newsletterReactMessage(channel.id, messageId, emoji)
+      return `✅ ${c.user?.id} reaccionó con ${emoji}`
+    } catch (e) {
+      return `❌ Error en ${c.user?.id}: ${e.message}`
+    }
   }
+
+  let report = []
+  report.push(await sendReaction(conn))
+
+  if (global.conns && Array.isArray(global.conns)) {
+    for (const sub of global.conns) {
+      if (!sub?.ws?.socket || sub.ws.socket.readyState === ws.CLOSED) continue
+      report.push(await sendReaction(sub))
+    }
+  }
+
+  await conn.sendMessage(m.chat, { text: report.join('\n') }, { quoted: m })
 }
 
 handler.tags = ['tools']
 handler.command = ['react']
-handler.owner = true
 
 export default handler
