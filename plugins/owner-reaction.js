@@ -1,27 +1,37 @@
-import ws from 'ws'
+let handler = async (m, { conn, text, command }) => {
+  if (!text) {
+    return m.reply(`Ejemplo:\n.${command} https://whatsapp.com/channel/XXXX/123 😘`)
+  }
 
-let handler = async (m, { conn, args }) => {
-  if (args.length < 2) return m.reply('✿ Usa: *.react <link> <emoji>*')
+  const args = text.trim().split(/\s+/)
+  const link = args.shift()
 
-  const linkRegex = /channel\/([0-9A-Za-z]+)\/([0-9]+)/i
-  const match = args[0].match(linkRegex)
-  if (!match) return m.reply('✿ Link inválido.')
+  if (!link.startsWith('https://whatsapp.com/channel/')) {
+    return m.reply('❌ Debes enviar un enlace válido del canal.')
+  }
 
-  const channelId = match[1]
-  const postId = match[2]
-  const emoji = args[1]
+  const parts = link.split('/')
+  if (parts.length < 6) return m.reply('❌ El enlace del canal no es válido.')
+
+  const channelId = parts[4]
+  const messageId = parts[5]
+  const emoji = args.join(' ')
+
+  if (!emoji) return m.reply('❌ Debes poner un emoji.')
 
   try {
-    await conn.sendMessage(`${channelId}@newsletter`, {
-      react: { text: emoji, key: { id: postId, remoteJid: `${channelId}@newsletter` } }
-    })
-    m.reply(`✅ Reacción enviada: ${emoji}`)
+    const channel = await conn.newsletterMetadata('invite', channelId)
+    await conn.newsletterReactMessage(channel.id, messageId, emoji)
+
+    m.reply(`✅ Reacción enviada correctamente.\n\n📢 Canal: ${channel.name}\n🎭 Emoji: ${emoji}`)
   } catch (e) {
-    m.reply(`❌ Error al reaccionar: ${e.message}`)
+    console.error(e)
+    m.reply(`❌ No se pudo enviar la reacción.\n\n${e.message || e}`)
   }
 }
 
-handler.tags = ['serbot']
+handler.tags = ['tools']
 handler.command = ['react']
+handler.owner = true
 
 export default handler
