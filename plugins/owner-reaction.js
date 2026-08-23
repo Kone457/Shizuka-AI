@@ -24,26 +24,35 @@ let handler = async (m, { conn, text, command }) => {
     try {
       const channel = await c.newsletterMetadata('invite', channelId)
       await c.newsletterReactMessage(channel.id, messageId, emoji)
-      return `✅ ${c.user?.id} reaccionó con ${emoji}`
-    } catch (e) {
-      return `❌ Error en ${c.user?.id}: ${e.message}`
+      return true
+    } catch {
+      return false
     }
   }
 
-  let report = []
-  report.push(await sendReaction(conn))
+  let success = 0, fail = 0
+
+  if (await sendReaction(conn)) success++
+  else fail++
 
   if (global.conns && Array.isArray(global.conns)) {
     for (const sub of global.conns) {
       if (!sub?.ws?.socket || sub.ws.socket.readyState === ws.CLOSED) continue
-      report.push(await sendReaction(sub))
+      if (await sendReaction(sub)) success++
+      else fail++
     }
   }
 
-  await conn.sendMessage(m.chat, { text: report.join('\n') }, { quoted: m })
+  await conn.sendMessage(
+    m.chat,
+    { text: `✅ Reacciones enviadas: ${success}\n❌ Errores: ${fail}\n🎭 Emoji usado: ${emoji}` },
+    { quoted: m }
+  )
 }
 
-handler.tags = ['tools']
+
+handler.tags = ['owner']
 handler.command = ['react']
+handler.owner = true
 
 export default handler
