@@ -11,7 +11,8 @@ export async function before(m, { conn, participants, groupMetadata }) {
   const participant = participants.find(p =>
     p?.id === rawTarget ||
     p?.jid === rawTarget ||
-    p?.lid === rawTarget
+    p?.lid === rawTarget ||
+    p?.phoneNumber === rawTarget
   ) || {};
 
   let realJid = null;
@@ -54,23 +55,115 @@ export async function before(m, { conn, participants, groupMetadata }) {
     } catch {}
   }
 
-  const userNumber = (realJid || rawTarget).split('@')[0].replace(/\D/g, '');
+  if (!realJid) {
+    try {
+      const contacts = [
+        ...(conn.store?.contacts
+          ? Object.values(conn.store.contacts)
+          : []),
+        ...(conn.contacts
+          ? Object.values(conn.contacts)
+          : [])
+      ];
 
-  const userData =
-    globalThis.db.data.users?.[rawTarget] ||
-    globalThis.db.data.users?.[realJid] ||
+      const contact = contacts.find(c =>
+        c?.id === rawTarget ||
+        c?.jid === rawTarget ||
+        c?.lid === rawTarget ||
+        c?.phoneNumber === rawTarget
+      );
+
+      if (contact?.phoneNumber) {
+        realJid = contact.phoneNumber.includes('@')
+          ? contact.phoneNumber
+          : `${contact.phoneNumber}@s.whatsapp.net`;
+      } else if (contact?.jid?.endsWith('@s.whatsapp.net')) {
+        realJid = contact.jid;
+      } else if (contact?.id?.endsWith('@s.whatsapp.net')) {
+        realJid = contact.id;
+      }
+    } catch {}
+  }
+
+  const userNumber = (
+    realJid ||
+    participant.phoneNumber ||
+    rawTarget
+  )
+    .split('@')[0]
+    .replace(/\D/g, '');
+
+  const users = globalThis.db.data.users || {};
+
+  let userData =
+    users[rawTarget] ||
+    users[realJid] ||
     {};
+
+  if (!userData.name) {
+    const foundUser = Object.entries(users).find(([jid, data]) => {
+      if (!data || typeof data !== 'object' || !data.name) {
+        return false;
+      }
+
+      const number = String(jid)
+        .split('@')[0]
+        .replace(/\D/g, '');
+
+      return number && number === userNumber;
+    });
+
+    if (foundUser) {
+      userData = foundUser[1];
+    }
+  }
 
   let targetName = '';
 
-  const possibleNames = [
-    participant.notify,
-    participant.name,
-    participant.vname,
-    userData.name
+  const contacts = [
+    ...(conn.store?.contacts
+      ? Object.values(conn.store.contacts)
+      : []),
+    ...(conn.contacts
+      ? Object.values(conn.contacts)
+      : [])
   ];
 
-  for (const name of possibleNames) {
+  const contact = contacts.find(c => {
+    if (!c) return false;
+
+    const ids = [
+      c.id,
+      c.jid,
+      c.lid,
+      c.phoneNumber
+    ].filter(Boolean);
+
+    return ids.some(id => {
+      const value = String(id);
+
+      if (value === rawTarget) return true;
+      if (value === realJid) return true;
+
+      const number = value
+        .split('@')[0]
+        .replace(/\D/g, '');
+
+      return number && number === userNumber;
+    });
+  });
+
+  const names = [
+    userData.name,
+    contact?.notify,
+    contact?.name,
+    contact?.verifiedName,
+    contact?.shortName,
+    participant.notify,
+    participant.name
+  ];
+
+  for (const name of names) {
     if (!name) continue;
 
     const value = String(name).trim();
@@ -91,30 +184,6 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (!targetName && realJid) {
     try {
-      const contact =
-        conn.store?.contacts?.[realJid] ||
-        conn.contacts?.[realJid];
-
-      const name =
-        contact?.name ||
-        contact?.notify ||
-        contact?.verifiedName ||
-        contact?.shortName;
-
-      if (
-        name &&
-        !String(name).includes('@lid') &&
-        !String(name).includes('@s.whatsapp.net') &&
-        !/^\d+$/.test(String(name)) &&
-        String(name).replace(/\D/g, '') !== userNumber
-      ) {
-        targetName = String(name);
-      }
-    } catch {}
-  }
-
-  if (!targetName && realJid) {
-    try {
       const name = await conn.getName(realJid);
 
       if (
@@ -129,7 +198,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     } catch {}
   }
 
-  if (!targetName) {
+  if (!targetName && rawTarget !== realJid) {
     try {
       const name = await conn.getName(rawTarget);
 
@@ -146,7 +215,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   }
 
   if (!targetName) {
-    targetName = userData.name || `Usuario`;
+    targetName = userData.name || `@${userNumber}`;
   }
 
   const avatarUrl = await conn.profilePictureUrl(
@@ -193,7 +262,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   let memberCount = participants.length;
 
-  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
+  if (
+    m.messageStubType ===
+    WAMessageStubType.GROUP_PARTICIPANT_ADD
+  ) {
     memberCount++;
   }
 
@@ -208,14 +280,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   const actionText = {
     [WAMessageStubType.GROUP_PARTICIPANT_ADD]:
-      actorJid
-        ? `Agregado por @${actorJid.split('@')[0]}`
-        : 'Se unió al grupo',
+      actorJid ? `Agregado por @${actorJid.split('@')[0]}` : 'Se unió al grupo',
 
     [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]:
-      actorJid
-        ? `Eliminado por @${actorJid.split('@')[0]}`
-        : 'Eliminado del grupo',
+      actorJid ? `Eliminado por @${actorJid.split('@')[0]}` : 'Eliminado del grupo',
 
     [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]:
       'Salió del grupo'
@@ -249,7 +317,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ⚠️ Lee las reglas para evitar BAN.
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐃𝐈𝐀 ✦
+✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐍𝐂𝐈𝐀 ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim());
 
@@ -284,20 +352,18 @@ export async function before(m, { conn, participants, groupMetadata }) {
     }
   };
 
-  const apiParams = globalThis.api || { url: '', key: '' };
-
   if (
     chat.welcome &&
     m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD
   ) {
     const url =
-      `${apiParams.url}/welcome` +
+      `${api.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent(userNumber)}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/SxLysS.jpg` +
-      `&apikey=${apiParams.key}`;
+      `&apikey=${api.key}`;
 
     await conn.sendMessage(m.chat, {
       image: { url },
@@ -314,13 +380,13 @@ export async function before(m, { conn, participants, groupMetadata }) {
     ].includes(m.messageStubType)
   ) {
     const url =
-      `${apiParams.url}/welcome` +
+      `${api.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent(userNumber)}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/dlaamr.jpg` +
-      `&apikey=${apiParams.key}`;
+      `&apikey=${api.key}`;
 
     await conn.sendMessage(m.chat, {
       image: { url },
