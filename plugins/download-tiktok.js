@@ -3,7 +3,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { writeFileSync, unlinkSync } from 'fs'
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 
 const isUrl = (text) => /^https?:\/\/[^\s]+$/i.test(text)
 
@@ -36,8 +36,20 @@ async function resolveTikTokUrl(url) {
 
 const mp4ToWebp = (input, output) => {
   return new Promise((resolve, reject) => {
-    exec(
-      `ffmpeg -i "${input}" -vf "scale=512:512:force_original_aspect_ratio=decrease,fps=15,pad=512:512:-1:-1:color=white@0.0" -loop 0 -ss 0 -t 6 -preset default -an -vsync 0 "${output}" -y`,
+    execFile(
+      'ffmpeg',
+      [
+        '-i', input,
+        '-vf', 'scale=512:512:force_original_aspect_ratio=decrease,fps=15,pad=512:512:-1:-1:color=white@0.0',
+        '-loop', '0',
+        '-ss', '0',
+        '-t', '6',
+        '-preset', 'default',
+        '-an',
+        '-vsync', '0',
+        output,
+        '-y'
+      ],
       (err) => {
         if (err) reject(err)
         else resolve(output)
