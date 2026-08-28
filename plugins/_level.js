@@ -27,7 +27,7 @@ handler.before = async function (m, { conn }) {
 
         let txt = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼✨ 𝐍𝐔𝐄𝐕𝐎 𝐍𝐈𝐕𝐄𝐋 𝐀𝐋𝐂𝐀𝐍𝐙𝐀𝐃𝐎 ✨╮
+╭╼𝐍𝐔𝐄𝐕𝐎 𝐍𝐈𝐕𝐄𝐋 𝐀𝐋𝐂𝐀𝐍𝐙𝐀𝐃𝐎╮
 ┃֪࣪
 ├ׁ̟̇❍✎ 👤 *Usuario:* @${m.sender.split('@')[0]}
 ├ׁ̟̇❍✎ 📈 *Rango:* \`${before}\` ➔ \`${user.level}\`
