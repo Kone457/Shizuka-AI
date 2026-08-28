@@ -1,18 +1,35 @@
 let handler = async (m, { conn, args, command, isOwner }) => {
-  if (!m.isGroup) return m.reply('❌ Este comando solo se puede usar en grupos.');
+  if (!m.isGroup)
+    return m.reply('❌ Este comando solo se puede usar en grupos.');
 
   const setting = args[0]?.toLowerCase();
-  const chatData = globalThis.db.data.chats[m.chat] ||= {};
-  const botSettings = globalThis.db.data.settings?.[conn.user.jid] ||= {};
 
-  const statusIcon = (conf) => conf ? '🟢' : '🔴';
+  const chatData = globalThis.db.data.chats[m.chat] ||= {};
+  const botSettings =
+    globalThis.db.data.settings?.[conn.user.jid] ||= {};
+
+  if (!('welcome' in chatData)) chatData.welcome = true;
+  if (!('antiLink' in chatData)) chatData.antiLink = true;
+  if (!('antilinks' in chatData)) chatData.antilinks = true;
+  if (!('antiprivado' in chatData)) chatData.antiprivado = true;
+  if (!('economy' in chatData)) chatData.economy = true;
+  if (!('gacha' in chatData)) chatData.gacha = true;
+  if (!('level' in chatData)) chatData.level = true;
+  if (!('adminonly' in chatData)) chatData.adminonly = false;
+  if (!('reaction' in chatData)) chatData.reaction = true;
+  if (!('nsfw' in chatData)) chatData.nsfw = false;
+  if (!('alerts' in chatData)) chatData.alerts = true;
+  if (!('notprefix' in chatData)) chatData.notprefix = false;
+
+  const statusIcon = conf => conf ? '🟢' : '🔴';
 
   const configList = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐂𝐎𝐍𝐅𝐈𝐆𝐔𝐑𝐀𝐂𝐈𝐎́𝐍 ⚙️╮
+╭╼⚙️ 𝐂𝐎𝐍𝐅𝐈𝐆𝐔𝐑𝐀𝐂𝐈Ó𝐍 ⚙️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ welcome ${statusIcon(chatData.welcome)}
 ├ׁ̟̇❍✎ antilink ${statusIcon(chatData.antiLink)}
+├ׁ̟̇❍✎ antiprivado ${statusIcon(chatData.antiprivado)}
 ├ׁ̟̇❍✎ economia ${statusIcon(chatData.economy)}
 ├ׁ̟̇❍✎ gacha ${statusIcon(chatData.gacha)}
 ├ׁ̟̇❍✎ level ${statusIcon(chatData.level)}
@@ -25,42 +42,58 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
 ✎ Ejemplo:
-${command} welcome
+${command} level
 `.trim();
 
   if (!setting) {
     return m.reply(configList);
   }
 
-  const status = command === 'on';
+  const status = command.toLowerCase() === 'on';
 
   const reply = async (name, customMsg = null, image = null) => {
     const textMsg = customMsg || `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐅𝐔𝐍𝐂𝐈𝐎́𝐍 ⚙️╮
+╭╼⚙️ 𝐅𝐔𝐍𝐂𝐈Ó𝐍 ⚙️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ ${name}
-├ׁ̟̇❍✎ ${status ? '🟢 ACTIVADA' : '🔴 DESACTIVADA'}
+├ׁׁ̟̇❍✎ ${status ? '🟢 ACTIVADA' : '🔴 DESACTIVADA'}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim();
 
     if (image) {
-      await conn.sendMessage(m.chat, {
-        image: { url: image },
-        caption: textMsg,
-        contextInfo: { isForwarded: true }
-      }, { quoted: m });
+      await conn.sendMessage(
+        m.chat,
+        {
+          image: { url: image },
+          caption: textMsg,
+          contextInfo: {
+            isForwarded: true
+          }
+        },
+        { quoted: m }
+      );
     } else {
       await m.reply(textMsg);
     }
   };
 
   switch (setting) {
+
     case 'antilink':
     case 'antilinks':
     case 'antienlaces':
       chatData.antiLink = status;
+      chatData.antilinks = status;
       await reply('Anti Enlaces');
+      break;
+
+    case 'antiprivado':
+    case 'antiprivados':
+    case 'private':
+    case 'privado':
+      chatData.antiprivado = status;
+      await reply('Anti Privado');
       break;
 
     case 'rpg':
@@ -79,16 +112,7 @@ ${command} welcome
     case 'niveles':
     case 'nivel':
       chatData.level = status;
-      const levelImage = 'https://files.evogb.win/ChAkmb.jpg';
-      const levelCaption = `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼🔔 𝐀𝐋𝐄𝐑𝐓𝐀𝐒 𝐃𝐄 𝐍𝐈𝐕𝐄𝐋𝐄𝐒 🔔╮
-┃֪࣪
-├ׁ̟̇❍✎ Alertas de niveles
-├ׁ̟̇❍✎ ${status ? '🟢 ACTIVADAS' : '🔴 DESACTIVADAS'}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim();
-      await reply('Niveles', levelCaption, levelImage);
+      await reply('Niveles');
       break;
 
     case 'modoadmin':
@@ -131,6 +155,7 @@ ${command} welcome
     case 'serbot':
     case 'jadibot':
     case 'subbots':
+
       if (!isOwner) {
         return m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -142,29 +167,28 @@ ${command} welcome
 `.trim());
       }
 
-      if (botSettings) {
-        botSettings.jadibotmd = status;
-        await reply('Subbots (JadiBot)');
-      }
+      botSettings.jadibotmd = status;
+
+      await reply('Subbots (JadiBot)');
       break;
 
     default:
-      await m.reply(`
+      return m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐎𝐏𝐂𝐈𝐎́𝐍 𝐍𝐎 𝐕𝐀́𝐋𝐈𝐃𝐀 ⚙️╮
+╭╼⚙️ 𝐎𝐏𝐂𝐈Ó𝐍 𝐍𝐎 𝐕Á𝐋𝐈𝐃𝐀 ⚙️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ Usa una opción válida
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
 ${configList}
 `.trim());
-      break;
   }
 };
 
 handler.help = [
   'welcome',
   'antilink',
+  'antiprivado',
   'economia',
   'gacha',
   'level',
@@ -175,6 +199,7 @@ handler.help = [
   'notprefix',
   'serbot'
 ];
+
 handler.tags = ['nable'];
 handler.command = ['on', 'off'];
 handler.admin = true;
