@@ -33,13 +33,6 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (!realJid && rawTarget.endsWith('@lid')) {
     try {
-      const pn = await conn.signalRepository?.lidMapping?.getPNForLID(rawTarget);
-      if (pn) realJid = pn;
-    } catch {}
-  }
-
-  if (!realJid && rawTarget.endsWith('@lid')) {
-    try {
       const pn = await conn.getPnUser?.(rawTarget);
       if (pn?.jid) realJid = pn.jid;
     } catch {}
@@ -68,23 +61,74 @@ export async function before(m, { conn, participants, groupMetadata }) {
     {};
 
   let targetName =
+    userData.name ||
     participant.notify ||
     participant.name ||
-    userData.name ||
+    participant.vname ||
     '';
+
+  const possibleNames = [
+    participant.notify,
+    participant.name,
+    participant.vname,
+    userData.name
+  ];
+
+  for (const name of possibleNames) {
+    if (
+      name &&
+      !/^\d+$/.test(String(name).replace(/\D/g, '')) &&
+      !String(name).includes('@lid') &&
+      String(name) !== userNumber
+    ) {
+      targetName = String(name);
+      break;
+    }
+  }
 
   if (
     !targetName ||
     /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid')
+    String(targetName).includes('@lid') ||
+    String(targetName).replace(/\D/g, '') === userNumber
+  ) {
+    try {
+      const contact =
+        conn.contacts?.[realJid] ||
+        conn.contacts?.[rawTarget];
+
+      const contactName =
+        contact?.name ||
+        contact?.notify ||
+        contact?.verifiedName ||
+        contact?.shortName ||
+        '';
+
+      if (
+        contactName &&
+        !String(contactName).includes('@lid') &&
+        String(contactName).replace(/\D/g, '') !== userNumber &&
+        !/^\d+$/.test(String(contactName))
+      ) {
+        targetName = contactName;
+      }
+    } catch {}
+  }
+
+  if (
+    !targetName ||
+    /^\d+$/.test(String(targetName)) ||
+    String(targetName).includes('@lid') ||
+    String(targetName).replace(/\D/g, '') === userNumber
   ) {
     try {
       const name = await conn.getName(realJid);
 
       if (
         name &&
-        !/^\d+$/.test(String(name)) &&
-        !String(name).includes('@lid')
+        !String(name).includes('@lid') &&
+        String(name).replace(/\D/g, '') !== userNumber &&
+        !/^\d+$/.test(String(name))
       ) {
         targetName = name;
       }
@@ -94,27 +138,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
   if (
     !targetName ||
     /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid')
+    String(targetName).includes('@lid') ||
+    String(targetName).replace(/\D/g, '') === userNumber
   ) {
-    try {
-      const name = await conn.getName(rawTarget);
-
-      if (
-        name &&
-        !/^\d+$/.test(String(name)) &&
-        !String(name).includes('@lid')
-      ) {
-        targetName = name;
-      }
-    } catch {}
-  }
-
-  if (
-    !targetName ||
-    /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid')
-  ) {
-    targetName = userData.name || `@${userNumber}`;
+    targetName = `@${userNumber}`;
   }
 
   const avatarUrl = await conn.profilePictureUrl(
@@ -197,9 +224,15 @@ export async function before(m, { conn, participants, groupMetadata }) {
       .replace('@user', `@${userNumber}`)
       .replace('@name', targetName)
       .replace('@group', groupMetadata.subject)
-      .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripción')
+      .replace(
+        '@desc',
+        groupMetadata.desc?.toString() || 'Sin descripción'
+      )
       .replace('%users', memberCount)
-      .replace('@action', actionText[m.messageStubType] || '')
+      .replace(
+        '@action',
+        actionText[m.messageStubType] || ''
+      )
       .replace('@date', new Date().toLocaleString());
   };
 
@@ -257,8 +290,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     chat.welcome &&
-    m.messageStubType ===
-      WAMessageStubType.GROUP_PARTICIPANT_ADD
+    m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD
   ) {
     const url =
       `${api.url}/welcome` +
