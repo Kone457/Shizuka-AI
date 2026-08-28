@@ -4,7 +4,23 @@ export async function before(m, { conn, participants, groupMetadata }) {
   if (!m.messageStubType || !m.isGroup) return true;
 
   const chat = globalThis.db.data.chats[m.chat];
-  const rawTarget = m.messageStubParameters?.[0];
+  const stub = m.messageStubParameters?.[0];
+
+  if (!stub) return true;
+
+  let participantData = {};
+
+  try {
+    if (typeof stub === 'string' && stub.trim().startsWith('{')) {
+      participantData = JSON.parse(stub);
+    }
+  } catch {}
+
+  const rawTarget =
+    participantData.id ||
+    participantData.jid ||
+    participantData.lid ||
+    stub;
 
   if (!rawTarget) return true;
 
@@ -12,140 +28,171 @@ export async function before(m, { conn, participants, groupMetadata }) {
     p?.id === rawTarget ||
     p?.jid === rawTarget ||
     p?.lid === rawTarget ||
-    p?.phoneNumber === rawTarget
+    p?.phoneNumber === rawTarget ||
+    (
+      participantData.lid &&
+      (
+        p?.id === participantData.lid ||
+        p?.jid === participantData.lid ||
+        p?.lid === participantData.lid
+      )
+    )
   ) || {};
 
   let realJid = null;
 
-  if (participant.phoneNumber) {
-    realJid = participant.phoneNumber.includes('@')
-      ? participant.phoneNumber
-      : `${participant.phoneNumber}@s.whatsapp.net`;
+  if (
+    participantData.phoneNumber &&
+    String(participantData.phoneNumber).endsWith('@s.whatsapp.net')
+  ) {
+    realJid = participantData.phoneNumber;
   }
 
-  if (!realJid && participant.jid?.endsWith('@s.whatsapp.net')) {
+  if (
+    !realJid &&
+    participant.phoneNumber &&
+    String(participant.phoneNumber).endsWith('@s.whatsapp.net')
+  ) {
+    realJid = participant.phoneNumber;
+  }
+
+  if (
+    !realJid &&
+    participant.jid &&
+    String(participant.jid).endsWith('@s.whatsapp.net')
+  ) {
     realJid = participant.jid;
   }
 
-  if (!realJid && participant.id?.endsWith('@s.whatsapp.net')) {
+  if (
+    !realJid &&
+    participant.id &&
+    String(participant.id).endsWith('@s.whatsapp.net')
+  ) {
     realJid = participant.id;
   }
 
-  if (!realJid && rawTarget.endsWith('@lid')) {
+  if (
+    !realJid &&
+    String(rawTarget).endsWith('@s.whatsapp.net')
+  ) {
+    realJid = rawTarget;
+  }
+
+  if (!realJid && String(rawTarget).endsWith('@lid')) {
     try {
-      const pn = await conn.getPnUser?.(rawTarget);
-      if (pn?.jid) realJid = pn.jid;
+      if (conn.signalRepository?.lidMapping?.getPNForLID) {
+        const pn =
+          await conn.signalRepository.lidMapping.getPNForLID(rawTarget);
+
+        if (
+          pn &&
+          String(pn).endsWith('@s.whatsapp.net')
+        ) {
+          realJid = pn;
+        }
+      }
+    } catch {}
+  }
+
+  if (!realJid && conn.getPnUser) {
+    try {
+      const result = await conn.getPnUser(rawTarget);
+
+      if (
+        result?.jid &&
+        String(result.jid).endsWith('@s.whatsapp.net')
+      ) {
+        realJid = result.jid;
+      }
     } catch {}
   }
 
   if (!realJid) {
     try {
       const decoded = conn.decodeJid(rawTarget);
-      if (decoded?.endsWith('@s.whatsapp.net')) {
+
+      if (
+        decoded &&
+        String(decoded).endsWith('@s.whatsapp.net')
+      ) {
         realJid = decoded;
       }
     } catch {}
   }
 
-  if (!realJid) {
-    realJid = rawTarget;
-  }
-
-  const userNumber = realJid
+  const userNumber = (
+    realJid ||
+    participantData.phoneNumber ||
+    rawTarget
+  )
     .split('@')[0]
     .replace(/\D/g, '');
 
   const userData =
     globalThis.db.data.users?.[rawTarget] ||
+    globalThis.db.data.users?.[participantData.lid] ||
     globalThis.db.data.users?.[realJid] ||
     {};
 
   let targetName =
-    userData.name ||
+    participantData.name ||
+    participantData.notify ||
+    participantData.username ||
     participant.notify ||
     participant.name ||
-    participant.vname ||
+    userData.name ||
     '';
 
-  const possibleNames = [
-    participant.notify,
-    participant.name,
-    participant.vname,
-    userData.name
-  ];
+  const invalidName = name => {
+    if (!name) return true;
 
-  for (const name of possibleNames) {
-    if (
-      name &&
-      !/^\d+$/.test(String(name).replace(/\D/g, '')) &&
-      !String(name).includes('@lid') &&
-      String(name) !== userNumber
-    ) {
-      targetName = String(name);
-      break;
-    }
+    const value = String(name).trim();
+
+    return (
+      !value ||
+      value.includes('@lid') ||
+      value.includes('@s.whatsapp.net') ||
+      /^\d+$/.test(value) ||
+      value.replace(/\D/g, '') === userNumber
+    );
+  };
+
+  if (invalidName(targetName) && realJid) {
+    try {
+      const name = await conn.getName(realJid);
+
+      if (!invalidName(name)) {
+        targetName = name;
+      }
+    } catch {}
   }
 
-  if (
-    !targetName ||
-    /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid') ||
-    String(targetName).replace(/\D/g, '') === userNumber
-  ) {
+  if (invalidName(targetName)) {
     try {
       const contact =
         conn.contacts?.[realJid] ||
         conn.contacts?.[rawTarget];
 
-      const contactName =
+      const name =
         contact?.name ||
         contact?.notify ||
         contact?.verifiedName ||
         contact?.shortName ||
         '';
 
-      if (
-        contactName &&
-        !String(contactName).includes('@lid') &&
-        String(contactName).replace(/\D/g, '') !== userNumber &&
-        !/^\d+$/.test(String(contactName))
-      ) {
-        targetName = contactName;
-      }
-    } catch {}
-  }
-
-  if (
-    !targetName ||
-    /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid') ||
-    String(targetName).replace(/\D/g, '') === userNumber
-  ) {
-    try {
-      const name = await conn.getName(realJid);
-
-      if (
-        name &&
-        !String(name).includes('@lid') &&
-        String(name).replace(/\D/g, '') !== userNumber &&
-        !/^\d+$/.test(String(name))
-      ) {
+      if (!invalidName(name)) {
         targetName = name;
       }
     } catch {}
   }
 
-  if (
-    !targetName ||
-    /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid') ||
-    String(targetName).replace(/\D/g, '') === userNumber
-  ) {
-    targetName = `@${userNumber}`;
+  if (invalidName(targetName)) {
+    targetName = `Usuario ${userNumber}`;
   }
 
   const avatarUrl = await conn.profilePictureUrl(
-    realJid,
+    realJid || rawTarget,
     'image'
   ).catch(async () => {
     try {
@@ -167,18 +214,58 @@ export async function before(m, { conn, participants, groupMetadata }) {
   let actorJid = actor;
 
   if (actorJid) {
+    let actorData = {};
+
+    try {
+      if (
+        typeof actorJid === 'string' &&
+        actorJid.trim().startsWith('{')
+      ) {
+        actorData = JSON.parse(actorJid);
+      }
+    } catch {}
+
+    const actorRaw =
+      actorData.id ||
+      actorData.jid ||
+      actorData.lid ||
+      actorJid;
+
     const actorParticipant = participants.find(p =>
-      p?.id === actorJid ||
-      p?.jid === actorJid ||
-      p?.lid === actorJid
+      p?.id === actorRaw ||
+      p?.jid === actorRaw ||
+      p?.lid === actorRaw ||
+      p?.phoneNumber === actorRaw
     );
 
-    if (actorParticipant?.phoneNumber) {
-      actorJid = actorParticipant.phoneNumber.includes('@')
-        ? actorParticipant.phoneNumber
-        : `${actorParticipant.phoneNumber}@s.whatsapp.net`;
-    } else if (actorParticipant?.jid?.endsWith('@s.whatsapp.net')) {
+    if (
+      actorData.phoneNumber &&
+      String(actorData.phoneNumber).endsWith('@s.whatsapp.net')
+    ) {
+      actorJid = actorData.phoneNumber;
+    } else if (
+      actorParticipant?.phoneNumber &&
+      String(actorParticipant.phoneNumber).endsWith('@s.whatsapp.net')
+    ) {
+      actorJid = actorParticipant.phoneNumber;
+    } else if (
+      actorParticipant?.jid &&
+      String(actorParticipant.jid).endsWith('@s.whatsapp.net')
+    ) {
       actorJid = actorParticipant.jid;
+    } else {
+      actorJid = actorRaw;
+    }
+
+    if (String(actorJid).endsWith('@lid')) {
+      try {
+        if (conn.signalRepository?.lidMapping?.getPNForLID) {
+          const pn =
+            await conn.signalRepository.lidMapping.getPNForLID(actorJid);
+
+          if (pn) actorJid = pn;
+        }
+      } catch {}
     }
 
     try {
@@ -253,7 +340,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ⚠️ Lee las reglas para evitar BAN.
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐍𝐂𝐈𝐀 ✦
+✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐃𝐈𝐀 ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim());
 
