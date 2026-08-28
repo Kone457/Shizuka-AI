@@ -8,285 +8,39 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (!rawTarget) return true;
 
-  const participant = participants.find(p =>
-    p?.id === rawTarget ||
-    p?.jid === rawTarget ||
-    p?.lid === rawTarget ||
-    p?.phoneNumber === rawTarget
-  ) || {};
+  // Extraemos el número para el username de la API y para la mención (@user)
+  const userNumber = rawTarget.split('@')[0].replace(/\D/g, '');
 
-  let realJid = null;
-
-  if (participant.phoneNumber) {
-    realJid = participant.phoneNumber.includes('@')
-      ? participant.phoneNumber
-      : `${participant.phoneNumber}@s.whatsapp.net`;
-  }
-
-  if (!realJid && participant.jid?.endsWith('@s.whatsapp.net')) {
-    realJid = participant.jid;
-  }
-
-  if (!realJid && participant.id?.endsWith('@s.whatsapp.net')) {
-    realJid = participant.id;
-  }
-
-  if (!realJid && rawTarget.endsWith('@s.whatsapp.net')) {
-    realJid = rawTarget;
-  }
-
-  if (!realJid && rawTarget.endsWith('@lid')) {
-    try {
-      const result = await conn.getPnUser?.(rawTarget);
-
-      if (result?.jid) {
-        realJid = result.jid;
-      }
-    } catch {}
-  }
-
-  if (!realJid) {
-    try {
-      const decoded = conn.decodeJid(rawTarget);
-
-      if (decoded?.endsWith('@s.whatsapp.net')) {
-        realJid = decoded;
-      }
-    } catch {}
-  }
-
-  if (!realJid) {
-    try {
-      const contacts = [
-        ...(conn.store?.contacts
-          ? Object.values(conn.store.contacts)
-          : []),
-        ...(conn.contacts
-          ? Object.values(conn.contacts)
-          : [])
-      ];
-
-      const contact = contacts.find(c =>
-        c?.id === rawTarget ||
-        c?.jid === rawTarget ||
-        c?.lid === rawTarget ||
-        c?.phoneNumber === rawTarget
-      );
-
-      if (contact?.phoneNumber) {
-        realJid = contact.phoneNumber.includes('@')
-          ? contact.phoneNumber
-          : `${contact.phoneNumber}@s.whatsapp.net`;
-      } else if (contact?.jid?.endsWith('@s.whatsapp.net')) {
-        realJid = contact.jid;
-      } else if (contact?.id?.endsWith('@s.whatsapp.net')) {
-        realJid = contact.id;
-      }
-    } catch {}
-  }
-
-  const userNumber = (
-    realJid ||
-    participant.phoneNumber ||
-    rawTarget
-  )
-    .split('@')[0]
-    .replace(/\D/g, '');
-
-  const users = globalThis.db.data.users || {};
-
-  let userData =
-    users[rawTarget] ||
-    users[realJid] ||
-    {};
-
-  if (!userData.name) {
-    const foundUser = Object.entries(users).find(([jid, data]) => {
-      if (!data || typeof data !== 'object' || !data.name) {
-        return false;
-      }
-
-      const number = String(jid)
-        .split('@')[0]
-        .replace(/\D/g, '');
-
-      return number && number === userNumber;
-    });
-
-    if (foundUser) {
-      userData = foundUser[1];
-    }
-  }
-
+  // Extraemos el nombre real para mandarlo exclusivamente a la API
   let targetName = '';
+  try {
+    targetName = await conn.getName(rawTarget);
+  } catch {}
 
-  const contacts = [
-    ...(conn.store?.contacts
-      ? Object.values(conn.store.contacts)
-      : []),
-    ...(conn.contacts
-      ? Object.values(conn.contacts)
-      : [])
-  ];
-
-  const contact = contacts.find(c => {
-    if (!c) return false;
-
-    const ids = [
-      c.id,
-      c.jid,
-      c.lid,
-      c.phoneNumber
-    ].filter(Boolean);
-
-    return ids.some(id => {
-      const value = String(id);
-
-      if (value === rawTarget) return true;
-      if (value === realJid) return true;
-
-      const number = value
-        .split('@')[0]
-        .replace(/\D/g, '');
-
-      return number && number === userNumber;
-    });
-  });
-
-  const names = [
-    userData.name,
-    contact?.notify,
-    contact?.name,
-    contact?.verifiedName,
-    contact?.shortName,
-    participant.notify,
-    participant.name
-  ];
-
-  for (const name of names) {
-    if (!name) continue;
-
-    const value = String(name).trim();
-
-    if (
-      !value ||
-      value.includes('@lid') ||
-      value.includes('@s.whatsapp.net') ||
-      /^\d+$/.test(value) ||
-      value.replace(/\D/g, '') === userNumber
-    ) {
-      continue;
-    }
-
-    targetName = value;
-    break;
+  if (!targetName || targetName === rawTarget || targetName.includes('@s.whatsapp.net') || targetName.includes(userNumber)) {
+    const contact = conn.store?.contacts?.[rawTarget] || conn.contacts?.[rawTarget] || {};
+    targetName = contact.pushName || contact.notify || contact.name || contact.vname || globalThis.db.data.users?.[rawTarget]?.name || userNumber;
   }
 
-  if (!targetName && realJid) {
-    try {
-      const name = await conn.getName(realJid);
+  const avatarUrl = await conn.profilePictureUrl(rawTarget, 'image').catch(() => 'https://files.evogb.win/AGCG2d.jpg');
 
-      if (
-        name &&
-        !String(name).includes('@lid') &&
-        !String(name).includes('@s.whatsapp.net') &&
-        !/^\d+$/.test(String(name)) &&
-        String(name).replace(/\D/g, '') !== userNumber
-      ) {
-        targetName = String(name);
-      }
-    } catch {}
-  }
-
-  if (!targetName && rawTarget !== realJid) {
-    try {
-      const name = await conn.getName(rawTarget);
-
-      if (
-        name &&
-        !String(name).includes('@lid') &&
-        !String(name).includes('@s.whatsapp.net') &&
-        !/^\d+$/.test(String(name)) &&
-        String(name).replace(/\D/g, '') !== userNumber
-      ) {
-        targetName = String(name);
-      }
-    } catch {}
-  }
-
-  if (!targetName) {
-    targetName = userData.name || `@${userNumber}`;
-  }
-
-  const avatarUrl = await conn.profilePictureUrl(
-    realJid || rawTarget,
-    'image'
-  ).catch(async () => {
-    try {
-      return await conn.profilePictureUrl(
-        rawTarget,
-        'image'
-      );
-    } catch {
-      return 'https://files.evogb.win/AGCG2d.jpg';
-    }
-  });
-
-  const actor =
-    m.participant ||
-    m.key?.participant ||
-    m.messageStubParameters?.[1] ||
-    null;
-
+  const actor = m.participant || m.key?.participant || m.messageStubParameters?.[1] || null;
   let actorJid = actor;
 
   if (actorJid) {
-    const actorParticipant = participants.find(p =>
-      p?.id === actorJid ||
-      p?.jid === actorJid ||
-      p?.lid === actorJid
-    );
-
-    if (actorParticipant?.phoneNumber) {
-      actorJid = actorParticipant.phoneNumber.includes('@')
-        ? actorParticipant.phoneNumber
-        : `${actorParticipant.phoneNumber}@s.whatsapp.net`;
-    } else if (actorParticipant?.jid?.endsWith('@s.whatsapp.net')) {
-      actorJid = actorParticipant.jid;
-    }
-
     try {
       actorJid = conn.decodeJid(actorJid) || actorJid;
     } catch {}
   }
 
   let memberCount = participants.length;
-
-  if (
-    m.messageStubType ===
-    WAMessageStubType.GROUP_PARTICIPANT_ADD
-  ) {
-    memberCount++;
-  }
-
-  if (
-    [
-      WAMessageStubType.GROUP_PARTICIPANT_REMOVE,
-      WAMessageStubType.GROUP_PARTICIPANT_LEAVE
-    ].includes(m.messageStubType)
-  ) {
-    memberCount--;
-  }
+  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) memberCount++;
+  if ([WAMessageStubType.GROUP_PARTICIPANT_REMOVE, WAMessageStubType.GROUP_PARTICIPANT_LEAVE].includes(m.messageStubType)) memberCount--;
 
   const actionText = {
-    [WAMessageStubType.GROUP_PARTICIPANT_ADD]:
-      actorJid ? `Agregado por @${actorJid.split('@')[0]}` : 'Se unió al grupo',
-
-    [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]:
-      actorJid ? `Eliminado por @${actorJid.split('@')[0]}` : 'Eliminado del grupo',
-
-    [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]:
-      'Salió del grupo'
+    [WAMessageStubType.GROUP_PARTICIPANT_ADD]: actorJid ? `Agregado por @${actorJid.split('@')[0]}` : 'Se unió al grupo',
+    [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]: actorJid ? `Eliminado por @${actorJid.split('@')[0]}` : 'Eliminado del grupo',
+    [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]: 'Salió del grupo'
   };
 
   const format = text => {
@@ -305,7 +59,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 Usuario: @name
+👤 Usuario: @user
 🏷️ Grupo: @group
 
 📌 @action
@@ -317,7 +71,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ⚠️ Lee las reglas para evitar BAN.
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐍𝐂𝐈𝐀 ✦
+✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐃𝐈𝐀 ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim());
 
@@ -326,7 +80,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 💔 𝐇𝐀𝐒𝐓𝐀 𝐏𝐑𝐎𝐍𝐓𝐎 💔
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 Usuario: @name
+👤 Usuario: @user
 🏷️ Grupo: @group
 
 📌 @action
@@ -340,10 +94,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 `.trim());
 
   const mentions = [rawTarget];
-
-  if (actorJid && !mentions.includes(actorJid)) {
-    mentions.push(actorJid);
-  }
+  if (actorJid && !mentions.includes(actorJid)) mentions.push(actorJid);
 
   const context = {
     contextInfo: {
@@ -352,46 +103,31 @@ export async function before(m, { conn, participants, groupMetadata }) {
     }
   };
 
-  if (
-    chat.welcome &&
-    m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD
-  ) {
+  const apiParams = global.api || globalThis.api || { url: '', key: '' };
+
+  if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
     const url =
-      `${api.url}/welcome` +
+      `${apiParams.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent(userNumber)}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/SxLysS.jpg` +
-      `&apikey=${api.key}`;
+      `&apikey=${apiParams.key}`;
 
-    await conn.sendMessage(m.chat, {
-      image: { url },
-      caption: welcome,
-      ...context
-    });
+    await conn.sendMessage(m.chat, { image: { url }, caption: welcome, ...context });
   }
 
-  if (
-    chat.welcome &&
-    [
-      WAMessageStubType.GROUP_PARTICIPANT_LEAVE,
-      WAMessageStubType.GROUP_PARTICIPANT_REMOVE
-    ].includes(m.messageStubType)
-  ) {
+  if (chat.welcome && [WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
     const url =
-      `${api.url}/welcome` +
+      `${apiParams.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent(userNumber)}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/dlaamr.jpg` +
-      `&apikey=${api.key}`;
+      `&apikey=${apiParams.key}`;
 
-    await conn.sendMessage(m.chat, {
-      image: { url },
-      caption: bye,
-      ...context
-    });
+    await conn.sendMessage(m.chat, { image: { url }, caption: bye, ...context });
   }
 }
