@@ -203,6 +203,8 @@ export async function before(m, { conn, participants, groupMetadata }) {
       .replace('@date', new Date().toLocaleString());
   };
 
+  const cleanName = targetName.includes('@lid') || /^\d+$/.test(targetName) ? userNumber : targetName;
+
   const welcome = format(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
@@ -260,7 +262,6 @@ export async function before(m, { conn, participants, groupMetadata }) {
     m.messageStubType ===
       WAMessageStubType.GROUP_PARTICIPANT_ADD
   ) {
-    const cleanName = targetName.includes('@lid') ? userNumber : targetName;
     const url =
       `${api.url}/welcome` +
       `?name=${encodeURIComponent(cleanName)}` +
@@ -284,18 +285,8 @@ export async function before(m, { conn, participants, groupMetadata }) {
       WAMessageStubType.GROUP_PARTICIPANT_REMOVE
     ].includes(m.messageStubType)
   ) {
-    const cleanName = targetName.includes('@lid') ? userNumber : targetName;
-    const url =
-      `${api.url}/welcome` +
-      `?name=${encodeURIComponent(cleanName)}` +
-      `&username=${encodeURIComponent('Ojala y te atropelle un tren')}` +
-      `&group=${encodeURIComponent(groupMetadata.subject)}` +
-      `&userImage=${encodeURIComponent(avatarUrl)}` +
-      `&welcomeImage=https://files.evogb.win/dlaamr.jpg` +
-      `&apikey=${api.key}`;
-
     await conn.sendMessage(m.chat, {
-      image: { url },
+      image: { url: avatarUrl },
       caption: bye,
       ...context
     });
