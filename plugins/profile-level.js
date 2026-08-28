@@ -27,5 +27,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
   }, { quoted: m });
 };
 
+handler.help = ['toplevels']
+handler.tags = ['perfil']
 handler.command = ['topnivel', 'toplevels', 'nivelestop'];
 export default handler;
