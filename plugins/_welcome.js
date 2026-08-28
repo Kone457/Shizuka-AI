@@ -1,57 +1,113 @@
 import { WAMessageStubType } from '@whiskeysockets/baileys';
 
 export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.messageStubType || !m.isGroup) return true;
+  if (!m.messageStubType || !m.isGroup) return;
 
-  const chat = globalThis.db.data.chats[m.chat];
-  if (!chat) return true;
+  const chat = globalThis.db?.data?.chats?.[m.chat];
+  if (!chat) return;
 
   const rawTarget = m.messageStubParameters?.[0];
-  if (!rawTarget) return true;
+  if (!rawTarget) return;
 
   let target = rawTarget;
 
   try {
-    target = conn.decodeJid(rawTarget) || rawTarget;
+    if (typeof conn.decodeJid === 'function') {
+      target = conn.decodeJid(rawTarget) || rawTarget;
+    }
   } catch {}
 
-  if (!target.includes('@s.whatsapp.net')) {
+  if (
+    target.endsWith('@lid') ||
+    rawTarget.endsWith('@lid')
+  ) {
     try {
-      const decoded = conn.decodeJid(`${target}@s.whatsapp.net`);
-      if (decoded) target = decoded;
+      if (typeof conn.getPnUser === 'function') {
+        const pnUser = await conn.getPnUser(rawTarget);
+        if (pnUser?.jid) target = pnUser.jid;
+      }
+    } catch {}
+
+    if (
+      target.endsWith('@lid') &&
+      Array.isArray(participants)
+    ) {
+      const participant = participants.find(p =>
+        p?.id === rawTarget ||
+        p?.jid === rawTarget ||
+        p?.lid === rawTarget
+      );
+
+      if (participant) {
+        const possibleJid =
+          participant.jid ||
+          participant.id;
+
+        if (
+          possibleJid &&
+          possibleJid.endsWith('@s.whatsapp.net')
+        ) {
+          target = possibleJid;
+        }
+      }
+    }
+  }
+
+  const userNumber = target.includes('@s.whatsapp.net')
+    ? target.split('@')[0]
+    : rawTarget.split('@')[0];
+
+  let userData =
+    globalThis.db?.data?.users?.[target] ||
+    globalThis.db?.data?.users?.[rawTarget] ||
+    {};
+
+  let targetName = userData.name || '';
+
+  if (!targetName) {
+    try {
+      targetName = await conn.getName(target);
     } catch {}
   }
 
-  const userData =
-    globalThis.db.data.users[rawTarget] ||
-    globalThis.db.data.users[target] ||
-    {};
+  if (!targetName && target !== rawTarget) {
+    try {
+      targetName = await conn.getName(rawTarget);
+    } catch {}
+  }
 
-  const targetName =
-    userData.name ||
-    await conn.getName(target).catch(() => null) ||
-    `@${target.split('@')[0]}`;
+  targetName =
+    targetName ||
+    `@${userNumber}`;
 
-  const userNumber = target.split('@')[0];
+  let avatarUrl =
+    'https://files.evogb.win/AGCG2d.jpg';
 
-  const avatarUrl = await conn.profilePictureUrl(target, 'image')
-    .catch(() => 'https://files.evogb.win/AGCG2d.jpg');
+  try {
+    avatarUrl =
+      await conn.profilePictureUrl(target, 'image');
+  } catch {
+    try {
+      avatarUrl =
+        await conn.profilePictureUrl(rawTarget, 'image');
+    } catch {}
+  }
 
-  const rawActor =
+  let actor =
     m.participant ||
     m.key?.participant ||
     m.messageStubParameters?.[1] ||
     null;
 
-  let actor = rawActor;
-
   if (actor) {
     try {
-      actor = conn.decodeJid(actor) || actor;
+      if (typeof conn.decodeJid === 'function') {
+        actor = conn.decodeJid(actor) || actor;
+      }
     } catch {}
   }
 
-  let memberCount = participants.length;
+  let memberCount = participants?.length || 0;
 
   if (
     m.messageStubType ===
@@ -61,10 +117,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
   }
 
   if (
-    [
-      WAMessageStubType.GROUP_PARTICIPANT_REMOVE,
+    m.messageStubType ===
+      WAMessageStubType.GROUP_PARTICIPANT_REMOVE ||
+    m.messageStubType ===
       WAMessageStubType.GROUP_PARTICIPANT_LEAVE
-    ].includes(m.messageStubType)
   ) {
     memberCount--;
   }
@@ -84,25 +140,24 @@ export async function before(m, { conn, participants, groupMetadata }) {
       'Salió del grupo'
   };
 
-  const format = text => {
-    return text
-      .replace('@user', `@${userNumber}`)
-      .replace('@name', targetName)
-      .replace('@group', groupMetadata.subject)
-      .replace(
+  const format = text =>
+    text
+      .replaceAll('@user', `@${userNumber}`)
+      .replaceAll('@name', targetName)
+      .replaceAll('@group', groupMetadata?.subject || 'Grupo')
+      .replaceAll(
         '@desc',
-        groupMetadata.desc?.toString() || 'Sin descripción'
+        groupMetadata?.desc?.toString() || 'Sin descripción'
       )
-      .replace('%users', memberCount)
-      .replace(
+      .replaceAll('%users', String(memberCount))
+      .replaceAll(
         '@action',
         actionText[m.messageStubType] || ''
       )
-      .replace(
+      .replaceAll(
         '@date',
         new Date().toLocaleString()
       );
-  };
 
   const welcome = format(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
@@ -145,9 +200,19 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim());
 
-  const mentions = [target];
+  const mentions = [];
 
-  if (actor && actor !== target) {
+  if (target?.includes('@s.whatsapp.net')) {
+    mentions.push(target);
+  } else if (rawTarget) {
+    mentions.push(rawTarget);
+  }
+
+  if (
+    actor &&
+    actor !== target &&
+    !mentions.includes(actor)
+  ) {
     mentions.push(actor);
   }
 
@@ -160,44 +225,51 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     chat.welcome &&
-    m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD
+    m.messageStubType ===
+      WAMessageStubType.GROUP_PARTICIPANT_ADD
   ) {
     const url =
       `${api.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent(userNumber)}` +
-      `&group=${encodeURIComponent(groupMetadata.subject)}` +
+      `&group=${encodeURIComponent(groupMetadata?.subject || 'Grupo')}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/SxLysS.jpg` +
       `&apikey=${api.key}`;
 
-    await conn.sendMessage(m.chat, {
-      image: { url },
-      caption: welcome,
-      ...context
-    });
+    try {
+      await conn.sendMessage(m.chat, {
+        image: { url },
+        caption: welcome,
+        ...context
+      });
+    } catch {}
   }
 
   if (
     chat.welcome &&
-    [
-      WAMessageStubType.GROUP_PARTICIPANT_LEAVE,
-      WAMessageStubType.GROUP_PARTICIPANT_REMOVE
-    ].includes(m.messageStubType)
+    (
+      m.messageStubType ===
+        WAMessageStubType.GROUP_PARTICIPANT_LEAVE ||
+      m.messageStubType ===
+        WAMessageStubType.GROUP_PARTICIPANT_REMOVE
+    )
   ) {
     const url =
       `${api.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent(userNumber)}` +
-      `&group=${encodeURIComponent(groupMetadata.subject)}` +
+      `&group=${encodeURIComponent(groupMetadata?.subject || 'Grupo')}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/dlaamr.jpg` +
       `&apikey=${api.key}`;
 
-    await conn.sendMessage(m.chat, {
-      image: { url },
-      caption: bye,
-      ...context
-    });
+    try {
+      await conn.sendMessage(m.chat, {
+        image: { url },
+        caption: bye,
+        ...context
+      });
+    } catch {}
   }
 }
