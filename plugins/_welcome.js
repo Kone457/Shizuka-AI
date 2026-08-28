@@ -208,7 +208,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 Usuario: @name
+👤 Usuario: @user
 🏷️ Grupo: @group
 
 📌 @action
@@ -229,7 +229,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 💔 𝐇𝐀𝐒𝐓𝐀 𝐏𝐑𝐎𝐍𝐓𝐎 💔
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 Usuario: @name
+👤 Usuario: @user
 🏷️ Grupo: @group
 
 📌 @action
