@@ -3,9 +3,10 @@ import { WAMessageStubType } from '@whiskeysockets/baileys';
 export async function before(m, { conn, participants, groupMetadata }) {
   if (!m.messageStubType || !m.isGroup) return true;
 
-  const chat = globalThis.db.data.chats[m.chat];
-  const rawTarget = m.messageStubParameters?.[0];
+  const chat = globalThis.db.data.chats[m.chat] ||= {};
+  if (!chat.welcome) return true;
 
+  const rawTarget = m.messageStubParameters?.[0];
   if (!rawTarget) return true;
 
   const participant = participants.find(p =>
@@ -197,7 +198,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
       .replace('@date', new Date().toLocaleString());
   };
 
-  const welcome = format(`
+  const defaultWelcome = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
@@ -216,9 +217,9 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 ✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐍𝐂𝐈𝐀 ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
-`.trim());
+`.trim();
 
-  const bye = format(`
+  const defaultBye = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 💔 𝐇𝐀𝐒𝐓𝐀 𝐏𝐑𝐎𝐍𝐓𝐎 💔
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
@@ -234,7 +235,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 ✦ 𝐕𝐔𝐄𝐋𝐕𝐄 𝐂𝐔𝐀𝐍𝐃𝐎 𝐐𝐔𝐈𝐄𝐑𝐀𝐒 ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
-`.trim());
+`.trim();
 
   const mentions = [realJid];
 
@@ -250,36 +251,27 @@ export async function before(m, { conn, participants, groupMetadata }) {
   };
 
   if (
-    chat.welcome &&
     m.messageStubType ===
-      WAMessageStubType.GROUP_PARTICIPANT_ADD
+    WAMessageStubType.GROUP_PARTICIPANT_ADD
   ) {
-    const url =
-      `${api.url}/welcome` +
-      `?name=${encodeURIComponent(targetName)}` +
-      `&username=${encodeURIComponent('Aqui te van a violar')}` +
-      `&group=${encodeURIComponent(groupMetadata.subject)}` +
-      `&userImage=${encodeURIComponent(avatarUrl)}` +
-      `&welcomeImage=https://files.evogb.win/SxLysS.jpg` +
-      `&apikey=${api.key}`;
-
+    const customText = chat.sWelcome || defaultWelcome;
     await conn.sendMessage(m.chat, {
-      image: { url },
-      caption: welcome,
+      image: { url: avatarUrl },
+      caption: format(customText),
       ...context
     });
   }
 
   if (
-    chat.welcome &&
     [
       WAMessageStubType.GROUP_PARTICIPANT_LEAVE,
       WAMessageStubType.GROUP_PARTICIPANT_REMOVE
     ].includes(m.messageStubType)
   ) {
+    const customText = chat.sBye || defaultBye;
     await conn.sendMessage(m.chat, {
       image: { url: avatarUrl },
-      caption: bye,
+      caption: format(customText),
       ...context
     });
   }
