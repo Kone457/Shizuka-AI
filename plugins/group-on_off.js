@@ -162,8 +162,20 @@ ${configList}
   }
 };
 
-handler.help = ['on', 'off'];
-handler.tags = ['grupo'];
+handler.help = [
+  'on welcome','off welcome',
+  'on antilink','off antilink',
+  'on economia','off economia',
+  'on gacha','off gacha',
+  'on level','off level',
+  'on modoadmin','off modoadmin',
+  'on reaccion','off reaccion',
+  'on nsfw','off nsfw',
+  'on alertas','off alertas',
+  'on notprefix','off notprefix',
+  'on serbot','off serbot'
+];
+handler.tags = ['nable'];
 handler.command = ['on', 'off'];
 handler.admin = true;
 handler.botAdmin = false;
