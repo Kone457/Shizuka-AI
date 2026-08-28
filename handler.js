@@ -7,7 +7,7 @@ import chalk from 'chalk'
 import fetch from 'node-fetch'
 import ws from 'ws'
 
-const isNumber = x => typeof x === 'number' &&!isNaN(x)
+const isNumber = x => typeof x === 'number' && !isNaN(x)
 
 const testRegex = (regex, value) => {
     if (!(regex instanceof RegExp)) return false
@@ -24,11 +24,11 @@ const getOwnerJids = () => {
     const owners = globalThis.owner || []
 
     return owners.map(owner => {
-        const number = Array.isArray(owner)? owner[0] : owner
+        const number = Array.isArray(owner) ? owner[0] : owner
         if (!number) return null
 
         const clean = String(number).replace(/[^0-9]/g, '')
-        return clean? `${clean}@s.whatsapp.net` : null
+        return clean ? `${clean}@s.whatsapp.net` : null
     }).filter(Boolean)
 }
 
@@ -44,13 +44,13 @@ const getCommandMatch = (pluginPrefix, text) => {
         pluginPrefix.lastIndex = 0
         const match = pluginPrefix.exec(text)
         pluginPrefix.lastIndex = 0
-        return match? [match, pluginPrefix] : null
+        return match ? [match, pluginPrefix] : null
     }
 
     if (Array.isArray(pluginPrefix)) {
         for (const prefix of pluginPrefix) {
             const regex = prefix instanceof RegExp
-               ? prefix
+                ? prefix
                 : new RegExp(escapeRegex(prefix), 'i')
 
             regex.lastIndex = 0
@@ -66,7 +66,7 @@ const getCommandMatch = (pluginPrefix, text) => {
     if (typeof pluginPrefix === 'string') {
         const regex = new RegExp(escapeRegex(pluginPrefix), 'i')
         const match = regex.exec(text)
-        return match? [match, regex] : null
+        return match ? [match, regex] : null
     }
 
     return null
@@ -75,8 +75,8 @@ const getCommandMatch = (pluginPrefix, text) => {
 export async function handler(chatUpdate) {
     if (!chatUpdate?.messages?.length) return
 
-    this.uptime??= Date.now()
-    this._activeHandlers??= new Set()
+    this.uptime ??= Date.now()
+    this._activeHandlers ??= new Set()
 
     try {
         this.pushMessage(chatUpdate.messages).catch(() => {})
@@ -115,13 +115,13 @@ async function processMessage(chatUpdate) {
     m.exp = 0
 
     try {
-        globalThis.db.data.users??= {}
-        globalThis.db.data.chats??= {}
-        globalThis.db.data.settings??= {}
+        globalThis.db.data.users ??= {}
+        globalThis.db.data.chats ??= {}
+        globalThis.db.data.settings ??= {}
 
         let user = globalThis.db.data.users[m.sender]
 
-        if (!user || typeof user!== 'object') {
+        if (!user || typeof user !== 'object') {
             user = globalThis.db.data.users[m.sender] = {
                 name: m.name || '',
                 chocolates: 0,
@@ -132,7 +132,8 @@ async function processMessage(chatUpdate) {
                 level: 0,
                 streak: 0,
                 lastDaily: 0,
-                lastDailyGlobal: 0
+                lastDailyGlobal: 0,
+                banned: false
             }
         } else {
             if (!('name' in user)) user.name = m.name || ''
@@ -145,11 +146,12 @@ async function processMessage(chatUpdate) {
             if (!('streak' in user)) user.streak = 0
             if (!('lastDaily' in user)) user.lastDaily = 0
             if (!('lastDailyGlobal' in user)) user.lastDailyGlobal = 0
+            if (!('banned' in user)) user.banned = false
         }
 
         let chat = globalThis.db.data.chats[m.chat]
 
-        if (!chat || typeof chat!== 'object') {
+        if (!chat || typeof chat !== 'object') {
             chat = globalThis.db.data.chats[m.chat] = {
                 sWelcome: '',
                 sBye: '',
@@ -159,9 +161,14 @@ async function processMessage(chatUpdate) {
                 alerts: true,
                 adminonly: false,
                 antilinks: true,
+                antiLink: true,
                 notprefix: false,
                 bannedGrupo: false,
                 economy: true,
+                rpg: true,
+                level: true,
+                reaction: true,
+                antiprivado: true,
                 expired: 0
             }
         } else {
@@ -173,9 +180,14 @@ async function processMessage(chatUpdate) {
             if (!('alerts' in chat)) chat.alerts = true
             if (!('adminonly' in chat)) chat.adminonly = false
             if (!('antilinks' in chat)) chat.antilinks = true
+            if (!('antiLink' in chat)) chat.antiLink = chat.antilinks
             if (!('notprefix' in chat)) chat.notprefix = false
             if (!('bannedGrupo' in chat)) chat.bannedGrupo = false
             if (!('economy' in chat)) chat.economy = true
+            if (!('rpg' in chat)) chat.rpg = chat.economy
+            if (!('level' in chat)) chat.level = true
+            if (!('reaction' in chat)) chat.reaction = true
+            if (!('antiprivado' in chat)) chat.antiprivado = true
             if (!isNumber(chat.expired)) chat.expired = 0
         }
 
@@ -183,7 +195,7 @@ async function processMessage(chatUpdate) {
 
         let setting = globalThis.db.data.settings[jid]
 
-        if (!setting || typeof setting!== 'object') {
+        if (!setting || typeof setting !== 'object') {
             setting = globalThis.db.data.settings[jid] = {
                 self: false,
                 botcommando: 0,
@@ -196,11 +208,13 @@ async function processMessage(chatUpdate) {
                     currency: '',
                     wm: '',
                     packname: ''
-                }
+                },
+                jadibotmd: false
             }
         } else {
             if (!('self' in setting)) setting.self = false
             if (!('botcommando' in setting)) setting.botcommando = 0
+            if (!('jadibotmd' in setting)) setting.jadibotmd = false
             if (!('config' in setting)) setting.config = {}
 
             const cfg = setting.config
@@ -219,13 +233,29 @@ async function processMessage(chatUpdate) {
         return
     }
 
-    if (typeof m.text!== 'string') {
+    if (typeof m.text !== 'string') {
         m.text = ''
     }
 
     const user = globalThis.db.data.users[m.sender]
     const chat = globalThis.db.data.chats[m.chat]
     const setting = globalThis.db.data.settings[this.user.jid]
+    const opts = globalThis.opts || {}
+
+    const isOwner = isOwnerNumber(m.sender, this)
+    const isMods = isOwner
+
+    if (m.isBaileys) return
+
+
+    if (user?.banned && !isOwner) {
+        return
+    }
+
+
+    if (!m.isGroup && chat?.antiprivado !== false && !isOwner) {
+        return
+    }
 
     if (m.isGroup && chat?.primaryBot) {
         const texto = (m.text || '').trim().toLowerCase()
@@ -234,15 +264,10 @@ async function processMessage(chatUpdate) {
             texto.startsWith('.delprimary') ||
             texto.startsWith('#delprimary')
 
-        if (!esComandoDelPrimary && this.user.jid!== chat.primaryBot) {
+        if (!esComandoDelPrimary && this.user.jid !== chat.primaryBot) {
             return
         }
     }
-
-    const isOwner = isOwnerNumber(m.sender, this)
-    const isMods = isOwner
-
-    if (m.isBaileys) return
 
     m.exp += Math.ceil(Math.random() * 10)
 
@@ -251,7 +276,7 @@ async function processMessage(chatUpdate) {
     if (m.isGroup) {
         try {
             groupMetadata = {
-               ...(this.chats?.[m.chat]?.metadata ||
+                ...(this.chats?.[m.chat]?.metadata ||
                     await this.groupMetadata(m.chat).catch(() => null) ||
                     {})
             }
@@ -261,7 +286,7 @@ async function processMessage(chatUpdate) {
     }
 
     const participants =
-        (m.isGroup? groupMetadata.participants : []) || []
+        (m.isGroup ? groupMetadata.participants : []) || []
 
     const decodeJidSafe = jid => {
         try {
@@ -273,14 +298,14 @@ async function processMessage(chatUpdate) {
 
     const userGroup =
         (m.isGroup
-           ? participants.find(u =>
+            ? participants.find(u =>
                 decodeJidSafe(u.jid) === m.sender
             )
             : {}) || {}
 
     const botGroup =
         m.isGroup
-           ? participants.find(u =>
+            ? participants.find(u =>
                 decodeJidSafe(u.jid) === this.user.jid
             )
             : null
@@ -293,7 +318,7 @@ async function processMessage(chatUpdate) {
         userGroup?.admin === 'admin'
 
     const isBotAdmin =
-       !!botGroup?.admin
+        !!botGroup?.admin
 
     const ___dirname = path.join(
         path.dirname(fileURLToPath(import.meta.url)),
@@ -333,12 +358,12 @@ async function processMessage(chatUpdate) {
             this.prefix ||
             globalThis.prefix
 
-        if (chat?.notprefix &&!plugin.customPrefix) {
+        if (chat?.notprefix && !plugin.customPrefix) {
             if (Array.isArray(pluginPrefix)) {
                 pluginPrefix = pluginPrefix.map(prefix => {
                     let src =
                         prefix instanceof RegExp
-                           ? prefix.source
+                            ? prefix.source
                             : escapeRegex(prefix)
 
                     if (src.startsWith('^')) {
@@ -350,7 +375,7 @@ async function processMessage(chatUpdate) {
             } else {
                 let src =
                     pluginPrefix instanceof RegExp
-                       ? pluginPrefix.source
+                        ? pluginPrefix.source
                         : escapeRegex(pluginPrefix)
 
                 if (src.startsWith('^')) {
@@ -391,7 +416,7 @@ async function processMessage(chatUpdate) {
             } catch {}
         }
 
-        if (typeof plugin!== 'function') {
+        if (typeof plugin !== 'function') {
             continue
         }
 
@@ -422,24 +447,24 @@ async function processMessage(chatUpdate) {
 
         const isAccept =
             plugin.command instanceof RegExp
-               ? testRegex(plugin.command, command)
+                ? testRegex(plugin.command, command)
 
                 : Array.isArray(plugin.command)
-                   ? plugin.command.some(cmd =>
+                    ? plugin.command.some(cmd =>
                         cmd instanceof RegExp
-                           ? testRegex(cmd, command)
+                            ? testRegex(cmd, command)
                             : cmd === command
                     )
 
                     : typeof plugin.command === 'string'
-                       ? plugin.command === command
+                        ? plugin.command === command
                         : false
 
         if (!isAccept) {
             continue
         }
 
-        if (setting.self &&!isOwner) {
+        if (setting.self && !isOwner) {
             continue
         }
 
@@ -456,8 +481,17 @@ async function processMessage(chatUpdate) {
 
         if (
             chat?.bannedGrupo &&
-           !isOwner &&
-           !allowedWhenOff.includes(command)
+            !isOwner &&
+            !allowedWhenOff.includes(command)
+        ) {
+            continue
+        }
+
+
+        if (
+            !m.isGroup &&
+            chat?.antiprivado !== false &&
+            !isOwner
         ) {
             continue
         }
@@ -478,9 +512,9 @@ async function processMessage(chatUpdate) {
 
         if (
             adminMode &&
-           !isOwner &&
+            !isOwner &&
             m.isGroup &&
-           !isAdmin &&
+            !isAdmin &&
             wa
         ) {
             continue
@@ -488,7 +522,7 @@ async function processMessage(chatUpdate) {
 
         const fail = plugin.fail || globalThis.dfail
 
-        if (plugin.nsfw &&!chat.nsfw && m.isGroup) {
+        if (plugin.nsfw && !chat.nsfw && m.isGroup) {
             try {
                 await fail?.('nsfw', m, this)
             } catch {}
@@ -496,7 +530,7 @@ async function processMessage(chatUpdate) {
             continue
         }
 
-        if (plugin.gacha &&!chat.gacha && m.isGroup) {
+        if (plugin.gacha && !chat.gacha && m.isGroup) {
             try {
                 await fail?.('gacha', m, this)
             } catch {}
@@ -504,7 +538,7 @@ async function processMessage(chatUpdate) {
             continue
         }
 
-        if (plugin.restrict &&!opts?.restrict) {
+        if (plugin.restrict && !opts?.restrict) {
             try {
                 await fail?.('restrict', m, this)
             } catch {}
@@ -512,7 +546,7 @@ async function processMessage(chatUpdate) {
             continue
         }
 
-        if (plugin.owner &&!isOwner) {
+        if (plugin.owner && !isOwner) {
             try {
                 await fail?.('owner', m, this)
             } catch {}
@@ -520,7 +554,7 @@ async function processMessage(chatUpdate) {
             continue
         }
 
-        if (plugin.botAdmin &&!isBotAdmin) {
+        if (plugin.botAdmin && !isBotAdmin) {
             try {
                 await fail?.('botAdmin', m, this)
             } catch {}
@@ -528,7 +562,7 @@ async function processMessage(chatUpdate) {
             continue
         }
 
-        if (plugin.admin &&!isAdmin) {
+        if (plugin.admin && !isAdmin) {
             try {
                 await fail?.('admin', m, this)
             } catch {}
@@ -537,8 +571,9 @@ async function processMessage(chatUpdate) {
         }
 
         m.isCommand = true
+
         m.exp += plugin.exp
-           ? parseInt(plugin.exp) || 0
+            ? parseInt(plugin.exp) || 0
             : 10
 
         const extra = {
@@ -566,7 +601,7 @@ async function processMessage(chatUpdate) {
 
         try {
             await plugin.call(this, m, extra)
-        } catch {
+        } catch (err) {
             m.error = err
         } finally {
             if (typeof plugin.after === 'function') {
@@ -632,7 +667,7 @@ global.dfail = (type, m, conn) => {
             `✿ *_¡Esta característica está -deshabilitada-_*`
     }[type]
 
-    if (!msg ||!m) return
+    if (!msg || !m) return
 
     try {
         return m.reply(msg)
