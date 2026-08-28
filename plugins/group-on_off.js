@@ -43,7 +43,7 @@ let handler = async (m, { conn, args, command, isOwner }) => {
     chatData.adminonly = false;
 
   if (!('reaction' in chatData))
-    chatData.reaction = true;
+    chatData.reaction = false;
 
   if (!('nsfw' in chatData))
     chatData.nsfw = false;
