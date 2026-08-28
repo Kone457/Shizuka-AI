@@ -1,47 +1,86 @@
-let handler = async (m, { conn, text, isOwner }) => {
-  if (!isOwner)
-    return m.reply('Este comando solo puede ser usado por mi Creador.');
-
+let handler = async (m, { conn, text, participants }) => {
   let who =
     m.mentionedJid?.[0] ||
-    (m.quoted ? m.quoted.sender : null);
+    m.quoted?.sender ||
+    null;
 
   if (!who && text) {
-    let number = text.replace(/[^0-9]/g, '');
+    const number = text.replace(/[^0-9]/g, '');
+    if (number) who = `${number}@s.whatsapp.net`;
+  }
 
-    if (number) {
-      who = `${number}@s.whatsapp.net`;
+  if (!who) {
+    return m.reply(
+      '⚠️ Debes mencionar al usuario'
+    );
+  }
+
+  try {
+    if (conn.decodeJid) who = conn.decodeJid(who);
+  } catch {}
+
+  if (m.isGroup && participants?.length && who.endsWith('@lid')) {
+    const found = participants.find(p => {
+      const jid = p?.jid || p?.id;
+      return jid === who || p?.lid === who;
+    });
+
+    if (found) {
+      who = found.jid || found.id || who;
     }
   }
 
-  if (!who)
-    return m.reply(
-      `⚠️ Debes mencionar a un usuario`
-    );
+  try {
+    if (who.endsWith('@lid') && conn.signalRepository?.lidMapping) {
+      const mapped =
+        await conn.signalRepository.lidMapping.getPNForLID(who);
 
-  who = who.replace(/:\d+@/, '@');
+      if (mapped) who = mapped;
+    }
+  } catch {}
+
+  if (who.endsWith('@lid')) {
+    return m.reply(
+      '⚠️ No fue posible obtener el número real de este usuario.\n\n' +
+      'Intenta responder directamente a uno de sus mensajes.'
+    );
+  }
+
+  if (!who.includes('@s.whatsapp.net')) {
+    who = `${who.split('@')[0]}@s.whatsapp.net`;
+  }
 
   global.db.data.users ||= {};
   global.db.data.users[who] ||= {};
 
-  if (!global.db.data.users[who].banned)
-    return m.reply('ℹ️ Ese usuario no está baneado.');
+  if (global.db.data.users[who].banned !== true) {
+    return m.reply('ℹ️ Este usuario no se encuentra bloqueado del bot.');
+  }
 
   global.db.data.users[who].banned = false;
 
-  let name = await conn.getName(who).catch(() => who.split('@')[0]);
+  let name = who.split('@')[0];
 
-  await m.reply(`
+  try {
+    name = await conn.getName(who);
+  } catch {}
+
+  await conn.sendMessage(
+    m.chat,
+    {
+      text: `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼✅ 𝐔𝐒𝐔𝐀𝐑𝐈𝐎 𝐃𝐄𝐒𝐁𝐀𝐍𝐄𝐀𝐃𝐎 ✅╮
+╭╼✅ 𝐀𝐂𝐂𝐄𝐒𝐎 𝐑𝐄𝐒𝐓𝐀𝐔𝐑𝐀𝐃𝐎 ✅╮
 ┃֪࣪
-├ׁ̟̇❍✎ 👤 Usuario: ${name}
+├ׁ̟̇❍✎ 👤 Usuario: ${name || 'Usuario'}
 ├ׁ̟̇❍✎ 📱 Número: @${who.split('@')[0]}
-├ׁ̟̇❍✎ ✅ Estado: Desbaneado
+├ׁ̟̇❍✎ 🔓 Estado: Desbloqueado
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim(), {
-    mentions: [who]
-  });
+`.trim(),
+      mentions: [who]
+    },
+    { quoted: m }
+  );
 };
 
 handler.help = ['unbanuser'];
