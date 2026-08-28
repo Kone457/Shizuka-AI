@@ -9,6 +9,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   const userData = globalThis.db.data.users[target] || {};
   const targetName = userData.name || await conn.getName(target) || `@${target.split('@')[0]}`;
+  const userNumber = target.split('@')[0];
 
   const avatarUrl = await conn.profilePictureUrl(target, 'image')
     .catch(() => 'https://files.evogb.win/AGCG2d.jpg');
@@ -30,7 +31,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   const format = (text) => {
     return text
-      .replace('@user', `@${target.split('@')[0]}`)
+      .replace('@user', `@${userNumber}`)
       .replace('@name', targetName)
       .replace('@group', groupMetadata.subject)
       .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripción')
@@ -89,7 +90,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   };
 
   if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-    const url = `${api.url}/welcome?name=${encodeURIComponent(targetName)}&username=${encodeURIComponent(target.split('@')[0])}&group=${encodeURIComponent(groupMetadata.subject)}&userImage=${encodeURIComponent(avatarUrl)}&welcomeImage=https://files.evogb.win/SxLysS.jpg&apikey=${api.key}`;
+    const url = `${api.url}/welcome?name=${encodeURIComponent(targetName)}&username=${encodeURIComponent(userNumber)}&group=${encodeURIComponent(groupMetadata.subject)}&userImage=${encodeURIComponent(avatarUrl)}&welcomeImage=https://files.evogb.win/SxLysS.jpg&apikey=${api.key}`;
     await conn.sendMessage(m.chat, {
       image: { url },
       caption: welcome,
@@ -101,7 +102,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     WAMessageStubType.GROUP_PARTICIPANT_LEAVE,
     WAMessageStubType.GROUP_PARTICIPANT_REMOVE
   ].includes(m.messageStubType)) {
-    const url = `${api.url}/welcome?name=${encodeURIComponent(targetName)}&username=${encodeURIComponent(target.split('@')[0])}&group=${encodeURIComponent(groupMetadata.subject)}&userImage=${encodeURIComponent(avatarUrl)}&welcomeImage=https://files.evogb.win/dlaamr.jpg&apikey=${api.key}`;
+    const url = `${api.url}/welcome?name=${encodeURIComponent(targetName)}&username=${encodeURIComponent(userNumber)}&group=${encodeURIComponent(groupMetadata.subject)}&userImage=${encodeURIComponent(avatarUrl)}&welcomeImage=https://files.evogb.win/dlaamr.jpg&apikey=${api.key}`;
     await conn.sendMessage(m.chat, {
       image: { url },
       caption: bye,
