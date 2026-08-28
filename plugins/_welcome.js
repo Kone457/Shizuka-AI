@@ -8,21 +8,39 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (!rawTarget) return true;
 
-  // Extraemos el número para el username de la API y para la mención (@user)
-  const userNumber = rawTarget.split('@')[0].replace(/\D/g, '');
+  const participant = participants.find(p => p?.id === rawTarget || p?.jid === rawTarget || p?.lid === rawTarget) || {};
+  let realJid = rawTarget;
 
-  // Extraemos el nombre real para mandarlo exclusivamente a la API
-  let targetName = '';
-  try {
-    targetName = await conn.getName(rawTarget);
-  } catch {}
-
-  if (!targetName || targetName === rawTarget || targetName.includes('@s.whatsapp.net') || targetName.includes(userNumber)) {
-    const contact = conn.store?.contacts?.[rawTarget] || conn.contacts?.[rawTarget] || {};
-    targetName = contact.pushName || contact.notify || contact.name || contact.vname || globalThis.db.data.users?.[rawTarget]?.name || userNumber;
+  if (participant.phoneNumber) {
+    realJid = participant.phoneNumber.includes('@') ? participant.phoneNumber : `${participant.phoneNumber}@s.whatsapp.net`;
+  } else if (rawTarget.endsWith('@lid')) {
+    try {
+      const result = await conn.getPnUser?.(rawTarget);
+      if (result?.jid) realJid = result.jid;
+    } catch {}
   }
 
-  const avatarUrl = await conn.profilePictureUrl(rawTarget, 'image').catch(() => 'https://files.evogb.win/AGCG2d.jpg');
+  if (realJid === rawTarget) {
+    try {
+      const decoded = conn.decodeJid(rawTarget);
+      if (decoded) realJid = decoded;
+    } catch {}
+  }
+
+ 
+  const userNumber = realJid.split('@')[0].replace(/\D/g, '');
+
+  let targetName = '';
+  try {
+    targetName = await conn.getName(realJid);
+  } catch {}
+
+  if (!targetName || targetName === realJid || targetName === rawTarget || targetName.includes('@s.whatsapp.net') || targetName.includes('@lid') || targetName.includes(userNumber)) {
+    const contact = conn.store?.contacts?.[realJid] || conn.contacts?.[realJid] || conn.store?.contacts?.[rawTarget] || {};
+    targetName = contact.pushName || contact.notify || contact.name || contact.vname || globalThis.db.data.users?.[realJid]?.name || userNumber;
+  }
+
+  const avatarUrl = await conn.profilePictureUrl(realJid, 'image').catch(() => 'https://files.evogb.win/AGCG2d.jpg');
 
   const actor = m.participant || m.key?.participant || m.messageStubParameters?.[1] || null;
   let actorJid = actor;
@@ -93,7 +111,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim());
 
-  const mentions = [rawTarget];
+  const mentions = [realJid];
   if (actorJid && !mentions.includes(actorJid)) mentions.push(actorJid);
 
   const context = {
