@@ -262,7 +262,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   ) {
     const url =
       `${api.url}/welcome` +
-      `?name=${encodeURIComponent(targetName)}` +
+      `?name=${encodeURIComponent(userNumber)}` +
       `&username=${encodeURIComponent('Aqui te van a violar')}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
@@ -285,7 +285,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   ) {
     const url =
       `${api.url}/welcome` +
-      `?name=${encodeURIComponent(targetName)}` +
+      `?name=${encodeURIComponent(userNumber)}` +
       `&username=${encodeURIComponent('Ojala y te atropelle un tren')}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
