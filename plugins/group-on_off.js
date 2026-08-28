@@ -186,7 +186,7 @@ ${configList}
 };
 
 handler.help = ['on', 'off'];
-handler.tags = ['nable'];
+handler.tags = ['grupo'];
 handler.command = ['on', 'off'];
 handler.admin = true;
 handler.botAdmin = false;
