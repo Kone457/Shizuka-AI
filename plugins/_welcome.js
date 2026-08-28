@@ -8,12 +8,12 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (!rawTarget) return true;
 
-  const participant =
-    participants.find(p =>
-      p?.id === rawTarget ||
-      p?.jid === rawTarget ||
-      p?.lid === rawTarget
-    ) || {};
+  const participant = participants.find(p =>
+    p?.id === rawTarget ||
+    p?.jid === rawTarget ||
+    p?.lid === rawTarget ||
+    p?.phoneNumber === rawTarget
+  ) || {};
 
   let realJid = null;
 
@@ -33,44 +33,21 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (!realJid && rawTarget.endsWith('@lid')) {
     try {
-      const result = await conn.getPnUser?.(rawTarget);
-
-      if (typeof result === 'string') {
-        realJid = result;
-      } else if (result?.jid) {
-        realJid = result.jid;
-      } else if (result?.id?.endsWith('@s.whatsapp.net')) {
-        realJid = result.id;
-      }
+      const pn = await conn.signalRepository?.lidMapping?.getPNForLID(rawTarget);
+      if (pn) realJid = pn;
     } catch {}
   }
 
   if (!realJid && rawTarget.endsWith('@lid')) {
     try {
       const pn = await conn.getPnUser?.(rawTarget);
-
-      if (Array.isArray(pn)) {
-        const found = pn.find(x =>
-          typeof x === 'string'
-            ? x.endsWith('@s.whatsapp.net')
-            : x?.jid?.endsWith('@s.whatsapp.net') ||
-              x?.id?.endsWith('@s.whatsapp.net')
-        );
-
-        if (found) {
-          realJid =
-            typeof found === 'string'
-              ? found
-              : found.jid || found.id;
-        }
-      }
+      if (pn?.jid) realJid = pn.jid;
     } catch {}
   }
 
   if (!realJid) {
     try {
       const decoded = conn.decodeJid(rawTarget);
-
       if (decoded?.endsWith('@s.whatsapp.net')) {
         realJid = decoded;
       }
@@ -81,84 +58,78 @@ export async function before(m, { conn, participants, groupMetadata }) {
     realJid = rawTarget;
   }
 
-  let userNumber = realJid
+  const userNumber = realJid
     .split('@')[0]
     .replace(/\D/g, '');
 
+  const userData =
+    globalThis.db.data.users?.[rawTarget] ||
+    globalThis.db.data.users?.[realJid] ||
+    {};
+
+  let targetName =
+    participant.notify ||
+    participant.name ||
+    userData.name ||
+    '';
+
   if (
-    realJid.endsWith('@lid') ||
-    !userNumber ||
-    userNumber.length < 7
+    !targetName ||
+    /^\d+$/.test(String(targetName)) ||
+    String(targetName).includes('@lid')
   ) {
     try {
-      const result = await conn.getPnUser?.(rawTarget);
+      const name = await conn.getName(realJid);
 
-      const possibleJid =
-        typeof result === 'string'
-          ? result
-          : result?.jid || result?.id || '';
-
-      if (possibleJid?.endsWith('@s.whatsapp.net')) {
-        realJid = possibleJid;
-        userNumber = possibleJid
-          .split('@')[0]
-          .replace(/\D/g, '');
+      if (
+        name &&
+        !/^\d+$/.test(String(name)) &&
+        !String(name).includes('@lid')
+      ) {
+        targetName = name;
       }
     } catch {}
   }
 
-  let targetName = '';
-
-  try {
-    targetName = await conn.getName(realJid);
-  } catch {}
-
   if (
     !targetName ||
-    targetName === realJid ||
-    targetName === rawTarget ||
-    targetName.includes('@s.whatsapp.net') ||
-    targetName.includes('@lid') ||
-    targetName.includes(userNumber) ||
-    /^\d+$/.test(String(targetName))
+    /^\d+$/.test(String(targetName)) ||
+    String(targetName).includes('@lid')
   ) {
-    const contact =
-      conn.store?.contacts?.[realJid] ||
-      conn.contacts?.[realJid] ||
-      conn.store?.contacts?.[rawTarget] ||
-      {};
+    try {
+      const name = await conn.getName(rawTarget);
 
-    const userData =
-      globalThis.db.data.users?.[realJid] ||
-      globalThis.db.data.users?.[rawTarget] ||
-      {};
-
-    targetName =
-      contact.pushName ||
-      contact.notify ||
-      contact.name ||
-      contact.vname ||
-      userData.name ||
-      '';
-  }
-
-  if (
-    !targetName ||
-    targetName.includes('@lid') ||
-    /^\d+$/.test(String(targetName))
-  ) {
-    targetName = `Usuario ${userNumber}`;
-  }
-
-  const avatarUrl = await conn
-    .profilePictureUrl(realJid, 'image')
-    .catch(async () => {
-      try {
-        return await conn.profilePictureUrl(rawTarget, 'image');
-      } catch {
-        return 'https://files.evogb.win/AGCG2d.jpg';
+      if (
+        name &&
+        !/^\d+$/.test(String(name)) &&
+        !String(name).includes('@lid')
+      ) {
+        targetName = name;
       }
-    });
+    } catch {}
+  }
+
+  if (
+    !targetName ||
+    /^\d+$/.test(String(targetName)) ||
+    String(targetName).includes('@lid')
+  ) {
+    targetName = userData.name || `@${userNumber}`;
+  }
+
+  const avatarUrl = await conn.profilePictureUrl(
+    realJid,
+    'image'
+  ).catch(async () => {
+    try {
+      return await conn.profilePictureUrl(
+        rawTarget,
+        'image'
+      );
+    } catch {
+      return 'https://files.evogb.win/AGCG2d.jpg';
+    }
+  });
 
   const actor =
     m.participant ||
@@ -184,11 +155,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     }
 
     try {
-      const decoded = conn.decodeJid(actorJid);
-
-      if (decoded?.endsWith('@s.whatsapp.net')) {
-        actorJid = decoded;
-      }
+      actorJid = conn.decodeJid(actorJid) || actorJid;
     } catch {}
   }
 
@@ -230,19 +197,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
       .replace('@user', `@${userNumber}`)
       .replace('@name', targetName)
       .replace('@group', groupMetadata.subject)
-      .replace(
-        '@desc',
-        groupMetadata.desc?.toString() || 'Sin descripción'
-      )
+      .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripción')
       .replace('%users', memberCount)
-      .replace(
-        '@action',
-        actionText[m.messageStubType] || ''
-      )
-      .replace(
-        '@date',
-        new Date().toLocaleString()
-      );
+      .replace('@action', actionText[m.messageStubType] || '')
+      .replace('@date', new Date().toLocaleString());
   };
 
   const welcome = format(`
@@ -250,7 +208,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 Usuario: @user
+👤 Usuario: @name
 🏷️ Grupo: @group
 
 📌 @action
@@ -271,7 +229,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 💔 𝐇𝐀𝐒𝐓𝐀 𝐏𝐑𝐎𝐍𝐓𝐎 💔
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 Usuario: @user
+👤 Usuario: @name
 🏷️ Grupo: @group
 
 📌 @action
@@ -284,7 +242,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim());
 
-  const mentions = [realJid];
+  const mentions = [rawTarget];
 
   if (actorJid && !mentions.includes(actorJid)) {
     mentions.push(actorJid);
@@ -297,33 +255,25 @@ export async function before(m, { conn, participants, groupMetadata }) {
     }
   };
 
-  const apiParams =
-    global.api ||
-    globalThis.api ||
-    { url: '', key: '' };
-
   if (
     chat.welcome &&
     m.messageStubType ===
       WAMessageStubType.GROUP_PARTICIPANT_ADD
   ) {
     const url =
-      `${apiParams.url}/welcome` +
+      `${api.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent(userNumber)}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/SxLysS.jpg` +
-      `&apikey=${apiParams.key}`;
+      `&apikey=${api.key}`;
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        image: { url },
-        caption: welcome,
-        ...context
-      }
-    );
+    await conn.sendMessage(m.chat, {
+      image: { url },
+      caption: welcome,
+      ...context
+    });
   }
 
   if (
@@ -334,21 +284,18 @@ export async function before(m, { conn, participants, groupMetadata }) {
     ].includes(m.messageStubType)
   ) {
     const url =
-      `${apiParams.url}/welcome` +
+      `${api.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent(userNumber)}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/dlaamr.jpg` +
-      `&apikey=${apiParams.key}`;
+      `&apikey=${api.key}`;
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        image: { url },
-        caption: bye,
-        ...context
-      }
-    );
+    await conn.sendMessage(m.chat, {
+      image: { url },
+      caption: bye,
+      ...context
+    });
   }
 }
