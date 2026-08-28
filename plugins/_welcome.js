@@ -58,9 +58,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
     realJid = rawTarget;
   }
 
-  const userNumber = realJid
-    .split('@')[0]
-    .replace(/\D/g, '');
+  let userNumber = realJid.split('@')[0].replace(/\D/g, '');
+  if (!userNumber || userNumber.length < 5) {
+    userNumber = rawTarget.split('@')[0].replace(/\D/g, '');
+  }
 
   const userData =
     globalThis.db.data.users?.[rawTarget] ||
@@ -75,17 +76,13 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     !targetName ||
-    /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid')
+    String(targetName).includes('@lid') ||
+    String(targetName).includes('@s.whatsapp.net') ||
+    /^\d+$/.test(String(targetName))
   ) {
     try {
       const name = await conn.getName(realJid);
-
-      if (
-        name &&
-        !/^\d+$/.test(String(name)) &&
-        !String(name).includes('@lid')
-      ) {
+      if (name && !String(name).includes('@lid') && !/^\d+$/.test(String(name))) {
         targetName = name;
       }
     } catch {}
@@ -93,17 +90,13 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     !targetName ||
-    /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid')
+    String(targetName).includes('@lid') ||
+    String(targetName).includes('@s.whatsapp.net') ||
+    /^\d+$/.test(String(targetName))
   ) {
     try {
       const name = await conn.getName(rawTarget);
-
-      if (
-        name &&
-        !/^\d+$/.test(String(name)) &&
-        !String(name).includes('@lid')
-      ) {
+      if (name && !String(name).includes('@lid') && !/^\d+$/.test(String(name))) {
         targetName = name;
       }
     } catch {}
@@ -111,14 +104,11 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     !targetName ||
-    /^\d+$/.test(String(targetName)) ||
-    String(targetName).includes('@lid')
+    String(targetName).includes('@lid') ||
+    String(targetName).includes('@s.whatsapp.net') ||
+    /^\d+$/.test(String(targetName))
   ) {
-    targetName = userNumber;
-  }
-
-  if (String(targetName).includes('@lid') || /^\d+$/.test(String(targetName))) {
-    targetName = userNumber;
+    targetName = userNumber || 'Usuario';
   }
 
   const avatarUrl = await conn.profilePictureUrl(
