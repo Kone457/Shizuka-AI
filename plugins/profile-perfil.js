@@ -18,19 +18,18 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
   let txt = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🌟   **PERFIL DE USUARIO**   🌟
+🌟   *PERFIL DE USUARIO*   🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 **Nombre:** ${name}
-📌 **Estado:** ${registered}
-📈 **Nivel:** ${level}
-⭐ **Experiencia (XP):** ${exp}
+👤 *Nombre:* ${name}
+📈 *Nivel:* ${level}
+⭐ *Experiencia (XP):* ${exp}
 
-💍 **Pareja:** ${pareja}
+💍 *Pareja:* ${pareja}
 
-🍫 **Chocolates:** ${chocolates}
-🪙 **Coins:** ${coin}
-🏦 **Banco:** ${bank}
+🍫 *Chocolates:* ${chocolates}
+🪙 *Coins:* ${coin}
+🏦 *Banco:* ${bank}
 
   `.trim();
 
