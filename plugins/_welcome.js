@@ -11,7 +11,8 @@ export async function before(m, { conn, participants, groupMetadata }) {
   const participant = participants.find(p =>
     p?.id === rawTarget ||
     p?.jid === rawTarget ||
-    p?.lid === rawTarget
+    p?.lid === rawTarget ||
+    p?.phoneNumber === rawTarget
   ) || {};
 
   let realJid = null;
@@ -30,14 +31,17 @@ export async function before(m, { conn, participants, groupMetadata }) {
     realJid = participant.id;
   }
 
-  if (!realJid) {
+  if (!realJid && rawTarget.endsWith('@lid')) {
     try {
-      if (conn.getPnUser) {
-        const result = await conn.getPnUser(rawTarget);
-        if (result?.jid) {
-          realJid = result.jid;
-        }
-      }
+      const pn = await conn.signalRepository?.lidMapping?.getPNForLID(rawTarget);
+      if (pn) realJid = pn;
+    } catch {}
+  }
+
+  if (!realJid && rawTarget.endsWith('@lid')) {
+    try {
+      const pn = await conn.getPnUser?.(rawTarget);
+      if (pn?.jid) realJid = pn.jid;
     } catch {}
   }
 
@@ -71,16 +75,16 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     !targetName ||
-    targetName === rawTarget ||
-    targetName.includes('@lid') ||
-    /^\d+$/.test(String(targetName))
+    /^\d+$/.test(String(targetName)) ||
+    String(targetName).includes('@lid')
   ) {
     try {
       const name = await conn.getName(realJid);
+
       if (
         name &&
-        !name.includes('@lid') &&
-        !/^\d+$/.test(String(name))
+        !/^\d+$/.test(String(name)) &&
+        !String(name).includes('@lid')
       ) {
         targetName = name;
       }
@@ -89,15 +93,16 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     !targetName ||
-    targetName.includes('@lid') ||
-    /^\d+$/.test(String(targetName))
+    /^\d+$/.test(String(targetName)) ||
+    String(targetName).includes('@lid')
   ) {
     try {
       const name = await conn.getName(rawTarget);
+
       if (
         name &&
-        !name.includes('@lid') &&
-        !/^\d+$/.test(String(name))
+        !/^\d+$/.test(String(name)) &&
+        !String(name).includes('@lid')
       ) {
         targetName = name;
       }
@@ -106,8 +111,8 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     !targetName ||
-    targetName.includes('@lid') ||
-    /^\d+$/.test(String(targetName))
+    /^\d+$/.test(String(targetName)) ||
+    String(targetName).includes('@lid')
   ) {
     targetName = userData.name || `@${userNumber}`;
   }
@@ -117,7 +122,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
     'image'
   ).catch(async () => {
     try {
-      return await conn.profilePictureUrl(rawTarget, 'image');
+      return await conn.profilePictureUrl(
+        rawTarget,
+        'image'
+      );
     } catch {
       return 'https://files.evogb.win/AGCG2d.jpg';
     }
@@ -189,15 +197,9 @@ export async function before(m, { conn, participants, groupMetadata }) {
       .replace('@user', `@${userNumber}`)
       .replace('@name', targetName)
       .replace('@group', groupMetadata.subject)
-      .replace(
-        '@desc',
-        groupMetadata.desc?.toString() || 'Sin descripción'
-      )
+      .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripción')
       .replace('%users', memberCount)
-      .replace(
-        '@action',
-        actionText[m.messageStubType] || ''
-      )
+      .replace('@action', actionText[m.messageStubType] || '')
       .replace('@date', new Date().toLocaleString());
   };
 
@@ -218,7 +220,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ⚠️ Lee las reglas para evitar BAN.
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐃𝐈𝐀 ✦
+✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐍𝐂𝐈𝐀 ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim());
 
@@ -255,7 +257,8 @@ export async function before(m, { conn, participants, groupMetadata }) {
 
   if (
     chat.welcome &&
-    m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD
+    m.messageStubType ===
+      WAMessageStubType.GROUP_PARTICIPANT_ADD
   ) {
     const url =
       `${api.url}/welcome` +
