@@ -43,5 +43,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
   }, { quoted: m });
 };
 
+handler.help = ['perfil']
+handler.tags = ['perfil']
 handler.command = ['perfil', 'profile'];
 export default handler;
