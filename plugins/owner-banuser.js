@@ -1,73 +1,64 @@
-let handler = async (m, { conn, text, isOwner }) => {
-  if (!isOwner) {
-    return m.reply('Este comando solo puede ser usado por mi Creador.');
-  }
-
-  let who = null;
-
-  if (m.mentionedJid && m.mentionedJid.length > 0) {
-    who = m.mentionedJid[0];
-  }
-
-  if (!who && m.quoted?.sender) {
-    who = m.quoted.sender;
-  }
+let handler = async (m, { conn, text, participants }) => {
+  let who =
+    m.mentionedJid?.[0] ||
+    m.quoted?.sender ||
+    null;
 
   if (!who && text) {
     const number = text.replace(/[^0-9]/g, '');
-
-    if (number) {
-      who = `${number}@s.whatsapp.net`;
-    }
+    if (number) who = `${number}@s.whatsapp.net`;
   }
 
   if (!who) {
     return m.reply(
-      `⚠️ Debes mencionar al usuario que deseas banear.`
+      '⚠️ Debes mencionar al usuario'
     );
   }
 
   try {
-    who = conn.decodeJid
-      ? conn.decodeJid(who)
-      : who;
+    if (conn.decodeJid) who = conn.decodeJid(who);
   } catch {}
 
-  if (!who || !who.includes('@')) {
-    return m.reply(' No pude identificar correctamente al usuario.');
+  if (m.isGroup && participants?.length && who.endsWith('@lid')) {
+    const found = participants.find(p => {
+      const jid = p?.jid || p?.id;
+      return jid === who || p?.lid === who;
+    });
+
+    if (found) {
+      who = found.jid || found.id || who;
+    }
   }
 
-  const botJid = conn.user?.jid;
+  try {
+    if (who.endsWith('@lid') && conn.signalRepository?.lidMapping) {
+      const mapped =
+        await conn.signalRepository.lidMapping.getPNForLID(who);
 
-  if (who === botJid) {
-    return m.reply(' No puedes banear al bot.');
+      if (mapped) who = mapped;
+    }
+  } catch {}
+
+  if (who.endsWith('@lid')) {
+    return m.reply(
+      '⚠️ No fue posible obtener el número real de este usuario.\n\n' +
+      'Intenta responder directamente a uno de sus mensajes.'
+    );
   }
 
-  const ownerJids = (global.owner || [])
-    .map(owner => {
-      const number = Array.isArray(owner)
-        ? owner[0]
-        : owner;
+  if (!who.includes('@s.whatsapp.net')) {
+    who = `${who.split('@')[0]}@s.whatsapp.net`;
+  }
 
-      if (!number) return null;
-
-      const clean = String(number).replace(/[^0-9]/g, '');
-
-      return clean
-        ? `${clean}@s.whatsapp.net`
-        : null;
-    })
-    .filter(Boolean);
-
-  if (ownerJids.includes(who)) {
-    return m.reply(' No puedes banear a mi Creador.');
+  if (who === conn.user?.jid) {
+    return m.reply('No puedes aplicar esta acción al propio bot.');
   }
 
   global.db.data.users ||= {};
   global.db.data.users[who] ||= {};
 
   if (global.db.data.users[who].banned === true) {
-    return m.reply('⚠️ Ese usuario ya está baneado del bot.');
+    return m.reply('ℹ️ Este usuario ya se encuentra bloqueado del bot.');
   }
 
   global.db.data.users[who].banned = true;
@@ -83,11 +74,11 @@ let handler = async (m, { conn, text, isOwner }) => {
     {
       text: `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼🚫 𝐔𝐒𝐔𝐀𝐑𝐈𝐎 𝐁𝐀𝐍𝐄𝐀𝐃𝐎 🚫╮
+╭╼🚫 𝐀𝐂𝐂𝐄𝐒𝐎 𝐑𝐄𝐒𝐓𝐑𝐈𝐍𝐆𝐈𝐃𝐎 🚫╮
 ┃֪࣪
-├ׁ̟̇❍✎ 👤 Usuario: ${name}
+├ׁ̟̇❍✎ 👤 Usuario: ${name || 'Usuario'}
 ├ׁ̟̇❍✎ 📱 Número: @${who.split('@')[0]}
-├ׁ̟̇❍✎ 🚫 Estado: Baneado
+├ׁ̟̇❍✎ 🔒 Estado: Bloqueado
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(),
       mentions: [who]
@@ -99,5 +90,6 @@ let handler = async (m, { conn, text, isOwner }) => {
 handler.help = ['banuser'];
 handler.tags = ['owner'];
 handler.command = ['banuser'];
+handler.owner = true;
 
 export default handler;
