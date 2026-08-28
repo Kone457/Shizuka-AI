@@ -34,7 +34,7 @@ handler.before = async function (m, { conn }) {
 ├ׁ̟̇❍✎ ⚡ *Experiencia:* \`${user.exp} / ${max}\`
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
-> 🌟 *¡Felicidades! Sigue interactuando para desbloquear más sorpresas y dominar el ranking del grupo.* 🚀
+> 🌟 *¡Felicidades! Sigue interactuando para desbloquear más sorpresas*
         `.trim();
 
         await conn.sendMessage(m.chat, {
