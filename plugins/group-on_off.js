@@ -185,21 +185,7 @@ ${configList}
   }
 };
 
-handler.help = [
-  'welcome',
-  'antilink',
-  'antiprivado',
-  'economia',
-  'gacha',
-  'level',
-  'modoadmin',
-  'reaccion',
-  'nsfw',
-  'alertas',
-  'notprefix',
-  'serbot'
-];
-
+handler.help = ['on', 'off'];
 handler.tags = ['nable'];
 handler.command = ['on', 'off'];
 handler.admin = true;
