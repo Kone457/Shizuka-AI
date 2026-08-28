@@ -67,7 +67,7 @@ const mainBotJid = global.conn?.user?.jid?.split(':')[0]
 const currentBotJid = conn.user?.jid?.split(':')[0]
 const isMainBot = mainBotJid && currentBotJid && mainBotJid === currentBotJid
 
-const botType = isMainBot ? ' 𝐏𝐫𝐞𝐦-𝐁𝐨𝐭' : '𝐅𝐫𝐞𝐞-𝐁𝐨𝐭'  
+const botType = isMainBot ? ' 𝐏𝐫𝐞𝐦-𝐁𝐨𝐭' : '𝐒𝐮𝐛-𝐁𝐨𝐭'  
 
 let menuTexto = ''  
 
