@@ -2,7 +2,7 @@ import { canLevelUp, xpRange } from '../lib/levelling.js';
 
 let handler = m => m;
 handler.before = async function (m, { conn }) {
-    if (!m.isGroup) return true;
+    if (!m.isGroup || !m.sender) return true;
     
     let chat = globalThis.db.data.chats[m.chat] ||= {};
     if (chat.level === false) return true;
@@ -14,13 +14,15 @@ handler.before = async function (m, { conn }) {
     user.exp = user.exp || 0;
 
     let before = user.level;
+    let multiplier = globalThis.multiplier || 1;
 
-    while (canLevelUp(user.level, user.exp, globalThis.multiplier || 1)) {
+    
+    while (canLevelUp(user.level, user.exp, multiplier)) {
         user.level++;
     }
 
     if (before !== user.level) {
-        let { min, xp, max } = xpRange(user.level, globalThis.multiplier || 1);
+        let { min, xp, max } = xpRange(user.level, multiplier);
         let alertImage = 'https://files.evogb.win/ChAkmb.jpg';
 
         let txt = `
@@ -32,7 +34,7 @@ handler.before = async function (m, { conn }) {
 ├ׁ̟̇❍✎ ⚡ *Experiencia:* \`${user.exp} / ${max}\`
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
-> 🌟 *¡Felicidades! Sigue interactuando para desbloquear más sorpresas
+> 🌟 *¡Felicidades! Sigue interactuando para desbloquear más sorpresas y dominar el ranking del grupo.* 🚀
         `.trim();
 
         await conn.sendMessage(m.chat, {
