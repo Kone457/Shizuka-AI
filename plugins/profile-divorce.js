@@ -61,5 +61,7 @@ handler.before = async function (m, { conn }) {
   }
 }
 
+handler.help = ['divorciar']
+handler.tags = ['perfil']
 handler.command = ['divorciar']
 export default handler
