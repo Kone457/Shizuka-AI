@@ -286,7 +286,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     const url =
       `${api.url}/welcome` +
       `?name=${encodeURIComponent(targetName)}` +
-      `&username=${encodeURIComponent(userNumber)}` +
+      `&username=${encodeURIComponent('Aqui te van a violar')}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
       `&welcomeImage=https://files.evogb.win/dlaamr.jpg` +
