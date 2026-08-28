@@ -260,9 +260,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
     m.messageStubType ===
       WAMessageStubType.GROUP_PARTICIPANT_ADD
   ) {
+    const cleanName = targetName.includes('@lid') ? userNumber : targetName;
     const url =
       `${api.url}/welcome` +
-      `?name=${encodeURIComponent(targetName)}` +
+      `?name=${encodeURIComponent(cleanName)}` +
       `&username=${encodeURIComponent('Aqui te van a violar')}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
@@ -283,9 +284,10 @@ export async function before(m, { conn, participants, groupMetadata }) {
       WAMessageStubType.GROUP_PARTICIPANT_REMOVE
     ].includes(m.messageStubType)
   ) {
+    const cleanName = targetName.includes('@lid') ? userNumber : targetName;
     const url =
       `${api.url}/welcome` +
-      `?name=${encodeURIComponent(targetName)}` +
+      `?name=${encodeURIComponent(cleanName)}` +
       `&username=${encodeURIComponent('Ojala y te atropelle un tren')}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
