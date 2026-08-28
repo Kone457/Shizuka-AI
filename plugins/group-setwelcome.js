@@ -12,11 +12,10 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 🌟  **CONFIGURAR BIENVENIDA**  🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-Por favor, escribe el mensaje personalizado que deseas establecer.
+Por favor, escribe el mensaje que deseas establecer.
 
 📌 **Variables disponibles:**
 • @user (Mencionar al usuario)
-• @name (Nombre del usuario)
 • @group (Nombre del grupo)
 • @desc (Descripción del grupo)
 • @action (Acción de entrada)
@@ -28,7 +27,7 @@ ${usedPrefix + command} 🌟 ¡Hola @user! Bienvenido a @group. Lee las reglas.
     }
 
     chat.sWelcome = text;
-    return m.reply('✅ ¡El mensaje de bienvenida se ha actualizado con éxito para este grupo!');
+    return m.reply('✅ ¡El mensaje de bienvenida se ha actualizado!');
   }
 
   if (command === 'setbye') {
@@ -42,7 +41,6 @@ Por favor, escribe el mensaje personalizado que deseas establecer.
 
 📌 **Variables disponibles:**
 • @user (Mencionar al usuario)
-• @name (Nombre del usuario)
 • @group (Nombre del grupo)
 • @action (Acción de salida/eliminación)
 • %users (Total de miembros actual)
