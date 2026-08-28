@@ -68,8 +68,8 @@ export async function before(m, { conn, participants, groupMetadata }) {
     {};
 
   let targetName =
-    participant.notify ||
     participant.name ||
+    participant.notify ||
     userData.name ||
     '';
 
@@ -114,7 +114,11 @@ export async function before(m, { conn, participants, groupMetadata }) {
     /^\d+$/.test(String(targetName)) ||
     String(targetName).includes('@lid')
   ) {
-    targetName = userData.name || `@${userNumber}`;
+    targetName = userNumber;
+  }
+
+  if (String(targetName).includes('@lid') || /^\d+$/.test(String(targetName))) {
+    targetName = userNumber;
   }
 
   const avatarUrl = await conn.profilePictureUrl(
@@ -203,8 +207,6 @@ export async function before(m, { conn, participants, groupMetadata }) {
       .replace('@date', new Date().toLocaleString());
   };
 
-  const cleanName = targetName.includes('@lid') || /^\d+$/.test(targetName) ? userNumber : targetName;
-
   const welcome = format(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
@@ -264,7 +266,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   ) {
     const url =
       `${api.url}/welcome` +
-      `?name=${encodeURIComponent(cleanName)}` +
+      `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent('Aqui te van a violar')}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
