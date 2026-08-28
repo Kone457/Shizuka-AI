@@ -242,7 +242,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim());
 
-  const mentions = [rawTarget];
+  const mentions = [realJid];
 
   if (actorJid && !mentions.includes(actorJid)) {
     mentions.push(actorJid);
@@ -262,7 +262,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   ) {
     const url =
       `${api.url}/welcome` +
-      `?name=${encodeURIComponent(userNumber)}` +
+      `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent('Aqui te van a violar')}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
@@ -285,7 +285,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   ) {
     const url =
       `${api.url}/welcome` +
-      `?name=${encodeURIComponent(userNumber)}` +
+      `?name=${encodeURIComponent(targetName)}` +
       `&username=${encodeURIComponent('Ojala y te atropelle un tren')}` +
       `&group=${encodeURIComponent(groupMetadata.subject)}` +
       `&userImage=${encodeURIComponent(avatarUrl)}` +
