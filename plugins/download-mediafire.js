@@ -4,8 +4,6 @@ import fs from 'fs'
 import path from 'path'
 import { pipeline } from 'stream/promises'
 
-const MAX_SIZE = 2 * 1024 * 1024 * 1024
-
 function parseFileSize(size) {
   if (!size) return 0
 
@@ -19,15 +17,12 @@ function parseFileSize(size) {
 
   const match = String(size)
     .trim()
-    .replace(',', '.')
     .match(/([\d.]+)\s*(B|KB|MB|GB|TB)/i)
 
   if (!match) return 0
 
-  const value = Number(match[1])
+  const value = parseFloat(match[1])
   const unit = match[2].toUpperCase()
-
-  if (!Number.isFinite(value) || !units[unit]) return 0
 
   return Math.round(value * units[unit])
 }
@@ -47,46 +42,19 @@ function formatBytes(bytes) {
   return `${bytes} B`
 }
 
-function formatSpeed(bytes) {
-  return `${formatBytes(bytes)}/s`
-}
-
-function progressBar(percent, length = 20) {
+function progressBar(percent, length = 15) {
   percent = Math.max(0, Math.min(100, Number(percent) || 0))
 
-  const filled = Math.round(
-    (percent / 100) * length
-  )
+  const filled = Math.round((percent / 100) * length)
 
-  return '█'.repeat(filled) +
-    '░'.repeat(length - filled)
-}
-
-function cleanFilename(filename, ext) {
-  let name = String(filename || 'archivo')
-    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
-    .trim()
-
-  let extension = String(ext || 'bin')
-    .replace(/^\.+/, '')
-    .trim()
-
-  if (!extension)
-    extension = 'bin'
-
-  name = name.replace(/\.[a-z0-9]{1,10}$/i, '')
-
-  return `${name}.${extension}`
+  return '█'.repeat(filled) + '░'.repeat(length - filled)
 }
 
 async function mediafire(url) {
-  if (!url)
-    throw new Error('URL requerida.')
+  if (!url) throw new Error('URL requerida')
 
   const { data } = await axios.get(url, {
     timeout: 30000,
-    maxContentLength: MAX_SIZE,
-    maxBodyLength: MAX_SIZE,
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36'
@@ -95,78 +63,101 @@ async function mediafire(url) {
 
   const $ = cheerio.load(data)
 
-  const link1 =
-    ($('#downloadButton').attr('href') || '').trim()
+  const link1 = ($('#downloadButton').attr('href') || '').trim()
+  const link2 = ($('#download_link > a.retry').attr('href') || '').trim()
 
-  const link2 =
-    ($('#download_link > a.retry').attr('href') || '').trim()
+  const $intro = $('div.dl-info > div.intro')
 
-  const intro =
-    $('div.dl-info > div.intro')
+  let filename = $intro.find('div.filename').text().trim()
+  let filetype = $intro.find('div.filetype > span').eq(0).text().trim()
 
-  const filename =
-    intro.find('div.filename').text().trim() ||
-    'archivo'
+  const extMatch = /\(\.(.*?)\)/.exec(
+    $intro.find('div.filetype > span').eq(1).text()
+  )
 
-  const filetype =
-    intro.find('div.filetype > span')
-      .eq(0)
-      .text()
-      .trim() ||
-    'Archivo'
+  let ext = extMatch?.[1]?.trim() || 'bin'
 
-  const extensionText =
-    intro.find('div.filetype > span')
-      .eq(1)
-      .text()
-      .trim()
+  const $li = $('div.dl-info > ul.details > li')
 
-  const extMatch =
-    extensionText.match(/\(\.(.*?)\)/)
+  const aploud = $li.eq(1).find('span').text().trim()
+  const size = $li.eq(0).find('span').text().trim()
+  const sizeB = parseFileSize(size)
 
-  const ext =
-    extMatch?.[1]?.trim() ||
-    path.extname(filename).replace('.', '') ||
-    'bin'
+  if (!link1 && !link2)
+    throw new Error('No se pudo obtener el enlace de descarga')
 
-  const details =
-    $('div.dl-info > ul.details > li')
-
-  const size =
-    details.eq(0).find('span').text().trim()
-
-  const aploud =
-    details.eq(1).find('span').text().trim()
-
-  const sizeB =
-    parseFileSize(size)
-
-  const downloadUrl =
-    link1 || link2
-
-  if (!downloadUrl)
-    throw new Error(
-      'MediaFire no proporcionó un enlace de descarga.'
-    )
-
-  if (sizeB > MAX_SIZE)
-    throw new Error(
-      'El archivo supera el límite de 2 GB.'
-    )
+  filename = filename || 'archivo'
+  filetype = filetype || 'Archivo'
 
   return {
-    filename: cleanFilename(filename, ext),
-    url: downloadUrl,
+    filename,
+    url: link1 || link2,
     type: filetype,
     ext,
-    aploud,
-    size,
+    aploud: aploud || 'Desconocido',
+    size: size || 'Desconocido',
     sizeB
   }
 }
 
+async function downloadFile(url, filePath, onProgress) {
+  const response = await axios.get(url, {
+    responseType: 'stream',
+    timeout: 0,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36',
+      Accept: '*/*'
+    }
+  })
+
+  const total =
+    Number(response.headers['content-length']) ||
+    0
+
+  let downloaded = 0
+  let lastUpdate = 0
+
+  response.data.on('data', chunk => {
+    downloaded += chunk.length
+
+    if (!onProgress) return
+
+    const now = Date.now()
+
+    if (
+      now - lastUpdate >= 1500 ||
+      (total > 0 && downloaded >= total)
+    ) {
+      lastUpdate = now
+
+      const percent = total > 0
+        ? Math.min(100, (downloaded / total) * 100)
+        : 0
+
+      onProgress({
+        downloaded,
+        total,
+        percent
+      }).catch(() => {})
+    }
+  })
+
+  await pipeline(
+    response.data,
+    fs.createWriteStream(filePath)
+  )
+
+  return {
+    downloaded,
+    total
+  }
+}
+
 const handler = async (m, { conn, args }) => {
-  if (!args?.[0]) {
+  if (!args[0]) {
     return conn.reply(
       m.chat,
       `
@@ -181,11 +172,9 @@ const handler = async (m, { conn, args }) => {
     )
   }
 
-  let tempPath = null
+  let filePath = null
   let progressMessage = null
-  let progressKey = null
-  let lastUpdate = 0
-  let updatePromise = null
+  let lastPercent = -1
 
   try {
     await conn.sendMessage(m.chat, {
@@ -197,258 +186,151 @@ const handler = async (m, { conn, args }) => {
 
     const res = await mediafire(args[0])
 
-    const tmpDir =
-      path.resolve(process.cwd(), '..', 'tmp')
+    const safeFilename = String(res.filename || 'archivo')
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+      .trim()
 
-    fs.mkdirSync(tmpDir, {
+    const safeExt = String(res.ext || 'bin')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .trim()
+
+    const finalName = safeExt
+      ? `${safeFilename}.${safeExt}`
+      : safeFilename
+
+    const tmpDir = path.resolve(process.cwd(), 'tmp')
+
+    await fs.promises.mkdir(tmpDir, {
       recursive: true
     })
 
-    const filename =
-      res.filename ||
-      `mediafire_${Date.now()}.bin`
+    filePath = path.join(tmpDir, `${Date.now()}-${finalName}`)
 
-    tempPath = path.join(
-      tmpDir,
-      `${Date.now()}_${Math.random().toString(36).slice(2)}_${filename}`
-    )
-
-    progressMessage =
-      await conn.sendMessage(
-        m.chat,
-        {
-          text: `
+    const initialCaption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼📦 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📦╮
 ┃֪࣪
-├ׁ̟̇❍✎ ${filename}
-├ׁ̟̇❍✎ Tipo » ${res.type || 'Archivo'}
-├ׁ̟̇❍✎ Tamaño » ${res.size || 'Desconocido'}
-├ׁ̟̇❍✎ Subido » ${res.aploud || 'Desconocido'}
+├ׁ̟̇❍✎ ${finalName}
+├ׁ̟̇❍✎ Tipo » ${res.type}
+├ׁ̟̇❍✎ Tamaño » ${res.size}
+├ׁ̟̇❍✎ Subido » ${res.aploud}
 ├ׁ̟̇❍✎ Estado » ⏬ Descargando...
-┃
-├ׁ̟̇❍✎ ${progressBar(0)}
-├ׁ̟̇❍✎ 0%
-├ׁ̟̇❍✎ 0 B / ${res.size || 'Desconocido'}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
+
+    const sent = await conn.sendMessage(
+      m.chat,
+      {
+        image: {
+          url: 'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
+        },
+        caption: initialCaption
+      },
+      { quoted: m }
+    )
+
+    progressMessage = sent
+
+    const updateProgress = async ({
+      downloaded,
+      total,
+      percent
+    }) => {
+      if (!progressMessage) return
+
+      const rounded = total > 0
+        ? Math.floor(percent)
+        : 0
+
+      if (rounded === lastPercent)
+        return
+
+      lastPercent = rounded
+
+      const totalText =
+        total > 0
+          ? formatBytes(total)
+          : res.size
+
+      const progressText =
+        total > 0
+          ? `${progressBar(rounded)} ${rounded}%`
+          : `${progressBar(0)} Calculando...`
+
+      const caption = `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼📦 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📦╮
+┃֪࣪
+├ׁ̟̇❍✎ ${finalName}
+├ׁ̟̇❍✎ Tipo » ${res.type}
+├ׁ̟̇❍✎ Tamaño » ${res.size}
+├ׁ̟̇❍✎ Progreso » ${progressText}
+├ׁ̟̇❍✎ Descargado » ${formatBytes(downloaded)} / ${totalText}
+├ׁ̟̇❍✎ Estado » ⏬ Descargando...
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim()
+
+      try {
+        await conn.sendMessage(
+          m.chat,
+          {
+            image: {
+              url: 'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
+            },
+            caption
+          },
+          { quoted: m }
+        )
+      } catch {}
+    }
+
+    const result = await downloadFile(
+      res.url,
+      filePath,
+      updateProgress
+    )
+
+    const finalSize =
+      result.total > 0
+        ? result.total
+        : result.downloaded
+
+    const finalCaption = `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼📦 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📦╮
+┃֪࣪
+├ׁ̟̇❍✎ ${finalName}
+├ׁ̟̇❍✎ Tipo » ${res.type}
+├ׁ̟̇❍✎ Tamaño » ${formatBytes(finalSize)}
+├ׁ̟̇❍✎ Progreso » ${progressBar(100)} 100%
+├ׁ̟̇❍✎ Estado » ✅ Descarga completada
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim()
+
+    try {
+      await conn.sendMessage(
+        m.chat,
+        {
+          image: {
+            url: 'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
+          },
+          caption: finalCaption
         },
         { quoted: m }
       )
-
-    progressKey =
-      progressMessage?.key
-
-    const response =
-      await axios.get(res.url, {
-        responseType: 'stream',
-        timeout: 180000,
-        maxContentLength: MAX_SIZE,
-        maxBodyLength: MAX_SIZE,
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36'
-        }
-      })
-
-    const headerSize =
-      Number(
-        response.headers?.['content-length']
-      ) || 0
-
-    const totalSize =
-      headerSize ||
-      Number(res.sizeB) ||
-      0
-
-    if (totalSize > MAX_SIZE) {
-      response.data.destroy()
-      throw new Error(
-        'El archivo supera el límite máximo de 2 GB.'
-      )
-    }
-
-    let downloaded = 0
-    let previousBytes = 0
-    let previousTime = Date.now()
-    let speed = 0
-    let lastPercent = -1
-
-    const editProgress = async force => {
-      if (!progressKey)
-        return
-
-      const now = Date.now()
-
-      if (
-        !force &&
-        now - lastUpdate < 2500
-      ) {
-        return
-      }
-
-      if (updatePromise)
-        return updatePromise
-
-      const percent =
-        totalSize > 0
-          ? Math.min(
-              100,
-              Math.floor(
-                (downloaded / totalSize) * 100
-              )
-            )
-          : 0
-
-      if (
-        !force &&
-        percent === lastPercent
-      ) {
-        return
-      }
-
-      const elapsed =
-        Math.max(
-          (now - previousTime) / 1000,
-          0.001
-        )
-
-      speed =
-        (downloaded - previousBytes) /
-        elapsed
-
-      previousBytes =
-        downloaded
-
-      previousTime =
-        now
-
-      lastPercent =
-        percent
-
-      lastUpdate =
-        now
-
-      const text = `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼📦 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📦╮
-┃֪࣪
-├ׁ̟̇❍✎ ${filename}
-├ׁ̟̇❍✎ Tipo » ${res.type || 'Archivo'}
-├ׁ̟̇❍✎ Tamaño » ${res.size || formatBytes(totalSize)}
-├ׁ̟̇❍✎ Subido » ${res.aploud || 'Desconocido'}
-├ׁ̟̇❍✎ Estado » ⏬ Descargando...
-┃
-├ׁ̟̇❍✎ ${progressBar(percent)}
-├ׁ̟̇❍✎ ${percent}%
-├ׁ̟̇❍✎ ${formatBytes(downloaded)} / ${formatBytes(totalSize)}
-├ׁ̟̇❍✎ Velocidad » ${formatSpeed(speed)}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim()
-
-      updatePromise =
-        conn.sendMessage(
-          m.chat,
-          {
-            text,
-            edit: progressKey
-          }
-        ).catch(() => {}).finally(() => {
-          updatePromise = null
-        })
-
-      return updatePromise
-    }
-
-    response.data.on(
-      'data',
-      chunk => {
-        downloaded += chunk.length
-
-        if (downloaded > MAX_SIZE) {
-          response.data.destroy(
-            new Error(
-              'El archivo supera el límite máximo de 2 GB.'
-            )
-          )
-          return
-        }
-
-        editProgress(false)
-          .catch(() => {})
-      }
-    )
-
-    await pipeline(
-      response.data,
-      fs.createWriteStream(tempPath)
-    )
-
-    await editProgress(true)
-
-    const stats =
-      await fs.promises.stat(tempPath)
-
-    if (!stats.isFile())
-      throw new Error(
-        'El archivo descargado no es válido.'
-      )
-
-    if (stats.size > MAX_SIZE)
-      throw new Error(
-        'El archivo supera el límite máximo de 2 GB.'
-      )
-
-    if (progressKey) {
-      await conn.sendMessage(
-        m.chat,
-        {
-          text: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼📤 𝐄𝐍𝐕𝐈𝐀𝐍𝐃𝐎 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📤╮
-┃֪࣪
-├ׁ̟̇❍✎ ${filename}
-├ׁ̟̇❍✎ Tamaño » ${formatBytes(stats.size)}
-├ׁ̟̇❍✎ Estado » 📤 Preparando envío...
-┃
-├ׁ̟̇❍✎ ${progressBar(100)}
-├ׁ̟̇❍✎ 100%
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim(),
-          edit: progressKey
-        }
-      ).catch(() => {})
-    }
+    } catch {}
 
     await conn.sendMessage(
       m.chat,
       {
-        document: fs.createReadStream(tempPath),
-        fileName: filename,
-        mimetype: 'application/octet-stream'
+        document: {
+          url: filePath
+        },
+        mimetype: 'application/octet-stream',
+        fileName: finalName
       },
-      {
-        quoted: m
-      }
+      { quoted: m }
     )
-
-    if (progressKey) {
-      await conn.sendMessage(
-        m.chat,
-        {
-          text: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼✅ 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 𝐄𝐍𝐕𝐈𝐀𝐃𝐎 ✅╮
-┃֪࣪
-├ׁ̟̇❍✎ ${filename}
-├ׁ̟̇❍✎ Tamaño » ${formatBytes(stats.size)}
-├ׁ̟̇❍✎ Estado » 🟢 Completado correctamente
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim(),
-          edit: progressKey
-        }
-      ).catch(() => {})
-    }
 
     await conn.sendMessage(m.chat, {
       react: {
@@ -458,65 +340,32 @@ const handler = async (m, { conn, args }) => {
     })
 
   } catch (e) {
-    const error =
-      e?.message
-        ? String(e.message)
-        : 'Error desconocido.'
-
-    if (progressKey) {
-      await conn.sendMessage(
-        m.chat,
-        {
-          text: `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐅𝐀𝐋𝐋𝐈𝐃𝐀 ⛔╮
-┃֪࣪
-├ׁ̟̇❍✎ No fue posible enviar el archivo.
-├ׁ̟̇❍✎ Motivo » ${error}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim(),
-          edit: progressKey
+    try {
+      await conn.sendMessage(m.chat, {
+        react: {
+          text: '⚠️',
+          key: m.key
         }
-      ).catch(async () => {
-        await conn.reply(
-          m.chat,
-          `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐅𝐀𝐋𝐋𝐈𝐃𝐀 ⛔╮
-┃֪࣪
-├ׁ̟̇❍✎ No fue posible enviar el archivo.
-├ׁ̟̇❍✎ Motivo » ${error}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim(),
-          m
-        ).catch(() => {})
       })
-    } else {
-      await conn.reply(
-        m.chat,
-        `
+    } catch {}
+
+    await conn.reply(
+      m.chat,
+      `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼⛔ 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐅𝐀𝐋𝐋𝐈𝐃𝐀 ⛔╮
 ┃֪࣪
 ├ׁ̟̇❍✎ No fue posible enviar el archivo.
-├ׁ̟̇❍✎ Motivo » ${error}
+├ׁ̟̇❍✎ Motivo » ${String(e?.message || e)}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(),
-        m
-      ).catch(() => {})
-    }
-
-    await conn.sendMessage(m.chat, {
-      react: {
-        text: '⚠️',
-        key: m.key
-      }
-    }).catch(() => {})
+      m
+    )
 
   } finally {
-    if (tempPath) {
+    if (filePath) {
       try {
-        await fs.promises.unlink(tempPath)
+        await fs.promises.unlink(filePath)
       } catch {}
     }
   }
