@@ -30,7 +30,11 @@ async function mediafire(url) {
   const { data } = await axios.get(url, {
     timeout: 30000,
     maxContentLength: 10 * 1024 * 1024,
-    maxBodyLength: 10 * 1024 * 1024
+    maxBodyLength: 10 * 1024 * 1024,
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36'
+    }
   })
 
   const $ = cheerio.load(data)
@@ -83,20 +87,20 @@ async function downloadFile(url, filePath) {
     timeout: 0,
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
+    maxRedirects: 10,
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36',
       Accept: '*/*'
-    },
-    maxRedirects: 10
+    }
   })
 
-  await pipeline(response.data, fs.createWriteStream(filePath))
+  await pipeline(
+    response.data,
+    fs.createWriteStream(filePath)
+  )
 
-  return {
-    contentType: response.headers['content-type'] || 'application/octet-stream',
-    contentLength: Number(response.headers['content-length']) || 0
-  }
+  return response.headers
 }
 
 const handler = async (m, { conn, args }) => {
@@ -127,11 +131,13 @@ const handler = async (m, { conn, args }) => {
 
     const res = await mediafire(args[0])
 
-    if (res.sizeB > 2 * 1024 ** 3) {
+    const MAX_SIZE = 2 * 1024 ** 3
+
+    if (res.sizeB > MAX_SIZE) {
       throw new Error('El archivo supera el límite máximo de 2 GB')
     }
 
-    const tmpDir = path.resolve('../tmp')
+    const tmpDir = path.join(process.cwd(), 'tmp')
 
     if (!fs.existsSync(tmpDir)) {
       fs.mkdirSync(tmpDir, {
@@ -176,7 +182,7 @@ const handler = async (m, { conn, args }) => {
 
     const stats = fs.statSync(filePath)
 
-    if (stats.size > 2 * 1024 ** 3) {
+    if (stats.size > MAX_SIZE) {
       throw new Error('El archivo supera el límite máximo de 2 GB')
     }
 
@@ -185,8 +191,7 @@ const handler = async (m, { conn, args }) => {
       {
         document: fs.createReadStream(filePath),
         fileName: safeName,
-        mimetype: 'application/octet-stream',
-        caption: ''
+        mimetype: 'application/octet-stream'
       },
       {
         quoted: m
