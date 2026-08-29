@@ -51,24 +51,24 @@ function formatBytes(bytes) {
   return `${bytes} B`
 }
 
-function formatSpeed(bytesPerSecond) {
-  return `${formatBytes(bytesPerSecond)}/s`
+function formatSpeed(bytes) {
+  return `${formatBytes(bytes)}/s`
 }
 
 function formatTime(seconds) {
   seconds = Math.max(0, Math.floor(Number(seconds) || 0))
 
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
 
-  if (hours > 0)
-    return `${hours}h ${minutes}m ${secs}s`
+  if (h > 0)
+    return `${h}h ${m}m ${s}s`
 
-  if (minutes > 0)
-    return `${minutes}m ${secs}s`
+  if (m > 0)
+    return `${m}m ${s}s`
 
-  return `${secs}s`
+  return `${s}s`
 }
 
 function progressBar(percent, length = 18) {
@@ -134,7 +134,7 @@ async function mediafire(url) {
   const $li =
     $('div.dl-info > ul.details > li')
 
-  const aploud =
+  const uploaded =
     $li.eq(1).find('span').text().trim()
 
   const size =
@@ -156,7 +156,7 @@ async function mediafire(url) {
     url: link1 || link2,
     type: filetype,
     ext,
-    aploud: aploud || 'Desconocido',
+    uploaded: uploaded || 'Desconocido',
     size: size || 'Desconocido',
     sizeB
   }
@@ -184,14 +184,15 @@ async function downloadFile(
     Number(response.headers['content-length']) || 0
 
   let downloaded = 0
-  let lastProgress = Date.now()
   let lastBytes = 0
+  let lastTime = Date.now()
 
   response.data.on('data', chunk => {
     downloaded += chunk.length
 
     const now = Date.now()
-    const elapsed = (now - lastProgress) / 1000
+    const elapsed =
+      (now - lastTime) / 1000
 
     if (elapsed >= 1) {
       const speed =
@@ -210,8 +211,8 @@ async function downloadFile(
           ? (total - downloaded) / speed
           : 0
 
-      lastProgress = now
       lastBytes = downloaded
+      lastTime = now
 
       Promise.resolve(
         onProgress?.({
@@ -243,21 +244,20 @@ function buildCaption({
   uploaded,
   status,
   percent = 0,
-  downloaded = 0,
+  transferred = 0,
   total = 0,
   speed = 0,
   remaining = 0
 }) {
-  const safePercent =
-    Math.floor(
-      Math.max(
-        0,
-        Math.min(
-          100,
-          Number(percent) || 0
-        )
+  const value = Math.floor(
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Number(percent) || 0
       )
     )
+  )
 
   const totalText =
     total > 0
@@ -273,8 +273,8 @@ function buildCaption({
 ├ׁ̟̇❍✎ Tamaño » ${size}
 ├ׁ̟̇❍✎ Subido » ${uploaded}
 ├ׁ̟̇❍✎ Estado » ${status}
-├ׁ̟̇❍✎ Progreso » ${progressBar(safePercent)} ${safePercent}%
-├ׁ̟̇❍✎ Transferido » ${formatBytes(downloaded)} / ${totalText}
+├ׁ̟̇❍✎ Progreso » ${progressBar(value)} ${value}%
+├ׁׁ̟̇❍✎ Transferido » ${formatBytes(transferred)} / ${totalText}
 ├ׁ̟̇❍✎ Velocidad » ${speed > 0 ? formatSpeed(speed) : 'Calculando...'}
 ├ׁ̟̇❍✎ Tiempo restante » ${remaining > 0 ? formatTime(remaining) : 'Calculando...'}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
@@ -283,18 +283,18 @@ function buildCaption({
 
 async function editProgressMessage(
   conn,
-  chatId,
-  messageKey,
+  chat,
+  key,
   caption
 ) {
-  if (!messageKey)
+  if (!key)
     return false
 
   try {
     await conn.sendMessage(
-      chatId,
+      chat,
       {
-        edit: messageKey,
+        edit: key,
         image: {
           url: IMAGE_URL
         },
@@ -307,9 +307,9 @@ async function editProgressMessage(
 
   try {
     await conn.sendMessage(
-      chatId,
+      chat,
       {
-        edit: messageKey,
+        edit: key,
         caption
       }
     )
@@ -318,6 +318,82 @@ async function editProgressMessage(
   } catch {}
 
   return false
+}
+
+async function uploadWithProgress(
+  conn,
+  chat,
+  filePath,
+  fileName,
+  total,
+  onProgress,
+  quoted
+) {
+  const stream = fs.createReadStream(filePath)
+
+  let uploaded = 0
+  let lastBytes = 0
+  let lastTime = Date.now()
+
+  stream.on('data', chunk => {
+    uploaded += chunk.length
+
+    const now = Date.now()
+    const elapsed =
+      (now - lastTime) / 1000
+
+    if (elapsed >= 1) {
+      const speed =
+        (uploaded - lastBytes) / elapsed
+
+      const percent =
+        total > 0
+          ? Math.min(
+              100,
+              (uploaded / total) * 100
+            )
+          : 0
+
+      const remaining =
+        total > 0 && speed > 0
+          ? (total - uploaded) / speed
+          : 0
+
+      lastBytes = uploaded
+      lastTime = now
+
+      Promise.resolve(
+        onProgress?.({
+          uploaded,
+          total,
+          percent,
+          speed,
+          remaining
+        })
+      ).catch(() => {})
+    }
+  })
+
+  const result =
+    await conn.sendMessage(
+      chat,
+      {
+        document: {
+          stream
+        },
+        mimetype:
+          'application/octet-stream',
+        fileName
+      },
+      {
+        quoted
+      }
+    )
+
+  return {
+    result,
+    uploaded: total || uploaded
+  }
 }
 
 const handler = async (
@@ -341,11 +417,55 @@ const handler = async (
 
   let filePath = null
   let progressMessage = null
+  let messageKey = null
 
   let lastPercent = -1
   let lastEdit = 0
-  let editing = false
-  let pendingUpdate = null
+  let editQueue = Promise.resolve()
+
+  const updateMessage = data => {
+    editQueue = editQueue
+      .then(async () => {
+        const now = Date.now()
+
+        if (
+          now - lastEdit < 1200 &&
+          data.percent < 100
+        ) {
+          return
+        }
+
+        const percent = Math.floor(
+          Math.max(
+            0,
+            Math.min(
+              100,
+              Number(data.percent) || 0
+            )
+          )
+        )
+
+        if (
+          percent === lastPercent &&
+          percent !== 100
+        ) {
+          return
+        }
+
+        lastPercent = percent
+        lastEdit = Date.now()
+
+        await editProgressMessage(
+          conn,
+          m.chat,
+          messageKey,
+          buildCaption(data)
+        )
+      })
+      .catch(() => {})
+
+    return editQueue
+  }
 
   try {
     await conn.sendMessage(
@@ -406,20 +526,6 @@ const handler = async (
           .slice(2)}-${finalName}`
       )
 
-    const initialCaption =
-      buildCaption({
-        filename: finalName,
-        type: res.type,
-        size: res.size,
-        uploaded: res.aploud,
-        status: '⏬ Descargando...',
-        percent: 0,
-        downloaded: 0,
-        total: res.sizeB,
-        speed: 0,
-        remaining: 0
-      })
-
     progressMessage =
       await conn.sendMessage(
         m.chat,
@@ -427,175 +533,133 @@ const handler = async (
           image: {
             url: IMAGE_URL
           },
-          caption: initialCaption
+          caption:
+            buildCaption({
+              filename: finalName,
+              type: res.type,
+              size: res.size,
+              uploaded: res.uploaded,
+              status:
+                '⏬ Descargando...',
+              percent: 0,
+              transferred: 0,
+              total:
+                res.sizeB,
+              speed: 0,
+              remaining: 0
+            })
         },
         {
           quoted: m
         }
       )
 
-    const messageKey =
+    messageKey =
       progressMessage?.key
 
-    const performEdit = async data => {
-      if (!messageKey)
-        return
+    const result =
+      await downloadFile(
+        res.url,
+        filePath,
+        data =>
+          updateMessage({
+            filename: finalName,
+            type: res.type,
+            size: res.size,
+            uploaded: res.uploaded,
+            status:
+              '⏬ Descargando...',
+            percent:
+              data.percent,
+            transferred:
+              data.downloaded,
+            total:
+              data.total ||
+              res.sizeB,
+            speed:
+              data.speed,
+            remaining:
+              data.remaining
+          })
+      )
 
-      pendingUpdate = data
-
-      if (editing)
-        return
-
-      editing = true
-
-      try {
-        while (pendingUpdate) {
-          const current =
-            pendingUpdate
-
-          pendingUpdate = null
-
-          const now = Date.now()
-
-          if (
-            now - lastEdit < 1200 &&
-            current.percent < 100
-          ) {
-            await new Promise(
-              resolve =>
-                setTimeout(
-                  resolve,
-                  1200 -
-                  (now - lastEdit)
-                )
-            )
-          }
-
-          const rounded =
-            Math.floor(
-              Math.max(
-                0,
-                Math.min(
-                  100,
-                  Number(
-                    current.percent
-                  ) || 0
-                )
-              )
-            )
-
-          if (
-            rounded === lastPercent &&
-            rounded !== 100
-          ) {
-            continue
-          }
-
-          lastPercent = rounded
-          lastEdit = Date.now()
-
-          const caption =
-            buildCaption({
-              filename: finalName,
-              type: res.type,
-              size: res.size,
-              uploaded: res.aploud,
-              status:
-                current.status ||
-                '⏬ Descargando...',
-              percent: rounded,
-              downloaded:
-                current.downloaded || 0,
-              total:
-                current.total ||
-                res.sizeB,
-              speed:
-                current.speed || 0,
-              remaining:
-                current.remaining || 0
-            })
-
-          await editProgressMessage(
-            conn,
-            m.chat,
-            messageKey,
-            caption
-          )
-        }
-      } finally {
-        editing = false
-      }
-    }
-
-    await downloadFile(
-      res.url,
-      filePath,
-      data => performEdit({
-        ...data,
-        status:
-          '⏬ Descargando...'
-      })
-    )
+    await editQueue
 
     const stat =
       await fs.promises.stat(
         filePath
       )
 
-    const finalSize =
+    const totalSize =
       stat.size ||
+      result.downloaded ||
       res.sizeB ||
       0
 
-    await performEdit({
-      downloaded: finalSize,
-      total: finalSize,
-      percent: 100,
-      speed: 0,
-      remaining: 0,
+    lastPercent = -1
+    lastEdit = 0
+
+    await updateMessage({
+      filename: finalName,
+      type: res.type,
+      size: formatBytes(totalSize),
+      uploaded: res.uploaded,
       status:
-        '📤 Preparando envío a WhatsApp...'
+        '📤 Subiendo a WhatsApp...',
+      percent: 0,
+      transferred: 0,
+      total: totalSize,
+      speed: 0,
+      remaining: 0
     })
 
-    await new Promise(
-      resolve =>
-        setTimeout(resolve, 700)
-    )
+    await editQueue
 
-    await performEdit({
-      downloaded: finalSize,
-      total: finalSize,
-      percent: 100,
-      speed: 0,
-      remaining: 0,
-      status:
-        '📤 Subiendo a WhatsApp...'
-    })
-
-    await conn.sendMessage(
+    await uploadWithProgress(
+      conn,
       m.chat,
-      {
-        document: {
-          url: filePath
-        },
-        mimetype:
-          'application/octet-stream',
-        fileName: finalName
-      },
-      {
-        quoted: m
-      }
+      filePath,
+      finalName,
+      totalSize,
+      data =>
+        updateMessage({
+          filename: finalName,
+          type: res.type,
+          size: formatBytes(totalSize),
+          uploaded: res.uploaded,
+          status:
+            '📤 Subiendo a WhatsApp...',
+          percent:
+            data.percent,
+          transferred:
+            data.uploaded,
+          total:
+            data.total,
+          speed:
+            data.speed,
+          remaining:
+            data.remaining
+        }),
+      m
     )
 
-    await performEdit({
-      downloaded: finalSize,
-      total: finalSize,
-      percent: 100,
-      speed: 0,
-      remaining: 0,
+    await editQueue
+
+    await updateMessage({
+      filename: finalName,
+      type: res.type,
+      size: formatBytes(totalSize),
+      uploaded: res.uploaded,
       status:
-        '✅ Archivo enviado correctamente'
+        '✅ Archivo enviado correctamente',
+      percent: 100,
+      transferred: totalSize,
+      total: totalSize,
+      speed: 0,
+      remaining: 0
     })
+
+    await editQueue
 
     await conn.sendMessage(
       m.chat,
@@ -632,17 +696,17 @@ const handler = async (
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼⛔ 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐅𝐀𝐋𝐋𝐈𝐃𝐀 ⛔╮
 ┃֪࣪
-├ׁ̟̇❍✎ No fue posible completar la descarga.
+├ׁ̟̇❍✎ No fue posible completar la operación.
 ├ׁ̟̇❍✎ Motivo » ${errorText}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
 
-    if (progressMessage?.key) {
+    if (messageKey) {
       const edited =
         await editProgressMessage(
           conn,
           m.chat,
-          progressMessage.key,
+          messageKey,
           errorCaption
         )
 
