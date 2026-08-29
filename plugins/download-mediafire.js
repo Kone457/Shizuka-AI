@@ -21,10 +21,9 @@ function parseFileSize(size) {
 
   if (!match) return 0
 
-  const value = parseFloat(match[1])
-  const unit = match[2].toUpperCase()
-
-  return Math.round(value * units[unit])
+  return Math.round(
+    parseFloat(match[1]) * units[match[2].toUpperCase()]
+  )
 }
 
 function formatBytes(bytes) {
@@ -68,34 +67,38 @@ async function mediafire(url) {
 
   const $intro = $('div.dl-info > div.intro')
 
-  let filename = $intro.find('div.filename').text().trim()
-  let filetype = $intro.find('div.filetype > span').eq(0).text().trim()
+  const filename =
+    $intro.find('div.filename').text().trim() || 'archivo'
+
+  const type =
+    $intro.find('div.filetype > span').eq(0).text().trim() || 'Archivo'
 
   const extMatch = /\(\.(.*?)\)/.exec(
     $intro.find('div.filetype > span').eq(1).text()
   )
 
-  let ext = extMatch?.[1]?.trim() || 'bin'
+  const ext = extMatch?.[1]?.trim() || 'bin'
 
   const $li = $('div.dl-info > ul.details > li')
 
-  const aploud = $li.eq(1).find('span').text().trim()
-  const size = $li.eq(0).find('span').text().trim()
+  const aploud =
+    $li.eq(1).find('span').text().trim() || 'Desconocido'
+
+  const size =
+    $li.eq(0).find('span').text().trim() || 'Desconocido'
+
   const sizeB = parseFileSize(size)
 
   if (!link1 && !link2)
     throw new Error('No se pudo obtener el enlace de descarga')
 
-  filename = filename || 'archivo'
-  filetype = filetype || 'Archivo'
-
   return {
     filename,
     url: link1 || link2,
-    type: filetype,
+    type,
     ext,
-    aploud: aploud || 'Desconocido',
-    size: size || 'Desconocido',
+    aploud,
+    size,
     sizeB
   }
 }
@@ -114,35 +117,29 @@ async function downloadFile(url, filePath, onProgress) {
   })
 
   const total =
-    Number(response.headers['content-length']) ||
-    0
+    Number(response.headers['content-length']) || 0
 
   let downloaded = 0
-  let lastUpdate = 0
+  let lastPercent = -1
 
   response.data.on('data', chunk => {
     downloaded += chunk.length
 
-    if (!onProgress) return
+    if (!total || !onProgress) return
 
-    const now = Date.now()
+    const percent = Math.floor(
+      (downloaded / total) * 100
+    )
 
-    if (
-      now - lastUpdate >= 1500 ||
-      (total > 0 && downloaded >= total)
-    ) {
-      lastUpdate = now
+    if (percent === lastPercent) return
 
-      const percent = total > 0
-        ? Math.min(100, (downloaded / total) * 100)
-        : 0
+    lastPercent = percent
 
-      onProgress({
-        downloaded,
-        total,
-        percent
-      }).catch(() => {})
-    }
+    onProgress({
+      downloaded,
+      total,
+      percent
+    }).catch(() => {})
   })
 
   await pipeline(
@@ -173,8 +170,8 @@ const handler = async (m, { conn, args }) => {
   }
 
   let filePath = null
-  let progressMessage = null
-  let lastPercent = -1
+  let progressKey = null
+  let lastUpdate = 0
 
   try {
     await conn.sendMessage(m.chat, {
@@ -186,25 +183,29 @@ const handler = async (m, { conn, args }) => {
 
     const res = await mediafire(args[0])
 
-    const safeFilename = String(res.filename || 'archivo')
+    const safeFilename = String(res.filename)
       .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
-      .trim()
+      .trim() || 'archivo'
 
     const safeExt = String(res.ext || 'bin')
       .replace(/[^a-zA-Z0-9]/g, '')
-      .trim()
+      .trim() || 'bin'
 
-    const finalName = safeExt
-      ? `${safeFilename}.${safeExt}`
-      : safeFilename
+    const finalName = `${safeFilename}.${safeExt}`
 
-    const tmpDir = path.resolve(process.cwd(), 'tmp')
+    const tmpDir = path.resolve(
+      process.cwd(),
+      'tmp'
+    )
 
     await fs.promises.mkdir(tmpDir, {
       recursive: true
     })
 
-    filePath = path.join(tmpDir, `${Date.now()}-${finalName}`)
+    filePath = path.join(
+      tmpDir,
+      `${Date.now()}-${finalName}`
+    )
 
     const initialCaption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -214,6 +215,7 @@ const handler = async (m, { conn, args }) => {
 ├ׁ̟̇❍✎ Tipo » ${res.type}
 ├ׁ̟̇❍✎ Tamaño » ${res.size}
 ├ׁ̟̇❍✎ Subido » ${res.aploud}
+├ׁ̟̇❍✎ Progreso » ${progressBar(0)} 0%
 ├ׁ̟̇❍✎ Estado » ⏬ Descargando...
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
@@ -229,33 +231,25 @@ const handler = async (m, { conn, args }) => {
       { quoted: m }
     )
 
-    progressMessage = sent
+    progressKey = sent?.key
 
     const updateProgress = async ({
       downloaded,
       total,
       percent
     }) => {
-      if (!progressMessage) return
+      if (!progressKey) return
 
-      const rounded = total > 0
-        ? Math.floor(percent)
-        : 0
+      const now = Date.now()
 
-      if (rounded === lastPercent)
+      if (
+        percent !== 100 &&
+        now - lastUpdate < 1500
+      ) {
         return
+      }
 
-      lastPercent = rounded
-
-      const totalText =
-        total > 0
-          ? formatBytes(total)
-          : res.size
-
-      const progressText =
-        total > 0
-          ? `${progressBar(rounded)} ${rounded}%`
-          : `${progressBar(0)} Calculando...`
+      lastUpdate = now
 
       const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -264,8 +258,8 @@ const handler = async (m, { conn, args }) => {
 ├ׁ̟̇❍✎ ${finalName}
 ├ׁ̟̇❍✎ Tipo » ${res.type}
 ├ׁ̟̇❍✎ Tamaño » ${res.size}
-├ׁ̟̇❍✎ Progreso » ${progressText}
-├ׁ̟̇❍✎ Descargado » ${formatBytes(downloaded)} / ${totalText}
+├ׁ̟̇❍✎ Progreso » ${progressBar(percent)} ${percent}%
+├ׁ̟̇❍✎ Descargado » ${formatBytes(downloaded)} / ${formatBytes(total)}
 ├ׁ̟̇❍✎ Estado » ⏬ Descargando...
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
@@ -274,12 +268,9 @@ const handler = async (m, { conn, args }) => {
         await conn.sendMessage(
           m.chat,
           {
-            image: {
-              url: 'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
-            },
-            caption
-          },
-          { quoted: m }
+            text: caption,
+            edit: progressKey
+          }
         )
       } catch {}
     }
@@ -295,7 +286,7 @@ const handler = async (m, { conn, args }) => {
         ? result.total
         : result.downloaded
 
-    const finalCaption = `
+    const completedCaption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼📦 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📦╮
 ┃֪࣪
@@ -311,12 +302,9 @@ const handler = async (m, { conn, args }) => {
       await conn.sendMessage(
         m.chat,
         {
-          image: {
-            url: 'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
-          },
-          caption: finalCaption
-        },
-        { quoted: m }
+          text: completedCaption,
+          edit: progressKey
+        }
       )
     } catch {}
 
@@ -340,14 +328,12 @@ const handler = async (m, { conn, args }) => {
     })
 
   } catch (e) {
-    try {
-      await conn.sendMessage(m.chat, {
-        react: {
-          text: '⚠️',
-          key: m.key
-        }
-      })
-    } catch {}
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '⚠️',
+        key: m.key
+      }
+    }).catch(() => {})
 
     await conn.reply(
       m.chat,
