@@ -1,4 +1,4 @@
-let handler = async (m, { conn, text, participants }) => {
+let handler = async (m, { conn, text }) => {
   let who =
     m.mentionedJid?.[0] ||
     m.quoted?.sender ||
@@ -11,38 +11,38 @@ let handler = async (m, { conn, text, participants }) => {
 
   if (!who) {
     return m.reply(
-      '⚠️ Debes mencionar al usuario'
+      '⚠️ Debes mencionar al usuario que deseas bloquear.'
     );
   }
 
   try {
-    if (conn.decodeJid) who = conn.decodeJid(who);
-  } catch {}
+    if (who.endsWith('@lid')) {
+      let pn = null;
 
-  if (m.isGroup && participants?.length && who.endsWith('@lid')) {
-    const found = participants.find(p => {
-      const jid = p?.jid || p?.id;
-      return jid === who || p?.lid === who;
-    });
+      try {
+        pn = await conn.signalRepository?.lidMapping?.getPNForLID?.(who);
+      } catch {}
 
-    if (found) {
-      who = found.jid || found.id || who;
-    }
-  }
+      if (!pn) {
+        try {
+          pn = await conn.getPNForLID?.(who);
+        } catch {}
+      }
 
-  try {
-    if (who.endsWith('@lid') && conn.signalRepository?.lidMapping) {
-      const mapped =
-        await conn.signalRepository.lidMapping.getPNForLID(who);
+      if (!pn) {
+        try {
+          pn = await conn.getPnForLid?.(who);
+        } catch {}
+      }
 
-      if (mapped) who = mapped;
+      if (pn) who = pn;
     }
   } catch {}
 
   if (who.endsWith('@lid')) {
     return m.reply(
       '⚠️ No fue posible obtener el número real de este usuario.\n\n' +
-      'Intenta responder directamente a uno de sus mensajes.'
+      'Responde directamente a uno de sus mensajes e inténtalo nuevamente.'
     );
   }
 
@@ -50,23 +50,28 @@ let handler = async (m, { conn, text, participants }) => {
     who = `${who.split('@')[0]}@s.whatsapp.net`;
   }
 
-  if (who === conn.user?.jid) {
-    return m.reply('No puedes aplicar esta acción al propio bot.');
+  const realJid = who;
+
+  if (realJid === conn.user?.jid) {
+    return m.reply('❌ No puedes bloquear el acceso del propio bot.');
   }
 
   global.db.data.users ||= {};
-  global.db.data.users[who] ||= {};
+  global.db.data.users[realJid] ||= {};
 
-  if (global.db.data.users[who].banned === true) {
-    return m.reply('ℹ️ Este usuario ya se encuentra bloqueado del bot.');
+  const user = global.db.data.users[realJid];
+
+  if (user.banned === true) {
+    return m.reply('ℹ️ Este usuario ya tiene el acceso restringido al bot.');
   }
 
-  global.db.data.users[who].banned = true;
+  user.banned = true;
+  user.bannedAt = Date.now();
 
-  let name = who.split('@')[0];
+  let name = 'Usuario';
 
   try {
-    name = await conn.getName(who);
+    name = await conn.getName(realJid);
   } catch {}
 
   await conn.sendMessage(
@@ -76,12 +81,15 @@ let handler = async (m, { conn, text, participants }) => {
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼🚫 𝐀𝐂𝐂𝐄𝐒𝐎 𝐑𝐄𝐒𝐓𝐑𝐈𝐍𝐆𝐈𝐃𝐎 🚫╮
 ┃֪࣪
-├ׁ̟̇❍✎ 👤 Usuario: ${name || 'Usuario'}
-├ׁ̟̇❍✎ 📱 Número: @${who.split('@')[0]}
+├ׁ̟̇❍✎ 👤 Usuario: ${name}
+├ׁ̟̇❍✎ 📱 Número: +${realJid.split('@')[0]}
 ├ׁ̟̇❍✎ 🔒 Estado: Bloqueado
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(),
-      mentions: [who]
+      contextInfo: {
+        mentionedJid: [realJid],
+        isForwarded: true
+      }
     },
     { quoted: m }
   );
