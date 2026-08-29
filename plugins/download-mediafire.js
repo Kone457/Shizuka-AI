@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+const IMAGE_URL =
+  'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
+
 function parseFileSize(size) {
   if (!size) return 0
 
@@ -47,6 +50,31 @@ function formatBytes(bytes) {
     return `${(bytes / 1024).toFixed(2)} KB`
 
   return `${bytes} B`
+}
+
+function formatSpeed(bytesPerSecond) {
+  return `${formatBytes(bytesPerSecond)}/s`
+}
+
+function formatTime(seconds) {
+  seconds = Number(seconds) || 0
+
+  if (!isFinite(seconds) || seconds <= 0)
+    return 'Calculando...'
+
+  seconds = Math.floor(seconds)
+
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = seconds % 60
+
+  if (hours > 0)
+    return `${hours}h ${minutes}m ${secs}s`
+
+  if (minutes > 0)
+    return `${minutes}m ${secs}s`
+
+  return `${secs}s`
 }
 
 function progressBar(percent, length = 18) {
@@ -106,7 +134,7 @@ async function mediafire(url) {
         .text()
     )
 
-  let ext =
+  const ext =
     extMatch?.[1]?.trim() || 'bin'
 
   const $li =
@@ -161,7 +189,8 @@ async function downloadFile(
     Number(response.headers['content-length']) || 0
 
   let downloaded = 0
-  let lastUpdate = 0
+  let lastUpdate = Date.now()
+  let lastBytes = 0
 
   response.data.on('data', chunk => {
     downloaded += chunk.length
@@ -170,12 +199,20 @@ async function downloadFile(
       return
 
     const now = Date.now()
+    const elapsed =
+      (now - lastUpdate) / 1000
 
     if (
-      now - lastUpdate >= 1500 ||
+      elapsed >= 1 ||
       (total > 0 && downloaded >= total)
     ) {
-      lastUpdate = now
+      const bytesDiff =
+        downloaded - lastBytes
+
+      const speed =
+        elapsed > 0
+          ? bytesDiff / elapsed
+          : 0
 
       const percent =
         total > 0
@@ -185,11 +222,21 @@ async function downloadFile(
             )
           : 0
 
+      const remaining =
+        total > 0 && speed > 0
+          ? (total - downloaded) / speed
+          : 0
+
+      lastUpdate = now
+      lastBytes = downloaded
+
       Promise.resolve(
         onProgress({
           downloaded,
           total,
-          percent
+          percent,
+          speed,
+          remaining
         })
       ).catch(() => {})
     }
@@ -212,26 +259,24 @@ function buildCaption({
   size,
   uploaded,
   status,
-  percent = null,
+  percent = 0,
   downloaded = 0,
-  total = 0
+  total = 0,
+  speed = 0,
+  remaining = 0
 }) {
-  let progress = ''
-
-  if (percent !== null) {
-    const value = Math.floor(
-      Math.max(0, Math.min(100, percent))
+  const value =
+    Math.floor(
+      Math.max(
+        0,
+        Math.min(100, percent)
+      )
     )
 
-    const totalText =
-      total > 0
-        ? formatBytes(total)
-        : size
-
-    progress = `
-├ׁ̟̇❍✎ Progreso » ${progressBar(value)} ${value}%
-├ׁ̟̇❍✎ Transferido » ${formatBytes(downloaded)} / ${totalText}`
-  }
+  const totalBytes =
+    total > 0
+      ? total
+      : parseFileSize(size)
 
   return `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -241,40 +286,29 @@ function buildCaption({
 ├ׁ̟̇❍✎ Tipo » ${type}
 ├ׁ̟̇❍✎ Tamaño » ${size}
 ├ׁ̟̇❍✎ Subido » ${uploaded}
-├ׁ̟̇❍✎ Estado » ${status}${progress}
+├ׁ̟̇❍✎ Estado » ${status}
+├ׁ̟̇❍✎ Progreso » ${progressBar(value)} ${value}%
+├ׁ̟̇❍✎ Transferido » ${formatBytes(downloaded)} / ${formatBytes(totalBytes)}
+├ׁ̟̇❍✎ Velocidad » ${speed > 0 ? formatSpeed(speed) : 'Calculando...'}
+├ׁ̟̇❍✎ Tiempo restante » ${remaining > 0 ? formatTime(remaining) : 'Calculando...'}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
 }
 
-async function editProgressMessage(
+async function editMessage(
   conn,
-  chatId,
-  messageKey,
+  chat,
+  key,
   caption
 ) {
-  if (!messageKey)
+  if (!key)
     return false
 
   try {
     await conn.sendMessage(
-      chatId,
+      chat,
       {
-        edit: messageKey,
-        caption
-      }
-    )
-
-    return true
-  } catch {}
-
-  try {
-    await conn.sendMessage(
-      chatId,
-      {
-        edit: messageKey,
-        image: {
-          url: 'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
-        },
+        edit: key,
         caption
       }
     )
@@ -335,7 +369,10 @@ const handler = async (
 
     const safeExt =
       String(res.ext || 'bin')
-        .replace(/[^a-zA-Z0-9]/g, '')
+        .replace(
+          /[^a-zA-Z0-9]/g,
+          ''
+        )
         .trim()
 
     const finalName =
@@ -344,7 +381,11 @@ const handler = async (
         : safeFilename
 
     const tmpDir =
-      path.resolve(__dirname, '..', 'tmp')
+      path.resolve(
+        __dirname,
+        '..',
+        'tmp'
+      )
 
     await fs.promises.mkdir(
       tmpDir,
@@ -378,8 +419,7 @@ const handler = async (
         m.chat,
         {
           image: {
-            url:
-              'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
+            url: IMAGE_URL
           },
           caption: initialCaption
         },
@@ -395,15 +435,17 @@ const handler = async (
       async ({
         downloaded,
         total,
-        percent
+        percent,
+        speed,
+        remaining
       }) => {
         if (!messageKey)
           return
 
         const rounded =
-          total > 0
-            ? Math.floor(percent)
-            : 0
+          Math.floor(percent)
+
+        const now = Date.now()
 
         if (
           rounded === lastPercent &&
@@ -411,8 +453,6 @@ const handler = async (
         ) {
           return
         }
-
-        const now = Date.now()
 
         if (
           now - lastEdit < 1200 &&
@@ -433,11 +473,12 @@ const handler = async (
             status: '⏬ Descargando...',
             percent: rounded,
             downloaded,
-            total:
-              total || res.sizeB
+            total: total || res.sizeB,
+            speed,
+            remaining
           })
 
-        await editProgressMessage(
+        await editMessage(
           conn,
           m.chat,
           messageKey,
@@ -457,30 +498,144 @@ const handler = async (
       result.total ||
       res.sizeB
 
-    const finalCaption =
+    const completedCaption =
       buildCaption({
         filename: finalName,
         type: res.type,
         size: formatBytes(finalSize),
         uploaded: res.aploud,
-        status: '✅ Descarga completada',
+        status: '📥 Descarga completada',
         percent: 100,
         downloaded: finalSize,
-        total: finalSize
+        total: finalSize,
+        speed: 0,
+        remaining: 0
       })
 
-    await editProgressMessage(
+    await editMessage(
       conn,
       m.chat,
       messageKey,
-      finalCaption
+      completedCaption
+    )
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 500)
+    )
+
+    const sendingCaption =
+      buildCaption({
+        filename: finalName,
+        type: res.type,
+        size: formatBytes(finalSize),
+        uploaded: res.aploud,
+        status: '📤 Enviando archivo...',
+        percent: 0,
+        downloaded: 0,
+        total: finalSize,
+        speed: 0,
+        remaining: 0
+      })
+
+    await editMessage(
+      conn,
+      m.chat,
+      messageKey,
+      sendingCaption
+    )
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 300)
+    )
+
+    let sentBytes = 0
+    let sendStarted = Date.now()
+    let lastSendEdit = 0
+    let lastSendPercent = -1
+
+    const documentStream =
+      fs.createReadStream(
+        filePath
+      )
+
+    const progressStream =
+      new (await import('stream')).Transform({
+        transform(chunk, encoding, callback) {
+          sentBytes += chunk.length
+
+          const now = Date.now()
+          const elapsed =
+            (now - sendStarted) / 1000
+
+          const speed =
+            elapsed > 0
+              ? sentBytes / elapsed
+              : 0
+
+          const percent =
+            finalSize > 0
+              ? Math.min(
+                  100,
+                  (sentBytes / finalSize) * 100
+                )
+              : 0
+
+          const remaining =
+            speed > 0
+              ? (finalSize - sentBytes) / speed
+              : 0
+
+          const rounded =
+            Math.floor(percent)
+
+          if (
+            rounded !== lastSendPercent &&
+            (
+              now - lastSendEdit >= 1200 ||
+              rounded === 100
+            )
+          ) {
+            lastSendPercent =
+              rounded
+
+            lastSendEdit =
+              now
+
+            const caption =
+              buildCaption({
+                filename: finalName,
+                type: res.type,
+                size: formatBytes(finalSize),
+                uploaded: res.aploud,
+                status: '📤 Enviando archivo...',
+                percent: rounded,
+                downloaded: sentBytes,
+                total: finalSize,
+                speed,
+                remaining
+              })
+
+            editMessage(
+              conn,
+              m.chat,
+              messageKey,
+              caption
+            ).catch(() => {})
+          }
+
+          callback(null, chunk)
+        }
+      })
+
+    documentStream.pipe(
+      progressStream
     )
 
     await conn.sendMessage(
       m.chat,
       {
         document: {
-          url: filePath
+          stream: progressStream
         },
         mimetype:
           'application/octet-stream',
@@ -489,6 +644,27 @@ const handler = async (
       {
         quoted: m
       }
+    )
+
+    const finalSendCaption =
+      buildCaption({
+        filename: finalName,
+        type: res.type,
+        size: formatBytes(finalSize),
+        uploaded: res.aploud,
+        status: '✅ Archivo enviado correctamente',
+        percent: 100,
+        downloaded: finalSize,
+        total: finalSize,
+        speed: 0,
+        remaining: 0
+      })
+
+    await editMessage(
+      conn,
+      m.chat,
+      messageKey,
+      finalSendCaption
     )
 
     await conn.sendMessage(
@@ -521,19 +697,19 @@ const handler = async (
         'Error desconocido'
       )
 
-    if (progressMessage?.key) {
-      const errorCaption =
-        `
+    const errorCaption =
+      `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼⛔ 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐅𝐀𝐋𝐋𝐈𝐃𝐀 ⛔╮
 ┃֪࣪
-├ׁ̟̇❍✎ No fue posible completar la descarga.
+├ׁ̟̇❍✎ No fue posible completar la operación.
 ├ׁ̟̇❍✎ Motivo » ${errorText}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
 
+    if (progressMessage?.key) {
       const edited =
-        await editProgressMessage(
+        await editMessage(
           conn,
           m.chat,
           progressMessage.key,
@@ -550,14 +726,7 @@ const handler = async (
     } else {
       await conn.reply(
         m.chat,
-        `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐅𝐀𝐋𝐋𝐈𝐃𝐀 ⛔╮
-┃֪࣪
-├ׁ̟̇❍✎ No fue posible completar la descarga.
-├ׁ̟̇❍✎ Motivo » ${errorText}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim(),
+        errorCaption,
         m
       )
     }
