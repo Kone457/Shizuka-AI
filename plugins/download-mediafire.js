@@ -3,6 +3,10 @@ import * as cheerio from 'cheerio'
 import fs from 'fs'
 import path from 'path'
 import { pipeline } from 'stream/promises'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const IMAGE_URL = 'https://i.postimg.cc/zXqQxh0Z/IMG-20260423-WA0574.jpg'
 
@@ -24,7 +28,8 @@ function parseFileSize(size) {
   if (!match) return 0
 
   return Math.round(
-    parseFloat(match[1]) * units[match[2].toUpperCase()]
+    parseFloat(match[1]) *
+    units[match[2].toUpperCase()]
   )
 }
 
@@ -77,7 +82,7 @@ function progressBar(percent, length = 18) {
     Math.min(100, Number(percent) || 0)
   )
 
-  const filled = Math.floor(
+  const filled = Math.round(
     (percent / 100) * length
   )
 
@@ -93,7 +98,6 @@ async function mediafire(url) {
 
   const { data } = await axios.get(url, {
     timeout: 30000,
-    maxRedirects: 10,
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36'
@@ -108,20 +112,23 @@ async function mediafire(url) {
   const link2 =
     ($('#download_link > a.retry').attr('href') || '').trim()
 
-  const $intro = $('div.dl-info > div.intro')
+  const $intro =
+    $('div.dl-info > div.intro')
 
   let filename =
     $intro.find('div.filename').text().trim()
 
   let filetype =
-    $intro.find('div.filetype > span')
+    $intro
+      .find('div.filetype > span')
       .eq(0)
       .text()
       .trim()
 
   const extMatch =
     /\(\.(.*?)\)/.exec(
-      $intro.find('div.filetype > span')
+      $intro
+        .find('div.filetype > span')
         .eq(1)
         .text()
     )
@@ -146,11 +153,8 @@ async function mediafire(url) {
       'No se pudo obtener el enlace de descarga'
     )
 
-  filename =
-    filename || 'archivo'
-
-  filetype =
-    filetype || 'Archivo'
+  filename = filename || 'archivo'
+  filetype = filetype || 'Archivo'
 
   return {
     filename,
@@ -163,19 +167,20 @@ async function mediafire(url) {
   }
 }
 
-async function downloadFile(url, filePath, onProgress) {
+async function downloadFile(
+  url,
+  filePath,
+  onProgress
+) {
   const response = await axios.get(url, {
     responseType: 'stream',
     timeout: 0,
-    maxRedirects: 20,
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
-    decompress: true,
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36',
-      Accept: '*/*',
-      Connection: 'keep-alive'
+      Accept: '*/*'
     }
   })
 
@@ -185,44 +190,49 @@ async function downloadFile(url, filePath, onProgress) {
   let downloaded = 0
   let lastBytes = 0
   let lastTime = Date.now()
+  let lastUpdate = 0
 
   response.data.on('data', chunk => {
     downloaded += chunk.length
 
-    const now = Date.now()
-    const elapsed =
-      (now - lastTime) / 1000
-
-    if (elapsed < 1)
+    if (!onProgress)
       return
 
-    const speed =
-      (downloaded - lastBytes) / elapsed
+    const now = Date.now()
+    const elapsed = (now - lastTime) / 1000
 
-    const percent =
-      total > 0
-        ? Math.min(
-            100,
-            (downloaded / total) * 100
-          )
-        : 0
+    if (
+      now - lastUpdate >= 1200 ||
+      (total > 0 && downloaded >= total)
+    ) {
+      lastUpdate = now
 
-    const remaining =
-      total > 0 && speed > 0
-        ? (total - downloaded) / speed
-        : 0
+      const speed = elapsed > 0 ? (downloaded - lastBytes) / elapsed : 0
+      const percent =
+        total > 0
+          ? Math.min(
+              100,
+              (downloaded / total) * 100
+            )
+          : 0
 
-    lastBytes = downloaded
-    lastTime = now
+      const remaining =
+        total > 0 && speed > 0
+          ? (total - downloaded) / speed
+          : 0
 
-    if (onProgress) {
-      onProgress({
-        downloaded,
-        total,
-        percent,
-        speed,
-        remaining
-      }).catch(() => {})
+      lastBytes = downloaded
+      lastTime = now
+
+      Promise.resolve(
+        onProgress({
+          downloaded,
+          total,
+          percent,
+          speed,
+          remaining
+        })
+      ).catch(() => {})
     }
   })
 
@@ -233,22 +243,41 @@ async function downloadFile(url, filePath, onProgress) {
 
   return {
     downloaded,
-    total: total || downloaded
+    total
   }
 }
 
-function createCaption({
+function buildCaption({
   filename,
   type,
   size,
   uploaded,
   status,
-  percent,
-  downloaded,
-  total,
-  speed,
-  remaining
+  percent = null,
+  downloaded = 0,
+  total = 0,
+  speed = 0,
+  remaining = 0
 }) {
+  let progress = ''
+
+  if (percent !== null) {
+    const value = Math.floor(
+      Math.max(0, Math.min(100, percent))
+    )
+
+    const totalText =
+      total > 0
+        ? formatBytes(total)
+        : size
+
+    progress = `
+├ׁ̟̇❍✎ Progreso » ${progressBar(value)} ${value}%
+├ׁ̟̇❍✎ Transferido » ${formatBytes(downloaded)} / ${totalText}
+├ׁ̟̇❍✎ Velocidad » ${speed > 0 ? formatSpeed(speed) : 'Calculando...'}
+├ׁ̟̇❍✎ Tiempo restante » ${remaining > 0 ? formatTime(remaining) : 'Calculando...'}`
+  }
+
   return `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼📦 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📦╮
@@ -257,46 +286,52 @@ function createCaption({
 ├ׁ̟̇❍✎ Tipo » ${type}
 ├ׁ̟̇❍✎ Tamaño » ${size}
 ├ׁ̟̇❍✎ Subido » ${uploaded}
-├ׁ̟̇❍✎ Estado » ${status}
-├ׁ̟̇❍✎ Progreso » ${progressBar(percent)} ${Math.floor(percent)}%
-├ׁ̟̇❍✎ Transferido » ${formatBytes(downloaded)} / ${formatBytes(total)}
-├ׁ̟̇❍✎ Velocidad » ${speed > 0 ? formatSpeed(speed) : 'Calculando...'}
-├ׁ̟̇❍✎ Tiempo restante » ${remaining > 0 ? formatTime(remaining) : 'Calculando...'}
+├ׁ̟̇❍✎ Estado » ${status}${progress}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
 }
 
-async function editCaption(conn, chat, key, caption) {
+async function editProgressMessage(
+  conn,
+  chatId,
+  messageKey,
+  caption
+) {
+  if (!messageKey)
+    return false
+
   try {
-    await conn.sendMessage(chat, {
-      text: caption,
-      edit: key
-    })
+    await conn.sendMessage(
+      chatId,
+      {
+        text: caption,
+        edit: messageKey
+      }
+    )
     return true
   } catch {}
 
   try {
-    await conn.sendMessage(chat, {
-      image: { url: IMAGE_URL },
-      caption,
-      edit: key
-    })
-    return true
-  } catch {}
-
-  try {
-    await conn.sendMessage(chat, {
-      document: { url: IMAGE_URL },
-      caption,
-      edit: key
-    })
+    await conn.sendMessage(
+      chatId,
+      {
+        image: {
+          url: IMAGE_URL
+        },
+        caption,
+        edit: messageKey
+      }
+    )
     return true
   } catch {}
 
   return false
 }
 
-const handler = async (m, { conn, args }) => {
+const handler = async (
+  m,
+  { conn, args }
+) => {
   if (!args[0]) {
     return conn.reply(
       m.chat,
@@ -318,19 +353,28 @@ const handler = async (m, { conn, args }) => {
   let lastEdit = 0
 
   try {
-    await conn.sendMessage(m.chat, {
-      react: {
-        text: '⏳',
-        key: m.key
+    await conn.sendMessage(
+      m.chat,
+      {
+        react: {
+          text: '⏳',
+          key: m.key
+        }
       }
-    })
+    )
 
-    const res = await mediafire(args[0])
+    const res =
+      await mediafire(args[0])
 
     const safeFilename =
       String(res.filename || 'archivo')
-        .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
-        .trim()
+        .replace(
+          /[<>:"/\\|?*\x00-\x1F]/g,
+          '_'
+        )
+        .replace(/\.+$/, '')
+        .trim() ||
+      'archivo'
 
     const safeExt =
       String(res.ext || 'bin')
@@ -338,21 +382,30 @@ const handler = async (m, { conn, args }) => {
         .trim()
 
     const finalName =
-      safeExt ? `${safeFilename}.${safeExt}` : safeFilename
+      safeExt
+        ? `${safeFilename}.${safeExt}`
+        : safeFilename
 
-    const tmpDir = path.join(process.cwd(), 'tmp')
+    const tmpDir =
+      path.resolve(__dirname, '..', 'tmp')
 
-    await fs.promises.mkdir(tmpDir, {
-      recursive: true
-    })
-
-    filePath = path.join(
+    await fs.promises.mkdir(
       tmpDir,
-      `${Date.now()}-${finalName}`
+      {
+        recursive: true
+      }
     )
 
+    filePath =
+      path.join(
+        tmpDir,
+        `${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2)}-${finalName}`
+      )
+
     const initialCaption =
-      createCaption({
+      buildCaption({
         filename: finalName,
         type: res.type,
         size: res.size,
@@ -379,46 +432,66 @@ const handler = async (m, { conn, args }) => {
         }
       )
 
-    const updateProgress = async ({
-      downloaded,
-      total,
-      percent,
-      speed,
-      remaining
-    }) => {
-      const rounded = Math.floor(percent)
-      const now = Date.now()
+    const messageKey =
+      progressMessage?.key
 
-      if (
-        rounded === lastPercent &&
-        now - lastEdit < 1500
-      )
-        return
+    const updateProgress =
+      async ({
+        downloaded,
+        total,
+        percent,
+        speed,
+        remaining
+      }) => {
+        if (!messageKey)
+          return
 
-      lastPercent = rounded
-      lastEdit = now
+        const rounded =
+          total > 0
+            ? Math.floor(percent)
+            : 0
 
-      const caption =
-        createCaption({
-          filename: finalName,
-          type: res.type,
-          size: res.size,
-          uploaded: res.aploud,
-          status: '⏬ Descargando...',
-          percent: rounded,
-          downloaded,
-          total: total || res.sizeB,
-          speed,
-          remaining
-        })
+        if (
+          rounded === lastPercent &&
+          rounded !== 100
+        ) {
+          return
+        }
 
-      await editCaption(
-        conn,
-        m.chat,
-        progressMessage.key,
-        caption
-      )
-    }
+        const now = Date.now()
+
+        if (
+          now - lastEdit < 1000 &&
+          rounded !== 100
+        ) {
+          return
+        }
+
+        lastPercent = rounded
+        lastEdit = now
+
+        const caption =
+          buildCaption({
+            filename: finalName,
+            type: res.type,
+            size: res.size,
+            uploaded: res.aploud,
+            status: '⏬ Descargando...',
+            percent: rounded,
+            downloaded,
+            total:
+              total || res.sizeB,
+            speed,
+            remaining
+          })
+
+        await editProgressMessage(
+          conn,
+          m.chat,
+          messageKey,
+          caption
+        )
+      }
 
     const result =
       await downloadFile(
@@ -427,31 +500,30 @@ const handler = async (m, { conn, args }) => {
         updateProgress
       )
 
-    const finalTotal =
-      result.total ||
+    const finalSize =
       result.downloaded ||
-      res.sizeB ||
-      0
+      result.total ||
+      res.sizeB
 
-    const preparingCaption =
-      createCaption({
+    const uploadingCaption =
+      buildCaption({
         filename: finalName,
         type: res.type,
-        size: formatBytes(finalTotal),
+        size: formatBytes(finalSize),
         uploaded: res.aploud,
         status: '📤 Subiendo a WhatsApp...',
         percent: 100,
-        downloaded: finalTotal,
-        total: finalTotal,
+        downloaded: finalSize,
+        total: finalSize,
         speed: 0,
         remaining: 0
       })
 
-    await editCaption(
+    await editProgressMessage(
       conn,
       m.chat,
-      progressMessage.key,
-      preparingCaption
+      messageKey,
+      uploadingCaption
     )
 
     await conn.sendMessage(
@@ -469,60 +541,104 @@ const handler = async (m, { conn, args }) => {
       }
     )
 
-    const completedCaption =
-      createCaption({
+    const finalCaption =
+      buildCaption({
         filename: finalName,
         type: res.type,
-        size: formatBytes(finalTotal),
+        size: formatBytes(finalSize),
         uploaded: res.aploud,
         status: '✅ Envío completado',
         percent: 100,
-        downloaded: finalTotal,
-        total: finalTotal,
+        downloaded: finalSize,
+        total: finalSize,
         speed: 0,
         remaining: 0
       })
 
-    await editCaption(
+    await editProgressMessage(
       conn,
       m.chat,
-      progressMessage.key,
-      completedCaption
+      messageKey,
+      finalCaption
     )
 
-    await conn.sendMessage(m.chat, {
-      react: {
-        text: '✅',
-        key: m.key
+    await conn.sendMessage(
+      m.chat,
+      {
+        react: {
+          text: '✅',
+          key: m.key
+        }
       }
-    })
+    )
 
   } catch (e) {
     try {
-      await conn.sendMessage(m.chat, {
-        react: {
-          text: '⚠️',
-          key: m.key
+      await conn.sendMessage(
+        m.chat,
+        {
+          react: {
+            text: '⚠️',
+            key: m.key
+          }
         }
-      })
+      )
     } catch {}
 
-    await conn.reply(
-      m.chat,
-      `
+    const errorText =
+      String(
+        e?.message ||
+        e ||
+        'Error desconocido'
+      )
+
+    if (progressMessage?.key) {
+      const errorCaption =
+        `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼⛔ 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐅𝐀𝐋𝐋𝐈𝐃𝐀 ⛔╮
 ┃֪࣪
-├ׁ̟̇❍✎ No fue posible descargar o enviar el archivo.
-├ׁ̟̇❍✎ Motivo » ${String(e?.message || e)}
+├ׁ̟̇❍✎ No fue posible completar la descarga.
+├ׁ̟̇❍✎ Motivo » ${errorText}
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+`.trim()
+
+      const edited =
+        await editProgressMessage(
+          conn,
+          m.chat,
+          progressMessage.key,
+          errorCaption
+        )
+
+      if (!edited) {
+        await conn.reply(
+          m.chat,
+          errorCaption,
+          m
+        )
+      }
+    } else {
+      await conn.reply(
+        m.chat,
+        `
+╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+╭╼⛔ 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀 𝐅𝐀𝐋𝐋𝐈𝐃𝐀 ⛔╮
+┃֪࣪
+├ׁ̟̇❍✎ No fue posible completar la descarga.
+├ׁ̟̇❍✎ Motivo » ${errorText}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(),
-      m
-    )
+        m
+      )
+    }
+
   } finally {
     if (filePath) {
       try {
-        await fs.promises.unlink(filePath)
+        await fs.promises.unlink(
+          filePath
+        )
       } catch {}
     }
   }
