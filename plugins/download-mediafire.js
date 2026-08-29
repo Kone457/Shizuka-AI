@@ -268,27 +268,28 @@ function createCaption({
 
 async function editCaption(conn, chat, key, caption) {
   try {
-    await conn.sendMessage(
-      chat,
-      {
-        text: caption,
-        edit: key
-      }
-    )
+    await conn.sendMessage(chat, {
+      text: caption,
+      edit: key
+    })
     return true
   } catch {}
 
   try {
-    await conn.sendMessage(
-      chat,
-      {
-        image: {
-          url: IMAGE_URL
-        },
-        caption,
-        edit: key
-      }
-    )
+    await conn.sendMessage(chat, {
+      image: { url: IMAGE_URL },
+      caption,
+      edit: key
+    })
+    return true
+  } catch {}
+
+  try {
+    await conn.sendMessage(chat, {
+      document: { url: IMAGE_URL },
+      caption,
+      edit: key
+    })
     return true
   } catch {}
 
@@ -315,7 +316,6 @@ const handler = async (m, { conn, args }) => {
   let progressMessage = null
   let lastPercent = -1
   let lastEdit = 0
-  let editQueue = Promise.resolve()
 
   try {
     await conn.sendMessage(m.chat, {
@@ -329,34 +329,22 @@ const handler = async (m, { conn, args }) => {
 
     const safeFilename =
       String(res.filename || 'archivo')
-        .replace(
-          /[<>:"/\\|?*\x00-\x1F]/g,
-          '_'
-        )
+        .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
         .trim()
 
     const safeExt =
       String(res.ext || 'bin')
-        .replace(
-          /[^a-zA-Z0-9]/g,
-          ''
-        )
+        .replace(/[^a-zA-Z0-9]/g, '')
         .trim()
 
     const finalName =
-      safeExt
-        ? `${safeFilename}.${safeExt}`
-        : safeFilename
+      safeExt ? `${safeFilename}.${safeExt}` : safeFilename
 
-    const tmpDir =
-      path.join(process.cwd(), 'tmp')
+    const tmpDir = path.join(process.cwd(), 'tmp')
 
-    await fs.promises.mkdir(
-      tmpDir,
-      {
-        recursive: true
-      }
-    )
+    await fs.promises.mkdir(tmpDir, {
+      recursive: true
+    })
 
     filePath = path.join(
       tmpDir,
@@ -398,14 +386,12 @@ const handler = async (m, { conn, args }) => {
       speed,
       remaining
     }) => {
-      const rounded =
-        Math.floor(percent)
-
+      const rounded = Math.floor(percent)
       const now = Date.now()
 
       if (
         rounded === lastPercent &&
-        now - lastEdit < 1000
+        now - lastEdit < 1500
       )
         return
 
@@ -426,17 +412,12 @@ const handler = async (m, { conn, args }) => {
           remaining
         })
 
-      editQueue =
-        editQueue.then(() =>
-          editCaption(
-            conn,
-            m.chat,
-            progressMessage.key,
-            caption
-          )
-        )
-
-      await editQueue
+      await editCaption(
+        conn,
+        m.chat,
+        progressMessage.key,
+        caption
+      )
     }
 
     const result =
@@ -445,8 +426,6 @@ const handler = async (m, { conn, args }) => {
         filePath,
         updateProgress
       )
-
-    await editQueue
 
     const finalTotal =
       result.total ||
@@ -473,10 +452,6 @@ const handler = async (m, { conn, args }) => {
       m.chat,
       progressMessage.key,
       preparingCaption
-    )
-
-    await new Promise(resolve =>
-      setTimeout(resolve, 500)
     )
 
     await conn.sendMessage(
