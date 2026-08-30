@@ -167,7 +167,7 @@ async function processMessage(chatUpdate) {
                 economy: true,
                 rpg: true,
                 level: true,
-                reaction: true,
+                reaction: false,
                 antiprivado: true,
                 expired: 0
             }
