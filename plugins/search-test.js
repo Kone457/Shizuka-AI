@@ -1,89 +1,178 @@
 import fetch from 'node-fetch'
 import crypto from 'crypto'
-import { FormData, File } from 'formdata-node'
+import { FormData, File, Blob } from 'formdata-node'
 import { fileTypeFromBuffer } from 'file-type'
 import {
   prepareWAMessageMedia,
   generateWAMessageFromContent
 } from '@whiskeysockets/baileys'
 
-async function uploadUguu(buffer) {
-  const type = await fileTypeFromBuffer(buffer)
-  if (!type) throw new Error('No se pudo detectar el tipo de archivo.')
+async function uploadEvoGB(buffer) {
+  const type = await fileTypeFromBuffer(buffer) || { ext: 'jpg', mime: 'image/jpeg' }
+  const formData = new FormData()
+  const blob = new Blob([buffer], { type: type.mime })
+  const fileName = `${crypto.randomBytes(5).toString("hex")}.${type.ext}`
 
-  const form = new FormData()
-  form.set(
-    'files[]',
-    new File(
-      [buffer],
-      `${crypto.randomBytes(6).toString('hex')}.${type.ext}`,
-      { type: type.mime }
-    )
-  )
+  formData.append("file", blob, fileName)
 
-  const res = await fetch('https://uguu.se/upload.php', {
-    method: 'POST',
-    body: form,
-    headers: form.headers
+  const response = await fetch("https://evogb.win/api/upload", {
+    method: "POST",
+    body: formData
   })
 
-  const json = await res.json()
-  if (!res.ok || !json.success || !json.files?.length) {
-    throw new Error(json.message || 'Error al subir el archivo.')
-  }
+  if (!response.ok) throw new Error()
+  const json = await response.json()
+  if (!json.success || !json.url) throw new Error()
+  
+  return json.url
+}
 
-  return json.files[0].url
+async function uploadMiniNube(buffer) {
+  const fileType = await fileTypeFromBuffer(buffer) || { ext: 'jpg', mime: 'image/jpeg' }
+  const blob = new Blob([buffer], { type: fileType.mime })
+  const formData = new FormData()
+  formData.append("file", blob, crypto.randomBytes(5).toString("hex") + "." + fileType.ext)
+
+  const apiUrl = typeof global.api !== 'undefined' ? global.api.url : (typeof api !== 'undefined' ? api.url : 'https://api.ryzendesu.vip/api/uploader')
+  const apiKey = typeof global.api !== 'undefined' ? global.api.key : (typeof api !== 'undefined' ? api.key : '')
+
+  const response = await fetch(`${apiUrl}/upload?apikey=${apiKey}`, {
+    method: "POST",
+    body: formData
+  })
+
+  if (!response.ok) throw new Error()
+  const json = await response.json()
+  if (!json.enlace) throw new Error()
+
+  return json.enlace
+}
+
+async function uploadCatbox(buffer) {
+  const type = await fileTypeFromBuffer(buffer) || { ext: 'jpg', mime: 'image/jpeg' }
+  const form = new FormData()
+  form.set('reqtype', 'fileupload')
+  form.set('fileToUpload', new File([buffer], `image.${type.ext}`, { type: type.mime }))
+  const res = await fetch('https://catbox.moe/user/api.php', { method: 'POST', body: form })
+  const url = (await res.text()).trim()
+  if (!url.startsWith('https://')) throw new Error()
+  return url
+}
+
+async function uploadTmpfiles(buffer) {
+  const type = await fileTypeFromBuffer(buffer) || { ext: 'jpg', mime: 'image/jpeg' }
+  const form = new FormData()
+  form.set('file', new File([buffer], `image.${type.ext}`, { type: type.mime }))
+  const res = await fetch('https://tmpfiles.org/api/v1/upload', { method: 'POST', body: form })
+  const json = await res.json()
+  if (!json?.data?.url) throw new Error()
+  return json.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/')
+}
+
+async function uploadImage(buffer) {
+  try {
+    return await uploadEvoGB(buffer)
+  } catch (e1) {
+    try {
+      return await uploadMiniNube(buffer)
+    } catch (e2) {
+      try {
+        return await uploadCatbox(buffer)
+      } catch (e3) {
+        try {
+          return await uploadTmpfiles(buffer)
+        } catch (e4) {
+          throw new Error('Todos los servidores de subida fallaron.')
+        }
+      }
+    }
+  }
 }
 
 async function searchPinterestByImage(imageUrl, limit = 10) {
-  const url = `https://id.pinterest.com/resource/VisualSearchResource/get/?source_url=%2Fsearch%2Fvisual_search%2F%3Fimage_url%3D${encodeURIComponent(imageUrl)}&data=%7B%22options%22%3A%7B%22image_url%22%3A%22${encodeURIComponent(imageUrl)}%22%2C%22tag%22%3A%22%22%2C%22crop%22%3A%7B%22x%22%3A0%2C%22y%22%3A0%2C%22w%22%3A1%2C%22h%22%3A1%7D%7D%2C%22context%22%3A%7B%7D%7D`
+  let cookies = ''
+  let csrftoken = '1234567890'
+  
+  try {
+    const init = await fetch('https://www.pinterest.com/', {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
+      }
+    })
+    const setCookie = init.headers.raw()['set-cookie'] || []
+    cookies = setCookie.map(c => c.split(';')[0]).join('; ')
+    const csrfMatch = cookies.match(/csrftoken=([^;]+)/)
+    if (csrfMatch) csrftoken = csrfMatch[1]
+  } catch (e) {}
+
+  const dataObj = {
+    options: {
+      image_url: imageUrl,
+      crop: { x: 0, y: 0, w: 1, h: 1 }
+    },
+    context: {}
+  }
+
+  const url = `https://www.pinterest.com/resource/VisualSearchResource/get/?source_url=${encodeURIComponent('/search/visual_search/?image_url=' + imageUrl)}&data=${encodeURIComponent(JSON.stringify(dataObj))}`
 
   const headers = {
     'accept': 'application/json, text/javascript, */*; q=0.01',
-    'accept-language': 'es-419,es;q=0.9,en;q=0.8',
-    'referer': 'https://id.pinterest.com/',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/133 Safari/537.36',
+    'accept-language': 'es-ES,es;q=0.9,en;q=0.8',
+    'cookie': cookies,
+    'referer': 'https://www.pinterest.com/',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
     'x-app-version': 'c056fb7',
+    'x-csrftoken': csrftoken,
     'x-pinterest-appstate': 'active',
     'x-pinterest-pws-handler': 'www/index.js',
-    'x-pinterest-source-url': '/',
     'x-requested-with': 'XMLHttpRequest'
   }
 
   const res = await fetch(url, { headers })
   const text = await res.text()
 
-  if (!text.startsWith('{')) throw new Error('Pinterest bloqueó la petición de búsqueda visual')
+  let results = []
+  if (text.startsWith('{')) {
+    const json = JSON.parse(text)
+    results = json?.resource_response?.data?.results || []
+  }
 
-  const json = JSON.parse(text)
-  const results = json?.resource_response?.data?.results || []
   const medias = []
-
   for (const item of results) {
     let added = false
-
-    if (item?.videos?.video_list) {  
-      const vlist = item.videos.video_list  
-      for (const k in vlist) {  
-        if (vlist[k]?.url && vlist[k].url.endsWith('.mp4')) {  
-          medias.push({ url: vlist[k].url, type: 'video' })  
-          added = true  
-          break  
-        }  
-      }  
-    }  
-
-    if (!added) {  
-      const img = item?.images?.orig?.url || item?.images?.['564x']?.url || item?.images?.['236x']?.url  
-      if (img) {  
-        medias.push({ url: img, type: 'image' })  
-      }  
-    }  
-
+    if (item?.videos?.video_list) {
+      const vlist = item.videos.video_list
+      for (const k in vlist) {
+        if (vlist[k]?.url && vlist[k].url.endsWith('.mp4')) {
+          medias.push({ url: vlist[k].url, type: 'video' })
+          added = true
+          break
+        }
+      }
+    }
+    if (!added) {
+      const img = item?.images?.orig?.url || item?.images?.['564x']?.url || item?.images?.['236x']?.url
+      if (img) {
+        medias.push({ url: img, type: 'image' })
+      }
+    }
     if (medias.length >= limit) break
   }
 
   return medias
+}
+
+async function searchGoogleLensFallback(imageUrl, limit = 10) {
+  const url = `https://lens.google.com/uploadbyurl?url=${encodeURIComponent(imageUrl)}`
+  const res = await fetch(url, {
+    headers: {
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
+    }
+  })
+  const html = await res.text()
+  const imgMatches = html.match(/https?:\/\/lh3\.googleusercontent\.com\/[a-zA-Z0-9_\-]+/g) || []
+  const uniqueImgs = [...new Set(imgMatches)].map(u => ({ url: u, type: 'image' }))
+  return uniqueImgs.slice(0, limit)
 }
 
 let handler = async (m, { conn }) => {
@@ -91,24 +180,26 @@ let handler = async (m, { conn }) => {
   let mime = (q.msg || q).mimetype || ''
 
   if (!mime || !mime.startsWith('image/')) {
-    return conn.reply(m.chat, '《✧》 Por favor, responde a una imagen para buscar resultados similares en Pinterest.', m)
+    return conn.reply(m.chat, '《✧》 Por favor, responde a una imagen para realizar la búsqueda visual.', m)
   }
 
   try {
     await conn.sendMessage(m.chat, { react: { text: '⌛', key: m.key } })
 
     const media = await q.download()
-    const imageUrl = await uploadUguu(media)
-    
+    const imageUrl = await uploadImage(media)
+
     let results = []
     try {
       results = await searchPinterestByImage(imageUrl, 10)
-    } catch (err) {
-      console.error("Error en VisualSearch:", err)
+    } catch (e) {}
+
+    if (!results || !results.length) {
+      results = await searchGoogleLensFallback(imageUrl, 10)
     }
 
     if (!results || !results.length) {
-      throw new Error('Pinterest no devolvió resultados para esta imagen. Es posible que el servidor de subidas esté bloqueado temporalmente por Pinterest.')
+      throw new Error('No se encontraron imágenes similares.')
     }
 
     const medias = []
@@ -124,7 +215,7 @@ let handler = async (m, { conn }) => {
       }
     }
 
-    if (!medias.length) throw new Error('Fallo al descargar los archivos de la búsqueda visual.')
+    if (!medias.length) throw new Error('Fallo al descargar los resultados.')
 
     const album = generateWAMessageFromContent(m.chat, {
       albumMessage: { expectedImageCount: medias.length }
@@ -139,8 +230,8 @@ let handler = async (m, { conn }) => {
         { upload: conn.waUploadToServer }
       )
       const content = mediaItem.type === 'video'
-        ? { videoMessage: msg.videoMessage, caption: i === 0 ? '✧ Álbum de búsqueda visual de Pinterest' : undefined }
-        : { imageMessage: msg.imageMessage, caption: i === 0 ? '✧ Álbum de búsqueda visual de Pinterest' : undefined }
+        ? { videoMessage: msg.videoMessage, caption: i === 0 ? '✧ Resultados de búsqueda visual' : undefined }
+        : { imageMessage: msg.imageMessage, caption: i === 0 ? '✧ Resultados de búsqueda visual' : undefined }
 
       const message = generateWAMessageFromContent(m.chat, content, {})
       message.message.messageContextInfo = {
