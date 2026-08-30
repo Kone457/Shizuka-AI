@@ -99,9 +99,17 @@ let handler = async (m, { conn }) => {
 
     const media = await q.download()
     const imageUrl = await uploadUguu(media)
-    const results = await searchPinterestByImage(imageUrl, 10)
+    
+    let results = []
+    try {
+      results = await searchPinterestByImage(imageUrl, 10)
+    } catch (err) {
+      console.error("Error en VisualSearch:", err)
+    }
 
-    if (!results || !results.length) throw new Error('No se encontraron resultados visuales similares.')
+    if (!results || !results.length) {
+      throw new Error('Pinterest no devolvió resultados para esta imagen. Es posible que el servidor de subidas esté bloqueado temporalmente por Pinterest.')
+    }
 
     const medias = []
     for (let i = 0; i < results.length; i++) {
@@ -150,9 +158,9 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['lents']
+handler.help = ['test']
 handler.tags = ['buscadores']
-handler.command = ['lents', 'test']
+handler.command = ['test']
 handler.group = true
 
 export default handler
