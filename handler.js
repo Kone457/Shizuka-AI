@@ -186,7 +186,7 @@ async function processMessage(chatUpdate) {
             if (!('economy' in chat)) chat.economy = true
             if (!('rpg' in chat)) chat.rpg = chat.economy
             if (!('level' in chat)) chat.level = true
-            if (!('reaction' in chat)) chat.reaction = true
+            if (!('reaction' in chat)) chat.reaction = false
             if (!('antiprivado' in chat)) chat.antiprivado = true
             if (!isNumber(chat.expired)) chat.expired = 0
         }
