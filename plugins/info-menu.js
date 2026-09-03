@@ -21,8 +21,7 @@ perfil: '⊹ Perfil ⊹',
 sticker: '⊹ Stickers ⊹',
 tools: '⊹ Útilidades ⊹',
 nsfw: '⊹ NSFW ⊹',
-serbot: '⊹ Sub-bots ⊹',
-owner: '⊹ Dueño ⊹'
+serbot: '⊹ Sub-bots ⊹'
 }
 
 let handler = async (m, { conn }) => {
