@@ -3,7 +3,7 @@ import axios from 'axios'
 import fs from 'fs'
 
 const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text)
-const MAX_BYTES = 50 * 1024 * 1024
+const MAX_BYTES = 70 * 1024 * 1024
 
 async function buildContact(m, conn) {
   let thumb = null
