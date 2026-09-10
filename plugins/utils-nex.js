@@ -1,11 +1,10 @@
-
 import fetch from "node-fetch"
 import { FormData, Blob } from "formdata-node"
 import { fileTypeFromBuffer } from "file-type"
 
 let handler = async (m, { conn }) => {
-  let q = m.quoted ? m.quoted : m
-  let mime = (q.msg || q).mimetype || ""
+  const q = m.quoted ? m.quoted : m
+  const mime = (q.msg || q).mimetype || ""
 
   if (!mime) {
     return conn.reply(
@@ -16,30 +15,37 @@ let handler = async (m, { conn }) => {
   }
 
   try {
-    let media = await q.download()
+    const media = await q.download()
 
-    if (!media) {
+    if (!media || !media.length) {
       return m.reply("❌ No se pudo descargar el archivo.")
     }
 
-    let result = await uploadFile(media, mime)
+    const result = await uploadToNexEvo(media, mime)
 
-    if (!result || result.status !== true || !result.enlace) {
-      console.error("NexEvo Upload:", result)
-      throw new Error(result?.error || "La API no devolvió un enlace.")
+    if (!result || !result.enlace) {
+      console.error("RESPUESTA NEXEVO:", result)
+      throw new Error(
+        result?.error ||
+        result?.message ||
+        "La API no devolvió un enlace."
+      )
     }
 
     let txt = `*乂 N E X E V O 乂*\n\n`
     txt += `*» Enlace* : ${result.enlace}\n`
-    txt += `*» Nombre* : ${result.nombre}\n`
-    txt += `*» Tamaño* : ${formatBytes(result.tamaño)}\n`
+    txt += `*» Nombre* : ${result.nombre || "archivo"}\n`
+    txt += `*» Tamaño* : ${formatBytes(result.tamaño || media.length)}\n`
     txt += `*» Tipo* : ${result.tipo || mime}`
 
     await m.reply(txt)
 
-  } catch (e) {
-    console.error("UPLOAD ERROR:", e)
-    await m.reply(`❌ Error al subir el archivo.\n\n${e.message || e}`)
+  } catch (error) {
+    console.error(" UPLOAD ERROR:", error)
+
+    await m.reply(
+      `❌ Error al subir el archivo.\n\n${error.message || "Error desconocido"}`
+    )
   }
 }
 
@@ -49,20 +55,11 @@ handler.command = ["nex"]
 
 export default handler
 
-function formatBytes(bytes) {
-  if (!bytes || bytes <= 0) return "0 B"
-
-  const sizes = ["B", "KB", "MB", "GB", "TB"]
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-
-  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`
-}
-
-async function uploadFile(buffer, originalMime) {
+async function uploadToNexEvo(buffer, originalMime) {
 
   const detected = await fileTypeFromBuffer(buffer)
 
-  const ext =
+  const extension =
     detected?.ext ||
     getExtension(originalMime) ||
     "bin"
@@ -79,22 +76,25 @@ async function uploadFile(buffer, originalMime) {
     }
   )
 
-  const formData = new FormData()
+  const form = new FormData()
 
-  formData.append(
+  form.append(
     "file",
     blob,
-    `archivo.${ext}`
+    `archivo.${extension}`
   )
 
-  const url =
-    `${api.url.replace(/\/+$/, "")}/upload?apikey=${encodeURIComponent(api.key)}`
+  const baseUrl = String(api.url).replace(/\/+$/, "")
 
-  console.log("NexEvo Upload URL:", url.replace(api.key, "********"))
+  const url =
+    `${baseUrl}/upload?apikey=${encodeURIComponent(api.key)}`
 
   const response = await fetch(url, {
     method: "POST",
-    body: formData
+    body: form,
+    headers: {
+      ...form.headers
+    }
   })
 
   const text = await response.text()
@@ -105,7 +105,7 @@ async function uploadFile(buffer, originalMime) {
     data = JSON.parse(text)
   } catch {
     throw new Error(
-      `Respuesta inválida de la API (${response.status}): ${text.slice(0, 300)}`
+      `Respuesta inválida (${response.status}): ${text.slice(0, 500)}`
     )
   }
 
@@ -113,16 +113,38 @@ async function uploadFile(buffer, originalMime) {
     throw new Error(
       data?.error ||
       data?.message ||
-      `API respondió con ${response.status}`
+      `HTTP ${response.status}`
     )
   }
 
   return data
 }
 
+function formatBytes(bytes) {
+
+  if (!bytes || bytes <= 0) {
+    return "0 B"
+  }
+
+  const sizes = [
+    "B",
+    "KB",
+    "MB",
+    "GB",
+    "TB"
+  ]
+
+  const i = Math.floor(
+    Math.log(bytes) / Math.log(1024)
+  )
+
+  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`
+}
+
 function getExtension(mime) {
 
   const extensions = {
+
     "image/jpeg": "jpg",
     "image/png": "png",
     "image/gif": "gif",
