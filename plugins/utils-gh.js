@@ -12,11 +12,10 @@ let handler = async (m, { conn }) => {
     let media = await q.download()
     let link = await myCloud(media)
 
-    let txt = `*乂 N U B E 乂*\n\n`
+    let txt = `*乂 G I T H U B - U P L O A D E R 乂*\n\n`
     txt += `*» Enlace* : ${link.enlace}\n`
     txt += `*» Nombre* : ${link.nombre}\n`
-    txt += `*» Tamaño* : ${formatBytes(link.tamaño)}\n`
-
+  
     await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m)
   } catch (e) {
     console.error(e)
