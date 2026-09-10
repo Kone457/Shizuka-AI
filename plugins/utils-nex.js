@@ -1,3 +1,4 @@
+
 import fetch from "node-fetch"
 import { FormData, Blob } from "formdata-node"
 import { fileTypeFromBuffer } from "file-type"
@@ -23,27 +24,22 @@ let handler = async (m, { conn }) => {
 
     let result = await uploadFile(media, mime)
 
-    if (!result.status || !result.enlace) {
-      throw new Error(result.error || "La API no devolvió un enlace.")
+    if (!result || result.status !== true || !result.enlace) {
+      console.error("NexEvo Upload:", result)
+      throw new Error(result?.error || "La API no devolvió un enlace.")
     }
 
     let txt = `*乂 N E X E V O 乂*\n\n`
     txt += `*» Enlace* : ${result.enlace}\n`
     txt += `*» Nombre* : ${result.nombre}\n`
     txt += `*» Tamaño* : ${formatBytes(result.tamaño)}\n`
-    txt += `*» Tipo* : ${result.tipo || mime}\n`
+    txt += `*» Tipo* : ${result.tipo || mime}`
 
-    await conn.sendFile(
-      m.chat,
-      media,
-      result.nombre,
-      txt,
-      m
-    )
+    await m.reply(txt)
 
   } catch (e) {
     console.error("UPLOAD ERROR:", e)
-    await m.reply("❌ Error al subir el archivo.")
+    await m.reply(`❌ Error al subir el archivo.\n\n${e.message || e}`)
   }
 }
 
@@ -54,7 +50,7 @@ handler.command = ["nex"]
 export default handler
 
 function formatBytes(bytes) {
-  if (!bytes || bytes === 0) return "0 B"
+  if (!bytes || bytes <= 0) return "0 B"
 
   const sizes = ["B", "KB", "MB", "GB", "TB"]
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
@@ -77,7 +73,7 @@ async function uploadFile(buffer, originalMime) {
     "application/octet-stream"
 
   const blob = new Blob(
-    [buffer.toArrayBuffer()],
+    [buffer],
     {
       type: mime
     }
@@ -91,23 +87,37 @@ async function uploadFile(buffer, originalMime) {
     `archivo.${ext}`
   )
 
-  const response = await fetch(
-    `${api.url}/upload?apikey=${encodeURIComponent(api.key)}`,
-    {
-      method: "POST",
-      body: formData
-    }
-  )
+  const url =
+    `${api.url.replace(/\/+$/, "")}/upload?apikey=${encodeURIComponent(api.key)}`
 
-  if (!response.ok) {
-    const text = await response.text()
+  console.log("NexEvo Upload URL:", url.replace(api.key, "********"))
 
+  const response = await fetch(url, {
+    method: "POST",
+    body: formData
+  })
+
+  const text = await response.text()
+
+  let data
+
+  try {
+    data = JSON.parse(text)
+  } catch {
     throw new Error(
-      `API ${response.status}: ${text}`
+      `Respuesta inválida de la API (${response.status}): ${text.slice(0, 300)}`
     )
   }
 
-  return await response.json()
+  if (!response.ok) {
+    throw new Error(
+      data?.error ||
+      data?.message ||
+      `API respondió con ${response.status}`
+    )
+  }
+
+  return data
 }
 
 function getExtension(mime) {
@@ -118,30 +128,44 @@ function getExtension(mime) {
     "image/gif": "gif",
     "image/webp": "webp",
     "image/bmp": "bmp",
+    "image/svg+xml": "svg",
+
     "video/mp4": "mp4",
     "video/webm": "webm",
     "video/3gpp": "3gp",
     "video/quicktime": "mov",
+    "video/x-matroska": "mkv",
+
     "audio/mpeg": "mp3",
     "audio/ogg": "ogg",
     "audio/wav": "wav",
     "audio/mp4": "m4a",
     "audio/aac": "aac",
+    "audio/flac": "flac",
+    "audio/opus": "opus",
+
     "application/pdf": "pdf",
     "application/zip": "zip",
     "application/x-rar-compressed": "rar",
     "application/x-7z-compressed": "7z",
+    "application/gzip": "gz",
+    "application/x-tar": "tar",
+
     "application/vnd.android.package-archive": "apk",
     "application/octet-stream": "bin",
+
     "text/plain": "txt",
-    "application/json": "json",
     "text/html": "html",
     "text/css": "css",
     "application/javascript": "js",
+    "application/json": "json",
+
     "application/msword": "doc",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+
     "application/vnd.ms-excel": "xls",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+
     "application/vnd.ms-powerpoint": "ppt",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx"
   }
