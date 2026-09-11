@@ -8,79 +8,85 @@ import {
 let handler = async (m, { conn, text }) => {
   try {
     if (!text?.trim()) {
-      return m.reply('Debe especificar lo que desea buscar en steam');
+      return m.reply('🔎 Especifica tu búsqueda.');
     }
 
     const consulta = text.trim();
-    const url = `${api.url}/search/steam?q=${encodeURIComponent(consulta)}&apikey=${api.key}`;
 
-    const res = await fetch(url);
-    const data = await res.json();
+    const response = await fetch(
+      `${api.url}/search/steam?q=${encodeURIComponent(consulta)}&apikey=${api.key}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
 
     if (!data?.estado || !Array.isArray(data.resultados) || !data.resultados.length) {
-      return m.reply(` No encontré resultados para *${consulta}*.`);
+      return m.reply(`🔎 Sin resultados para *${consulta}*.`);
     }
 
     const resultados = data.resultados.slice(0, 10);
     const cards = [];
 
-    for (let i = 0; i < resultados.length; i++) {
-      const juego = resultados[i];
-
+    for (const juego of resultados) {
       try {
+        const imageResponse = await fetch(juego.image);
+        if (!imageResponse.ok) continue;
+
+        const imageBuffer = Buffer.from(
+          await imageResponse.arrayBuffer()
+        );
+
         const media = await prepareWAMessageMedia(
-          {
-            image: {
-              url: juego.image
-            }
-          },
-          {
-            upload: conn.waUploadToServer
-          }
+          { image: imageBuffer },
+          { upload: conn.waUploadToServer }
         );
 
         const descripcion =
           `🎮 *${juego.name || 'N/A'}*\n\n` +
-          `🆔 *ID:* ${juego.id ?? 'N/A'}\n` +
-          `💰 *Precio:* ${juego.price || 'N/A'}\n` +
-          `⭐ *Score:* ${juego.score || 'N/A'}\n` +
-          `🖥️ *Plataforma:* ${juego.platform || 'N/A'}`;
+          `🆔 ID: ${juego.id ?? 'N/A'}\n` +
+          `💰 Precio: ${juego.price || 'N/A'}\n` +
+          `⭐ Score: ${juego.score || 'N/A'}\n` +
+          `🖥️ Plataforma: ${juego.platform || 'N/A'}`;
 
-        cards.push(
-          proto.Message.InteractiveMessage.CarouselMessage.Card.fromObject({
-            header: proto.Message.InteractiveMessage.Header.fromObject({
-              title: `${i + 1}/${resultados.length}`,
-              hasMediaAttachment: true,
-              ...media
-            }),
-            body: proto.Message.InteractiveMessage.Body.fromObject({
-              text: descripcion
-            }),
-            footer: proto.Message.InteractiveMessage.Footer.fromObject({
-              text: 'The Roxy MD • Steam'
-            }),
-            nativeFlowMessage:
-              proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-                buttons: [
-                  {
-                    name: 'cta_url',
-                    buttonParamsJson: JSON.stringify({
-                      display_text: '🎮 Ver en Steam',
-                      url: `https://store.steampowered.com/app/${juego.id}/`,
-                      merchant_url: `https://store.steampowered.com/app/${juego.id}/`
-                    })
-                  }
-                ]
-              })
-          })
-        );
+        cards.push({
+          header: proto.Message.InteractiveMessage.Header.fromObject({
+            title: juego.name || 'Steam',
+            hasMediaAttachment: true,
+            ...media
+          }),
+
+          body: proto.Message.InteractiveMessage.Body.fromObject({
+            text: descripcion
+          }),
+
+          footer: proto.Message.InteractiveMessage.Footer.fromObject({
+            text: 'Steam'
+          }),
+
+          nativeFlowMessage:
+            proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+              buttons: [
+                {
+                  name: 'cta_url',
+                  buttonParamsJson: JSON.stringify({
+                    display_text: 'Ver en Steam',
+                    url: `https://store.steampowered.com/app/${juego.id}/`,
+                    merchant_url: `https://store.steampowered.com/app/${juego.id}/`
+                  })
+                }
+              ]
+            })
+        });
       } catch (e) {
-        console.error(`Error en resultado ${i + 1}:`, e);
+        console.error('STEAM CARD:', e.message);
       }
     }
 
     if (!cards.length) {
-      return m.reply(' No se pudieron cargar los resultados.');
+      return m.reply('No fue posible cargar los resultados.');
     }
 
     const msg = generateWAMessageFromContent(
@@ -95,10 +101,7 @@ let handler = async (m, { conn, text }) => {
             interactiveMessage:
               proto.Message.InteractiveMessage.fromObject({
                 body: proto.Message.InteractiveMessage.Body.fromObject({
-                  text:
-                    `🔎 *STEAM SEARCH*\n\n` +
-                    `🎮 Búsqueda: *${consulta}*\n` +
-                    `📦 Resultados: *${cards.length}*`
+                  text: `🔎 *Steam*\n\nResultados para *${consulta}*: ${cards.length}`
                 }),
                 footer: proto.Message.InteractiveMessage.Footer.fromObject({
                   text: 'Steam'
@@ -117,18 +120,16 @@ let handler = async (m, { conn, text }) => {
     await conn.relayMessage(
       m.chat,
       msg.message,
-      {
-        messageId: msg.key.id
-      }
+      { messageId: msg.key.id }
     );
 
   } catch (error) {
     console.error('STEAM ERROR:', error);
-    m.reply(`Error al buscar en Steam.*\n\n${error.message || 'Error desconocido'}`);
+    await m.reply('No fue posible realizar la búsqueda.');
   }
 };
 
-handler.help = ['steam <texto>'];
+handler.help = ['steam <búsqueda>'];
 handler.tags = ['buscadores'];
 handler.command = ['steam'];
 
