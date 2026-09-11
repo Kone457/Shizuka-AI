@@ -63,7 +63,7 @@ let handler = async (m, { conn, text }) => {
           }),
 
           footer: proto.Message.InteractiveMessage.Footer.fromObject({
-            text: 'Steam'
+            text: 'Todos los derechos reservados'
           }),
 
           nativeFlowMessage:
