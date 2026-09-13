@@ -5,7 +5,7 @@ let handler = async (m, { conn, text }) => {
     const sender = m.sender;
     const senderName = await conn.getName(sender);
 
-    const imageUrl = `${api.url}/nsfw/4k?apikey=${api.key}`;
+    const imageUrl = `${api.url}/random/4k?apikey=${api.key}`;
 
     const res = await fetch(imageUrl, { redirect: 'follow' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
