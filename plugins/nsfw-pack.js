@@ -7,7 +7,7 @@ let handler = async (m, { conn, text }) => {
 
 
     
-    const imageUrl = `${api.url}/nsfw/4k? apike=${api.key}`;
+    const imageUrl = `${api.url}/nsfw/4k?apikey=${api.key}`;
 
     const caption = `✿ Aquí tienes ${senderName} `;
 
