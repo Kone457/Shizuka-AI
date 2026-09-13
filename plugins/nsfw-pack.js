@@ -5,16 +5,25 @@ let handler = async (m, { conn, text }) => {
     const sender = m.sender;
     const senderName = await conn.getName(sender);
 
-
-    
     const imageUrl = `${api.url}/nsfw/4k?apikey=${api.key}`;
+
+    const res = await fetch(imageUrl, { redirect: 'follow' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const contentType = res.headers.get('content-type') || '';
+    const arrayBuffer = await res.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    if (!contentType.startsWith('image/')) {
+      throw new Error(`La API no devolvió una imagen (content-type: ${contentType})`);
+    }
 
     const caption = `✿ Aquí tienes ${senderName} `;
 
     await conn.sendMessage(
       m.chat,
       {
-        image: { url: imageUrl },
+        image: buffer,
         caption,
         mentions: [sender]
       },
