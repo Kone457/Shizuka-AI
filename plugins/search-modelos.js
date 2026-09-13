@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, text, usedPrefix, command }) => {
+let handler = async (m, { conn, text }) => {
   if (!text) {
     return m.reply(`✿ *Ingresa el nombre del modelo a buscar.*`);
   }
@@ -38,34 +38,16 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       );
     };
 
-    const header = `✿ *Resultados para:* "${text}"\n` +
-                   `✿ *Total encontrados:* ${models.length}\n\n`;
-
-    const CHUNK_SIZE = 10;
-    let buffer = header;
+    let message = `✿ *Resultados para:* "${text}"\n` +
+                  `✿ *Total encontrados:* ${models.length}\n\n`;
 
     for (let i = 0; i < models.length; i++) {
-      const block = formatModel(models[i], i);
-
-      if ((buffer + block).length > 35000) {
-        await conn.sendMessage(m.chat, { text: buffer }, { quoted: m });
-        buffer = '';
-        await new Promise(r => setTimeout(r, 800));
-      }
-
-      buffer += block;
-
-      if ((i + 1) % CHUNK_SIZE === 0) {
-        buffer += `_Mostrando resultados ${i - CHUNK_SIZE + 2} - ${i + 1} de ${models.length}_\n\n`;
-        await conn.sendMessage(m.chat, { text: buffer }, { quoted: m });
-        buffer = '';
-        await new Promise(r => setTimeout(r, 800));
-      }
+      message += formatModel(models[i], i);
     }
 
-    if (buffer.trim().length > 0) {
-      await conn.sendMessage(m.chat, { text: buffer }, { quoted: m });
-    }
+    message += `_El enlace de descarga te llevará a la lista de archivos del modelo._`;
+
+    await conn.sendMessage(m.chat, { text: message }, { quoted: m });
 
   } catch (error) {
     console.error(error);
