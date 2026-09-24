@@ -38,7 +38,7 @@ cx,cy,
 holeCX:cx,
 holeCY:cy+CH*0.15,
 holeRX:CW*0.42,
-holeRY:CH*0.24,
+holeRY:CH*0.22,
 type:'none',
 time:0,
 dur:0,
@@ -159,21 +159,7 @@ ctx.quadraticCurveTo(g.x+g.ang*3,g.y-g.len*0.6,g.x+g.ang*6,g.y-g.len);
 ctx.stroke();
 }
 }
-function drawHoleTop(h){
-ctx.save();
-ctx.beginPath();
-ctx.ellipse(h.holeCX,h.holeCY-2,h.holeRX,h.holeRY,0,Math.PI,Math.PI*2);
-ctx.strokeStyle='#1a0a00';
-ctx.lineWidth=3;
-ctx.stroke();
-ctx.beginPath();
-ctx.ellipse(h.holeCX,h.holeCY-2,h.holeRX-2,h.holeRY-1,0,Math.PI,Math.PI*2);
-ctx.strokeStyle='#2a1505';
-ctx.lineWidth=1.5;
-ctx.stroke();
-ctx.restore();
-}
-function drawHole(h){
+function drawHoleBack(h){
 ctx.save();
 ctx.fillStyle='#000';
 ctx.beginPath();
@@ -193,19 +179,42 @@ ctx.ellipse(h.holeCX,h.holeCY,h.holeRX,h.holeRY,0,0,Math.PI*2);
 ctx.stroke();
 ctx.restore();
 }
+function drawHoleFront(h){
+ctx.save();
+ctx.beginPath();
+ctx.ellipse(h.holeCX,h.holeCY,h.holeRX,h.holeRY,0,0,Math.PI);
+ctx.closePath();
+const frontG=ctx.createLinearGradient(0,h.holeCY,0,h.holeCY+h.holeRY+4);
+frontG.addColorStop(0,'#5a3a1a');
+frontG.addColorStop(0.5,'#3a2010');
+frontG.addColorStop(1,'#1a0a00');
+ctx.fillStyle=frontG;
+ctx.fill();
+ctx.strokeStyle='#1a0a00';
+ctx.lineWidth=3;
+ctx.beginPath();
+ctx.ellipse(h.holeCX,h.holeCY,h.holeRX,h.holeRY,0,0,Math.PI);
+ctx.stroke();
+ctx.strokeStyle='rgba(120,80,40,0.6)';
+ctx.lineWidth=1.5;
+ctx.beginPath();
+ctx.ellipse(h.holeCX,h.holeCY-1,h.holeRX-2,h.holeRY-1,0,0.05*Math.PI,0.95*Math.PI);
+ctx.stroke();
+ctx.restore();
+}
 function drawMole(h){
 if(h.up<=0)return;
 const e=h.up;
 const ease=e<0.5?2*e*e:1-Math.pow(-2*e+2,2)/2;
 const mx=h.holeCX;
 const baseY=h.holeCY;
-const hiddenY=baseY+h.holeRY*1.2;
-const shownY=baseY-h.holeRY*0.85;
+const hiddenY=baseY+h.holeRY*1.6;
+const shownY=baseY-h.holeRY*0.35;
 const my=hiddenY+(shownY-hiddenY)*ease;
 const radius=Math.min(CW*0.32,CH*0.32);
 ctx.save();
 ctx.beginPath();
-ctx.ellipse(h.holeCX,h.holeCY-2,h.holeRX-2,h.holeRY-2,0,0,Math.PI*2);
+ctx.rect(h.holeCX-h.holeRX,h.holeCY-h.holeRY*2.5,h.holeRX*2,h.holeRY*2.5);
 ctx.clip();
 if(h.type==='bomb'){
 drawBomb(mx,my,radius,ease);
@@ -213,7 +222,6 @@ drawBomb(mx,my,radius,ease);
 drawRealMole(mx,my,radius,ease,h.type);
 }
 ctx.restore();
-drawHoleTop(h);
 }
 function drawRealMole(mx,my,r,e,type){
 let fur='#8b5a2b',furDark='#5a3a1a',furLight='#a07040',belly='#d4a574';
@@ -377,8 +385,9 @@ ctx.setTransform(1,0,0,1,0,0);
 ctx.fillStyle='#2a3a10';ctx.fillRect(0,0,W,H);
 ctx.translate(sx,sy);
 drawBackground();
-for(const h of holes)drawHole(h);
+for(const h of holes)drawHoleBack(h);
 for(const h of holes)drawMole(h);
+for(const h of holes)drawHoleFront(h);
 for(let i=particles.length-1;i>=0;i--){
 const p=particles[i];
 p.x+=p.vx;p.y+=p.vy;
