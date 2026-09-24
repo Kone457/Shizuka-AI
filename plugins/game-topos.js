@@ -1,3 +1,4 @@
+
 import crypto from 'crypto'
 
 const WHACK_HTML = `
@@ -41,7 +42,7 @@ const HOLE_W=100,HOLE_H=90;
 const GAP_X=(W-COLS*HOLE_W)/(COLS+1);
 const GAP_Y=30;
 const TOP_OFFSET=130;
-let holes,sc,combo,maxCombo,timeLeft,running,anim,lastTime,hammer,swingT,swingX,swingY,particles,shake,moleTimer,missCount,hitCount,bestCombo;
+let holes,sc,combo,maxCombo,timeLeft,running,anim,lastTime,hammer,swingT,swingX,swingY,particles,shake,moleTimer,missCount,hitCount;
 function initHoles(){
 holes=[];
 for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
@@ -54,7 +55,8 @@ state:'empty',
 timer:0,
 moleType:'normal',
 hit:0,
-targetUp:0
+targetUp:0,
+duration:1200
 });
 }
 }
@@ -65,6 +67,7 @@ if(empties.length===0)return;
 const h=empties[Math.floor(Math.random()*empties.length)];
 h.state='rising';
 h.timer=0;
+h.targetUp=0;
 const elapsed=60-timeLeft;
 const difficulty=Math.min(1,elapsed/45);
 let bombChance=0.10+difficulty*0.18;
@@ -74,21 +77,21 @@ if(r<bombChance){h.moleType='bomb';}
 else if(r<bombChance+goldChance){h.moleType='gold';}
 else if(r<bombChance+goldChance+0.05){h.moleType='fast';}
 else{h.moleType='normal';}
-h.duration=h.moleType==='fast'?550:Math.max(500,1200-difficulty*500);
+h.duration=h.moleType==='fast'?700:Math.max(700,1400-difficulty*500);
 }
 function updateHoles(dt){
 for(const h of holes){
 if(h.state==='empty')continue;
 h.timer+=dt;
 if(h.state==='rising'){
-h.targetUp=Math.min(1,h.timer/150);
-if(h.timer>=150){h.state='up';h.timer=0;}
+h.targetUp=Math.min(1,h.timer/180);
+if(h.timer>=180){h.state='up';h.timer=0;h.targetUp=1;}
 }else if(h.state==='up'){
 h.targetUp=1;
 if(h.timer>h.duration){h.state='falling';h.timer=0;}
 }else if(h.state==='falling'){
-h.targetUp=Math.max(0,1-h.timer/150);
-if(h.timer>=150){h.state='empty';h.timer=0;h.targetUp=0;}
+h.targetUp=Math.max(0,1-h.timer/180);
+if(h.timer>=180){h.state='empty';h.timer=0;h.targetUp=0;}
 }else if(h.state==='hit'){
 h.hit+=dt;
 h.targetUp=Math.max(0,1-h.hit/250);
@@ -124,18 +127,18 @@ ctx.ellipse(h.cx,h.cy+h.h*0.35,h.w*0.42,h.h*0.24,0,0,Math.PI*2);
 ctx.stroke();
 }
 function drawMole(h){
-const yOff=(1-h.targetUp)*h.h;
+if(h.targetUp<=0)return;
+const yOff=(1-h.targetUp)*(h.h+20);
 const mx=h.cx,my=h.cy+yOff;
-if(my-h.h*0.4>h.y+h.h)return;
 ctx.save();
 ctx.beginPath();
-ctx.rect(h.x-2,h.y-40,h.w+4,h.h+45);
+ctx.rect(h.x-15,h.y-60,h.w+30,h.h+80);
 ctx.clip();
-const bob=Math.sin(Date.now()*0.005)*2;
+const bob=Math.sin(Date.now()*0.006)*2;
 my+=bob*h.targetUp;
 if(h.moleType==='bomb'){
-const bg=ctx.createRadialGradient(mx,my-10,3,mx,my,30);
-bg.addColorStop(0,'#555');bg.addColorStop(1,'#111');
+const bg=ctx.createRadialGradient(mx,my-10,3,mx,my,28);
+bg.addColorStop(0,'#666');bg.addColorStop(1,'#111');
 ctx.fillStyle=bg;
 ctx.beginPath();ctx.arc(mx,my,24,0,Math.PI*2);ctx.fill();
 ctx.strokeStyle='#888';ctx.lineWidth=2;
@@ -143,14 +146,14 @@ ctx.beginPath();ctx.arc(mx,my,24,0,Math.PI*2);ctx.stroke();
 ctx.strokeStyle='#fa0';ctx.lineWidth=3;
 ctx.beginPath();
 ctx.moveTo(mx+8,my-22);
-ctx.quadraticCurveTo(mx+18,my-32,mx+12,my-40);
+ctx.quadraticCurveTo(mx+18,my-34,mx+12,my-42);
 ctx.stroke();
 ctx.fillStyle='#f80';
-ctx.beginPath();ctx.arc(mx+12,my-42,5,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(mx+12,my-44,6,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#fff';
-ctx.beginPath();ctx.arc(mx+8,my-45,3,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(mx+10,my-47,3,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#f00';
-ctx.beginPath();ctx.arc(mx+9,my-45,2,0,Math.PI*2);ctx.fill();
+ctx.beginPath();ctx.arc(mx+11,my-47,2,0,Math.PI*2);ctx.fill();
 ctx.fillStyle='#000';
 ctx.beginPath();ctx.arc(mx-7,my-4,2.5,0,Math.PI*2);ctx.arc(mx+7,my-4,2.5,0,Math.PI*2);ctx.fill();
 ctx.strokeStyle='#000';ctx.lineWidth=2;
@@ -163,11 +166,6 @@ ctx.shadowBlur=20;ctx.shadowColor='#ffd700';
 }else if(h.moleType==='fast'){
 bodyCol='#e08040';darkCol='#a05020';
 }
-ctx.fillStyle=bodyCol;
-ctx.beginPath();
-ctx.ellipse(mx,my+6,22,24,0,0,Math.PI*2);
-ctx.fill();
-ctx.shadowBlur=0;
 ctx.fillStyle=darkCol;
 ctx.beginPath();
 ctx.ellipse(mx-16,my-12,7,9,-0.3,0,Math.PI*2);ctx.fill();
@@ -175,8 +173,12 @@ ctx.beginPath();
 ctx.ellipse(mx+16,my-12,7,9,0.3,0,Math.PI*2);ctx.fill();
 ctx.fillStyle=bodyCol;
 ctx.beginPath();
+ctx.ellipse(mx,my+6,22,24,0,0,Math.PI*2);
+ctx.fill();
+ctx.beginPath();
 ctx.ellipse(mx,my-6,18,18,0,0,Math.PI*2);
 ctx.fill();
+ctx.shadowBlur=0;
 ctx.fillStyle=noseCol;
 ctx.beginPath();
 ctx.ellipse(mx,my+2,10,7,0,0,Math.PI*2);
@@ -200,8 +202,7 @@ ctx.restore();
 }
 function drawHammer(){
 if(swingT<=0)return;
-const t=swingT;
-const ang=-Math.PI/2+Math.sin(t*Math.PI/2)*1.2;
+const ang=-Math.PI/2+Math.sin(swingT*Math.PI)*1.4;
 ctx.save();
 ctx.translate(swingX,swingY);
 ctx.rotate(ang);
@@ -235,19 +236,19 @@ ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
 ctx.translate(sx,sy);
 for(let i=0;i<30;i++){
 const gx=(i*137.5)%W,gy=(i*97.3+Math.sin(Date.now()*0.001+i)*20)%H;
-ctx.fillStyle='rgba(255,255,200,0.05)';
+ctx.fillStyle='rgba(255,255,200,0.06)';
 ctx.beginPath();
 ctx.arc(gx,gy,2,0,Math.PI*2);ctx.fill();
 }
+for(const h of holes)drawHole(h);
 for(const h of holes){
-drawHole(h);
-if(h.state!=='empty'&&h.state!=='rising'&&h.state!=='falling'||h.targetUp>0)drawMole(h);
+if(h.targetUp>0)drawMole(h);
 }
 for(const h of holes){
 if(h.state==='up'||h.state==='rising'){
 const p=1-h.timer/h.duration;
-if(p<0.3&&p>0){
-ctx.fillStyle='rgba(255,0,0,'+(0.5-p*1.5)+')';
+if(p<0.35&&p>0){
+ctx.fillStyle='rgba(255,0,0,'+(0.6-p*1.7)+')';
 ctx.beginPath();
 ctx.ellipse(h.cx,h.cy+h.h*0.35,h.w*0.42,h.h*0.24,0,0,Math.PI*2);
 ctx.fill();
@@ -275,19 +276,21 @@ ctx.fillRect(p.x,p.y,p.size,p.size);
 }
 ctx.globalAlpha=1;
 drawHammer();
-if(swingT>0)swingT-=0.08;
+if(swingT>0)swingT-=0.07;
 ctx.setTransform(1,0,0,1,0,0);
 }
 function hitHole(mx,my){
 if(!running)return;
 for(const h of holes){
 if(h.state!=='up'&&h.state!=='rising')continue;
-if(h.targetUp<0.5)continue;
-const dx=mx-h.cx,dy=my-(h.cy-(1-h.targetUp)*h.h+20);
+if(h.targetUp<0.4)continue;
+const yOff=(1-h.targetUp)*(h.h+20);
+const headX=h.cx,headY=h.cy+yOff;
+const dx=mx-headX,dy=my-headY;
 const dist=Math.hypot(dx,dy);
-if(dist<h.w*0.5&&my>h.y-30&&my<h.y+h.h+40){
+if(dist<45){
 if(h.moleType==='bomb'){
-h.state='hit';h.hit=0;h.targetUp=0;
+h.state='hit';h.hit=0;
 combo=1;
 sc=Math.max(0,sc-50);
 spawnParticles(h.cx,h.cy,'#f00',25);
@@ -307,7 +310,7 @@ sc+=pts;
 hitCount++;
 spawnParticles(h.cx,h.cy,col,15);
 popText(h.cx,h.cy-30,'+'+pts,col);
-h.state='hit';h.hit=0;h.targetUp=0;
+h.state='hit';h.hit=0;
 shake=6;
 combo++;
 if(combo>maxCombo)maxCombo=combo;
@@ -343,7 +346,7 @@ if(timeLeft<=0){timeLeft=0;updateTime();gameOver();return;}
 if(timeLeft<10)tmT.style.color=(Math.floor(timeLeft*4)%2===0)?'#f00':'#800';
 updateTime();
 updateHoles(dt);
-const interval=Math.max(400,1000-(60-timeLeft)*10);
+const interval=Math.max(450,1100-(60-timeLeft)*11);
 moleTimer+=dt;
 if(moleTimer>interval){
 moleTimer=0;
