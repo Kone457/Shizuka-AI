@@ -24,16 +24,16 @@ const TETRIS_HTML = `
 </div>
 </div>
 </div>
-<div id="tPad" style="position:absolute;bottom:0;left:0;width:100%;box-sizing:border-box;display:none;z-index:6;padding:8px;background:linear-gradient(to top,rgba(8,8,15,0.95),rgba(8,8,15,0.4));">
-<div style="display:flex;justify-content:space-between;gap:6px;align-items:stretch;">
-<div style="display:flex;gap:6px;">
-<button data-act="left" style="width:58px;height:58px;border-radius:14px;background:linear-gradient(180deg,#1a2a4a,#0a1525);border:1px solid #2a4a7a;color:#0ff;font-size:24px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #061020,0 0 12px rgba(0,200,255,0.3);">◀</button>
-<button data-act="right" style="width:58px;height:58px;border-radius:14px;background:linear-gradient(180deg,#1a2a4a,#0a1525);border:1px solid #2a4a7a;color:#0ff;font-size:24px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #061020,0 0 12px rgba(0,200,255,0.3);">▶</button>
+<div id="tPad" style="position:absolute;bottom:0;left:0;width:100%;box-sizing:border-box;display:none;z-index:6;padding:6px;background:linear-gradient(to top,rgba(8,8,15,0.98),rgba(8,8,15,0.75));">
+<div style="display:flex;justify-content:space-between;gap:4px;align-items:stretch;">
+<div style="display:flex;gap:4px;">
+<button data-act="left" style="width:50px;height:46px;border-radius:12px;background:linear-gradient(180deg,#1a2a4a,#0a1525);border:1px solid #2a4a7a;color:#0ff;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #061020,0 0 12px rgba(0,200,255,0.3);">◀</button>
+<button data-act="right" style="width:50px;height:46px;border-radius:12px;background:linear-gradient(180deg,#1a2a4a,#0a1525);border:1px solid #2a4a7a;color:#0ff;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #061020,0 0 12px rgba(0,200,255,0.3);">▶</button>
 </div>
-<div style="display:flex;gap:6px;">
-<button data-act="rotate" style="width:58px;height:58px;border-radius:14px;background:linear-gradient(180deg,#4a1a3a,#250a1a);border:1px solid #7a2a5a;color:#f0f;font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #200610,0 0 12px rgba(255,0,255,0.3);">↻</button>
-<button data-act="down" style="width:58px;height:58px;border-radius:14px;background:linear-gradient(180deg,#3a3a1a,#1a1a0a);border:1px solid #7a7a2a;color:#ff0;font-size:22px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #101006,0 0 12px rgba(255,255,0,0.3);">▼</button>
-<button data-act="drop" style="width:58px;height:58px;border-radius:14px;background:linear-gradient(180deg,#4a2a1a,#25150a);border:1px solid #7a4a2a;color:#f80;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #201008,0 0 12px rgba(255,128,0,0.3);">⤓</button>
+<div style="display:flex;gap:4px;">
+<button data-act="rotate" style="width:50px;height:46px;border-radius:12px;background:linear-gradient(180deg,#4a1a3a,#250a1a);border:1px solid #7a2a5a;color:#f0f;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #200610,0 0 12px rgba(255,0,255,0.3);">↻</button>
+<button data-act="down" style="width:50px;height:46px;border-radius:12px;background:linear-gradient(180deg,#3a3a1a,#1a1a0a);border:1px solid #7a7a2a;color:#ff0;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #101006,0 0 12px rgba(255,255,0,0.3);">▼</button>
+<button data-act="drop" style="width:50px;height:46px;border-radius:12px;background:linear-gradient(180deg,#4a2a1a,#25150a);border:1px solid #7a4a2a;color:#f80;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #201008,0 0 12px rgba(255,128,0,0.3);">⤓</button>
 </div>
 </div>
 </div>
@@ -44,8 +44,10 @@ const c=document.getElementById('tC'),ctx=c.getContext('2d');
 const uI=document.getElementById('tUI'),sB=document.getElementById('tSB'),hU=document.getElementById('tHU');
 const scT=document.getElementById('tSc'),lvT=document.getElementById('tLv'),lnT=document.getElementById('tLn');
 const pad=document.getElementById('tPad');
-const COLS=10,ROWS=20,BS=26;
-const OX=(c.width-COLS*BS)/2,OY=70;
+const COLS=10,ROWS=20,BS=24;
+const PAD_H=62;
+const OX=(c.width-COLS*BS)/2,OY=58;
+const BOARD_H=ROWS*BS;
 const SHAPES={
 I:{s:[[1,1,1,1]],c:'#0ff'},
 O:{s:[[1,1],[1,1]],c:'#ff0'},
