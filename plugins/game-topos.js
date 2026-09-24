@@ -43,8 +43,7 @@ type:'none',
 time:0,
 dur:0,
 up:0,
-hitAnim:0,
-lastType:'none'
+hitAnim:0
 });
 }
 grassBlades=[];
@@ -160,6 +159,20 @@ ctx.quadraticCurveTo(g.x+g.ang*3,g.y-g.len*0.6,g.x+g.ang*6,g.y-g.len);
 ctx.stroke();
 }
 }
+function drawHoleTop(h){
+ctx.save();
+ctx.beginPath();
+ctx.ellipse(h.holeCX,h.holeCY-2,h.holeRX,h.holeRY,0,Math.PI,Math.PI*2);
+ctx.strokeStyle='#1a0a00';
+ctx.lineWidth=3;
+ctx.stroke();
+ctx.beginPath();
+ctx.ellipse(h.holeCX,h.holeCY-2,h.holeRX-2,h.holeRY-1,0,Math.PI,Math.PI*2);
+ctx.strokeStyle='#2a1505';
+ctx.lineWidth=1.5;
+ctx.stroke();
+ctx.restore();
+}
 function drawHole(h){
 ctx.save();
 ctx.fillStyle='#000';
@@ -186,13 +199,13 @@ const e=h.up;
 const ease=e<0.5?2*e*e:1-Math.pow(-2*e+2,2)/2;
 const mx=h.holeCX;
 const baseY=h.holeCY;
-const hiddenY=baseY+h.holeRY;
-const shownY=baseY-h.holeRY*0.9;
+const hiddenY=baseY+h.holeRY*1.2;
+const shownY=baseY-h.holeRY*0.85;
 const my=hiddenY+(shownY-hiddenY)*ease;
 const radius=Math.min(CW*0.32,CH*0.32);
 ctx.save();
 ctx.beginPath();
-ctx.ellipse(h.holeCX,h.holeCY,h.holeRX-2,h.holeRY-2,0,0,Math.PI*2);
+ctx.ellipse(h.holeCX,h.holeCY-2,h.holeRX-2,h.holeRY-2,0,0,Math.PI*2);
 ctx.clip();
 if(h.type==='bomb'){
 drawBomb(mx,my,radius,ease);
@@ -200,12 +213,7 @@ drawBomb(mx,my,radius,ease);
 drawRealMole(mx,my,radius,ease,h.type);
 }
 ctx.restore();
-ctx.save();
-ctx.beginPath();
-ctx.ellipse(h.holeCX,h.holeCY-1,h.holeRX+1,h.holeRY+1,0,Math.PI,Math.PI*2);
-ctx.strokeStyle='#1a0a00';ctx.lineWidth=2.5;
-ctx.stroke();
-ctx.restore();
+drawHoleTop(h);
 }
 function drawRealMole(mx,my,r,e,type){
 let fur='#8b5a2b',furDark='#5a3a1a',furLight='#a07040',belly='#d4a574';
@@ -327,7 +335,6 @@ ctx.restore();
 }
 function drawHammer(){
 if(swingT<=0)return;
-const prog=1-swingT;
 const ang=-Math.PI/2+Math.sin(swingT*Math.PI)*1.6;
 ctx.save();
 ctx.translate(swingX,swingY);
