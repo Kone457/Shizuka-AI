@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import { igdl, igdl2 } from 'ruhend-scraper'
 
 const handler = async (m, { args, conn }) => {
   if (!args[0]) {
@@ -12,19 +12,21 @@ const handler = async (m, { args, conn }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(
-      `${api.url}/download/instagram?url=${encodeURIComponent(args[0])}&apikey=${api.key}`
-    );
-
-    const json = await res.json();
-
-    if (!json.status || !json.result?.dl) {
-      throw new Error('Respuesta inválida de la api.');
+    let result = await igdl(args[0])
+    if (!result || !result.status || !result.data?.length) {
+      result = await igdl2(args[0])
     }
+
+    if (!result || !result.status || !result.data?.length) {
+      throw new Error('No se pudo descargar el contenido de Instagram.')
+    }
+
+    const media = result.data[0]
+    const dlUrl = media.url
 
     await conn.sendFile(
       m.chat,
-      json.result.dl,
+      dlUrl,
       'instagram.mp4',
       '✿ Aquí tienes.',
       m
