@@ -1,6 +1,7 @@
 import fetch from 'node-fetch'
 import axios from 'axios'
 import fs from 'fs'
+import yts from 'yt-search'
 
 const isUrl = (text) => /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+$/i.test(text)
 const MAX_BYTES = 70 * 1024 * 1024
@@ -130,13 +131,9 @@ const handler = async (m, { conn, command, text }) => {
     let link = text
 
     if (!isUrl(text)) {
-      const resSearch = await fetch(
-        `${api.url}/search/youtube?q=${encodeURIComponent(text)}&apikey=${api.key}`
-      )
+      const search = await yts(text)
 
-      const jsonSearch = await resSearch.json()
-
-      if (!jsonSearch.status || !jsonSearch.result?.length) {
+      if (!search.videos?.length) {
         await conn.sendMessage(m.chat, {
           react: {
             text: '❌',
@@ -155,23 +152,23 @@ const handler = async (m, { conn, command, text }) => {
         )
       }
 
-      const item = jsonSearch.result[0]
-      link = item.link
+      const item = search.videos[0]
+      link = item.url
 
       const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
 ├ׁ̟̇❍✎ ❖ ${item.title || 'YouTube Content'}
-├ׁ̟̇❍✎ ✿ Canal: ${item.channel || 'Desconocido'}
-├ׁ̟̇❍✎ ⏱️ Duración: ${item.duration || 'Desconocido'}
+├ׁ̟̇❍✎ ✿ Canal: ${item.author?.name || 'Desconocido'}
+├ׁ̟̇❍✎ ⏱️ Duración: ${item.timestamp || 'Desconocido'}
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
 
-      if (item.imageUrl) {
+      if (item.thumbnail) {
         try {
-          const thumbRes = await fetch(item.imageUrl)
+          const thumbRes = await fetch(item.thumbnail)
           const thumb = await thumbRes.buffer()
 
           await conn.sendMessage(
