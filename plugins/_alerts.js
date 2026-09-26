@@ -20,120 +20,41 @@ const getNumber = value => {
     return jid.split('@')[0].replace(/\D/g, '')
 }
 
-const isLidJid = value => {
-    const jid = cleanJid(value)
-    return !!jid && jid.endsWith('@lid')
-}
-
-const isPnJid = value => {
-    const jid = cleanJid(value)
-    return !!jid && jid.endsWith('@s.whatsapp.net')
-}
-
-const normalizeJid = value => {
-    const jid = cleanJid(value)
-    if (!jid) return null
-    if (jid.endsWith('@s.whatsapp.net')) return jid
-    if (jid.endsWith('@lid')) return jid
-    if (jid.endsWith('@g.us')) return jid
-    const number = jid.replace(/\D/g, '')
-    return number ? `${number}@s.whatsapp.net` : jid
-}
-
-const getMapping = conn => {
-    try {
-        return conn?.signalRepository?.lidMapping || conn?.signalRepository?.lidMappingStore || null
-    } catch {
-        return null
-    }
-}
-
-const resolveWithLidMapping = async (jid, conn) => {
+const resolveLid = async (jid, conn, groupId) => {
     jid = cleanJid(jid)
-    if (!jid || !isLidJid(jid)) return jid
-
+    if (!jid) return null
+    if (!jid.endsWith('@lid')) return jid
     if (lidCache.has(jid)) return lidCache.get(jid)
 
-    const mapping = getMapping(conn)
+    try {
+        const mapping = conn?.signalRepository?.lidMapping
 
-    if (mapping) {
-        const methods = [
-            'getPNForLID',
-            'getPnForLid',
-            'getPhoneNumberForLID',
-            'getPhoneNumberForLid'
-        ]
-
-        for (const method of methods) {
+        if (mapping) {
             try {
-                if (typeof mapping[method] !== 'function') continue
-                const result = await mapping[method](jid)
-                const resolved = cleanJid(result)
-                if (resolved && isPnJid(resolved)) {
-                    lidCache.set(jid, resolved)
-                    return resolved
+                if (typeof mapping.getPNForLID === 'function') {
+                    const result = await mapping.getPNForLID(jid)
+                    const real = cleanJid(result)
+                    if (real && real.endsWith('@s.whatsapp.net')) {
+                        lidCache.set(jid, real)
+                        return real
+                    }
+                }
+            } catch {}
+
+            try {
+                if (typeof mapping.getPNForLID === 'function') {
+                    const result = await mapping.getPNForLID(jid.split('@')[0])
+                    const real = cleanJid(result)
+                    if (real && real.endsWith('@s.whatsapp.net')) {
+                        lidCache.set(jid, real)
+                        return real
+                    }
                 }
             } catch {}
         }
 
-        try {
-            const result = await mapping.get(jid)
-            const resolved = cleanJid(result)
-            if (resolved && isPnJid(resolved)) {
-                lidCache.set(jid, resolved)
-                return resolved
-            }
-        } catch {}
-
-        try {
-            const result = await mapping.getPNForLID(jid.split('@')[0])
-            const resolved = cleanJid(result)
-            if (resolved && isPnJid(resolved)) {
-                lidCache.set(jid, resolved)
-                return resolved
-            }
-        } catch {}
-    }
-
-    return jid
-}
-
-const resolveParticipantJid = participant => {
-    if (!participant) return null
-
-    const values = [
-        participant?.jid,
-        participant?.phoneNumber,
-        participant?.pn,
-        participant?.userJid,
-        participant?.id
-    ]
-
-    for (const value of values) {
-        const jid = cleanJid(value)
-        if (jid && isPnJid(jid)) return jid
-    }
-
-    return null
-}
-
-const resolveLidFromParticipants = async (lid, conn, groupChatId, metadata = null) => {
-    const inputJid = cleanJid(lid)
-    if (!inputJid) return null
-    if (!isLidJid(inputJid)) return inputJid
-
-    if (lidCache.has(inputJid)) return lidCache.get(inputJid)
-
-    const mapped = await resolveWithLidMapping(inputJid, conn)
-
-    if (mapped && isPnJid(mapped)) {
-        lidCache.set(inputJid, mapped)
-        return mapped
-    }
-
-    try {
-        const groupMetadata = metadata || await conn.groupMetadata(groupChatId)
-        const participants = groupMetadata?.participants || []
+        const metadata = await conn.groupMetadata(groupId)
+        const participants = metadata?.participants || []
 
         for (const participant of participants) {
             const ids = [
@@ -143,57 +64,50 @@ const resolveLidFromParticipants = async (lid, conn, groupChatId, metadata = nul
             ]
 
             for (const id of ids) {
-                const testJid = cleanJid(id)
+                const test = cleanJid(id)
+                if (!test || test !== jid) continue
 
-                if (!testJid || !isLidJid(testJid)) continue
+                const real = cleanJid(
+                    participant?.jid ||
+                    participant?.phoneNumber ||
+                    participant?.pn
+                )
 
-                if (testJid === inputJid) {
-                    const realJid = resolveParticipantJid(participant)
-
-                    if (realJid) {
-                        lidCache.set(inputJid, realJid)
-                        return realJid
-                    }
+                if (real && real.endsWith('@s.whatsapp.net')) {
+                    lidCache.set(jid, real)
+                    return real
                 }
             }
         }
 
         for (const participant of participants) {
-            const realJid = resolveParticipantJid(participant)
+            const real = cleanJid(
+                participant?.jid ||
+                participant?.phoneNumber ||
+                participant?.pn
+            )
 
-            if (!realJid) continue
+            if (!real || !real.endsWith('@s.whatsapp.net')) continue
 
             try {
-                const info = await conn.onWhatsApp(realJid)
+                const info = await conn.onWhatsApp(real)
 
                 for (const contact of info || []) {
                     const contactLid = cleanJid(contact?.lid)
 
-                    if (contactLid === inputJid) {
-                        lidCache.set(inputJid, realJid)
-                        return realJid
+                    if (contactLid === jid) {
+                        lidCache.set(jid, real)
+                        return real
                     }
                 }
             } catch {}
         }
     } catch {}
 
-    return inputJid
+    return jid
 }
 
-const resolveJid = async (jid, conn, groupChatId, metadata = null) => {
-    jid = cleanJid(jid)
-
-    if (!jid) return null
-
-    if (isLidJid(jid)) {
-        return await resolveLidFromParticipants(jid, conn, groupChatId, metadata)
-    }
-
-    return normalizeJid(jid)
-}
-
-const extractAffectedUser = value => {
+const getAffectedJid = value => {
     if (!value) return null
 
     if (typeof value === 'string') {
@@ -201,20 +115,14 @@ const extractAffectedUser = value => {
     }
 
     if (typeof value === 'object') {
-        const values = [
-            value.id,
-            value.jid,
-            value.phoneNumber,
-            value.pn,
-            value.lid,
-            value.participant,
+        return cleanJid(
+            value.id ||
+            value.jid ||
+            value.phoneNumber ||
+            value.lid ||
+            value.participant ||
             value.userJid
-        ]
-
-        for (const item of values) {
-            const jid = cleanJid(item)
-            if (jid) return jid
-        }
+        )
     }
 
     return null
@@ -223,46 +131,33 @@ const extractAffectedUser = value => {
 handler.before = async function (m, { conn }) {
     if (!m?.messageStubType || !m?.isGroup) return
 
-    const stubType = Number(m.messageStubType)
+    const type = Number(m.messageStubType)
 
-    if (stubType !== 29 && stubType !== 30) return
+    if (type !== 29 && type !== 30) return
 
     const chat = globalThis.db?.data?.chats?.[m.chat]
 
-    if (!chat?.alerts) return
+    if (!chat) return
+    if (!chat.alerts) return
 
     const rawUser = m.messageStubParameters?.[0]
 
     if (!rawUser) return
 
-    let metadata = null
-
-    try {
-        metadata = await conn.groupMetadata(m.chat)
-    } catch {}
-
-    let affectedJid = extractAffectedUser(rawUser)
+    let affectedJid = getAffectedJid(rawUser)
 
     if (!affectedJid) return
 
-    affectedJid = await resolveJid(
-        affectedJid,
-        conn,
-        m.chat,
-        metadata
-    )
-
-    if (!affectedJid) return
+    if (affectedJid.endsWith('@lid')) {
+        const resolved = await resolveLid(affectedJid, conn, m.chat)
+        if (resolved) affectedJid = resolved
+    }
 
     let senderJid = cleanJid(m.sender)
 
-    if (senderJid) {
-        senderJid = await resolveJid(
-            senderJid,
-            conn,
-            m.chat,
-            metadata
-        )
+    if (senderJid?.endsWith('@lid')) {
+        const resolvedSender = await resolveLid(senderJid, conn, m.chat)
+        if (resolvedSender) senderJid = resolvedSender
     }
 
     const affectedNumber = getNumber(affectedJid)
@@ -271,29 +166,17 @@ handler.before = async function (m, { conn }) {
     if (!affectedNumber) return
 
     const userTag = `@${affectedNumber}`
-    const adminTag = senderNumber
-        ? `@${senderNumber}`
-        : 'Sistema'
+    const adminTag = senderNumber ? `@${senderNumber}` : 'Sistema'
 
     const mentions = []
 
-    if (isPnJid(affectedJid)) {
-        mentions.push(affectedJid)
-    }
+    if (affectedJid) mentions.push(affectedJid)
 
-    if (senderJid && isPnJid(senderJid) && !mentions.includes(senderJid)) {
+    if (senderJid && !mentions.includes(senderJid)) {
         mentions.push(senderJid)
     }
 
-    const context = {
-        contextInfo: {
-            mentionedJid: mentions,
-            isForwarded: true
-        }
-    }
-
-    if (stubType === 29) {
-        const admingp = `
+    const admingp = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 👑 𝐍𝐔𝐄𝐕𝐎 𝐀𝐃𝐌𝐈𝐍 👑
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
@@ -309,29 +192,7 @@ ${adminTag}
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim()
 
-        try {
-            await conn.sendMessage(
-                m.chat,
-                {
-                    image: {
-                        url: getBotConfig(conn, 'banner')
-                    },
-                    caption: admingp,
-                    ...context
-                },
-                {
-                    quoted: null
-                }
-            )
-        } catch (error) {
-            console.error('Error enviando alerta de nuevo admin:', error)
-        }
-
-        return
-    }
-
-    if (stubType === 30) {
-        const noadmingp = `
+    const noadmingp = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 ⚠️ 𝐀𝐃𝐌𝐈𝐍 𝐑𝐄𝐌𝐎𝐕𝐈𝐃𝐎 ⚠️
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
@@ -343,29 +204,37 @@ ya no es administrador
 ${adminTag}
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🔒 𝐏ＥＲＭＩ𝐒𝐎𝐒 𝐑𝐄𝐕𝐎𝐂Ａ𝐃Ｏ𝐒 🔒
+🔒 𝐏ＥＲＭＩ𝐒𝐎𝐒 𝐑𝐄𝐕𝐎𝐂ＡＤＯＳ 🔒
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim()
 
-        try {
-            await conn.sendMessage(
-                m.chat,
-                {
-                    image: {
-                        url: getBotConfig(conn, 'banner')
-                    },
-                    caption: noadmingp,
-                    ...context
-                },
-                {
-                    quoted: null
-                }
-            )
-        } catch (error) {
-            console.error('Error enviando alerta de admin removido:', error)
-        }
+    const text = type === 29 ? admingp : noadmingp
 
-        return
+    try {
+        const banner = getBotConfig(conn, 'banner')
+
+        await conn.sendMessage(m.chat, {
+            image: { url: banner },
+            caption: text,
+            contextInfo: {
+                mentionedJid: mentions,
+                isForwarded: true
+            }
+        }, { quoted: null })
+    } catch (error) {
+        console.error('❏ Error enviando alerta de admin:', error)
+
+        try {
+            await conn.sendMessage(m.chat, {
+                text,
+                contextInfo: {
+                    mentionedJid: mentions,
+                    isForwarded: true
+                }
+            }, { quoted: null })
+        } catch (error2) {
+            console.error('❏ Error enviando alerta de admin en texto:', error2)
+        }
     }
 }
 
