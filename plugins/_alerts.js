@@ -1,26 +1,156 @@
 let WAMessageStubType = (await import('@whiskeysockets/baileys')).default
-import fs from 'fs'
-import path from 'path'
 import { getBotConfig } from '../lib/botconfig.js'
 
 const lidCache = new Map()
 let handler = m => m
 
+const cleanJid = value => {
+    if (!value) return null
+    if (typeof value === 'object') {
+        value = value.id || value.jid || value.phoneNumber || value.lid || value.participant || value.userJid || ''
+    }
+    if (typeof value !== 'string') value = String(value)
+    if (!value) return null
+    return value.split(':')[0]
+}
+
+const getNumber = value => {
+    const jid = cleanJid(value)
+    if (!jid) return ''
+    return jid.split('@')[0].replace(/\D/g, '')
+}
+
+const isLid = value => {
+    const jid = cleanJid(value)
+    return !!jid && jid.endsWith('@lid')
+}
+
+const normalizeJid = value => {
+    const jid = cleanJid(value)
+    if (!jid) return null
+    if (jid.endsWith('@s.whatsapp.net') || jid.endsWith('@lid') || jid.endsWith('@g.us')) return jid
+    const number = jid.replace(/\D/g, '')
+    return number ? `${number}@s.whatsapp.net` : jid
+}
+
+const extractStubJid = value => {
+    if (!value) return null
+    if (typeof value === 'string') return cleanJid(value)
+    if (typeof value === 'object') {
+        const possible = [
+            value.id,
+            value.jid,
+            value.phoneNumber,
+            value.lid,
+            value.participant,
+            value.userJid
+        ]
+        for (const item of possible) {
+            const jid = cleanJid(item)
+            if (jid) return jid
+        }
+    }
+    return null
+}
+
+const findParticipantByAnyId = (participants, target) => {
+    const targetJid = cleanJid(target)
+    const targetNumber = getNumber(target)
+    if (!targetJid && !targetNumber) return null
+    for (const participant of participants || []) {
+        const ids = [
+            participant?.id,
+            participant?.jid,
+            participant?.lid,
+            participant?.phoneNumber,
+            participant?.userJid
+        ]
+        for (const id of ids) {
+            const jid = cleanJid(id)
+            if (!jid) continue
+            if (targetJid && jid === targetJid) return participant
+            const number = getNumber(jid)
+            if (targetNumber && number && number === targetNumber) return participant
+        }
+    }
+    return null
+}
+
 handler.before = async function (m, { conn }) {
     if (!m.messageStubType || !m.isGroup) return
+    const chat = globalThis.db?.data?.chats?.[m.chat]
+    if (!chat) return
+    if (m.messageStubType !== 29 && m.messageStubType !== 30) return
 
-    let chat = globalThis.db.data.chats[m.chat]
-    let userss = m.messageStubParameters?.[0]
-    if (!userss) return
+    const rawUser = m.messageStubParameters?.[0]
+    if (!rawUser) return
 
-    const realSenderRaw = await resolveLidToRealJid(m?.sender, conn, m?.chat)
-    const realSender = realSenderRaw?.includes('@') ? realSenderRaw : null
+    let affectedJid = extractStubJid(rawUser)
+    if (!affectedJid) return
 
-    const userTag = `@${userss.split('@')[0]}`
-    const adminTag = realSender ? `@${realSender.split('@')[0]}` : 'Sistema'
+    let metadata
+    try {
+        metadata = await conn.groupMetadata(m.chat)
+    } catch {
+        metadata = null
+    }
 
-    const mentions = [userss]
-    if (realSender) mentions.push(realSender)
+    const participants = metadata?.participants || []
+
+    if (isLid(affectedJid)) {
+        const resolved = await resolveLidToRealJid(affectedJid, conn, m.chat, metadata)
+        if (resolved) affectedJid = resolved
+    }
+
+    const participant = findParticipantByAnyId(participants, affectedJid)
+
+    if (participant) {
+        const participantJid = cleanJid(
+            participant.jid ||
+            participant.id ||
+            participant.phoneNumber
+        )
+        if (participantJid && !isLid(participantJid)) {
+            affectedJid = participantJid
+        } else {
+            const resolved = await resolveLidToRealJid(
+                cleanJid(participant.lid || participant.id || affectedJid),
+                conn,
+                m.chat,
+                metadata
+            )
+            if (resolved && !isLid(resolved)) affectedJid = resolved
+        }
+    }
+
+    affectedJid = normalizeJid(affectedJid)
+    if (!affectedJid) return
+
+    let realSender = cleanJid(m?.sender)
+
+    if (realSender && isLid(realSender)) {
+        const resolvedSender = await resolveLidToRealJid(
+            realSender,
+            conn,
+            m.chat,
+            metadata
+        )
+        if (resolvedSender) realSender = resolvedSender
+    }
+
+    realSender = normalizeJid(realSender)
+
+    const affectedNumber = getNumber(affectedJid)
+    const senderNumber = getNumber(realSender)
+
+    if (!affectedNumber) return
+
+    const userTag = `@${affectedNumber}`
+    const adminTag = senderNumber ? `@${senderNumber}` : 'Sistema'
+
+    const mentions = []
+    if (affectedJid) mentions.push(affectedJid)
+    if (realSender && !mentions.includes(realSender)) mentions.push(realSender)
 
     const context = {
         contextInfo: {
@@ -57,83 +187,112 @@ ya no es administrador
 ${adminTag}
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🔒 𝐏ＥＲＭＩＳＯＳ 𝐑𝐄𝐕𝐎𝐂ＡＤ𝐎Ｓ 🔒
+🔒 𝐏ＥＲ𝐌𝐈𝐒𝐎𝐒 𝐑𝐄𝐕𝐎𝐂Ａ𝐃Ｏ𝐒 🔒
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim()
 
-    if (chat.detect && m.messageStubType == 2) {
-        const uniqid = (m.isGroup ? m.chat : m.sender).split('@')[0]
-        const sessionPath = `./sessions/` 
-        for (const file of await fs.readdir(sessionPath)) {
-            if (file.includes(uniqid)) {
-                await fs.unlink(path.join(sessionPath, file))
-            }
-        }
-    }
-
-    if (chat.alerts && m.messageStubType == 29) {
-        await conn.sendMessage(m.chat, {
-            image: { url: getBotConfig(conn, 'banner') },
-            caption: admingp,
-            ...context
-        }, { quoted: null })
+    if (chat.alerts && m.messageStubType === 29) {
+        await conn.sendMessage(
+            m.chat,
+            {
+                image: { url: getBotConfig(conn, 'banner') },
+                caption: admingp,
+                ...context
+            },
+            { quoted: null }
+        )
         return
     }
 
-    if (chat.alerts && m.messageStubType == 30) {
-        await conn.sendMessage(m.chat, {
-            image: { url: getBotConfig(conn, 'banner') },
-            caption: noadmingp,
-            ...context
-        }, { quoted: null })
+    if (chat.alerts && m.messageStubType === 30) {
+        await conn.sendMessage(
+            m.chat,
+            {
+                image: { url: getBotConfig(conn, 'banner') },
+                caption: noadmingp,
+                ...context
+            },
+            { quoted: null }
+        )
         return
     }
-
-    if (m.messageStubType == 2) return
 }
 
 export default handler
 
-async function resolveLidToRealJid(lid, conn, groupChatId, maxRetries = 3, retryDelay = 60000) {
-    const inputJid = lid?.toString?.() || ''
-    if (!inputJid.endsWith("@lid") || !groupChatId?.endsWith("@g.us")) {
-        return inputJid.includes("@") ? inputJid : `${inputJid}@s.whatsapp.net`
+async function resolveLidToRealJid(lid, conn, groupChatId, metadata = null) {
+    const inputJid = cleanJid(lid)
+    if (!inputJid) return null
+
+    if (!inputJid.endsWith('@lid')) {
+        return normalizeJid(inputJid)
     }
 
     if (lidCache.has(inputJid)) {
         return lidCache.get(inputJid)
     }
 
-    const lidToFind = inputJid.split("@")[0]
-    let attempts = 0
+    const lidNumber = getNumber(inputJid)
+    if (!lidNumber) return inputJid
 
-    while (attempts < maxRetries) {
-        try {
-            const metadata = await conn?.groupMetadata(groupChatId)
-            if (!metadata?.participants) throw new Error()
+    try {
+        const groupMetadata = metadata || await conn.groupMetadata(groupChatId)
+        const participants = groupMetadata?.participants || []
 
-            for (const participant of metadata.participants) {
-                try {
-                    if (!participant?.jid) continue
-                    const contactDetails = await conn?.onWhatsApp(participant.jid)
-                    if (!contactDetails?.[0]?.lid) continue
+        for (const participant of participants) {
+            const ids = [
+                participant?.id,
+                participant?.jid,
+                participant?.lid,
+                participant?.phoneNumber
+            ]
 
-                    const possibleLid = contactDetails[0].lid.split("@")[0]
-                    if (possibleLid === lidToFind) {
-                        lidCache.set(inputJid, participant.jid)
-                        return participant.jid
+            for (const id of ids) {
+                const jid = cleanJid(id)
+                if (!jid) continue
+
+                if (jid.endsWith('@lid') && getNumber(jid) === lidNumber) {
+                    const phone = cleanJid(
+                        participant?.jid ||
+                        participant?.phoneNumber ||
+                        participant?.id
+                    )
+
+                    if (phone && !phone.endsWith('@lid')) {
+                        lidCache.set(inputJid, phone)
+                        return phone
                     }
-                } catch {}
+                }
             }
-            lidCache.set(inputJid, inputJid)
-            return inputJid
-        } catch {
-            if (++attempts >= maxRetries) {
-                lidCache.set(inputJid, inputJid)
-                return inputJid
-            }
-            await new Promise(r => setTimeout(r, retryDelay))
+
+            try {
+                const participantJid = cleanJid(
+                    participant?.jid ||
+                    participant?.id ||
+                    participant?.phoneNumber
+                )
+
+                if (!participantJid || participantJid.endsWith('@lid')) continue
+
+                const contact = await conn.onWhatsApp(participantJid)
+
+                if (contact?.length) {
+                    for (const data of contact) {
+                        const contactLid = cleanJid(data?.lid)
+
+                        if (
+                            contactLid &&
+                            contactLid.endsWith('@lid') &&
+                            getNumber(contactLid) === lidNumber
+                        ) {
+                            lidCache.set(inputJid, participantJid)
+                            return participantJid
+                        }
+                    }
+                }
+            } catch {}
         }
-    }
+    } catch {}
+
     return inputJid
 }
