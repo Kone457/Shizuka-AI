@@ -1,203 +1,203 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys';
-
+import { WAMessageStubType } from '@whiskeysockets/baileys'
 export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.messageStubType || !m.isGroup) return true;
-
-  const chat = globalThis.db.data.chats[m.chat] ||= {};
-  if (!chat.welcome) return true;
-
-  const rawTarget = m.messageStubParameters?.[0];
-  if (!rawTarget) return true;
-
-  const participant = participants.find(p =>
-    p?.id === rawTarget ||
-    p?.jid === rawTarget ||
-    p?.lid === rawTarget ||
-    p?.phoneNumber === rawTarget
-  ) || {};
-
-  let realJid = null;
-
-  if (participant.phoneNumber) {
-    realJid = participant.phoneNumber.includes('@')
-      ? participant.phoneNumber
-      : `${participant.phoneNumber}@s.whatsapp.net`;
-  }
-
-  if (!realJid && participant.jid?.endsWith('@s.whatsapp.net')) {
-    realJid = participant.jid;
-  }
-
-  if (!realJid && participant.id?.endsWith('@s.whatsapp.net')) {
-    realJid = participant.id;
-  }
-
-  if (!realJid && rawTarget.endsWith('@lid')) {
+  if (!m.messageStubType || !m.isGroup) return true
+  const chat = globalThis.db.data.chats[m.chat] ||= {}
+  if (!chat.welcome) return true
+  const rawParameter = m.messageStubParameters?.[0]
+  if (!rawParameter) return true
+  const parseParameter = value => {
+    if (!value) return null
+    if (typeof value === 'object') return value
+    if (typeof value !== 'string') return null
     try {
-      const pn = await conn.signalRepository?.lidMapping?.getPNForLID(rawTarget);
-      if (pn) realJid = pn;
+      const parsed = JSON.parse(value)
+      if (parsed && typeof parsed === 'object') return parsed
     } catch {}
+    return { id: value }
   }
-
-  if (!realJid && rawTarget.endsWith('@lid')) {
-    try {
-      const pn = await conn.getPnUser?.(rawTarget);
-      if (pn?.jid) realJid = pn.jid;
-    } catch {}
+  const targetData = parseParameter(rawParameter) || {}
+  const targetIds = [
+    targetData.id,
+    targetData.jid,
+    targetData.lid,
+    targetData.phoneNumber,
+    targetData.pn
+  ].filter(Boolean).map(String)
+  const rawTarget = targetIds[0] || String(rawParameter)
+  const normalizeJid = value => {
+    if (!value) return null
+    let jid = String(value).trim()
+    if (!jid) return null
+    if (!jid.includes('@')) jid += '@s.whatsapp.net'
+    return jid
   }
-
-  if (!realJid) {
-    try {
-      const decoded = conn.decodeJid(rawTarget);
-      if (decoded?.endsWith('@s.whatsapp.net')) {
-        realJid = decoded;
-      }
-    } catch {}
+  const getNumber = value => {
+    if (!value) return ''
+    return String(value).split('@')[0].replace(/\D/g, '')
   }
-
-  if (!realJid) {
-    realJid = rawTarget;
+  const sameUser = (a, b) => {
+    if (!a || !b) return false
+    const aa = String(a)
+    const bb = String(b)
+    if (aa === bb) return true
+    const na = getNumber(aa)
+    const nb = getNumber(bb)
+    return !!na && !!nb && na === nb
   }
-
-  let userNumber = realJid.split('@')[0].replace(/\D/g, '');
-  if (!userNumber || userNumber.length < 5) {
-    userNumber = rawTarget.split('@')[0].replace(/\D/g, '');
+  const findParticipant = values => {
+    const ids = values.filter(Boolean).map(String)
+    return (participants || []).find(p => {
+      const fields = [
+        p?.id,
+        p?.jid,
+        p?.lid,
+        p?.phoneNumber,
+        p?.pn
+      ].filter(Boolean)
+      return fields.some(field =>
+        ids.some(id => sameUser(field, id))
+      )
+    }) || null
   }
-
-  const userData =
-    globalThis.db.data.users?.[rawTarget] ||
-    globalThis.db.data.users?.[realJid] ||
-    {};
-
+  const resolveJid = async (values, participant = null) => {
+    const candidates = [
+      ...(values || []),
+      participant?.phoneNumber,
+      participant?.pn,
+      participant?.jid,
+      participant?.id,
+      participant?.lid
+    ].filter(Boolean).map(String)
+    for (const value of candidates) {
+      if (value.endsWith('@s.whatsapp.net')) return value
+    }
+    for (const value of candidates) {
+      if (!value.endsWith('@lid')) continue
+      try {
+        const pn = await conn.signalRepository?.lidMapping?.getPNForLID?.(value)
+        if (typeof pn === 'string' && pn.endsWith('@s.whatsapp.net')) return pn
+        if (pn?.jid?.endsWith('@s.whatsapp.net')) return pn.jid
+      } catch {}
+      try {
+        const pn = await conn.getPnUser?.(value)
+        if (typeof pn === 'string' && pn.endsWith('@s.whatsapp.net')) return pn
+        if (pn?.jid?.endsWith('@s.whatsapp.net')) return pn.jid
+        if (pn?.phoneNumber?.endsWith('@s.whatsapp.net')) return pn.phoneNumber
+      } catch {}
+    }
+    for (const value of candidates) {
+      try {
+        const decoded = conn.decodeJid?.(value)
+        if (decoded?.endsWith('@s.whatsapp.net')) return decoded
+      } catch {}
+    }
+    for (const value of candidates) {
+      const number = getNumber(value)
+      if (number && number.length >= 5) return `${number}@s.whatsapp.net`
+    }
+    return candidates[0] || null
+  }
+  const participant = findParticipant(targetIds)
+  const realJid = await resolveJid(targetIds, participant)
+  if (!realJid) return true
+  const userNumber = getNumber(realJid) || getNumber(rawTarget) || 'Usuario'
+  const userKeys = [
+    rawTarget,
+    targetData.id,
+    targetData.lid,
+    targetData.phoneNumber,
+    targetData.pn,
+    realJid
+  ].filter(Boolean)
+  let userData = {}
+  for (const key of userKeys) {
+    if (globalThis.db.data.users?.[key]) {
+      userData = globalThis.db.data.users[key]
+      break
+    }
+  }
   let targetName =
-    participant.name ||
-    participant.notify ||
-    userData.name ||
-    '';
-
-  if (
-    !targetName ||
-    String(targetName).includes('@lid') ||
-    String(targetName).includes('@s.whatsapp.net') ||
-    /^\d+$/.test(String(targetName))
-  ) {
+    participant?.name ||
+    participant?.notify ||
+    participant?.subject ||
+    userData?.name ||
+    ''
+  const invalidName = value => {
+    if (!value) return true
+    const text = String(value)
+    return text.includes('@lid') ||
+      text.includes('@s.whatsapp.net') ||
+      /^\d+$/.test(text)
+  }
+  if (invalidName(targetName)) {
     try {
-      const name = await conn.getName(realJid);
-      if (name && !String(name).includes('@lid') && !/^\d+$/.test(String(name))) {
-        targetName = name;
-      }
+      const name = await conn.getName(realJid)
+      if (name && !invalidName(name)) targetName = name
     } catch {}
   }
-
-  if (
-    !targetName ||
-    String(targetName).includes('@lid') ||
-    String(targetName).includes('@s.whatsapp.net') ||
-    /^\d+$/.test(String(targetName))
-  ) {
+  if (invalidName(targetName) && rawTarget) {
     try {
-      const name = await conn.getName(rawTarget);
-      if (name && !String(name).includes('@lid') && !/^\d+$/.test(String(name))) {
-        targetName = name;
-      }
+      const name = await conn.getName(rawTarget)
+      if (name && !invalidName(name)) targetName = name
     } catch {}
   }
-
-  if (
-    !targetName ||
-    String(targetName).includes('@lid') ||
-    String(targetName).includes('@s.whatsapp.net') ||
-    /^\d+$/.test(String(targetName))
-  ) {
-    targetName = userNumber || 'Usuario';
-  }
-
-  const avatarUrl = await conn.profilePictureUrl(
-    realJid,
-    'image'
-  ).catch(async () => {
-    try {
-      return await conn.profilePictureUrl(
-        rawTarget,
-        'image'
-      );
-    } catch {
-      return 'https://files.evogb.win/AGCG2d.jpg';
+  if (invalidName(targetName)) targetName = userNumber
+  const getActor = async () => {
+    const actorValues = [
+      m.participant,
+      m.key?.participant,
+      m.messageStubParameters?.[1]
+    ].filter(Boolean)
+    for (const value of actorValues) {
+      const parsed = parseParameter(value)
+      const values = parsed
+        ? [
+            parsed.id,
+            parsed.jid,
+            parsed.lid,
+            parsed.phoneNumber,
+            parsed.pn
+          ].filter(Boolean)
+        : [value]
+      const actorParticipant = findParticipant(values)
+      const jid = await resolveJid(values, actorParticipant)
+      if (jid) return jid
     }
-  });
-
-  const actor =
-    m.participant ||
-    m.key?.participant ||
-    m.messageStubParameters?.[1] ||
-    null;
-
-  let actorJid = actor;
-
-  if (actorJid) {
-    const actorParticipant = participants.find(p =>
-      p?.id === actorJid ||
-      p?.jid === actorJid ||
-      p?.lid === actorJid
-    );
-
-    if (actorParticipant?.phoneNumber) {
-      actorJid = actorParticipant.phoneNumber.includes('@')
-        ? actorParticipant.phoneNumber
-        : `${actorParticipant.phoneNumber}@s.whatsapp.net`;
-    } else if (actorParticipant?.jid?.endsWith('@s.whatsapp.net')) {
-      actorJid = actorParticipant.jid;
-    }
-
-    try {
-      actorJid = conn.decodeJid(actorJid) || actorJid;
-    } catch {}
+    return null
   }
-
-  let memberCount = participants.length;
-
+  const actorJid = await getActor()
+  let memberCount = Array.isArray(participants) ? participants.length : 0
+  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
+    memberCount++
+  }
   if (
-    m.messageStubType ===
-    WAMessageStubType.GROUP_PARTICIPANT_ADD
+    m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE ||
+    m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE
   ) {
-    memberCount++;
+    memberCount = Math.max(0, memberCount - 1)
   }
-
-  if (
-    [
-      WAMessageStubType.GROUP_PARTICIPANT_REMOVE,
-      WAMessageStubType.GROUP_PARTICIPANT_LEAVE
-    ].includes(m.messageStubType)
-  ) {
-    memberCount--;
-  }
-
   const actionText = {
     [WAMessageStubType.GROUP_PARTICIPANT_ADD]:
       actorJid
-        ? `Agregado por @${actorJid.split('@')[0]}`
+        ? `Agregado por @${getNumber(actorJid)}`
         : 'Se unió al grupo',
-
     [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]:
       actorJid
-        ? `Eliminado por @${actorJid.split('@')[0]}`
+        ? `Eliminado por @${getNumber(actorJid)}`
         : 'Eliminado del grupo',
-
     [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]:
       'Salió del grupo'
-  };
-
+  }
   const format = text => {
-    return text
-      .replace('@user', `@${userNumber}`)
-      .replace('@name', targetName)
-      .replace('@group', groupMetadata.subject)
-      .replace('@desc', groupMetadata.desc?.toString() || 'Sin descripción')
-      .replace('%users', memberCount)
-      .replace('@action', actionText[m.messageStubType] || '')
-      .replace('@date', new Date().toLocaleString());
-  };
-
+    return String(text)
+      .replace(/@user/g, `@${userNumber}`)
+      .replace(/@name/g, targetName)
+      .replace(/@group/g, groupMetadata?.subject || m.chat)
+      .replace(/@desc/g, groupMetadata?.desc?.toString() || 'Sin descripción')
+      .replace(/%users/g, String(memberCount))
+      .replace(/@action/g, actionText[m.messageStubType] || '')
+      .replace(/@date/g, new Date().toLocaleString())
+  }
   const defaultWelcome = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
@@ -217,8 +217,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 ✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐍𝐂𝐈𝐀 ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
-`.trim();
-
+`.trim()
   const defaultBye = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 💔 𝐇𝐀𝐒𝐓𝐀 𝐏𝐑𝐎𝐍𝐓𝐎 💔
@@ -235,44 +234,45 @@ export async function before(m, { conn, participants, groupMetadata }) {
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
 ✦ 𝐕𝐔𝐄𝐋𝐕𝐄 𝐂𝐔𝐀𝐍𝐃𝐎 𝐐𝐔𝐈𝐄𝐑𝐀𝐒 ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
-`.trim();
-
-  const mentions = [realJid];
-
-  if (actorJid && !mentions.includes(actorJid)) {
-    mentions.push(actorJid);
+`.trim()
+  let avatarUrl = 'https://files.evogb.win/AGCG2d.jpg'
+  try {
+    avatarUrl = await conn.profilePictureUrl(realJid, 'image')
+  } catch {
+    try {
+      avatarUrl = await conn.profilePictureUrl(rawTarget, 'image')
+    } catch {}
   }
-
+  const mentions = [realJid]
+  if (actorJid && !mentions.some(jid => sameUser(jid, actorJid))) {
+    mentions.push(actorJid)
+  }
   const context = {
     contextInfo: {
       mentionedJid: mentions,
       isForwarded: true
     }
-  };
-
-  if (
-    m.messageStubType ===
-    WAMessageStubType.GROUP_PARTICIPANT_ADD
-  ) {
-    const customText = chat.sWelcome || defaultWelcome;
+  }
+  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
+    const customText = chat.sWelcome || defaultWelcome
     await conn.sendMessage(m.chat, {
       image: { url: avatarUrl },
       caption: format(customText),
       ...context
-    });
+    })
+    return true
   }
-
   if (
-    [
-      WAMessageStubType.GROUP_PARTICIPANT_LEAVE,
-      WAMessageStubType.GROUP_PARTICIPANT_REMOVE
-    ].includes(m.messageStubType)
+    m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE ||
+    m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE
   ) {
-    const customText = chat.sBye || defaultBye;
+    const customText = chat.sBye || defaultBye
     await conn.sendMessage(m.chat, {
       image: { url: avatarUrl },
       caption: format(customText),
       ...context
-    });
+    })
+    return true
   }
+  return true
 }
