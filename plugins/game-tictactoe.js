@@ -1,60 +1,83 @@
 import crypto from 'crypto'
 
 const TICTACTOE_HTML = `
-<div style="width:100%;height:600px;background:#0a0a1a;position:relative;overflow:hidden;font-family:'Segoe UI',sans-serif;user-select:none;">
-<canvas id="tttC" width="360" height="600" style="width:100%;height:100%;display:block;"></canvas>
-<div id="tttUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,0.92);z-index:10;transition:opacity 0.3s;padding:20px;box-sizing:border-box;">
-<h1 style="color:#0ff;text-shadow:0 0 20px #0ff,0 0 40px #08f;font-size:36px;margin:0 0 8px;letter-spacing:6px;text-transform:uppercase;font-weight:900;text-align:center;">TRES EN LÍNEA</h1>
-<p style="color:#8af;margin:0 0 22px;font-size:13px;text-align:center;letter-spacing:1px;line-height:1.7;">Consigue 3 en línea para ganar.<br>Tú eres <b style="color:#0ff">X</b> · La IA es <b style="color:#f0f">O</b></p>
-<button id="tttSB" style="padding:14px 40px;background:linear-gradient(45deg,#0ff,#08f);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 0 25px rgba(0,200,255,0.5);">JUGAR</button>
-</div>
-<div id="tttHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;">
-<div style="display:flex;justify-content:space-around;padding:10px 15px;align-items:center;font-family:monospace;">
+<div style="width:100%;height:640px;background:radial-gradient(ellipse at center,#1a1a2e 0%,#0a0a14 60%,#000 100%);position:relative;overflow:hidden;font-family:'Segoe UI',sans-serif;user-select:none;">
+<canvas id="tttC" width="360" height="640" style="width:100%;height:100%;display:block;touch-action:none;"></canvas>
+<div id="tttHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;pointer-events:none;z-index:5;">
+<div style="display:flex;justify-content:space-around;padding:14px 15px;align-items:center;font-family:monospace;">
 <div style="text-align:center;">
-<div style="font-size:10px;color:#8af;letter-spacing:2px;">GANADAS</div>
-<div id="tttW" style="font-size:20px;font-weight:900;color:#0f0;text-shadow:0 0 8px #0f0;">0</div>
+<div style="font-size:10px;color:#8af;letter-spacing:2px;">X</div>
+<div id="tttPX" style="font-size:13px;font-weight:900;color:#0ff;text-shadow:0 0 10px #0ff;">—</div>
 </div>
 <div style="text-align:center;">
-<div style="font-size:10px;color:#8af;letter-spacing:2px;">EMPATES</div>
-<div id="tttD" style="font-size:20px;font-weight:900;color:#ff0;text-shadow:0 0 8px #ff0;">0</div>
-</div>
-<div style="text-align:center;">
-<div style="font-size:10px;color:#8af;letter-spacing:2px;">PERDIDAS</div>
-<div id="tttL" style="font-size:20px;font-weight:900;color:#f00;text-shadow:0 0 8px #f00;">0</div>
+<div style="font-size:10px;color:#8af;letter-spacing:2px;">O</div>
+<div id="tttPO" style="font-size:13px;font-weight:900;color:#f0f;text-shadow:0 0 10px #f0f;">—</div>
 </div>
 </div>
 </div>
-<div id="tttStatus" style="position:absolute;bottom:80px;left:0;width:100%;text-align:center;color:#fff;font-size:16px;font-weight:700;letter-spacing:1px;z-index:5;pointer-events:none;text-shadow:0 0 10px rgba(0,200,255,0.8);"></div>
+<div id="tttStatus" style="position:absolute;bottom:75px;left:0;width:100%;text-align:center;color:#fff;font-size:15px;font-weight:700;letter-spacing:1px;z-index:5;pointer-events:none;text-shadow:0 0 12px rgba(0,200,255,0.9);padding:0 10px;box-sizing:border-box;"></div>
 </div>
 <script>
 (function(){
 const c=document.getElementById('tttC'),ctx=c.getContext('2d');
-const uI=document.getElementById('tttUI'),sB=document.getElementById('tttSB'),hU=document.getElementById('tttHU');
-const wT=document.getElementById('tttW'),dT=document.getElementById('tttD'),lT=document.getElementById('tttL');
+const pXT=document.getElementById('tttPX'),pOT=document.getElementById('tttPO');
 const stT=document.getElementById('tttStatus');
 const W=c.width,H=c.height;
-const GX=30,GY=100,GS=300,CELL=100;
-let board,turn,winner,gameActive,wins,draws,losses,anim,particles,hoverCell,aiThinking,aiTimer;
-function initGame(){
-board=Array(9).fill('');
-turn='X';winner=null;gameActive=true;particles=[];hoverCell=-1;aiThinking=false;
-stT.innerText='TU TURNO';
+const GX=30,GY=110,GS=300,CELL=100;
+let board,turn,winner,particles,hoverCell,glow,ripples,pressAnim;
+function initBoard(){board=Array(9).fill('');turn='X';winner=null;particles=[];hoverCell=-1;glow=0;ripples=[];pressAnim=0;}
+function spawnRipple(x,y,color){
+ripples.push({x,y,r:0,max:60,life:1,color});
 }
-function drawGrid(){
-ctx.clearRect(0,0,W,H);
-const bg=ctx.createLinearGradient(0,0,0,H);
-bg.addColorStop(0,'#0a0a1a');bg.addColorStop(1,'#050510');
-ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-for(let i=0;i<40;i++){
-const sx=(i*137.5)%W,sy=(i*97.3+Date.now()*0.02)%H;
-ctx.globalAlpha=0.1+((i*7)%10)/30;
-ctx.fillStyle='#0ff';
-ctx.fillRect(sx,sy,1.5,1.5);
+function spawnParticles(x,y,color,n){
+for(let i=0;i<n;i++)particles.push({
+x,y,vx:(Math.random()-0.5)*7,vy:(Math.random()-0.5)*7-2,
+life:1,color,size:1.5+Math.random()*3.5
+});
+}
+function drawBackground(){
+const g=ctx.createRadialGradient(W/2,H/2,50,W/2,H/2,W*0.8);
+g.addColorStop(0,'#1a1a2e');
+g.addColorStop(0.6,'#0a0a14');
+g.addColorStop(1,'#000');
+ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+for(let i=0;i<60;i++){
+const sx=(i*137.5+Date.now()*0.01)%W;
+const sy=(i*97.3+Date.now()*0.02)%H;
+const tw=0.15+Math.sin(Date.now()*0.002+i)*0.1;
+ctx.globalAlpha=tw;
+ctx.fillStyle=i%3===0?'#0ff':i%3===1?'#f0f':'#fff';
+ctx.beginPath();ctx.arc(sx,sy,1.2,0,Math.PI*2);ctx.fill();
 }
 ctx.globalAlpha=1;
-ctx.strokeStyle='#0ff';ctx.lineWidth=3;
-ctx.shadowBlur=15;ctx.shadowColor='#0ff';
+const vig=ctx.createRadialGradient(W/2,H/2,H*0.3,W/2,H/2,H*0.75);
+vig.addColorStop(0,'rgba(0,0,0,0)');
+vig.addColorStop(1,'rgba(0,0,0,0.85)');
+ctx.fillStyle=vig;ctx.fillRect(0,0,W,H);
+}
+function drawGrid(){
+drawBackground();
+const boardW=GS,boardH=GS;
+const bx=GX-8,by=GY-8,bw=boardW+16,bh=boardH+16;
+ctx.save();
+ctx.shadowBlur=25;ctx.shadowColor='rgba(0,200,255,0.4)';
+ctx.strokeStyle='rgba(0,200,255,0.35)';
+ctx.lineWidth=2;
+roundRect(bx,by,bw,bh,14);
+ctx.stroke();
+ctx.restore();
+ctx.fillStyle='rgba(0,20,40,0.35)';
+roundRect(bx,by,bw,bh,14);
+ctx.fill();
+ctx.save();
+ctx.strokeStyle='rgba(0,200,255,0.9)';
+ctx.lineWidth=3;
+ctx.shadowBlur=18;ctx.shadowColor='#0ff';
+ctx.lineCap='round';
+const pulse=1+Math.sin(Date.now()*0.003)*0.02;
 for(let i=0;i<4;i++){
+const lw=(i===0||i===3)?3:2.5;
+ctx.lineWidth=lw;
 ctx.beginPath();
 ctx.moveTo(GX+i*CELL,GY);ctx.lineTo(GX+i*CELL,GY+GS);
 ctx.stroke();
@@ -63,32 +86,101 @@ ctx.moveTo(GX,GY+i*CELL);ctx.lineTo(GX+GS,GY+i*CELL);
 ctx.stroke();
 }
 ctx.shadowBlur=0;
-if(hoverCell>=0&&board[hoverCell]===''&&gameActive&&turn==='X'&&!aiThinking){
+for(let i=1;i<4;i++){
+for(let j=1;j<4;j++){
+ctx.fillStyle='rgba(0,200,255,0.6)';
+ctx.beginPath();
+ctx.arc(GX+i*CELL,GY+j*CELL,2,0,Math.PI*2);
+ctx.fill();
+}
+}
+const corners=[[GX,GY],[GX+GS,GY],[GX,GY+GS],[GX+GS,GY+GS]];
+ctx.strokeStyle='rgba(0,255,255,0.9)';
+ctx.lineWidth=2.5;
+ctx.shadowBlur=12;ctx.shadowColor='#0ff';
+for(const [cx,cy] of corners){
+const d=8;
+ctx.beginPath();
+ctx.moveTo(cx-d,cy);ctx.lineTo(cx,cy);ctx.lineTo(cx,cy-d);
+if(cx===GX)ctx.moveTo(cx+d,cy),ctx.lineTo(cx,cy),ctx.lineTo(cx,cy-d);
+ctx.stroke();
+}
+ctx.shadowBlur=0;
+ctx.restore();
+if(hoverCell>=0&&board[hoverCell]===''&&!winner){
 const r=Math.floor(hoverCell/3),col=hoverCell%3;
 const x=GX+col*CELL,y=GY+r*CELL;
-ctx.fillStyle='rgba(0,255,255,0.15)';
-ctx.fillRect(x+4,y+4,CELL-8,CELL-8);
+const color=turn==='X'?'0,255,255':'255,0,255';
+const g=ctx.createRadialGradient(x+CELL/2,y+CELL/2,5,x+CELL/2,y+CELL/2,CELL/2);
+g.addColorStop(0,`rgba(${color},0.35)`);
+g.addColorStop(1,`rgba(${color},0)`);
+ctx.fillStyle=g;
+roundRect(x+3,y+3,CELL-6,CELL-6,10);
+ctx.fill();
+ctx.strokeStyle=`rgba(${color},0.7)`;
+ctx.lineWidth=2;
+ctx.setLineDash([6,4]);
+ctx.lineDashOffset=-Date.now()*0.01;
+roundRect(x+3,y+3,CELL-6,CELL-6,10);
+ctx.stroke();
+ctx.setLineDash([]);
 }
 }
-function drawX(cx,cy,size,alpha){
+function roundRect(x,y,w,h,r){
+ctx.beginPath();
+ctx.moveTo(x+r,y);
+ctx.lineTo(x+w-r,y);
+ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+ctx.lineTo(x+w,y+h-r);
+ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+ctx.lineTo(x+r,y+h);
+ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+ctx.lineTo(x,y+r);
+ctx.quadraticCurveTo(x,y,x+r,y);
+ctx.closePath();
+}
+function drawX(cx,cy,size,alpha,scale){
 ctx.save();
 ctx.globalAlpha=alpha;
-ctx.strokeStyle='#0ff';ctx.lineWidth=6;ctx.lineCap='round';
-ctx.shadowBlur=20;ctx.shadowColor='#0ff';
-const s=size/2-10;
+ctx.translate(cx,cy);
+ctx.scale(scale,scale);
+ctx.strokeStyle='#0ff';
+ctx.lineWidth=7;
+ctx.lineCap='round';
+ctx.shadowBlur=25;ctx.shadowColor='#0ff';
+const s=size/2-14;
 ctx.beginPath();
-ctx.moveTo(cx-s,cy-s);ctx.lineTo(cx+s,cy+s);
-ctx.moveTo(cx+s,cy-s);ctx.lineTo(cx-s,cy+s);
+ctx.moveTo(-s,-s);ctx.lineTo(s,s);
+ctx.stroke();
+ctx.beginPath();
+ctx.moveTo(s,-s);ctx.lineTo(-s,s);
+ctx.stroke();
+ctx.strokeStyle='rgba(255,255,255,0.7)';
+ctx.lineWidth=2;
+ctx.beginPath();
+ctx.moveTo(-s,-s);ctx.lineTo(s,s);
+ctx.stroke();
+ctx.beginPath();
+ctx.moveTo(s,-s);ctx.lineTo(-s,s);
 ctx.stroke();
 ctx.restore();
 }
-function drawO(cx,cy,size,alpha){
+function drawO(cx,cy,size,alpha,scale){
 ctx.save();
 ctx.globalAlpha=alpha;
-ctx.strokeStyle='#f0f';ctx.lineWidth=6;ctx.lineCap='round';
-ctx.shadowBlur=20;ctx.shadowColor='#f0f';
+ctx.translate(cx,cy);
+ctx.scale(scale,scale);
+ctx.strokeStyle='#f0f';
+ctx.lineWidth=7;
+ctx.lineCap='round';
+ctx.shadowBlur=25;ctx.shadowColor='#f0f';
 ctx.beginPath();
-ctx.arc(cx,cy,size/2-12,0,Math.PI*2);
+ctx.arc(0,0,size/2-16,0,Math.PI*2);
+ctx.stroke();
+ctx.strokeStyle='rgba(255,255,255,0.7)';
+ctx.lineWidth=2;
+ctx.beginPath();
+ctx.arc(0,0,size/2-16,0,Math.PI*2);
 ctx.stroke();
 ctx.restore();
 }
@@ -96,253 +188,171 @@ function drawBoard(){
 for(let i=0;i<9;i++){
 const r=Math.floor(i/3),col=i%3;
 const cx=GX+col*CELL+CELL/2,cy=GY+r*CELL+CELL/2;
-if(board[i]==='X')drawX(cx,cy,CELL,1);
-else if(board[i]==='O')drawO(cx,cy,CELL,1);
+if(board[i]==='X')drawX(cx,cy,CELL,1,1);
+else if(board[i]==='O')drawO(cx,cy,CELL,1,1);
 }
-if(winner){
+if(winner&&winner.line){
 const line=winner.line;
 const r1=Math.floor(line[0]/3),c1=line[0]%3;
 const r2=Math.floor(line[2]/3),c2=line[2]%3;
 const x1=GX+c1*CELL+CELL/2,y1=GY+r1*CELL+CELL/2;
 const x2=GX+c2*CELL+CELL/2,y2=GY+r2*CELL+CELL/2;
 ctx.save();
-ctx.strokeStyle=winner.player==='X'?'#0f0':'#f00';
-ctx.lineWidth=8;ctx.lineCap='round';
-ctx.shadowBlur=25;ctx.shadowColor=winner.player==='X'?'#0f0':'#f00';
-ctx.beginPath();
-ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
-ctx.stroke();
+const pulse=0.7+Math.sin(Date.now()*0.008)*0.3;
+ctx.strokeStyle=winner.player==='X'?`rgba(0,255,0,${pulse})`:`rgba(255,0,0,${pulse})`;
+ctx.lineWidth=9;ctx.lineCap='round';
+ctx.shadowBlur=35;ctx.shadowColor=winner.player==='X'?'#0f0':'#f00';
+ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+ctx.strokeStyle='rgba(255,255,255,0.9)';
+ctx.lineWidth=3;
+ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
 ctx.restore();
 }
+}
+function drawRipples(){
+for(let i=ripples.length-1;i>=0;i--){
+const r=ripples[i];
+r.r+=(r.max-r.r)*0.12;
+r.life-=0.03;
+if(r.life<=0){ripples.splice(i,1);continue;}
+ctx.globalAlpha=r.life*0.7;
+ctx.strokeStyle=r.color;
+ctx.lineWidth=3;
+ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,Math.PI*2);ctx.stroke();
+}
+ctx.globalAlpha=1;
 }
 function drawParticles(){
 for(let i=particles.length-1;i>=0;i--){
 const p=particles[i];
-p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;p.life-=0.02;
+p.x+=p.vx;p.y+=p.vy;p.vy+=0.18;p.vx*=0.99;
+p.life-=0.018;
 if(p.life<=0){particles.splice(i,1);continue;}
 ctx.globalAlpha=p.life;
 ctx.fillStyle=p.color;
-ctx.fillRect(p.x,p.y,p.size,p.size);
+ctx.shadowBlur=8;ctx.shadowColor=p.color;
+ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill();
 }
 ctx.globalAlpha=1;
+ctx.shadowBlur=0;
 }
-function spawnParticles(x,y,color,n){
-for(let i=0;i<n;i++)particles.push({
-x,y,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6-2,
-life:1,color,size:2+Math.random()*3
-});
-}
-function checkWinner(b){
-const lines=[
-[0,1,2],[3,4,5],[6,7,8],
-[0,3,6],[1,4,7],[2,5,8],
-[0,4,8],[2,4,6]
-];
-for(const l of lines){
-if(b[l[0]]&&b[l[0]]===b[l[1]]&&b[l[1]]===b[l[2]]){
-return {player:b[l[0]],line:l};
-}
-}
-if(b.every(c=>c))return {player:'draw',line:null};
-return null;
-}
-function cellFromPoint(px,py){
-const x=px-GX,y=py-GY;
-if(x<0||x>GS||y<0||y>GS)return -1;
-const col=Math.floor(x/CELL),r=Math.floor(y/CELL);
-return r*3+col;
-}
-function makeMove(idx,player){
-board[idx]=player;
-const r=Math.floor(idx/3),col=idx%3;
-const cx=GX+col*CELL+CELL/2,cy=GY+r*CELL+CELL/2;
-spawnParticles(cx,cy,player==='X'?'#0ff':'#f0f',10);
-const result=checkWinner(board);
-if(result){
-gameActive=false;
-winner=result;
-if(result.player==='X'){
-wins++;wT.innerText=wins;
-stT.innerText='¡GANASTE!';
-stT.style.color='#0f0';
-spawnParticles(W/2,H/2,'#0f0',30);
-}else if(result.player==='O'){
-losses++;lT.innerText=losses;
-stT.innerText='PERDISTE';
-stT.style.color='#f00';
-}else{
-draws++;dT.innerText=draws;
-stT.innerText='EMPATE';
-stT.style.color='#ff0';
-}
-setTimeout(()=>{
-if(gameActive===false){
-sB.style.display='block';
-uI.style.display='flex';uI.style.opacity=1;
-uI.querySelector('h1').innerText=result.player==='X'?'¡VICTORIA!':result.player==='O'?'DERROTA':'EMPATE';
-sB.innerText='JUGAR OTRA VEZ';
-}
-},1200);
-}else{
-turn=player==='X'?'O':'X';
-if(turn==='O'){
-aiThinking=true;
-stT.innerText='IA PENSANDO...';
-stT.style.color='#f0f';
-aiTimer=setTimeout(()=>aiMove(),500);
-}else{
-aiThinking=false;
-stT.innerText='TU TURNO';
-stT.style.color='#fff';
-}
-}
-}
-function minimax(b,depth,isMax){
-const res=checkWinner(b);
-if(res){
-if(res.player==='O')return 10-depth;
-if(res.player==='X')return depth-10;
-return 0;
-}
-if(isMax){
-let best=-Infinity;
-for(let i=0;i<9;i++){
-if(b[i]===''){
-b[i]='O';
-best=Math.max(best,minimax(b,depth+1,false));
-b[i]='';
-}
-}
-return best;
-}else{
-let best=Infinity;
-for(let i=0;i<9;i++){
-if(b[i]===''){
-b[i]='X';
-best=Math.min(best,minimax(b,depth+1,true));
-b[i]='';
-}
-}
-return best;
-}
-}
-function aiMove(){
-if(!gameActive)return;
-let bestScore=-Infinity,bestMove=-1;
-const empty=board.map((v,i)=>v===''?i:-1).filter(i=>i>=0);
-if(empty.length===9){
-bestMove=4;
-}else{
-for(const i of empty){
-board[i]='O';
-const score=minimax(board,0,false);
-board[i]='';
-if(score>bestScore){bestScore=score;bestMove=i;}
-}
-}
-if(bestMove>=0)makeMove(bestMove,'O');
-aiThinking=false;
-}
-function handleClick(px,py){
-if(!gameActive||turn!=='X'||aiThinking)return;
-const idx=cellFromPoint(px,py);
-if(idx>=0&&board[idx]==='')makeMove(idx,'X');
-}
-c.addEventListener('mousemove',e=>{
-const rect=c.getBoundingClientRect();
-const px=(e.clientX-rect.left)*(W/rect.width);
-const py=(e.clientY-rect.top)*(H/rect.height);
-hoverCell=cellFromPoint(px,py);
-});
-c.addEventListener('mouseleave',()=>{hoverCell=-1;});
-c.addEventListener('click',e=>{
-const rect=c.getBoundingClientRect();
-const px=(e.clientX-rect.left)*(W/rect.width);
-const py=(e.clientY-rect.top)*(H/rect.height);
-handleClick(px,py);
-});
-c.addEventListener('touchstart',e=>{
-e.preventDefault();
-const rect=c.getBoundingClientRect();
-const t=e.touches[0];
-const px=(t.clientX-rect.left)*(W/rect.width);
-const py=(t.clientY-rect.top)*(H/rect.height);
-handleClick(px,py);
-},{passive:false});
-function loop(){
-drawGrid();
-drawBoard();
-drawParticles();
-anim=requestAnimationFrame(loop);
-}
-function start(){
-wins=0;draws=0;losses=0;
-wT.innerText=0;dT.innerText=0;lT.innerText=0;
-initGame();
-hU.style.display='block';
-uI.style.opacity=0;
-setTimeout(()=>uI.style.display='none',300);
-if(!anim)loop();
-}
-sB.addEventListener('click',start);
-drawGrid();
+function loop(){drawGrid();drawBoard();drawRipples();drawParticles();requestAnimationFrame(loop);}
+initBoard();
+stT.innerText='Esperando...';
+loop();
 })();
 </script>
 </div>
 `
 
-let handler = async (m, { conn }) => {
+const games = new Map()
+
+function getGame(jid) {
+    if (!games.has(jid)) games.set(jid, { players: [], board: Array(9).fill(''), turn: 0, active: false })
+    return games.get(jid)
+}
+
+function render(b) {
+    const c = i => b[i] === '' ? '⬜' : (b[i] === 'X' ? '❌' : '⭕')
+    return `${c(0)}${c(1)}${c(2)}\n${c(3)}${c(4)}${c(5)}\n${c(6)}${c(7)}${c(8)}`
+}
+
+function checkWin(b) {
+    const L = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
+    for (const l of L) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[1]] === b[l[2]]) return l
+    return null
+}
+
+let handler = async (m, { conn, args, command }) => {
     const jid = m.chat || m.key?.remoteJid
     if (!jid) return
-    await conn.relayMessage(
-        jid,
-        {
-            messageContextInfo: {
-                deviceListMetadata: {},
-                deviceListMetadataVersion: 2
-            },
-            botForwardedMessage: {
-                message: {
-                    richResponseMessage: {
-                        messageType: 1,
-                        submessages: [
-                            {
-                                messageType: 2,
-                                messageText: '🎮 TRES EN LÍNEA'
-                            }
-                        ],
-                        unifiedResponse: {
-                            data: Buffer.from(
-                                JSON.stringify({
+    const senderJid = m.sender
+    const senderName = m.pushName || senderJid.split('@')[0]
+    const game = getGame(jid)
+    const ctx = m.message?.extendedTextMessage?.contextInfo || m.msg?.contextInfo
+    const num = parseInt(args[0])
+
+    if (/^(ttt|tictactoe|tres)$/i.test(command)) {
+        if (game.active) return m.reply('Ya hay partida en curso.')
+        let rivalJid = ctx?.participant
+        if (!rivalJid && ctx?.mentionedJid?.length) rivalJid = ctx.mentionedJid[0]
+        if (!rivalJid) return m.reply('Menciona o responde a alguien.')
+        if (rivalJid === senderJid) return m.reply('No puedes jugar contigo.')
+
+        game.players = [
+            { name: senderName, jid: senderJid, symbol: 'X' },
+            { name: (await conn.getName(rivalJid)) || rivalJid.split('@')[0], jid: rivalJid, symbol: 'O' }
+        ]
+        game.board = Array(9).fill('')
+        game.turn = 0
+        game.active = true
+
+        try {
+            await conn.relayMessage(jid, {
+                messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 2 },
+                botForwardedMessage: {
+                    message: {
+                        richResponseMessage: {
+                            messageType: 1,
+                            submessages: [{ messageType: 2, messageText: '🎮 TRES EN LÍNEA' }],
+                            unifiedResponse: {
+                                data: Buffer.from(JSON.stringify({
                                     response_id: crypto.randomUUID(),
-                                    sections: [
-                                        {
-                                            view_model: {
-                                                primitive: {
-                                                    __typename: 'GenAIaeacdsnwHtmlPrimitive',
-                                                    payload: TICTACTOE_HTML,
-                                                    trusted_sources: []
-                                                },
-                                                __typename: 'GenAISingleLayoutViewModel'
-                                            }
+                                    sections: [{
+                                        view_model: {
+                                            primitive: { __typename: 'GenAIaeacdsnwHtmlPrimitive', payload: TICTACTOE_HTML, trusted_sources: [] },
+                                            __typename: 'GenAISingleLayoutViewModel'
                                         }
-                                    ]
-                                })
-                            ).toString('base64')
-                        },
-                        contextInfo: {
-                            forwardingScore: 1,
-                            isForwarded: true,
-                            forwardOrigin: 4
+                                    }]
+                                })).toString('base64')
+                            },
+                            contextInfo: { forwardingScore: 1, isForwarded: true, forwardOrigin: 4 }
                         }
                     }
                 }
-            }
-        },
-        {}
-    )
+            }, { quoted: m })
+        } catch (e) {}
+
+        return conn.sendMessage(jid, {
+            text: `⚔️ *TRES EN LÍNEA*\n\n❌ @${senderJid.split('@')[0]}\n⭕ @${rivalJid.split('@')[0]}\n\n👉 Turno de @${senderJid.split('@')[0]}\nUsa *.j 1-9*`,
+            mentions: [senderJid, rivalJid]
+        }, { quoted: m })
+    }
+
+    if (/^(j|jugar)$/i.test(command)) {
+        if (!game.active) return m.reply('No hay partida.')
+        const me = game.players.find(p => p.jid === senderJid)
+        if (!me) return m.reply('No estás en la partida.')
+        const cur = game.players[game.turn]
+        if (cur.jid !== senderJid) return conn.sendMessage(jid, { text: `⏳ Le toca a @${cur.jid.split('@')[0]}`, mentions: [cur.jid] }, { quoted: m })
+        if (!num || num < 1 || num > 9) return m.reply('Usa *.j 1-9*')
+        const idx = num - 1
+        if (game.board[idx] !== '') return m.reply('Ocupada.')
+
+        game.board[idx] = me.symbol
+        const win = checkWin(game.board)
+        const full = game.board.every(c => c !== '')
+        const tab = render(game.board)
+
+        if (win) {
+            game.active = false
+            return conn.sendMessage(jid, { text: `🏆 ¡GANA @${me.jid.split('@')[0]}!\n\n${tab}`, mentions: [me.jid] }, { quoted: m })
+        }
+        if (full) {
+            game.active = false
+            return conn.sendMessage(jid, { text: `🤝 EMPATE\n\n${tab}`, mentions: game.players.map(p => p.jid) }, { quoted: m })
+        }
+
+        game.turn = (game.turn + 1) % 2
+        const next = game.players[game.turn]
+        return conn.sendMessage(jid, {
+            text: `✅ ${me.name} → ${num}\n\n${tab}\n\n👉 Turno de @${next.jid.split('@')[0]} (${next.symbol})`,
+            mentions: [next.jid]
+        }, { quoted: m })
+    }
 }
+
 handler.help = ['tictactoe']
 handler.tags = ['game']
-handler.command = ['tictactoe', 'ttt']
+handler.command = ['ttt', 'tictactoe']
 export default handler
