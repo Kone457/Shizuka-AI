@@ -1,11 +1,9 @@
 import crypto from 'crypto'
-
 const MINESWEEPER_HTML = `
 <div style="width:100%;height:600px;background:#02040a;position:relative;overflow:hidden;font-family:'Segoe UI',sans-serif;user-select:none;color:#fff;">
 <canvas id="msC" width="360" height="600" style="width:100%;height:100%;display:block;touch-action:none;"></canvas>
 <div id="msMenu" style="position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,rgba(0,40,65,.97),rgba(1,3,10,.99) 70%);">
-<div style="font-size:12px;color:#00eaff;letter-spacing:5px;margin-bottom:8px;text-shadow:0 0 15px #00eaff;">NEON SYSTEM</div>
-<h1 style="margin:0;color:#fff;font-size:42px;letter-spacing:5px;text-shadow:0 0 10px #00eaff,0 0 35px #008cff;">BUSCAMINAS</h1>
+<h1 style="margin:0;color:#fff;font-size:34px;letter-spacing:3px;text-shadow:0 0 10px #00eaff,0 0 35px #008cff;white-space:nowrap;">BUSCAMINAS</h1>
 <div style="color:#7195b5;font-size:12px;margin:10px 0 28px;text-align:center;line-height:1.7;">Encuentra todas las minas.<br>Primer clic siempre seguro.</div>
 <div style="width:100%;max-width:290px;display:flex;gap:8px;margin-bottom:18px;">
 <button class="msDiff" data-d="easy" style="flex:1;padding:12px 4px;border:1px solid #00eaff;background:rgba(0,234,255,.15);color:#00eaff;border-radius:10px;font-weight:800;">FÁCIL</button>
@@ -456,7 +454,6 @@ render(performance.now());
 </script>
 </div>
 `
-
 let handler = async (m, { conn }) => {
     const jid = m.chat || m.key?.remoteJid
     if (!jid) return
