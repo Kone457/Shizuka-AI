@@ -5,7 +5,7 @@ const TANK_HTML = `
 <canvas id="tankC" width="400" height="600" style="width:100%;height:100%;display:block;"></canvas>
 <div id="tankUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,0.92);z-index:10;transition:opacity 0.3s;padding:20px;box-sizing:border-box;">
 <h1 style="color:#f60;text-shadow:0 0 20px #f60,0 0 40px #f30;font-size:32px;margin:0 0 10px;letter-spacing:5px;text-transform:uppercase;font-weight:900;text-align:center;">TANK WAR</h1>
-<p style="color:#fa8;margin:0 0 20px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.8;">Destruye todos los tanques enemigos.<br>Usa los controles para moverte, apuntar y disparar.<br>¡Sobrevive el mayor tiempo posible!</p>
+<p style="color:#fa8;margin:0 0 20px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.8;">Destruye todos los tanques enemigos.<br>Toca la pantalla para disparar.<br>Usa los botones para moverte.</p>
 <button id="tankSB" style="padding:14px 42px;background:linear-gradient(45deg,#f60,#f30);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:3px;box-shadow:0 0 25px rgba(255,100,0,0.6);">COMENZAR</button>
 </div>
 <div id="tankHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;">
@@ -27,13 +27,12 @@ const TANK_HTML = `
 <div id="tankPad" style="position:absolute;bottom:0;left:0;width:100%;box-sizing:border-box;display:none;z-index:6;padding:6px;background:linear-gradient(to top,rgba(10,10,15,0.98),rgba(10,10,15,0.75));">
 <div style="display:flex;justify-content:space-between;gap:4px;align-items:stretch;">
 <div style="display:flex;gap:4px;">
-<button data-act="left" style="width:52px;height:48px;border-radius:12px;background:linear-gradient(180deg,#2a1a0a,#150a05);border:1px solid #7a4a2a;color:#f60;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #100805,0 0 12px rgba(255,100,0,0.4);">◀</button>
-<button data-act="right" style="width:52px;height:48px;border-radius:12px;background:linear-gradient(180deg,#2a1a0a,#150a05);border:1px solid #7a4a2a;color:#f60;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #100805,0 0 12px rgba(255,100,0,0.4);">▶</button>
+<button data-act="left" style="width:56px;height:52px;border-radius:12px;background:linear-gradient(180deg,#2a1a0a,#150a05);border:1px solid #7a4a2a;color:#f60;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #100805,0 0 12px rgba(255,100,0,0.4);">◀</button>
+<button data-act="right" style="width:56px;height:52px;border-radius:12px;background:linear-gradient(180deg,#2a1a0a,#150a05);border:1px solid #7a4a2a;color:#f60;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #100805,0 0 12px rgba(255,100,0,0.4);">▶</button>
 </div>
 <div style="display:flex;gap:4px;">
-<button data-act="up" style="width:46px;height:48px;border-radius:12px;background:linear-gradient(180deg,#1a2a0a,#0a1505);border:1px solid #4a7a2a;color:#0f0;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #051005,0 0 12px rgba(0,255,0,0.4);">▲</button>
-<button data-act="down" style="width:46px;height:48px;border-radius:12px;background:linear-gradient(180deg,#1a2a0a,#0a1505);border:1px solid #4a7a2a;color:#0f0;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #051005,0 0 12px rgba(0,255,0,0.4);">▼</button>
-<button data-act="fire" style="width:46px;height:48px;border-radius:12px;background:linear-gradient(180deg,#4a0a0a,#250505);border:1px solid #aa2a2a;color:#f00;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #200505,0 0 12px rgba(255,0,0,0.5);">🔥</button>
+<button data-act="up" style="width:50px;height:52px;border-radius:12px;background:linear-gradient(180deg,#1a2a0a,#0a1505);border:1px solid #4a7a2a;color:#0f0;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #051005,0 0 12px rgba(0,255,0,0.4);">▲</button>
+<button data-act="down" style="width:50px;height:52px;border-radius:12px;background:linear-gradient(180deg,#1a2a0a,#0a1505);border:1px solid #4a7a2a;color:#0f0;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #051005,0 0 12px rgba(0,255,0,0.4);">▼</button>
 </div>
 </div>
 </div>
@@ -45,10 +44,20 @@ const uI=document.getElementById('tankUI'),sB=document.getElementById('tankSB'),
 const scT=document.getElementById('tankSc'),wvT=document.getElementById('tankWv'),hpT=document.getElementById('tankHp');
 const pad=document.getElementById('tankPad');
 const W=c.width,H=c.height;
-let player,enemies,bullets,enemyBullets,particles,explosions,keys,running,anim,lastTime,sc,wave,spawnTimer,gameOverFlag;
+let player,enemies,bullets,enemyBullets,particles,explosions,keys,running,anim,lastTime,sc,wave,spawnTimer,gameOverFlag,fireCooldown;
 const TANK_SIZE=28,BULLET_SIZE=4;
+let canvasRect=null;
+function getCanvasCoords(clientX,clientY){
+if(!canvasRect)canvasRect=c.getBoundingClientRect();
+const scaleX=W/canvasRect.width;
+const scaleY=H/canvasRect.height;
+return{
+x:(clientX-canvasRect.left)*scaleX,
+y:(clientY-canvasRect.top)*scaleY
+};
+}
 function createTank(x,y,color,isPlayer){
-return{x,y,color,isPlayer,angle:isPlayer?-Math.PI/2:Math.PI/2,speed:isPlayer?2.2:1.2,cooldown:0,hp:isPlayer?100:30,maxHp:isPlayer?100:30,size:TANK_SIZE,tracks:[]};
+return{x,y,color,isPlayer,angle:isPlayer?-Math.PI/2:Math.PI/2,speed:isPlayer?2.2:1.2,cooldown:0,hp:isPlayer?100:30,maxHp:isPlayer?100:30,size:TANK_SIZE};
 }
 function spawnEnemy(){
 const side=Math.floor(Math.random()*4);
@@ -210,6 +219,11 @@ const by=player.y+Math.sin(player.angle)*player.size/2;
 bullets.push({x:bx,y:by,vx:Math.cos(player.angle)*7,vy:Math.sin(player.angle)*7,life:1,color:'#0f0'});
 spawnParticles(bx,by,'#0f0',3,2);
 }
+function fireAt(targetX,targetY){
+if(!player)return;
+player.angle=Math.atan2(targetY-player.y,targetX-player.x);
+fireBullet();
+}
 function update(dt){
 if(!running)return;
 updatePlayer(dt);
@@ -291,7 +305,8 @@ anim=requestAnimationFrame(tick);
 function start(){
 player=createTank(W/2,H-80,'#0a0',true);
 enemies=[];bullets=[];enemyBullets=[];particles=[];explosions=[];
-keys={};sc=0;wave=1;spawnTimer=1000;gameOverFlag=false;
+keys={};sc=0;wave=1;spawnTimer=1000;gameOverFlag=false;fireCooldown=0;
+canvasRect=null;
 scT.innerText=sc;wvT.innerText=wave;hpT.innerText=player.hp;
 hU.style.display='block';pad.style.display='block';
 uI.style.opacity=0;setTimeout(()=>uI.style.display='none',300);
@@ -313,17 +328,15 @@ uI.querySelector('p').innerHTML='<b style="color:#f60">Puntos: '+sc+'</b> · <b 
 hU.style.display='none';pad.style.display='none';
 },800);
 }
-function handleAct(a){
-if(!running||!player)return;
-if(a==='left')keys['ArrowLeft']=true;
-else if(a==='right')keys['ArrowRight']=true;
-else if(a==='up')keys['ArrowUp']=true;
-else if(a==='down')keys['ArrowDown']=true;
-else if(a==='fire')fireBullet();
-}
 pad.querySelectorAll('button').forEach(b=>{
 const act=b.getAttribute('data-act');
-const start=()=>{handleAct(act);};
+const start=()=>{
+if(!running)return;
+if(act==='left')keys['ArrowLeft']=true;
+else if(act==='right')keys['ArrowRight']=true;
+else if(act==='up')keys['ArrowUp']=true;
+else if(act==='down')keys['ArrowDown']=true;
+};
 const end=()=>{
 if(act==='left')delete keys['ArrowLeft'];
 if(act==='right')delete keys['ArrowRight'];
@@ -332,11 +345,29 @@ if(act==='down')delete keys['ArrowDown'];
 };
 b.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();start();},{passive:false});
 b.addEventListener('touchend',e=>{e.preventDefault();end();},{passive:false});
+b.addEventListener('touchcancel',e=>{e.preventDefault();end();},{passive:false});
 b.addEventListener('mousedown',e=>{e.preventDefault();e.stopPropagation();start();});
 b.addEventListener('mouseup',e=>{e.preventDefault();end();});
 b.addEventListener('mouseleave',end);
 b.addEventListener('contextmenu',e=>e.preventDefault());
 });
+c.addEventListener('touchstart',e=>{
+if(!running||!player)return;
+e.preventDefault();
+const touch=e.touches[0];
+const coords=getCanvasCoords(touch.clientX,touch.clientY);
+fireAt(coords.x,coords.y);
+},{passive:false});
+c.addEventListener('touchmove',e=>{
+if(!running||!player)return;
+e.preventDefault();
+},{passive:false});
+c.addEventListener('mousedown',e=>{
+if(!running||!player)return;
+const coords=getCanvasCoords(e.clientX,e.clientY);
+fireAt(coords.x,coords.y);
+});
+c.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('keydown',e=>{
 if(!running)return;
 keys[e.key]=true;
@@ -346,6 +377,7 @@ if(e.key===' ')fireBullet();
 document.addEventListener('keyup',e=>{
 delete keys[e.key];
 });
+window.addEventListener('resize',()=>{canvasRect=null;});
 sB.addEventListener('click',start);
 draw();
 })();
