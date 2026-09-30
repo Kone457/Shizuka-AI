@@ -3,7 +3,7 @@ const BLACKJACK_HTML = `
 <div style="width:100%;height:600px;background:#020b08;position:relative;overflow:hidden;font-family:'Segoe UI',sans-serif;user-select:none;color:#fff;">
 <canvas id="bjC" width="360" height="600" style="width:100%;height:100%;display:block;touch-action:none;"></canvas>
 <div id="bjMenu" style="position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,rgba(0,75,45,.96),rgba(1,5,9,.99) 72%);">
-<h1 style="margin:0;color:#fff;font-size:42px;letter-spacing:5px;text-shadow:0 0 10px #00ff88,0 0 35px #00b85c;white-space:nowrap;">BLACKJACK</h1>
+<h1 style="margin:0;color:#fff;font-size:34px;letter-spacing:3px;text-shadow:0 0 10px #00ff88,0 0 35px #00b85c;white-space:nowrap;">BLACKJACK</h1>
 <div style="color:#78a994;font-size:12px;margin:10px 0 25px;text-align:center;line-height:1.7;">Consigue 21 sin pasarte.<br>Vence al dealer para ganar la partida.</div>
 <div style="width:100%;max-width:290px;padding:15px 18px;box-sizing:border-box;background:rgba(255,255,255,.035);border:1px solid rgba(0,255,136,.2);border-radius:16px;margin-bottom:18px;">
 <div style="display:flex;justify-content:space-between;color:#789b8b;font-size:10px;letter-spacing:2px;">
