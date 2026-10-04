@@ -27,6 +27,7 @@ global.jadi = 'sessions/session-sub'
 global.api = {
   url: 'https://nexevo.boxmine.xyz',
   url2: 'https://api.delirius.online',
+  url3: 'https://api-faa.my.id',
   key: 'NEX-Shizuka'
 }
 
