@@ -92,6 +92,44 @@ function getDurationSeconds(value) {
   }
   return 0
 }
+async function downloadWithApi(link, isAudio) {
+  const endpoint = isAudio
+    ? `${api.url2}/download/ytmp3`
+    : `${api.url2}/download/ytmp4`
+  const downloadApiUrl = isAudio
+    ? `${endpoint}?url=${encodeURIComponent(link)}`
+    : `${endpoint}?url=${encodeURIComponent(link)}&format=360p`
+  try {
+    const res = await fetch(downloadApiUrl)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const json = await res.json()
+    if (json.status && json.data?.download) {
+      return {
+        data: json.data,
+        downloadUrl: json.data.download
+      }
+    }
+  } catch {}
+  const fallbackUrl = isAudio
+    ? `${api.url3}/faa/ytmp3?url=${encodeURIComponent(link)}`
+    : `${api.url3}/faa/ytmp4?url=${encodeURIComponent(link)}`
+  const fallbackRes = await fetch(fallbackUrl)
+  if (!fallbackRes.ok) throw new Error(`HTTP ${fallbackRes.status}`)
+  const fallbackJson = await fallbackRes.json()
+  if (!fallbackJson.status || !fallbackJson.result) throw new Error('Fallback API failed')
+  const result = fallbackJson.result
+  const downloadUrl = isAudio ? result.mp3 : result.download_url
+  if (!downloadUrl) throw new Error('No download URL')
+  return {
+    data: {
+      title: result.title,
+      thumbnail: result.thumbnail,
+      duration: result.duration,
+      download: downloadUrl
+    },
+    downloadUrl
+  }
+}
 const handler = async (m, { conn, command, text }) => {
   const fkontak = await buildContact(m, conn)
   if (!text) {
@@ -266,35 +304,7 @@ const handler = async (m, { conn, command, text }) => {
       }
     }
     const isAudio = ['play', 'mp3', 'ytmp3'].includes(command)
-    const endpoint = isAudio
-      ? `${api.url2}/download/ytmp3`
-      : `${api.url2}/download/ytmp4`
-    const downloadApiUrl = isAudio
-      ? `${endpoint}?url=${encodeURIComponent(link)}`
-      : `${endpoint}?url=${encodeURIComponent(link)}&format=360p`
-    const res = await fetch(downloadApiUrl)
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`)
-    }
-    const json = await res.json()
-    if (!json.status || !json.data?.download) {
-      await conn.sendMessage(m.chat, {
-        react: {
-          text: '❌',
-          key: m.key
-        }
-      })
-      return conn.sendMessage(
-        m.chat,
-        {
-          text: `No se pudo obtener el ${isAudio ? 'audio' : 'video'}.`
-        },
-        {
-          quoted: fkontak
-        }
-      )
-    }
-    const data = json.data
+    const { data, downloadUrl } = await downloadWithApi(link, isAudio)
     const apiDuration = getDurationSeconds(
       data.seconds ||
       data.duration ||
@@ -319,7 +329,6 @@ const handler = async (m, { conn, command, text }) => {
         }
       )
     }
-    const downloadUrl = data.download
     const size = await getSize(downloadUrl)
     if (size > MAX_BYTES) {
       await conn.sendMessage(m.chat, {
@@ -393,14 +402,7 @@ const handler = async (m, { conn, command, text }) => {
     )
   }
 }
-handler.command = [
-  'play',
-  'play2',
-  'mp3',
-  'mp4',
-  'ytmp3',
-  'ytmp4'
-]
+handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4']
 handler.tags = ['descargas']
 handler.help = ['play']
 handler.group = true
