@@ -13,7 +13,7 @@ let handler = async (m, { conn }) => {
 ┊ 👤 *Nombre:* Carlos
 ┊ 🌐 *Github:* github.com/Kone457
 ┊ 📱 *Telegram:* t.me/CarlosOfc_xp
-┊ 📞 *WhatsApp:* No disponible
+┊ 📞 *WhatsApp:* wa.me/CarlosOfc.CC
 ╰─❏ ✿`
 
   // Preparar media
