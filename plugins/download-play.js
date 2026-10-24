@@ -93,6 +93,23 @@ function getDurationSeconds(value) {
   return 0
 }
 async function downloadWithApi(link, isAudio) {
+  try {
+    const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
+    if (res.ok) {
+      const json = await res.json()
+      if (json.status && json.result?.url) {
+        return {
+          data: {
+            title: json.result.info?.title,
+            thumbnail: json.result.info?.thumbnail,
+            duration: json.result.info?.duration,
+            download: json.result.url
+          },
+          downloadUrl: json.result.url
+        }
+      }
+    }
+  } catch {}
   const endpoint = isAudio
     ? `${api.url2}/download/ytmp3`
     : `${api.url2}/download/ytmp4`
