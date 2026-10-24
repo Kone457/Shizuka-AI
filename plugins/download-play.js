@@ -93,6 +93,30 @@ function getDurationSeconds(value) {
   return 0
 }
 async function downloadWithApi(link, isAudio) {
+  const fallbackUrl = isAudio
+    ? `${api.url3}/faa/ytmp3?url=${encodeURIComponent(link)}`
+    : `${api.url3}/faa/ytmp4?url=${encodeURIComponent(link)}`
+  try {
+    const fallbackRes = await fetch(fallbackUrl)
+    if (fallbackRes.ok) {
+      const fallbackJson = await fallbackRes.json()
+      if (fallbackJson.status && fallbackJson.result) {
+        const result = fallbackJson.result
+        const downloadUrl = isAudio ? result.mp3 : result.download_url
+        if (downloadUrl) {
+          return {
+            data: {
+              title: result.title,
+              thumbnail: result.thumbnail,
+              duration: result.duration,
+              download: downloadUrl
+            },
+            downloadUrl
+          }
+        }
+      }
+    }
+  } catch {}
   try {
     const res = await fetch(`${api.url}/download/audio?url=${encodeURIComponent(link)}&apikey=${api.key}`)
     if (res.ok) {
@@ -116,35 +140,13 @@ async function downloadWithApi(link, isAudio) {
   const downloadApiUrl = isAudio
     ? `${endpoint}?url=${encodeURIComponent(link)}`
     : `${endpoint}?url=${encodeURIComponent(link)}&format=360p`
-  try {
-    const res = await fetch(downloadApiUrl)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const json = await res.json()
-    if (json.status && json.data?.download) {
-      return {
-        data: json.data,
-        downloadUrl: json.data.download
-      }
-    }
-  } catch {}
-  const fallbackUrl = isAudio
-    ? `${api.url3}/faa/ytmp3?url=${encodeURIComponent(link)}`
-    : `${api.url3}/faa/ytmp4?url=${encodeURIComponent(link)}`
-  const fallbackRes = await fetch(fallbackUrl)
-  if (!fallbackRes.ok) throw new Error(`HTTP ${fallbackRes.status}`)
-  const fallbackJson = await fallbackRes.json()
-  if (!fallbackJson.status || !fallbackJson.result) throw new Error('Fallback API failed')
-  const result = fallbackJson.result
-  const downloadUrl = isAudio ? result.mp3 : result.download_url
-  if (!downloadUrl) throw new Error('No download URL')
+  const res = await fetch(downloadApiUrl)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const json = await res.json()
+  if (!json.status || !json.data?.download) throw new Error('API failed')
   return {
-    data: {
-      title: result.title,
-      thumbnail: result.thumbnail,
-      duration: result.duration,
-      download: downloadUrl
-    },
-    downloadUrl
+    data: json.data,
+    downloadUrl: json.data.download
   }
 }
 const handler = async (m, { conn, command, text }) => {
