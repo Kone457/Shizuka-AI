@@ -89,22 +89,27 @@ for (const tag of Object.keys(CATEGORY_META)) {
 }
 
 const bannerUrl = getBotConfig(conn, 'banner2')
-let jpegThumbnail = null
+let imageBuffer = null
 try {
   const res = await fetch(bannerUrl)
-  if (res.ok) jpegThumbnail = Buffer.from(await res.arrayBuffer())
+  if (res.ok) imageBuffer = Buffer.from(await res.arrayBuffer())
 } catch {}
 
-const finalText = `${menuTexto.trim()}\n\n${CHANNEL_URL}`
-
 await conn.sendMessage(m.chat, {
-  text: finalText,
-  linkPreview: {
-    'matched-text': CHANNEL_URL,
-    title: `${botnameConfig}`,
-    description: `${dev}`,
-    previewType: 'NONE',
-    jpegThumbnail: jpegThumbnail || undefined
+  image: imageBuffer || { url: bannerUrl },
+  caption: menuTexto.trim(),
+  mimetype: 'image/jpeg',
+  contextInfo: {
+    externalAdReply: {
+      title: `${botnameConfig}`,
+      body: `${dev}`,
+      thumbnailUrl: bannerUrl,
+      mediaType: 1,
+      mediaUrl: bannerUrl,
+      sourceUrl: CHANNEL_URL,
+      showAdAttribution: false,
+      renderLargerThumbnail: true
+    }
   }
 }, { quoted: m })
 
