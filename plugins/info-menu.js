@@ -96,9 +96,22 @@ for (const tag of Object.keys(CATEGORY_META)) {
   menuTexto += `╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n\n`  
 }  
 
+const bannerUrl = getBotConfig(conn, 'banner2')  
+
 await conn.sendMessage(m.chat, {  
-  image: { url: getBotConfig(conn, 'banner2') },  
-  caption: menuTexto.trim()  
+  text: menuTexto.trim(),
+  contextInfo: {
+    externalAdReply: {
+      title: ` ${botnameConfig}`,
+      body: `${dev}`,
+      thumbnailUrl: bannerUrl,
+      mediaType: 1,
+      mediaUrl: bannerUrl,
+      sourceUrl: 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O',
+      showAdAttribution: false,
+      renderLargerThumbnail: true
+    }
+  }
 }, { quoted: m })
 
 } catch (e) {
