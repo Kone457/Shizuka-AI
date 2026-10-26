@@ -30,90 +30,26 @@ serbot: '⊹ Sub-bots ⊹'
 
 const CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O'
 
+let cachedBannerBuffer = null
+let cachedBannerUrl = null
+
 async function fetchBuffer(url) {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Error descargando imagen: ${res.status}`)
   return Buffer.from(await res.arrayBuffer())
 }
 
-async function loadJimp() {
-  const mod = await import('jimp')
-  return mod.Jimp || mod.default || mod
-}
-
-async function getJimpBuffer(image, mime) {
-  if (typeof image.getBufferAsync === 'function') {
-    return image.getBufferAsync(mime)
+async function getBannerBuffer(url) {
+  if (cachedBannerBuffer && cachedBannerUrl === url) {
+    return cachedBannerBuffer
   }
 
   try {
-    const result = image.getBuffer(mime)
-    if (result instanceof Promise) return await result
-  } catch {}
-
-  return new Promise((resolve, reject) => {
-    image.getBuffer(mime, (err, buffer) => {
-      if (err) reject(err)
-      else resolve(buffer)
-    })
-  })
-}
-
-async function resizeImage(imageInput, width = 1000, height = 700) {
-  if (!imageInput) return null
-
-  try {
-    const Jimp = await loadJimp()
-
-    let buffer = imageInput
-
-    if (
-      typeof imageInput === 'string' &&
-      /^https?:\/\//.test(imageInput)
-    ) {
-      buffer = await fetchBuffer(imageInput)
-    }
-
-    if (
-      typeof imageInput === 'string' &&
-      /^data:.*?;base64,/.test(imageInput)
-    ) {
-      buffer = Buffer.from(imageInput.split(',')[1], 'base64')
-    }
-
-    if (!Buffer.isBuffer(buffer)) return null
-
-    const image = await Jimp.read(buffer)
-
-    try {
-      image.contain(width, height)
-    } catch {
-      try {
-        image.contain({ w: width, h: height })
-      } catch {
-        try {
-          image.resize(width, height)
-        } catch {
-          image.resize({ w: width, h: height })
-        }
-      }
-    }
-
-    if (typeof image.quality === 'function') {
-      image.quality(90)
-    }
-
-    return await getJimpBuffer(image, 'image/jpeg')
+    const buf = await fetchBuffer(url)
+    cachedBannerBuffer = buf
+    cachedBannerUrl = url
+    return buf
   } catch {
-    try {
-      if (
-        typeof imageInput === 'string' &&
-        /^https?:\/\//.test(imageInput)
-      ) {
-        return await fetchBuffer(imageInput)
-      }
-    } catch {}
-
     return null
   }
 }
@@ -193,7 +129,7 @@ for (const tag of Object.keys(CATEGORY_META)) {
 
 const BANNER_URL = getBotConfig(conn, 'banner2')
 
-const imageBuffer = await resizeImage(BANNER_URL, 1000, 700)
+const imageBuffer = await getBannerBuffer(BANNER_URL)
 
 if (!imageBuffer) {
   return await conn.sendMessage(m.chat, {
