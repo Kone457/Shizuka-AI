@@ -159,7 +159,7 @@ const nativeFlowPayload = {
   },
 
   footer: {
-    text: '© Todos los derechos reservados'
+    text: `${dev}`
   },
 
   nativeFlowMessage: {
