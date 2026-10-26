@@ -1,5 +1,6 @@
 import moment from 'moment-timezone'
 import { getBotConfig } from '../lib/botconfig.js'
+import fetch from 'node-fetch'
 
 const CATEGORY_META = {
 main: '⊹ Main ⊹',
@@ -24,93 +25,86 @@ nsfw: '⊹ NSFW ⊹',
 serbot: '⊹ Sub-bots ⊹'
 }
 
+const CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O'
+
 let handler = async (m, { conn }) => {
 try {
 
-await conn.sendMessage(m.chat, {  
-  react: { text: '💔', key: m.key }  
-})  
+await conn.sendMessage(m.chat, { react: { text: '💔', key: m.key } })
 
-const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)  
-const pluginsCount = pluginsActivos.length  
+const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)
+const pluginsCount = pluginsActivos.length
 
-const fecha = moment.tz('America/Havana').format('DD/MM/YYYY')  
-const hora = moment.tz('America/Havana').format('hh:mm A')  
+const fecha = moment.tz('America/Havana').format('DD/MM/YYYY')
+const hora = moment.tz('America/Havana').format('hh:mm A')
 
-const byTag = {}  
+const byTag = {}
 
-for (const plugin of pluginsActivos) {  
-  const tags = Array.isArray(plugin.tags)  
-    ? plugin.tags  
-    : (plugin.tags ? [plugin.tags] : [])  
+for (const plugin of pluginsActivos) {
+  const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : [])
+  const helps = Array.isArray(plugin.help) ? plugin.help : (plugin.help ? [plugin.help] : [])
 
-  const helps = Array.isArray(plugin.help)  
-    ? plugin.help  
-    : (plugin.help ? [plugin.help] : [])  
+  for (const tag of tags) {
+    if (!CATEGORY_META[tag]) continue
+    if (!byTag[tag]) byTag[tag] = new Set()
+    for (const h of helps) {
+      if (typeof h === 'string' && h.trim()) byTag[tag].add(h.trim())
+    }
+  }
+}
 
-  for (const tag of tags) {  
-    if (!CATEGORY_META[tag]) continue  
-
-    if (!byTag[tag]) byTag[tag] = new Set()  
-
-    for (const h of helps) {  
-      if (typeof h === 'string' && h.trim()) {  
-        byTag[tag].add(h.trim())  
-      }  
-    }  
-  }  
-}  
-
-const userName = m.pushName || 'Usuario'  
-const botnameConfig = getBotConfig(conn, 'botname') || 'Bot'  
+const userName = m.pushName || 'Usuario'
+const botnameConfig = getBotConfig(conn, 'botname') || 'Bot'
 
 const mainBotJid = global.conn?.user?.jid?.split(':')[0]
 const currentBotJid = conn.user?.jid?.split(':')[0]
 const isMainBot = mainBotJid && currentBotJid && mainBotJid === currentBotJid
 
-const botType = isMainBot ? ' 𝐏𝐫𝐞𝐦-𝐁𝐨𝐭' : '𝐒𝐮𝐛-𝐁𝐨𝐭'  
+const botType = isMainBot ? ' 𝐏𝐫𝐞𝐦-𝐁𝐨𝐭' : '𝐒𝐮𝐛-𝐁𝐨𝐭'
 
-let menuTexto = ''  
+let menuTexto = ''
 
-menuTexto += `Hola *${userName}* soy *${botnameConfig}* (${botType})\n`  
-menuTexto += `ᴀǫᴜɪ ᴛɪᴇɴᴇs ʟᴀ ʟɪsᴛᴀ ᴅᴇ ᴄᴏᴍᴀɴᴅᴏs\n`  
-menuTexto += `╭┈ ↷\n`  
-menuTexto += `│ ✐ 𝓓𝓮𝔀𝓮𝓵𝓸𝓹𝓮𝓭 𝓫𝔂 𝓒𝓪𝓻𝓵𝓸𝓼 💙\n`  
-menuTexto += `│ ✐ ꒷ꕤ💎ദ ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ ෴\n`  
-menuTexto += `│https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O\n`  
-menuTexto += `╰─────────────────\n\n`  
+menuTexto += `Hola *${userName}* soy *${botnameConfig}* (${botType})\n`
+menuTexto += `ᴀǫᴜɪ ᴛɪᴇɴᴇs ʟᴀ ʟɪsᴛᴀ ᴅᴇ ᴄᴏᴍᴀɴᴅᴏs\n`
+menuTexto += `╭┈ ↷\n`
+menuTexto += `│ ✐ 𝓓𝓮𝔀𝓮𝓵𝓸𝓹𝓮𝓭 𝓫𝔂 𝓒𝓪𝓻𝓵𝓸𝓼 💙\n`
+menuTexto += `│ ✐ ꒷ꕤ💎ദ ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ ෴\n`
+menuTexto += `│${CHANNEL_URL}\n`
+menuTexto += `╰─────────────────\n\n`
 
-for (const tag of Object.keys(CATEGORY_META)) {  
-  const set = byTag[tag]  
+for (const tag of Object.keys(CATEGORY_META)) {
+  const set = byTag[tag]
 
-  if (!set || set.size === 0) continue  
+  if (!set || set.size === 0) continue
 
-  const cmds = [...set].sort()  
+  const cmds = [...set].sort()
 
-  menuTexto += `╭─ׅ─ׅ┈ ─๋︩︪─☪︎︎︎̸⃘̸࣭ٜ࣪࣪࣪۬◌⃘۪֟፝֯۫۫︎⃪𐇽۫۬❖⃘࣭ٜ࣪࣪࣪۬☪︎︎︎︎̸─ׅ─ׅ┈ ─๋︩︪─╮\n`  
-  menuTexto += `╭╼⬪࣪ꥈ𑁍⃪࣭۪ٜ ${CATEGORY_META[tag]} ໑⃪࣭۪ٜ݊݊݊݊𑁍ꥈ࣪⬪\n`  
-  menuTexto += `┃֪࣪  ╰─ׅ─ׅ┈ ─๋︩︪─☪︎︎︎̸⃘̸࣭ٜ࣪࣪࣪۬◌⃘۪֟፝֯۫۫︎⃪𐇽۫۬❖⃘࣭ٜ࣪࣪࣪۬☪︎︎︎︎̸─ׅ─ׅ┈ ─๋︩︪─╯\n`  
+  menuTexto += `╭─ׅ─ׅ┈ ─๋︩︪─☪︎︎︎̸⃘̸࣭ٜ࣪࣪࣪۬◌⃘۪֟፝֯۫۫︎⃪𐇽۫۬❖⃘࣭ٜ࣪࣪࣪۬☪︎︎︎︎̸─ׅ─ׅ┈ ─๋︩︪─╮\n`
+  menuTexto += `╭╼⬪࣪ꥈ𑁍⃪࣭۪ٜ ${CATEGORY_META[tag]} ໑⃪࣭۪ٜ݊݊݊݊𑁍ꥈ࣪⬪\n`
+  menuTexto += `┃֪࣪  ╰─ׅ─ׅ┈ ─๋︩︪─☪︎︎︎̸⃘̸࣭ٜ࣪࣪࣪۬◌⃘۪֟፝֯۫۫︎⃪𐇽۫۬❖⃘࣭ٜ࣪࣪࣪۬☪︎︎︎︎̸─ׅ─ׅ┈ ─๋︩︪─╯\n`
 
-  menuTexto += cmds.map(c => `├ׁ̟̇❍✎ .${c}`).join('\n') + '\n'  
+  menuTexto += cmds.map(c => `├ׁ̟̇❍✎ .${c}`).join('\n') + '\n'
 
-  menuTexto += `╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n\n`  
-}  
+  menuTexto += `╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n\n`
+}
 
-const bannerUrl = getBotConfig(conn, 'banner2')  
+const bannerUrl = getBotConfig(conn, 'banner2')
+let jpegThumbnail = null
+try {
+  const res = await fetch(bannerUrl)
+  if (res.ok) jpegThumbnail = Buffer.from(await res.arrayBuffer())
+} catch {}
 
-await conn.sendMessage(m.chat, {  
-  text: menuTexto.trim(),
-  contextInfo: {
-    externalAdReply: {
-      title: ` ${botnameConfig}`,
-      body: `${dev}`,
-      thumbnailUrl: bannerUrl,
-      mediaType: 1,
-      mediaUrl: bannerUrl,
-      sourceUrl: 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O',
-      showAdAttribution: false,
-      renderLargerThumbnail: true
-    }
+const finalText = `${menuTexto.trim()}\n\n${CHANNEL_URL}`
+
+await conn.sendMessage(m.chat, {
+  text: finalText,
+  linkPreview: {
+    'matched-text': CHANNEL_URL,
+    title: `${botnameConfig}`,
+    description: `${dev}`,
+    previewType: 'NONE',
+    jpegThumbnail: jpegThumbnail || undefined
   }
 }, { quoted: m })
 
