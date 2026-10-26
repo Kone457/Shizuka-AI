@@ -149,7 +149,7 @@ const media = await prepareWAMessageMedia(
 const nativeFlowPayload = {
   header: {
     title: null,
-    subtitle: '© Todos los derechos reservados',
+    subtitle: `${dev}`,
     hasMediaAttachment: true,
     imageMessage: media.imageMessage
   },
