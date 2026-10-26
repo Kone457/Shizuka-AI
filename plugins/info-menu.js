@@ -87,23 +87,10 @@ for (const tag of Object.keys(CATEGORY_META)) {
   menuTexto += `╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n\n`
 }
 
-const bannerUrl = getBotConfig(conn, 'banner2')
-
 const finalText = `${menuTexto.trim()}\n\n${CHANNEL_URL}`
 
 await conn.sendMessage(m.chat, {
-  text: finalText,
-  linkPreview: {
-    'matched-text': CHANNEL_URL,
-    title: `${botnameConfig}`,
-    description: `${dev}`,
-    previewType: 'NONE',
-    thumbnailUrl: bannerUrl,
-    highQualityThumbnail: {
-      thumbnailUrl: bannerUrl,
-      thumbnailMimetype: 'image/jpeg'
-    }
-  }
+  text: finalText
 }, { quoted: m })
 
 } catch (e) {
