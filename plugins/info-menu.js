@@ -1,6 +1,5 @@
 import moment from 'moment-timezone'
 import { getBotConfig } from '../lib/botconfig.js'
-import fetch from 'node-fetch'
 
 const CATEGORY_META = {
 main: '⊹ Main ⊹',
@@ -89,26 +88,20 @@ for (const tag of Object.keys(CATEGORY_META)) {
 }
 
 const bannerUrl = getBotConfig(conn, 'banner2')
-let imageBuffer = null
-try {
-  const res = await fetch(bannerUrl)
-  if (res.ok) imageBuffer = Buffer.from(await res.arrayBuffer())
-} catch {}
+
+const finalText = `${menuTexto.trim()}\n\n${CHANNEL_URL}`
 
 await conn.sendMessage(m.chat, {
-  image: imageBuffer || { url: bannerUrl },
-  caption: menuTexto.trim(),
-  mimetype: 'image/jpeg',
-  contextInfo: {
-    externalAdReply: {
-      title: `${botnameConfig}`,
-      body: `${dev}`,
+  text: finalText,
+  linkPreview: {
+    'matched-text': CHANNEL_URL,
+    title: `${botnameConfig}`,
+    description: `${dev}`,
+    previewType: 'NONE',
+    thumbnailUrl: bannerUrl,
+    highQualityThumbnail: {
       thumbnailUrl: bannerUrl,
-      mediaType: 1,
-      mediaUrl: bannerUrl,
-      sourceUrl: CHANNEL_URL,
-      showAdAttribution: false,
-      renderLargerThumbnail: true
+      thumbnailMimetype: 'image/jpeg'
     }
   }
 }, { quoted: m })
