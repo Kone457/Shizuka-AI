@@ -86,18 +86,7 @@ async function generateUserOverlay(avatarBuffer, userName, width, height) {
   const avatarSize = 90
   const padding = 18
   const avatarX = width - avatarSize - padding
-  const avatarY = padding
-
-  ctx.save()
-  ctx.beginPath()
-  const boxW = avatarSize + 30
-  const boxH = avatarSize + 50
-  const boxX = avatarX - 15
-  const boxY = avatarY - 10
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)'
-  ctx.roundRect(boxX, boxY, boxW, boxH, 14)
-  ctx.fill()
-  ctx.restore()
+  const avatarY = height - avatarSize - padding - 24
 
   try {
     const avatarImg = await loadImage(avatarBuffer)
@@ -126,7 +115,11 @@ async function generateUserOverlay(avatarBuffer, userName, width, height) {
   }
   if (displayName !== userName) displayName = displayName.slice(0, -2) + '…'
 
-  ctx.fillText(displayName, avatarX + avatarSize / 2, avatarY + avatarSize + 8)
+  const nameY = avatarY + avatarSize + 6
+  ctx.lineWidth = 3
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)'
+  ctx.strokeText(displayName, avatarX + avatarSize / 2, nameY)
+  ctx.fillText(displayName, avatarX + avatarSize / 2, nameY)
 
   return canvas.encode('png')
 }
