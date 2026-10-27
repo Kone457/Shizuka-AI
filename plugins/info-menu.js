@@ -85,8 +85,12 @@ async function generateUserOverlay(avatarBuffer, userName, width, height) {
 
   const avatarSize = 90
   const padding = 18
+  const nameFontSize = 15
+  const nameGap = 8
+  const nameHeight = nameFontSize + 6
+
   const avatarX = width - avatarSize - padding
-  const avatarY = height - avatarSize - padding - 24
+  const avatarY = height - avatarSize - padding - nameHeight - nameGap
 
   try {
     const avatarImg = await loadImage(avatarBuffer)
@@ -103,23 +107,26 @@ async function generateUserOverlay(avatarBuffer, userName, width, height) {
     ctx.fillText((userName[0] || '?').toUpperCase(), avatarX + avatarSize / 2, avatarY + avatarSize / 2)
   }
 
-  ctx.fillStyle = '#ffffff'
-  ctx.font = 'bold 15px sans-serif'
+  ctx.font = `bold ${nameFontSize}px sans-serif`
   ctx.textAlign = 'center'
-  ctx.textBaseline = 'top'
+  ctx.textBaseline = 'middle'
 
-  const maxNameWidth = avatarSize + 20
+  const maxNameWidth = avatarSize + 40
   let displayName = userName
   while (ctx.measureText(displayName).width > maxNameWidth && displayName.length > 3) {
     displayName = displayName.slice(0, -1)
   }
   if (displayName !== userName) displayName = displayName.slice(0, -2) + '…'
 
-  const nameY = avatarY + avatarSize + 6
+  const nameX = avatarX + avatarSize / 2
+  const nameY = avatarY + avatarSize + nameGap + nameHeight / 2
+
   ctx.lineWidth = 3
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)'
-  ctx.strokeText(displayName, avatarX + avatarSize / 2, nameY)
-  ctx.fillText(displayName, avatarX + avatarSize / 2, nameY)
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.85)'
+  ctx.strokeText(displayName, nameX, nameY)
+
+  ctx.fillStyle = '#ffffff'
+  ctx.fillText(displayName, nameX, nameY)
 
   return canvas.encode('png')
 }
