@@ -83,13 +83,14 @@ async function generateUserOverlay(avatarBuffer, userName, width, height) {
   const ctx = canvas.getContext('2d')
   ctx.clearRect(0, 0, width, height)
 
-  const avatarSize = 85
-  const padding = 15
-  const fontSize = 14
-  const nameGap = 6
+  const avatarSize = 80
+  const paddingX = 15
+  const paddingY = 15
+  const fontSize = 15
+  const nameGap = 8
 
-  const avatarX = width - avatarSize - padding
-  const avatarY = height - avatarSize - padding - 30
+  const avatarX = width - avatarSize - paddingX
+  const avatarY = height - avatarSize - paddingY - 25
 
   try {
     const avatarImg = await loadImage(avatarBuffer)
@@ -121,9 +122,9 @@ async function generateUserOverlay(avatarBuffer, userName, width, height) {
   const nameY = avatarY + avatarSize + nameGap + fontSize / 2
 
   const textWidth = ctx.measureText(displayName).width
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
   ctx.beginPath()
-  ctx.roundRect(nameX - textWidth / 2 - 6, nameY - fontSize / 2 - 3, textWidth + 12, fontSize + 6, 6)
+  ctx.roundRect(nameX - textWidth / 2 - 8, nameY - fontSize / 2 - 4, textWidth + 16, fontSize + 8, 8)
   ctx.fill()
 
   ctx.fillStyle = '#ffffff'
@@ -137,9 +138,7 @@ let handler = async (m, { conn }) => {
     await conn.sendMessage(m.chat, { react: { text: '💔', key: m.key } })
 
     const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)
-    const fecha = moment.tz('America/Havana').format('DD/MM/YYYY')
-    const hora = moment.tz('America/Havana').format('hh:mm A')
-
+    
     const byTag = {}
     for (const plugin of pluginsActivos) {
       const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : [])
