@@ -62,73 +62,69 @@ function quotedContext(m) {
   }
 }
 
-function drawCircularImage(ctx, img, x, y, size, borderColor = '#25D366', borderWidth = 4) {
-  ctx.save()
-  ctx.beginPath()
-  ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2)
-  ctx.closePath()
-  ctx.clip()
-  ctx.drawImage(img, x, y, size, size)
-  ctx.restore()
-
-  ctx.beginPath()
-  ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2)
-  ctx.lineWidth = borderWidth
-  ctx.strokeStyle = borderColor
-  ctx.stroke()
-}
-
-async function generateUserOverlay(avatarBuffer, userName, width, height) {
+async function generateUserOverlay(avatarBuffer, width, height) {
   const canvas = createCanvas(width, height)
   const ctx = canvas.getContext('2d')
   ctx.clearRect(0, 0, width, height)
 
-  const avatarSize = 80
-  const paddingX = 15
-  const paddingY = 15
-  const fontSize = 15
-  const nameGap = 8
+  const avatarSize = 95
+  const padding = 20
+  const avatarX = width - avatarSize - padding
+  const avatarY = height - avatarSize - padding
+  const centerX = avatarX + avatarSize / 2
+  const centerY = avatarY + avatarSize / 2
 
-  const avatarX = width - avatarSize - paddingX
-  const avatarY = height - avatarSize - paddingY - 25
+  ctx.save()
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.7)'
+  ctx.shadowBlur = 20
+  ctx.shadowOffsetX = 0
+  ctx.shadowOffsetY = 8
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, avatarSize / 2, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(0,0,0,0.01)'
+  ctx.fill()
+  ctx.restore()
+
+  const gradient = ctx.createRadialGradient(centerX, centerY, avatarSize / 2 - 5, centerX, centerY, avatarSize / 2 + 15)
+  gradient.addColorStop(0, 'rgba(37, 211, 102, 0.8)')
+  gradient.addColorStop(1, 'rgba(37, 211, 102, 0)')
+
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, avatarSize / 2 + 15, 0, Math.PI * 2)
+  ctx.fillStyle = gradient
+  ctx.fill()
 
   try {
     const avatarImg = await loadImage(avatarBuffer)
-    drawCircularImage(ctx, avatarImg, avatarX, avatarY, avatarSize)
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, avatarSize / 2, 0, Math.PI * 2)
+    ctx.clip()
+    ctx.drawImage(avatarImg, avatarX, avatarY, avatarSize, avatarSize)
+    ctx.restore()
   } catch {
     ctx.beginPath()
-    ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2)
+    ctx.arc(centerX, centerY, avatarSize / 2, 0, Math.PI * 2)
     ctx.fillStyle = '#25D366'
     ctx.fill()
     ctx.fillStyle = '#fff'
-    ctx.font = 'bold 35px sans-serif'
+    ctx.font = 'bold 40px sans-serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText((userName[0] || '?').toUpperCase(), avatarX + avatarSize / 2, avatarY + avatarSize / 2)
+    ctx.fillText('?', centerX, centerY)
   }
 
-  ctx.font = `bold ${fontSize}px sans-serif`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-
-  const maxNameWidth = avatarSize + 40
-  let displayName = userName
-  while (ctx.measureText(displayName).width > maxNameWidth && displayName.length > 3) {
-    displayName = displayName.slice(0, -1)
-  }
-  if (displayName !== userName) displayName = displayName.slice(0, -2) + '…'
-
-  const nameX = avatarX + avatarSize / 2
-  const nameY = avatarY + avatarSize + nameGap + fontSize / 2
-
-  const textWidth = ctx.measureText(displayName).width
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
   ctx.beginPath()
-  ctx.roundRect(nameX - textWidth / 2 - 8, nameY - fontSize / 2 - 4, textWidth + 16, fontSize + 8, 8)
-  ctx.fill()
+  ctx.arc(centerX, centerY, avatarSize / 2, 0, Math.PI * 2)
+  ctx.lineWidth = 5
+  ctx.strokeStyle = '#25D366'
+  ctx.stroke()
 
-  ctx.fillStyle = '#ffffff'
-  ctx.fillText(displayName, nameX, nameY)
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, avatarSize / 2 + 4, 0, Math.PI * 2)
+  ctx.lineWidth = 2
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'
+  ctx.stroke()
 
   return canvas.encode('png')
 }
@@ -202,10 +198,17 @@ let handler = async (m, { conn }) => {
       const bannerImg = await loadImage(bannerBuffer)
       const canvas = createCanvas(bannerImg.width, bannerImg.height)
       const ctx = canvas.getContext('2d')
+      
       ctx.drawImage(bannerImg, 0, 0, bannerImg.width, bannerImg.height)
 
+      const gradientOverlay = ctx.createLinearGradient(0, bannerImg.height * 0.6, 0, bannerImg.height)
+      gradientOverlay.addColorStop(0, 'rgba(0, 0, 0, 0)')
+      gradientOverlay.addColorStop(1, 'rgba(0, 0, 0, 0.6)')
+      ctx.fillStyle = gradientOverlay
+      ctx.fillRect(0, 0, bannerImg.width, bannerImg.height)
+
       if (avatarBuffer) {
-        const overlayBuffer = await generateUserOverlay(avatarBuffer, userName, bannerImg.width, bannerImg.height)
+        const overlayBuffer = await generateUserOverlay(avatarBuffer, bannerImg.width, bannerImg.height)
         const overlayImg = await loadImage(overlayBuffer)
         ctx.drawImage(overlayImg, 0, 0, bannerImg.width, bannerImg.height)
       }
