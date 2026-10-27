@@ -116,14 +116,14 @@ async function generateUserOverlay(avatarBuffer, width, height) {
 
   ctx.beginPath()
   ctx.arc(centerX, centerY, avatarSize / 2, 0, Math.PI * 2)
-  ctx.lineWidth = 5
+  ctx.lineWidth = 2
   ctx.strokeStyle = '#25D366'
   ctx.stroke()
 
   ctx.beginPath()
-  ctx.arc(centerX, centerY, avatarSize / 2 + 4, 0, Math.PI * 2)
-  ctx.lineWidth = 2
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'
+  ctx.arc(centerX, centerY, avatarSize / 2 + 2, 0, Math.PI * 2)
+  ctx.lineWidth = 1
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'
   ctx.stroke()
 
   return canvas.encode('png')
