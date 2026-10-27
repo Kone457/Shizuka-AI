@@ -27,22 +27,27 @@ let handler = async (m, { conn, text }) => {
       return m.reply(`🔎 Sin resultados para *${consulta}*.`);
     }
 
-    const resultados = data.resultados.slice(0, 10);
-    const cards = [];
+    const resultados = data.resultados.slice(0, 3);
+    let enviados = 0;
 
     for (const juego of resultados) {
       try {
-        const imageResponse = await fetch(juego.image);
-        if (!imageResponse.ok) continue;
+        let media = null;
 
-        const imageBuffer = Buffer.from(
-          await imageResponse.arrayBuffer()
-        );
-
-        const media = await prepareWAMessageMedia(
-          { image: imageBuffer },
-          { upload: conn.waUploadToServer }
-        );
+        if (juego.image) {
+          try {
+            const imageResponse = await fetch(juego.image);
+            if (imageResponse.ok) {
+              const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+              media = await prepareWAMessageMedia(
+                { image: imageBuffer },
+                { upload: conn.waUploadToServer }
+              );
+            }
+          } catch (imgErr) {
+            console.error('STEAM IMG:', imgErr.message);
+          }
+        }
 
         const descripcion =
           `🎮 *${juego.name || 'N/A'}*\n\n` +
@@ -51,21 +56,20 @@ let handler = async (m, { conn, text }) => {
           `⭐ Score: ${juego.score || 'N/A'}\n` +
           `🖥️ Plataforma: ${juego.platform || 'N/A'}`;
 
-        cards.push({
-          header: proto.Message.InteractiveMessage.Header.fromObject({
-            title: juego.name || 'Steam',
-            hasMediaAttachment: true,
-            ...media
-          }),
+        const header = proto.Message.InteractiveMessage.Header.fromObject({
+          title: juego.name || 'Steam',
+          hasMediaAttachment: !!media,
+          ...(media || {})
+        });
 
+        const interactive = proto.Message.InteractiveMessage.fromObject({
+          header,
           body: proto.Message.InteractiveMessage.Body.fromObject({
             text: descripcion
           }),
-
           footer: proto.Message.InteractiveMessage.Footer.fromObject({
-            text: 'Todos los derechos reservados'
+            text: 'Steam'
           }),
-
           nativeFlowMessage:
             proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
               buttons: [
@@ -80,48 +84,35 @@ let handler = async (m, { conn, text }) => {
               ]
             })
         });
+
+        const msg = generateWAMessageFromContent(
+          m.chat,
+          {
+            viewOnceMessage: {
+              message: {
+                messageContextInfo: {
+                  deviceListMetadata: {},
+                  deviceListMetadataVersion: 2
+                },
+                interactiveMessage: interactive
+              }
+            }
+          },
+          { quoted: m }
+        );
+
+        await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
+        enviados++;
+
+        await new Promise(r => setTimeout(r, 800));
       } catch (e) {
         console.error('STEAM CARD:', e.message);
       }
     }
 
-    if (!cards.length) {
+    if (!enviados) {
       return m.reply('No fue posible cargar los resultados.');
     }
-
-    const msg = generateWAMessageFromContent(
-      m.chat,
-      {
-        viewOnceMessage: {
-          message: {
-            messageContextInfo: {
-              deviceListMetadata: {},
-              deviceListMetadataVersion: 2
-            },
-            interactiveMessage:
-              proto.Message.InteractiveMessage.fromObject({
-                body: proto.Message.InteractiveMessage.Body.fromObject({
-                  text: `🔎 *Steam*\n\nResultados para *${consulta}*: ${cards.length}`
-                }),
-                footer: proto.Message.InteractiveMessage.Footer.fromObject({
-                  text: 'Steam'
-                }),
-                carouselMessage:
-                  proto.Message.InteractiveMessage.CarouselMessage.fromObject({
-                    cards
-                  })
-              })
-          }
-        }
-      },
-      { quoted: m }
-    );
-
-    await conn.relayMessage(
-      m.chat,
-      msg.message,
-      { messageId: msg.key.id }
-    );
 
   } catch (error) {
     console.error('STEAM ERROR:', error);
