@@ -1,9 +1,4 @@
 import fetch from 'node-fetch';
-import {
-  proto,
-  prepareWAMessageMedia,
-  generateWAMessageFromContent
-} from '@whiskeysockets/baileys';
 
 let handler = async (m, { conn, text }) => {
   try {
@@ -28,91 +23,38 @@ let handler = async (m, { conn, text }) => {
     }
 
     const resultados = data.resultados.slice(0, 3);
-    let enviados = 0;
+
+    let caption = `🔎 *Steam*\n\nResultados para *${consulta}*:\n\n`;
 
     for (const juego of resultados) {
+      caption +=
+        `🎮 *${juego.name || 'N/A'}*\n` +
+        `🆔 ID: ${juego.id ?? 'N/A'}\n` +
+        `💰 Precio: ${juego.price || 'N/A'}\n` +
+        `⭐ Score: ${juego.score || 'N/A'}\n` +
+        `🖥️ Plataforma: ${juego.platform || 'N/A'}\n` +
+        `🔗 https://store.steampowered.com/app/${juego.id}/\n\n`;
+    }
+
+    const primeraImagen = resultados.find(j => j.image)?.image;
+
+    if (primeraImagen) {
       try {
-        let media = null;
-
-        if (juego.image) {
-          try {
-            const imageResponse = await fetch(juego.image);
-            if (imageResponse.ok) {
-              const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
-              media = await prepareWAMessageMedia(
-                { image: imageBuffer },
-                { upload: conn.waUploadToServer }
-              );
-            }
-          } catch (imgErr) {
-            console.error('STEAM IMG:', imgErr.message);
-          }
+        const imageResponse = await fetch(primeraImagen);
+        if (imageResponse.ok) {
+          const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+          return await conn.sendMessage(
+            m.chat,
+            { image: imageBuffer, caption },
+            { quoted: m }
+          );
         }
-
-        const descripcion =
-          `🎮 *${juego.name || 'N/A'}*\n\n` +
-          `🆔 ID: ${juego.id ?? 'N/A'}\n` +
-          `💰 Precio: ${juego.price || 'N/A'}\n` +
-          `⭐ Score: ${juego.score || 'N/A'}\n` +
-          `🖥️ Plataforma: ${juego.platform || 'N/A'}`;
-
-        const header = proto.Message.InteractiveMessage.Header.fromObject({
-          title: juego.name || 'Steam',
-          hasMediaAttachment: !!media,
-          ...(media || {})
-        });
-
-        const interactive = proto.Message.InteractiveMessage.fromObject({
-          header,
-          body: proto.Message.InteractiveMessage.Body.fromObject({
-            text: descripcion
-          }),
-          footer: proto.Message.InteractiveMessage.Footer.fromObject({
-            text: 'Steam'
-          }),
-          nativeFlowMessage:
-            proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-              buttons: [
-                {
-                  name: 'cta_url',
-                  buttonParamsJson: JSON.stringify({
-                    display_text: 'Ver en Steam',
-                    url: `https://store.steampowered.com/app/${juego.id}/`,
-                    merchant_url: `https://store.steampowered.com/app/${juego.id}/`
-                  })
-                }
-              ]
-            })
-        });
-
-        const msg = generateWAMessageFromContent(
-          m.chat,
-          {
-            viewOnceMessage: {
-              message: {
-                messageContextInfo: {
-                  deviceListMetadata: {},
-                  deviceListMetadataVersion: 2
-                },
-                interactiveMessage: interactive
-              }
-            }
-          },
-          { quoted: m }
-        );
-
-        await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
-        enviados++;
-
-        await new Promise(r => setTimeout(r, 800));
-      } catch (e) {
-        console.error('STEAM CARD:', e.message);
+      } catch (imgErr) {
+        console.error('STEAM IMG:', imgErr.message);
       }
     }
 
-    if (!enviados) {
-      return m.reply('No fue posible cargar los resultados.');
-    }
+    await conn.sendMessage(m.chat, { text: caption }, { quoted: m });
 
   } catch (error) {
     console.error('STEAM ERROR:', error);
@@ -120,7 +62,7 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['steam <búsqueda>'];
+handler.help = ['steam'];
 handler.tags = ['buscadores'];
 handler.command = ['steam'];
 
