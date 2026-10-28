@@ -271,7 +271,7 @@ async function processMessage(chatUpdate) {
             bannedGrupo: false,
             economy: true,
             rpg: true,
-            level: true,
+            level: false,
             reaction: false,
             antiprivado: true,
             expired: 0
@@ -290,7 +290,7 @@ async function processMessage(chatUpdate) {
         if (!('bannedGrupo' in chat)) chat.bannedGrupo = false
         if (!('economy' in chat)) chat.economy = true
         if (!('rpg' in chat)) chat.rpg = chat.economy
-        if (!('level' in chat)) chat.level = true
+        if (!('level' in chat)) chat.level = false
         if (!('reaction' in chat)) chat.reaction = false
         if (!('antiprivado' in chat)) chat.antiprivado = true
         if (!isNumber(chat.expired)) chat.expired = 0
