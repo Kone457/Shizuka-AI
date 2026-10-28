@@ -49,33 +49,43 @@ const mp4ToWebp = (input, output) => {
 async function sendMp4Sticker(conn, chat, url, quoted) {
   const tmpMp4 = path.join(os.tmpdir(), `${Date.now()}.mp4`)
   const tmpWebp = path.join(os.tmpdir(), `${Date.now()}.webp`)
-
-  const { data } = await axios.get(url, {
-    responseType: 'arraybuffer'
-  })
-
+  const { data } = await axios.get(url, { responseType: 'arraybuffer' })
   writeFileSync(tmpMp4, Buffer.from(data))
-
   await mp4ToWebp(tmpMp4, tmpWebp)
-
-  await conn.sendMessage(
-    chat,
-    { sticker: fs.readFileSync(tmpWebp) },
-    { quoted }
-  )
-
+  await conn.sendMessage(chat, { sticker: fs.readFileSync(tmpWebp) }, { quoted })
   unlinkSync(tmpMp4)
   unlinkSync(tmpWebp)
 }
+
+function randomSticker(list) {
+  return list[Math.floor(Math.random() * list.length)]
+}
+
+async function tryRandomSticker(conn, chat, list, quoted) {
+  const url = randomSticker(list)
+  try {
+    await sendMp4Sticker(conn, chat, url, quoted)
+  } catch {}
+}
+
+const successStickers = [
+  'https://files.evogb.win/LEqn4G.mp4',
+  'https://project-sxl.vercel.app/files/c16fefa13a85.mp4',
+  'https://project-sxl.vercel.app/files/07aa385ccb7a.mp4'
+]
+
+const errorStickers = [
+  'https://files.evogb.win/Y8tiC9.mp4',
+  'https://project-sxl.vercel.app/files/d390bde3699c.mp4',
+  'https://project-sxl.vercel.app/files/6603fbc23dce.mp4'
+]
 
 const handler = async (m, { conn, args }) => {
   if (!args.length) {
     return conn.reply(m.chat, '《✧》 Ingresa un enlace o una búsqueda.', m)
   }
 
-  await conn.sendMessage(m.chat, {
-    react: { text: '⏳', key: m.key }
-  })
+  await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
   let fkontak
   try {
@@ -87,7 +97,6 @@ const handler = async (m, { conn, args }) => {
     } catch {
       thumb = fs.readFileSync('./src/logo.jpg')
     }
-
     fkontak = {
       key: { fromMe: false, participant: '0@s.whatsapp.net' },
       message: {
@@ -108,120 +117,40 @@ const handler = async (m, { conn, args }) => {
     const query = args.join(' ')
 
     if (isUrl(query)) {
-      if (!isTikTokUrl(query)) {
-        throw new Error('El enlace no pertenece a TikTok.')
-      }
-
+      if (!isTikTokUrl(query)) throw new Error('El enlace no pertenece a TikTok.')
       let url = query
-
-      if (
-        url.includes('vt.tiktok.com') ||
-        url.includes('vm.tiktok.com')
-      ) {
+      if (url.includes('vt.tiktok.com') || url.includes('vm.tiktok.com')) {
         url = await resolveTikTokUrl(url)
       }
-
-      const res = await fetch(
-        `${api.url}/download/tiktok?url=${encodeURIComponent(
-          url
-        )}&apikey=${api.key}`
-      )
-
+      const res = await fetch(`${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${api.key}`)
       const json = await res.json()
-
-      if (!json.status || !json.result?.data) {
-        throw new Error('No se pudo descargar el video.')
-      }
-
+      if (!json.status || !json.result?.data) throw new Error('No se pudo descargar el video.')
       const data = json.result.data
       video = data.hdplay || data.play || data.wmplay
       text += `\n\n📝 ${data.title || 'Sin título'}`
     } else {
-      const res = await fetch(
-        `${api.url}/search/tiktok?q=${encodeURIComponent(
-          query
-        )}&apikey=${api.key}`
-      )
-
+      const res = await fetch(`${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${api.key}`)
       const json = await res.json()
-
-      if (!json.status || !json.result?.length) {
-        throw new Error('No se encontró ningún video.')
-      }
-
+      if (!json.status || !json.result?.length) throw new Error('No se encontró ningún video.')
       const first = json.result[0]
-
       const url = `https://www.tiktok.com/@${first.author.unique_id}/video/${first.video_id}`
-
-      const dl = await fetch(
-        `${api.url}/download/tiktok?url=${encodeURIComponent(
-          url
-        )}&apikey=${api.key}`
-      )
-
+      const dl = await fetch(`${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${api.key}`)
       const data = await dl.json()
-
-      if (!data.status || !data.result?.data) {
-        throw new Error(
-          'No se pudo descargar el resultado encontrado.'
-        )
-      }
-
+      if (!data.status || !data.result?.data) throw new Error('No se pudo descargar el resultado encontrado.')
       const result = data.result.data
       video = result.hdplay || result.play || result.wmplay
       text += `\n\n📝 ${result.title || 'Sin título'}`
     }
 
-    if (!video) {
-      throw new Error('No se pudo obtener el archivo de video.')
-    }
+    if (!video) throw new Error('No se pudo obtener el archivo de video.')
 
-    await conn.sendFile(
-      m.chat,
-      video,
-      'tiktok.mp4',
-      text,
-      m
-    )
-
-    await conn.sendMessage(m.chat, {
-      react: { text: '✅', key: m.key }
-    })
-
-    try {
-      await sendMp4Sticker(
-        conn,
-        m.chat,
-        'https://files.evogb.win/LEqn4G.mp4',
-        fkontak
-      )
-    } catch {
-      await sendMp4Sticker(
-        conn,
-        m.chat,
-        'https://files.evogb.win/Y8tiC9.mp4',
-        fkontak
-      )
-    }
+    await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+    await tryRandomSticker(conn, m.chat, successStickers, fkontak)
   } catch (e) {
-    await conn.reply(
-      m.chat,
-      `❏ Error.\n❏ Detalles: ${e.message}`,
-      m
-    )
-
-    await conn.sendMessage(m.chat, {
-      react: { text: '⚠️', key: m.key }
-    })
-
-    try {
-      await sendMp4Sticker(
-        conn,
-        m.chat,
-        'https://files.evogb.win/Y8tiC9.mp4',
-        fkontak
-      )
-    } catch {}
+    await conn.reply(m.chat, `❏ Error.\n❏ Detalles: ${e.message}`, m)
+    await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
+    await tryRandomSticker(conn, m.chat, errorStickers, fkontak)
   }
 }
 
