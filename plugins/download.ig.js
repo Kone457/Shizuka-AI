@@ -12,23 +12,35 @@ const handler = async (m, { args, conn }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
-    const res = await fetch(
-      `${api.url}/download/instagram?url=${encodeURIComponent(args[0])}&apikey=${api.key}`
-    );
-    const json = await res.json();
+    let mediaUrl = null;
 
-    if (!json.status || !json.result?.downloads?.length) {
-      throw new Error('No se pudo descargar el contenido de Instagram.');
+    try {
+      const resDelirius = await fetch(
+        `${api.url2}/download/instagram?url=${encodeURIComponent(args[0])}`
+      );
+      const jsonDelirius = await resDelirius.json();
+      if (jsonDelirius.status && jsonDelirius.data?.length) {
+        const video = jsonDelirius.data.find(d => d.type === 'video');
+        if (video) mediaUrl = video.url;
+      }
+    } catch {}
+
+    if (!mediaUrl) {
+      const resVoid = await fetch(
+        `${api.url}/download/instagram?url=${encodeURIComponent(args[0])}&apikey=${api.key}`
+      );
+      const jsonVoid = await resVoid.json();
+      if (jsonVoid.status && jsonVoid.result?.downloads?.length) {
+        const video = jsonVoid.result.downloads.find(d => d.type === 'video');
+        if (video) mediaUrl = video.url;
+      }
     }
 
-    const media = json.result.downloads.find(d => d.type === 'video');
-    if (!media) throw new Error('No se encontró un video.');
-
-    const dlUrl = media.url;
+    if (!mediaUrl) throw new Error('No se pudo descargar el video de Instagram.');
 
     await conn.sendFile(
       m.chat,
-      dlUrl,
+      mediaUrl,
       'instagram.mp4',
       '✿ Aquí tienes.',
       m
