@@ -21,7 +21,9 @@ const handler = async (m, { args, conn }) => {
       throw new Error('No se pudo descargar el contenido de Instagram.');
     }
 
-    const media = json.result.downloads[0];
+    const media = json.result.downloads.find(d => d.type === 'video');
+    if (!media) throw new Error('No se encontró un video.');
+
     const dlUrl = media.url;
 
     await conn.sendFile(
