@@ -1,45 +1,58 @@
-import axios from "axios"
-import * as cheerio from "cheerio"
+import fetch from 'node-fetch'
 import { sticker } from '../lib/sticker.js'
 import { getBotConfig } from '../lib/botconfig.js'
 
-const axiosInstance = axios.create({
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
-    'Referer': 'https://getstickerpack.com/'
+async function searchPinterest(query, limit = 10) {
+  query = String(query).trim()
+
+  const url = `https://id.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}%26rs%3Dtyped&data=%7B%22options%22%3A%7B%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%2C%22rs%22%3A%22typed%22%2C%22redux_normalize_feed%22%3Atrue%2C%22source_url%22%3A%22%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}%26rs%3Dtyped%22%7D%2C%22context%22%3A%7B%7D%7D`
+
+  const headers = {
+    'accept': 'application/json, text/javascript, */*; q=0.01',
+    'accept-language': 'es-419,es;q=0.9,en;q=0.8',
+    'referer': 'https://id.pinterest.com/',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/133 Safari/537.36',
+    'x-app-version': 'c056fb7',
+    'x-pinterest-appstate': 'active',
+    'x-pinterest-pws-handler': 'www/index.js',
+    'x-pinterest-source-url': '/',
+    'x-requested-with': 'XMLHttpRequest'
   }
-})
 
-async function getsticker(query) {
-  const { data } = await axiosInstance.get(`https://getstickerpack.com/stickers?query=${encodeURIComponent(query)}`)
-  const $ = cheerio.load(data)
+  const res = await fetch(url, { headers })
+  const text = await res.text()
 
-  let source = []
-  let link = []
+  if (!text.startsWith('{')) throw new Error('Pinterest bloqueó la petición')
 
-  $('#stickerPacks > div > div:nth-child(3) > div > a').each((i, el) => {
-    const href = $(el).attr('href')
-    if (href) source.push(href.startsWith('http') ? href : `https://getstickerpack.com${href}`)
-  })
+  const json = JSON.parse(text)
+  const results = json?.resource_response?.data?.results || []
+  const medias = []
 
-  if (source.length === 0) return { status: 404, title: '', sticker_url: [] }
+  for (const item of results) {
+    let added = false
 
-  const random = source[Math.floor(Math.random() * source.length)]
-  const res = await axiosInstance.get(random, { headers: { 'Referer': 'https://getstickerpack.com/' } })
-  const $$ = cheerio.load(res.data)
+    if (item?.videos?.video_list) {
+      const vlist = item.videos.video_list
+      for (const k in vlist) {
+        if (vlist[k]?.url && vlist[k].url.endsWith('.mp4')) {
+          medias.push({ url: vlist[k].url, type: 'video' })
+          added = true
+          break
+        }
+      }
+    }
 
-  $$('#stickerPack > div > div.row > div > img').each((i, el) => {
-    const src = $$(el).attr('src')
-    if (src) link.push(src.replace(/&d=200x200/g, ''))
-  })
+    if (!added) {
+      const img = item?.images?.orig?.url || item?.images?.['564x']?.url || item?.images?.['236x']?.url
+      if (img) {
+        medias.push({ url: img, type: 'image' })
+      }
+    }
 
-  return {
-    status: 200,
-    title: $$('#intro > div > div > h1').text(),
-    sticker_url: link
+    if (medias.length >= limit) break
   }
+
+  return medias
 }
 
 const handler = async (m, { conn, args }) => {
@@ -50,13 +63,15 @@ const handler = async (m, { conn, args }) => {
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
     const query = args.join(' ')
-    const res = await getsticker(query)
 
-    if (!res || !res.sticker_url || res.sticker_url.length === 0) {
+    const results = await searchPinterest(query, 5)
+    const images = results.filter(r => r.type === 'image')
+
+    if (!images.length) {
       return conn.reply(m.chat, '❏ No se encontraron stickers.', m)
     }
 
-    const stickers = res.sticker_url.slice(0, 5)
+    const stickers = images.slice(0, 5)
     const hora = new Date().toLocaleString('es-ES', {
       timeZone: 'America/Havana',
       hour: 'numeric',
@@ -64,15 +79,26 @@ const handler = async (m, { conn, args }) => {
       hour12: true
     })
 
-    for (let url of stickers) {
-      const img = (await axiosInstance.get(url, { responseType: 'arraybuffer', headers: { 'Referer': 'https://getstickerpack.com/' } })).data
-      const desc = `\n${botname}\nHora: ${hora}\n${dev}`
-      const stiker = await sticker(img, false, res.title || 'StickerPack', desc)
-      await conn.sendMessage(m.chat, {
-        sticker: stiker,
-        forwardingScore: 0,
-        isForwarded: false
-      }, { quoted: m })
+    for (let item of stickers) {
+      try {
+        const res = await fetch(item.url, {
+          headers: {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/133 Safari/537.36',
+            'referer': 'https://www.pinterest.com/'
+          }
+        })
+        if (!res.ok) continue
+        const img = await res.buffer()
+        const desc = `\n${botname}\nHora: ${hora}\n${dev}`
+        const stiker = await sticker(img, false, `Pinterest: ${query}`, desc)
+        await conn.sendMessage(m.chat, {
+          sticker: stiker,
+          forwardingScore: 0,
+          isForwarded: false
+        }, { quoted: m })
+      } catch (imgErr) {
+        continue
+      }
     }
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
