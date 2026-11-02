@@ -22,16 +22,20 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       }
     );
 
-    const result = data?.result
-    if (!result) {
+    const result = data?.result || data
+    if (!result?.media) {
       throw new Error(data?.message || 'No se pudo descargar el contenido de Facebook.')
     }
 
     const { title, duration, media } = result
-    const dlUrl = media?.video || media?.video_sd
+    let dlUrl = media?.video || media?.video_sd
 
     if (!dlUrl) {
       throw new Error('No se encontró un enlace de video válido.')
+    }
+
+    if (dlUrl.startsWith('/')) {
+      dlUrl = new URL(dlUrl, api.url).toString()
     }
 
     await conn.sendMessage(
@@ -46,7 +50,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
   } catch (err) {
-    console.error('❏ Error en el plugin de Facebook:', err);
+    console.error('❏ Error:', err);
     await conn.sendMessage(
       m.chat,
       { text: `❏ Error al procesar la solicitud.\n❏ Detalles: ${err.message}` },
