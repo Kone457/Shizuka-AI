@@ -30,6 +30,7 @@ const { CONNECTING } = ws
 const { chain } = lodash
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
 let { say } = cfonts
+
 console.log(chalk.magentaBright('\n✿ Iniciando...'))
 say('✿ Shizuka-AI', {
   font: 'simple',
@@ -41,21 +42,27 @@ say('✿ Powered By Carlos', {
   align: 'center',
   colors: ['blue', 'red']
 })
+
 protoType()
 serialize()
+
 globalThis.__filename = function filename(pathURL = import.meta.url, rmPrefix = platform !== 'win32') {
 return rmPrefix ? /file:\/\/\//.test(pathURL) ? fileURLToPath(pathURL) : pathURL : pathToFileURL(pathURL).toString();
-}; global.__dirname = function dirname(pathURL) {
+}
+global.__dirname = function dirname(pathURL) {
 return path.dirname(globalThis.__filename(pathURL, true))
-}; globalThis.__require = function require(dir = import.meta.url) {
+}
+globalThis.__require = function require(dir = import.meta.url) {
 return createRequire(dir)
 }
+
 globalThis.timestamp = {start: new Date}
 const __dirname = globalThis.__dirname(import.meta.url)
 globalThis.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
 global.prefix = new RegExp('^[#!./~]')
 globalThis.db = new Low(/https?:\/\//.test(opts['db'] || '') ? new cloudDBAdapter(opts['db']) : new JSONFile("lib/datos.json"))
 globalThis.DATABASE = globalThis.db;
+
 globalThis.loadDatabase = async function loadDatabase() {
 if (globalThis.db.READ) {
 return new Promise((resolve) => setInterval(async function() {
@@ -76,7 +83,9 @@ settings: {},
 };
 globalThis.db.chain = chain(globalThis.db.data);
 };
+
 loadDatabase();
+
 const {state, saveState, saveCreds} = await useMultiFileAuthState(globalThis.sessions)
 const msgRetryCounterMap = new Map()
 const msgRetryCounterCache = new NodeCache({ stdTTL: 0, checkperiod: 0 })
@@ -92,17 +101,22 @@ const textOption = chalk.blue
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 const question = (texto) => new Promise((resolver) => rl.question(texto, resolver))
 let opcion
+
 if (methodCodeQR) {
 opcion = '1'
 }
-if (!methodCodeQR && !methodCode && !fs.existsSync(`./${sessions}/creds.json`)) {
+
+if (!methodCodeQR && !methodCode && !fs.existsSync(join(globalThis.sessions, 'creds.json'))) {
 do {
-        opcion = await question(colors("✿ Seleccione una opción:\n") + qrOption("✿ 1. Con código QR\n") + textOption("✿ 2. Con código de texto de 8 dígitos\n--> "))
+opcion = await question(colors("✿ Seleccione una opción:\n") + qrOption("✿ 1. Con código QR\n") + textOption("✿ 2. Con código de texto de 8 dígitos\n--> "))
 if (!/^[1-2]$/.test(opcion)) {
 console.log(chalk.bold.redBright(`✿ No se permiten numeros que no sean 1 o 2, tampoco letras o símbolos especiales.`))
-}} while (opcion !== '1' && opcion !== '2' || fs.existsSync(`./${sessions}/creds.json`))
 }
+} while (opcion !== '1' && opcion !== '2' || fs.existsSync(join(globalThis.sessions, 'creds.json')))
+}
+
 console.info = () => { }
+
 const connectionOptions = {
 logger: pino({ level: 'silent' }),
 printQRInTerminal: opcion == '1' ? true : methodCodeQR ? true : false,
@@ -131,9 +145,11 @@ version: version,
 keepAliveIntervalMs: 55000,
 maxIdleTimeMs: 60000,
 };
+
 globalThis.conn = makeWASocket(connectionOptions);
 conn.ev.on("creds.update", saveCreds)
-if (!fs.existsSync(`./${sessions}/creds.json`)) {
+
+if (!fs.existsSync(join(globalThis.sessions, 'creds.json'))) {
 if (opcion === '2' || methodCode) {
 opcion = '2'
 if (!conn.authState.creds.registered) {
@@ -155,16 +171,21 @@ let codeBot = await conn.requestPairingCode(addNumber)
 codeBot = codeBot.match(/.{1,4}/g)?.join("-") || codeBot
 console.log(chalk.bold.blue(chalk.bgMagenta(`✦ CÓDIGO DEL BOT ✦`)), chalk.bold.blue(chalk.red(codeBot)))
 }, 3000)
-}}}
 }
+}
+}
+}
+
 conn.isInit = false;
 conn.well = false;
 conn.logger.info(`[ ✦ ]  I N I C I A N D O\n`)
+
 if (!opts['test']) {
 if (globalThis.db) setInterval(async () => {
 if (globalThis.db.data) await globalThis.db.write()
 }, 30 * 1000);
 }
+
 async function connectionUpdate(update) {
 const {connection, lastDisconnect, isNewLogin} = update;
 global.stopped = connection;
@@ -180,7 +201,8 @@ if (opcion == '1' || methodCodeQR) {
 console.log(chalk.blue.bold(`
 ╭───────────────────╼
 │ ${chalk.red("Escanea este código QR para conectarte.")}
-╰───────────────────╼`))}
+╰───────────────────╼`))
+}
 }
 if (connection === "open") {
 await joinChannels(conn)
@@ -193,10 +215,14 @@ console.log(chalk.blue(`→ (${code}) › Cierra la session Principal.`));
 }
 console.log(chalk.red("→ Reconectando el Bot Principal..."));
 await globalThis.reloadHandler(true).catch(console.error)
-}};
+}
+};
+
 process.on('uncaughtException', console.error);
+
 let isInit = true;
 let handler = await import('./handler.js')
+
 globalThis.reloadHandler = async function(restatConn) {
 try {
 const Handler = await import(`./handler.js?update=${Date.now()}`).catch(console.error);
@@ -227,12 +253,15 @@ conn.ev.on('creds.update', conn.credsUpdate)
 isInit = false
 return true
 };
+
 process.on('unhandledRejection', (reason) => {
 console.error("✿ Rechazo no manejado detectado:", reason);
 });
+
 const pluginFolder = globalThis.__dirname(join(__dirname, './plugins/index'))
 const pluginFilter = (filename) => /\.js$/.test(filename)
 globalThis.plugins = {}
+
 async function filesInit() {
 for (const filename of readdirSync(pluginFolder).filter(pluginFilter)) {
 try {
@@ -242,8 +271,12 @@ globalThis.plugins[filename] = module.default || module
 } catch (e) {
 conn.logger.error(e)
 delete globalThis.plugins[filename]
-}}}
+}
+}
+}
+
 filesInit().catch(console.error);
+
 globalThis.reload = async (_ev, filename) => {
 if (pluginFilter(filename)) {
 const dir = globalThis.__filename(join(pluginFolder, filename), true);
@@ -252,7 +285,8 @@ if (existsSync(dir)) conn.logger.info(` updated plugin - '${filename}'`)
 else {
 conn.logger.warn(`deleted plugin - '${filename}'`)
 return delete globalThis.plugins[filename]
-}} else conn.logger.info(`new plugin - '${filename}'`);
+}
+} else conn.logger.info(`new plugin - '${filename}'`);
 const err = syntaxerror(readFileSync(dir), filename, {
 sourceType: 'module',
 allowAwaitOutsideFunction: true,
@@ -263,16 +297,22 @@ const module = (await import(`${globalThis.__filename(dir)}?update=${Date.now()}
 globalThis.plugins[filename] = module.default || module;
 } catch (e) {
 conn.logger.error(e)
-}}}}
+}
+}
+}
+}
+
 Object.freeze(globalThis.reload)
 watch(pluginFolder, globalThis.reload)
 await globalThis.reloadHandler()
+
 async function _quickTest() {
-    await Promise.all([
-        spawn('ffmpeg'),
-        spawn('ffprobe')
-    ])
+await Promise.all([
+spawn('ffmpeg'),
+spawn('ffprobe')
+])
 }
+
 async function cleanBotData() {
 const now = Date.now()
 const maxAge = 24 * 60 * 60 * 1000
@@ -283,6 +323,7 @@ join(__dirname, 'tmp'),
 global.sessions,
 global.jadi
 ]
+
 function cleanDirectory(dir) {
 if (!dir || !existsSync(dir)) return
 let files
@@ -306,26 +347,43 @@ deleted++
 } catch {}
 }
 }
+
 for (const dir of directories) cleanDirectory(dir)
+
+const coreFile = join(__dirname, 'core')
+try {
+if (existsSync(coreFile) && statSync(coreFile).isFile()) {
+unlinkSync(coreFile)
+}
+} catch {}
+
 const clearPresences = (socket) => {
 if (!socket?.chats) return
 for (const chat of Object.values(socket.chats)) {
 if (chat?.presences) delete chat.presences
 }
 }
+
 clearPresences(global.conn)
+
 if (Array.isArray(global.conns)) {
-for (const subbot of global.conns) clearPresences(subbot)
+for (const subbot of global.conns) {
+clearPresences(subbot)
 }
+}
+
 console.log(chalk.gray(`✿ Limpieza completada: ${deleted} archivos temporales eliminados.`))
 }
+
 cleanBotData()
-setInterval(cleanBotData, 6 * 60 * 60 * 1000)
+setInterval(cleanBotData, 3 * 60 * 60 * 1000)
+
 setInterval(async () => {
 if (stopped === 'close' || !conn || !conn?.user) return;
 const uptime = clockString(process.uptime() * 1000);
 await conn?.updateProfileStatus(`| ⚡ Uptime : ${uptime}`).catch(() => {})
 }, 60000);
+
 function clockString(ms) {
 const d = Math.floor(ms / 86400000);
 const h = Math.floor(ms / 3600000) % 24;
@@ -333,7 +391,9 @@ const m = Math.floor(ms / 60000) % 60;
 const s = Math.floor(ms / 1000) % 60;
 return [d,'d',h,'h',m,'m',s,'s'].map(v=>String(v).padStart(2,0)).join(' ')
 }
+
 _quickTest().catch(console.error)
+
 async function isValidPhoneNumber(number) {
 try {
 number = number.replace(/\s+/g, '')
@@ -341,9 +401,13 @@ const parsedNumber = phoneUtil.parseAndKeepRawInput(number)
 return phoneUtil.isValidNumber(parsedNumber)
 } catch {
 return false
-}}
+}
+}
+
 async function joinChannels(conn) {
 for (const value of Object.values(global.my)) {
 if (typeof value === 'string' && value.endsWith('@newsletter')) {
 await conn.newsletterFollow(value).catch(() => {})
-}}}
+}
+}
+}
