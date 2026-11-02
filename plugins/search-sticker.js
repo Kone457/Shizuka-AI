@@ -90,7 +90,7 @@ const handler = async (m, { conn, args }) => {
         if (!res.ok) continue
         const img = await res.buffer()
         const desc = `\n${botname}\nHora: ${hora}\n${dev}`
-        const stiker = await sticker(img, false, `Pinterest: ${query}`, desc)
+        const stiker = await sticker(img, false, ` ${query}`, desc)
         await conn.sendMessage(m.chat, {
           sticker: stiker,
           forwardingScore: 0,
