@@ -8,14 +8,25 @@ import { webp2png } from '../lib/webp2mp4.js'
 import { getBotConfig } from '../lib/botconfig.js'
 
 const isUrl = (text) => {
-return text.match(new RegExp(/https?://(www.)?[-a-zA-Z0-9@:%.+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%+.~#?&/=]*)(jpe?g|gif|png)/, 'gi'))
+return /https?://(www.)?[-a-zA-Z0-9@:%.+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%+.~#?&/=]*)(jpe?g|gif|png)/i.test(text)
 }
 
 async function searchPinterest(query, limit = 5) {
 query = String(query).trim()
 const encoded = encodeURIComponent(query)
 const sourceUrl = "/search/pins/?q=${encoded}&rs=typed"
-const url = "https://id.pinterest.com/resource/BaseSearchResource/get/?source_url=${encodeURIComponent(sourceUrl)}&data=${encodeURIComponent(JSON.stringify({ options: { query, scope: 'pins', rs: 'typed', redux_normalize_feed: true, source_url: sourceUrl }, context: {} }))}"
+const data = {
+options: {
+query,
+scope: 'pins',
+rs: 'typed',
+redux_normalize_feed: true,
+source_url: sourceUrl
+},
+context: {}
+}
+
+const url = "https://id.pinterest.com/resource/BaseSearchResource/get/?source_url=${encodeURIComponent(sourceUrl)}&data=${encodeURIComponent(JSON.stringify(data))}"
 
 const headers = {
 accept: 'application/json, text/javascript, /; q=0.01',
@@ -29,16 +40,18 @@ referer: 'https://id.pinterest.com/',
 'x-requested-with': 'XMLHttpRequest'
 }
 
-const { data } = await axios.get(url, {
+const { data: response } = await axios.get(url, {
 headers,
 responseType: 'text',
 transformResponse: [(data) => data],
 timeout: 30000
 })
 
-if (!data || !data.trim().startsWith('{')) throw new Error('Pinterest bloqueó la petición')
+if (!response || !response.trim().startsWith('{')) {
+throw new Error('Pinterest bloqueó la petición')
+}
 
-const json = JSON.parse(data)
+const json = JSON.parse(response)
 const results = json?.resource_response?.data?.results || []
 const medias = []
 
@@ -81,7 +94,7 @@ key: { fromMe: false, participant: '0@s.whatsapp.net' },
 message: {
 contactMessage: {
 displayName: m.pushName || 'Usuario',
-vcard: "BEGIN:VCARD\nVERSION:3.0\nN:;${m.pushName};;;\nFN:${m.pushName}\nitem1.TEL;waid=${m.sender.replace(/[^0-9]/g,'')}:${m.sender}\nitem1.X-ABLabel:Cel\nEND:VCARD",
+vcard: "BEGIN:VCARD\nVERSION:3.0\nN:;${m.pushName};;;\nFN:${m.pushName}\nitem1.TEL;waid=${m.sender.replace(/[^0-9]/g, '')}:${m.sender}\nitem1.X-ABLabel:Cel\nEND:VCARD",
 jpegThumbnail: thumb || fs.readFileSync('./src/logo.jpg')
 }
 }
