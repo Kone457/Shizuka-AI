@@ -22,12 +22,13 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       }
     );
 
-    if (!data?.estado || !data?.resultado) {
-      throw new Error(data?.mensaje || 'No se pudo descargar el contenido de Facebook.')
+    const result = data?.result
+    if (!result) {
+      throw new Error(data?.message || 'No se pudo descargar el contenido de Facebook.')
     }
 
-    const { titulo, video_hd, video_sd } = data.resultado
-    const dlUrl = video_hd || video_sd
+    const { title, duration, media } = result
+    const dlUrl = media?.video || media?.video_sd
 
     if (!dlUrl) {
       throw new Error('No se encontró un enlace de video válido.')
@@ -37,7 +38,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       m.chat,
       {
         video: { url: dlUrl },
-        caption: `*✿ Aquí tienes...*\n\n📌 ${titulo || 'Video de Facebook'}`
+        caption: `*✿ Aquí tienes...*\n\n📌 ${title || 'Video de Facebook'}${duration ? `\n⏱️ Duración: ${duration}s` : ''}`
       },
       { quoted: m }
     );
