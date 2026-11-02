@@ -1,65 +1,61 @@
-import { readdirSync, statSync, unlinkSync, rmSync, existsSync } from 'fs'
+import { readdirSync, statSync, unlinkSync, existsSync, rmSync } from 'fs'
 import { join } from 'path'
-import os from 'os'
 
 let handler = async (m, { conn }) => {
+let totalSize = 0
+let totalFiles = 0
+const disposable = /.(tmp|temp|bak|old)$/i
+const dirs = [
+join(process.cwd(), 'tmp'),
+global.sessions,
+global.jadi
+].filter(Boolean)
 
-  const baseDir = process.cwd()
+const cleanDirectory = (dir) => {
+if (!existsSync(dir)) return
+for (const file of readdirSync(dir)) {
+const filePath = join(dir, file)
+try {
+const stats = statSync(filePath)
+if (stats.isDirectory()) {
+cleanDirectory(filePath)
+continue
+}
+if (disposable.test(file)) {
+totalSize += stats.size
+unlinkSync(filePath)
+totalFiles++
+}
+} catch {}
+}
+}
 
-  const dirs = [
-    baseDir,
-    join(baseDir, 'lib'),
-    join(baseDir, 'plugins'),
-    join(baseDir, 'tmp'),
-    os.tmpdir()
-  ]
+for (const dir of dirs) cleanDirectory(dir)
 
-  let totalSize = 0
-  let totalFiles = 0
+const clearPresences = (socket) => {
+if (!socket?.chats) return
+for (const chat of Object.values(socket.chats)) {
+if (chat?.presences) delete chat.presences
+}
+}
 
-  for (const dir of dirs) {
-    try {
-      if (!existsSync(dir)) continue
+clearPresences(conn)
+clearPresences(global.conn)
 
-      for (const file of readdirSync(dir)) {
-        const filePath = join(dir, file)
+if (Array.isArray(global.conns)) {
+for (const subbot of global.conns) {
+clearPresences(subbot)
+}
+}
 
-        try {
-          const stats = statSync(filePath)
+const formatSize = (bytes) => {
+if (!bytes) return '0 B'
+const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+const i = Math.floor(Math.log(bytes) / Math.log(1024))
+return "${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}"
+}
 
-          if (stats.isDirectory()) {
-            if (dir === join(baseDir, 'tmp') || dir === os.tmpdir()) {
-              totalSize += stats.size
-              totalFiles++
-              rmSync(filePath, { recursive: true, force: true })
-            }
-            continue
-          }
-
-          if (file.startsWith('.')) {
-            totalSize += stats.size
-            totalFiles++
-            unlinkSync(filePath)
-          }
-
-        } catch {}
-      }
-
-    } catch {}
-  }
-
-  const formatSize = (bytes) => {
-    if (bytes === 0) return '0 B'
-    const k = 1024
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]
-  }
-
-  await conn.reply(m.chat, `🧹 Limpieza completada
-
-📦 Archivos eliminados: ${totalFiles}
-💾 Espacio liberado: ${formatSize(totalSize)}`, m)
+await conn.reply(m.chat, "🧹 Limpieza completada\n\n📦 Archivos eliminados: ${totalFiles}\n💾 Espacio liberado: ${formatSize(totalSize)}\n🗂️ Directorios revisados: ${dirs.length}\n⚡ Limpieza inmediata", m)
 }
 
 handler.help = ['cleartmp']
