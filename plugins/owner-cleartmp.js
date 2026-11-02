@@ -55,7 +55,7 @@ const i = Math.floor(Math.log(bytes) / Math.log(1024))
 return "${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}"
 }
 
-await conn.reply(m.chat, "🧹 Limpieza completada\n\n📦 Archivos eliminados: ${totalFiles}\n💾 Espacio liberado: ${formatSize(totalSize)}\n🗂️ Directorios revisados: ${dirs.length}\n⚡ Limpieza inmediata", m)
+await conn.reply(m.chat, `🧹 Limpieza completada\n\n📦 Archivos eliminados: ${totalFiles}\n💾 Espacio liberado: ${formatSize(totalSize)}\n🗂️ Directorios revisados: ${dirs.length}\n⚡ Limpieza inmediata`, m)
 }
 
 handler.help = ['cleartmp']
