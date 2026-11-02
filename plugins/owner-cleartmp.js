@@ -1,10 +1,14 @@
-import { readdirSync, statSync, unlinkSync, existsSync, rmSync } from 'fs'
+import { readdirSync, statSync, unlinkSync, existsSync } from 'fs'
 import { join } from 'path'
 
 let handler = async (m, { conn }) => {
 let totalSize = 0
 let totalFiles = 0
-const disposable = /.(tmp|temp|bak|old)$/i
+let coreStatus = 'No encontrado'
+let coreSize = 0
+let errors = 0
+
+const disposable = /\.(tmp|temp|bak|old)$/i
 const dirs = [
 join(process.cwd(), 'tmp'),
 global.sessions,
@@ -26,11 +30,33 @@ totalSize += stats.size
 unlinkSync(filePath)
 totalFiles++
 }
-} catch {}
+} catch {
+errors++
+}
 }
 }
 
 for (const dir of dirs) cleanDirectory(dir)
+
+const coreFile = join(process.cwd(), 'core')
+
+try {
+if (existsSync(coreFile)) {
+const stats = statSync(coreFile)
+if (stats.isFile()) {
+coreSize = stats.size
+unlinkSync(coreFile)
+totalSize += coreSize
+totalFiles++
+coreStatus = 'Eliminado correctamente (' + formatSize(coreSize) + ')'
+} else {
+coreStatus = 'No es un archivo normal'
+}
+}
+} catch (e) {
+coreStatus = 'Error al eliminar: ' + e.message
+errors++
+}
 
 const clearPresences = (socket) => {
 if (!socket?.chats) return
@@ -48,14 +74,14 @@ clearPresences(subbot)
 }
 }
 
-const formatSize = (bytes) => {
+function formatSize(bytes) {
 if (!bytes) return '0 B'
 const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
 const i = Math.floor(Math.log(bytes) / Math.log(1024))
-return "${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}"
+return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i]
 }
 
-await conn.reply(m.chat, `🧹 Limpieza completada\n\n📦 Archivos eliminados: ${totalFiles}\n💾 Espacio liberado: ${formatSize(totalSize)}\n🗂️ Directorios revisados: ${dirs.length}\n⚡ Limpieza inmediata`, m)
+await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos eliminados: ' + totalFiles + '\n💾 Espacio liberado: ' + formatSize(totalSize) + '\n🗂️ Directorios revisados: ' + dirs.length + '\n💥 Archivo core: ' + coreStatus + '\n⚠️ Errores: ' + errors + '\n⚡ Limpieza inmediata', m)
 }
 
 handler.help = ['cleartmp']
