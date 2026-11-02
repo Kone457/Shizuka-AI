@@ -1,11 +1,10 @@
 import { readdirSync, lstatSync } from 'fs'
-import { join, relative, basename } from 'path'
+import { join, relative } from 'path'
 
 let handler = async (m, { conn }) => {
 const baseDir = process.cwd()
 const directories = []
 const largestFiles = []
-let totalSize = 0
 let totalFiles = 0
 let totalDirs = 0
 let errors = 0
@@ -14,7 +13,7 @@ const formatSize = (bytes) => {
 if (!bytes) return '0 B'
 const units = ['B', 'KB', 'MB', 'GB', 'TB']
 const i = Math.floor(Math.log(bytes) / Math.log(1024))
-return "${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}"
+return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i]
 }
 
 const scan = (dir, depth = 0) => {
@@ -40,13 +39,11 @@ for (const file of files) {
       const subSize = scan(filePath, depth + 1)
       size += subSize
 
-      if (depth < 2) {
-        directories.push({
-          name: relative(baseDir, filePath),
-          size: subSize,
-          depth
-        })
-      }
+      directories.push({
+        name: relative(baseDir, filePath),
+        size: subSize,
+        depth
+      })
     } else if (stats.isFile()) {
       totalFiles++
       size += stats.size
@@ -66,10 +63,10 @@ return size
 }
 
 await conn.sendMessage(m.chat, {
-text: '🔍 Analizando todo el almacenamiento...\n\nEsto puede tardar unos segundos.'
+text: '🔍 Analizando el almacenamiento completo del bot...'
 }, { quoted: m })
 
-totalSize = scan(baseDir)
+const totalSize = scan(baseDir)
 
 const topLevel = directories
 .filter(item => item.depth === 0)
@@ -77,65 +74,64 @@ const topLevel = directories
 
 const topDirectories = directories
 .sort((a, b) => b.size - a.size)
-.slice(0, 15)
+.slice(0, 20)
 
 const topFiles = largestFiles
 .sort((a, b) => b.size - a.size)
-.slice(0, 20)
+.slice(0, 25)
 
 const directoryReport = topLevel.map((item, i) =>
-"${i + 1}. 📁 ${item.name}\n   ${formatSize(item.size)}"
-).join('\n')
+(i + 1) + '. 📁 ' + item.name + '\n   💾 ' + formatSize(item.size)
+).join('\n\n')
 
 const folderReport = topDirectories.map((item, i) =>
-"${i + 1}. 📂 ${item.name}\n   ${formatSize(item.size)}"
-).join('\n')
+(i + 1) + '. 📂 ' + item.name + '\n   💾 ' + formatSize(item.size)
+).join('\n\n')
 
 const fileReport = topFiles.map((item, i) =>
-"${i + 1}. 📄 ${item.name}\n   ${formatSize(item.size)}"
-).join('\n')
+(i + 1) + '. 📄 ' + item.name + '\n   💾 ' + formatSize(item.size)
+).join('\n\n')
 
-const report = `📊 ANÁLISIS COMPLETO DEL BOT
-
-💾 Tamaño total: ${formatSize(totalSize)}
-📄 Archivos: ${totalFiles.toLocaleString()}
-📁 Directorios: ${totalDirs.toLocaleString()}
-⚠️ Errores de lectura: ${errors}
-
-━━━━━━━━━━━━━━━━━━
-📦 CARPETAS PRINCIPALES
-
-${directoryReport || 'No se encontraron carpetas.'}
-
-━━━━━━━━━━━━━━━━━━
-🔎 SUBCARPETAS MÁS PESADAS
-
-${folderReport || 'No se encontraron subcarpetas.'}
-
-━━━━━━━━━━━━━━━━━━
-📄 ARCHIVOS MÁS PESADOS
-
-${fileReport || 'No se encontraron archivos.'}
-
-━━━━━━━━━━━━━━━━━━
-✿ Análisis finalizado
-🔒 No se eliminó ningún archivo.`
-
-if (report.length <= 4000) {
-await conn.reply(m.chat, report, m)
-} else {
 const sections = [
-"📊 *ANÁLISIS DE ALMACENAMIENTO*\n\n💾 Tamaño total: ${formatSize(totalSize)}\n📄 Archivos: ${totalFiles.toLocaleString()}\n📁 Directorios: ${totalDirs.toLocaleString()}\n⚠️ Errores: ${errors}",
-"📦 *CARPETAS PRINCIPALES*\n\n${directoryReport}",
-"🔎 *SUBCARPETAS MÁS PESADAS*\n\n${folderReport}",
-"📄 *ARCHIVOS MÁS PESADOS*\n\n${fileReport}"
+'📊 ANÁLISIS COMPLETO DEL BOT\n\n' +
+'💾 Tamaño total: ' + formatSize(totalSize) + '\n' +
+'📄 Archivos: ' + totalFiles.toLocaleString() + '\n' +
+'📁 Directorios: ' + totalDirs.toLocaleString() + '\n' +
+'⚠️ Errores: ' + errors,
+
+'📦 *CARPETAS PRINCIPALES*\n\n' +
+(directoryReport || 'No se encontraron carpetas.'),
+
+'🔎 *SUBCARPETAS MÁS PESADAS*\n\n' +
+(folderReport || 'No se encontraron subcarpetas.'),
+
+'📄 *ARCHIVOS MÁS PESADOS*\n\n' +
+(fileReport || 'No se encontraron archivos.')
+
 ]
 
 for (const section of sections) {
-  await conn.reply(m.chat, section, m)
+const chunks = []
+let current = ''
+
+for (const line of section.split('\n')) {
+  if ((current + '\n' + line).length > 3500) {
+    chunks.push(current)
+    current = line
+  } else {
+    current += (current ? '\n' : '') + line
+  }
+}
+
+if (current) chunks.push(current)
+
+for (const chunk of chunks) {
+  await conn.reply(m.chat, chunk, m)
 }
 
 }
+
+await conn.reply(m.chat, '✿ Análisis finalizado.\n🔒 No se eliminó ningún archivo.', m)
 }
 
 handler.help = ['peso']
