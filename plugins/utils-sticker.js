@@ -15,6 +15,7 @@ async function searchPinterest(query, limit = 5) {
 query = String(query).trim()
 const encoded = encodeURIComponent(query)
 const sourceUrl = "/search/pins/?q=${encoded}&rs=typed"
+
 const data = {
 options: {
 query,
@@ -68,12 +69,14 @@ let handler = async (m, { conn, args }) => {
 let stiker = false
 let searchMode = false
 let searchSent = false
+
 const hora = moment.tz('America/Havana').locale('es').format('hh:mm A')
 const fecha = moment.tz('America/Havana').locale('es').format('dddd, DD [de] MMMM [de] YYYY')
 const wm = "Bot: ${getBotConfig(conn, 'packname')}\nUsuario: ${m.pushName || 'Usuario'}\nHora: ${hora}\nFecha: ${fecha}\nDueño: ${global.author}\n${global.dev}"
 const pack = ''
 
 let thumb = null
+
 try {
 const ppUrl = await conn.profilePictureUrl(m.sender, 'image')
 if (ppUrl) {
@@ -113,6 +116,7 @@ if (/webp|image|video/g.test(mime)) {
   if (!img) return conn.reply(m.chat, `> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*`, m, { quoted: fkontak })
 
   let out
+
   try {
     stiker = await sticker(img, false, pack, wm)
   } catch (e) {
