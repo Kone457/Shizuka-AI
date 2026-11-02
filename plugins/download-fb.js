@@ -22,13 +22,36 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       }
     );
 
-    const result = data?.result || data
-    if (!result?.media) {
-      throw new Error(data?.message || 'No se pudo descargar el contenido de Facebook.')
+    const result = data?.result ?? data?.data ?? data?.resultado ?? data
+
+    let media =
+      result?.media ??
+      result?.result?.media ??
+      result?.resultado?.media ??
+      null
+
+    if (!media) {
+      const list = result?.list || result?.result?.list
+      if (Array.isArray(list) && list.length) {
+        const hd = list.find(i => /720|hd/i.test(i.quality || ''))
+        const sd = list.find(i => !/720|hd/i.test(i.quality || ''))
+        media = {
+          video: hd?.url || list[0]?.url || null,
+          video_sd: sd?.url || null
+        }
+      }
     }
 
-    const { title, duration, media } = result
-    let dlUrl = media?.video || media?.video_sd
+    if (!media) {
+      const v = result?.video || result?.video_hd || result?.video_sd || result?.url || null
+      if (v) media = { video: result.video_hd || v, video_sd: result.video_sd || null }
+    }
+
+    if (!media) {
+      throw new Error(data?.message || data?.mensaje || 'No se pudo descargar el contenido de Facebook.')
+    }
+
+    let dlUrl = media.video || media.video_sd || media.video_hd || media.hd || media.sd
 
     if (!dlUrl) {
       throw new Error('No se encontró un enlace de video válido.')
@@ -38,11 +61,19 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       dlUrl = new URL(dlUrl, api.url).toString()
     }
 
+    const title =
+      result?.title || result?.titulo || result?.result?.title || null
+    const duration =
+      result?.duration || result?.duracion || result?.result?.duration || null
+    const thumbnail =
+      result?.thumbnail || result?.thumb || result?.result?.thumbnail || null
+
     await conn.sendMessage(
       m.chat,
       {
         video: { url: dlUrl },
-        caption: `*✿ Aquí tienes...*\n\n📌 ${title || 'Video de Facebook'}${duration ? `\n⏱️ Duración: ${duration}s` : ''}`
+        caption: `*✿ Aquí tienes...*\n\n📌 ${title || 'Video de Facebook'}${duration ? `\n⏱️ Duración: ${duration}s` : ''}`,
+        ...(thumbnail ? { jpegThumbnail: undefined, thumbnail: undefined } : {})
       },
       { quoted: m }
     );
