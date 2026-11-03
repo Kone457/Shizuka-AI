@@ -1,4 +1,4 @@
-import { readdirSync, statSync, unlinkSync, existsSync } from 'fs'
+import { readdirSync, statSync, unlinkSync, existsSync, rmSync } from 'fs'
 import { join } from 'path'
 
 let handler = async (m, { conn }) => {
@@ -9,20 +9,39 @@ let coreSize = 0
 let errors = 0
 
 const disposable = /\.(tmp|temp|bak|old)$/i
-const dirs = [
-join(process.cwd(), 'tmp'),
+const tmpDir = join(process.cwd(), 'tmp')
+
+if (existsSync(tmpDir)) {
+    try {
+        for (const file of readdirSync(tmpDir)) {
+            const filePath = join(tmpDir, file)
+            try {
+                const stats = statSync(filePath)
+                totalSize += stats.size
+                rmSync(filePath, { recursive: true, force: true })
+                totalFiles++
+            } catch {
+                errors++
+            }
+        }
+    } catch {
+        errors++
+    }
+}
+
+const otherDirs = [
 global.sessions,
 global.jadi
 ].filter(Boolean)
 
-const cleanDirectory = (dir) => {
+const cleanFilteredDirectory = (dir) => {
 if (!existsSync(dir)) return
 for (const file of readdirSync(dir)) {
 const filePath = join(dir, file)
 try {
 const stats = statSync(filePath)
 if (stats.isDirectory()) {
-cleanDirectory(filePath)
+cleanFilteredDirectory(filePath)
 continue
 }
 if (disposable.test(file)) {
@@ -36,7 +55,7 @@ errors++
 }
 }
 
-for (const dir of dirs) cleanDirectory(dir)
+for (const dir of otherDirs) cleanFilteredDirectory(dir)
 
 const coreFile = join(process.cwd(), 'core')
 
@@ -81,7 +100,7 @@ const i = Math.floor(Math.log(bytes) / Math.log(1024))
 return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i]
 }
 
-await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos eliminados: ' + totalFiles + '\n💾 Espacio liberado: ' + formatSize(totalSize) + '\n🗂️ Directorios revisados: ' + dirs.length + '\n💥 Archivo core: ' + coreStatus + '\n⚠️ Errores: ' + errors + '\n⚡ Limpieza inmediata', m)
+await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos/Carpetas eliminados: ' + totalFiles + '\n💾 Espacio liberado: ' + formatSize(totalSize) + '\n🗂️ Directorios revisados: 3\n💥 Archivo core: ' + coreStatus + '\n⚠️ Errores: ' + errors ', m)
 }
 
 handler.help = ['cleartmp']
