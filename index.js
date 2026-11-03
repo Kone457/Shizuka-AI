@@ -1,4 +1,4 @@
-Process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
 import './config.js'
 import cfonts from 'cfonts'
 import { createRequire } from 'module'
