@@ -2,11 +2,11 @@ import * as baileys from "@whiskeysockets/baileys";
 import crypto from "node:crypto";
 
 let handler = async (m, { conn, text }) => {
-  let [textoEntrada, colorTexto, url] = text.split('|');
+  let [textoEntrada, colorTexto, url] = text ? text.split('|') : [];
 
   let id;
   if (url) {
-    const codigoInvitacion = url.split('/').pop().split('?')[0];
+    const codigoInvitacion = url.trim().split('/').pop().split('?')[0];
     let infoGrupo = await conn.groupGetInviteInfo(codigoInvitacion);
     id = infoGrupo.id;
   } else {
@@ -23,39 +23,39 @@ let handler = async (m, { conn, text }) => {
     const buffer = await citado.download().catch(() => null);
     if (!buffer) return m.reply('✿ Error al obtener la imagen.');
 
-    const estado = await enviarEstadoGrupo(conn, id, {
+    await enviarEstadoGrupo(conn, id, {
       image: buffer,
-      caption: caption
+      caption: caption || ''
     });
-    return conn.reply(m.chat, '✿ Estado subido correctamente.', estado);
+    return m.reply('✿ Estado subido correctamente.');
   }
 
   else if (/video/.test(mime)) {
     const buffer = await citado.download().catch(() => null);
     if (!buffer) return m.reply('✿ Error al obtener el video.');
 
-    const estado = await enviarEstadoGrupo(conn, id, {
+    await enviarEstadoGrupo(conn, id, {
       video: buffer,
-      caption: caption
+      caption: caption || ''
     });
-    return conn.reply(m.chat, '✿ Estado subido correctamente.', estado);
+    return m.reply('✿ Estado subido correctamente.');
   }
 
   else if (/audio/.test(mime)) {
     const buffer = await citado.download().catch(() => null);
     if (!buffer) return m.reply('✿ Error al obtener el audio.');
 
-    const estado = await enviarEstadoGrupo(conn, id, {
+    await enviarEstadoGrupo(conn, id, {
       audio: buffer,
       mimetype: mime || "audio/ogg; codecs=opus",
       ptt: true
     });
 
-    return conn.reply(m.chat, '✿ Estado subido correctamente.', estado);
+    return m.reply('✿ Estado subido correctamente.');
   }
 
-  else if (colorTexto || caption) {
-    const textoFinal = colorTexto ? caption : (textoEntrada || caption);
+  else {
+    const textoFinal = textoEntrada || caption || m.text;
     if (!textoFinal) return m.reply('✿ No hay texto para subir al estado del grupo.');
 
     const coloresWA = new Map([
@@ -73,7 +73,7 @@ let handler = async (m, { conn, text }) => {
 
     let color = '#25D366';
     if (colorTexto) {
-      const textoColor = colorTexto.toLowerCase();
+      const textoColor = colorTexto.trim().toLowerCase();
       for (const [nombre, codigo] of coloresWA.entries()) {
         if (textoColor.includes(nombre)) {
           color = codigo;
@@ -82,16 +82,12 @@ let handler = async (m, { conn, text }) => {
       }
     }
 
-    const estado = await enviarEstadoGrupo(conn, id, {
+    await enviarEstadoGrupo(conn, id, {
       text: textoFinal,
       backgroundColor: color
     });
 
-    return conn.reply(m.chat, '✿ Estado publicado correctamente.', estado);
-  }
-
-  else {
-    return m.reply('✿ Responde a un medio (imagen/video/audio) o envía texto con color. También puedes usar un link de grupo.');
+    return m.reply('✿ Estado publicado correctamente.');
   }
 };
 
@@ -105,33 +101,32 @@ async function enviarEstadoGrupo(conn, jid, contenido) {
 
   const secretoMensaje = crypto.randomBytes(32);
 
-  const finalContent = {
-    ...contenidoInterno,
+  if (backgroundColor && contenidoInterno.extendedTextMessage) {
+    contenidoInterno.extendedTextMessage.backgroundArgb = parseInt(backgroundColor.replace('#', '0xFF'), 16);
+  }
+
+  const messageContent = {
+    groupStatusMessageV2: {
+      message: {
+        ...contenidoInterno,
+        messageContextInfo: {
+          messageSecret: secretoMensaje
+        }
+      }
+    },
     messageContextInfo: {
       messageSecret: secretoMensaje
     }
   };
 
-  if (backgroundColor && finalContent.extendedTextMessage) {
-    finalContent.extendedTextMessage.backgroundArgb = parseInt(backgroundColor.replace('#', '0xFF'), 16);
-  }
-
-  const mensaje = baileys.generateWAMessageFromContent(jid, {
-    groupStatusMessageV2: {
-      message: finalContent
-    }
-  }, {
+  const mensaje = baileys.generateWAMessageFromContent(jid, messageContent, {
     userJid: conn.user.id
   });
-
-  mensaje.message.messageContextInfo = {
-    messageSecret: secretoMensaje
-  };
 
   await conn.relayMessage(jid, mensaje.message, {
     messageId: mensaje.key.id,
     additionalAttributes: {
-      participant: jid
+      broadcast: 'true'
     }
   });
 
