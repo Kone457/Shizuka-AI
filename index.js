@@ -1,4 +1,4 @@
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
+Process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
 import './config.js'
 import cfonts from 'cfonts'
 import { createRequire } from 'module'
@@ -314,12 +314,25 @@ spawn('ffprobe')
 }
 
 async function cleanBotData() {
-const now = Date.now()
-const maxAge = 24 * 60 * 60 * 1000
 let deleted = 0
 const disposable = /\.(tmp|temp|bak|old)$/i
-const directories = [
-join(__dirname, 'tmp'),
+
+const tmpDir = join(__dirname, 'tmp')
+if (existsSync(tmpDir)) {
+try {
+for (const file of readdirSync(tmpDir)) {
+const filePath = join(tmpDir, file)
+try {
+rmSync(filePath, { recursive: true, force: true })
+deleted++
+} catch {}
+}
+} catch {}
+}
+
+const now = Date.now()
+const maxAge = 24 * 60 * 60 * 1000
+const otherDirs = [
 global.sessions,
 global.jadi
 ]
@@ -348,12 +361,13 @@ deleted++
 }
 }
 
-for (const dir of directories) cleanDirectory(dir)
+for (const dir of otherDirs) cleanDirectory(dir)
 
 const coreFile = join(__dirname, 'core')
 try {
 if (existsSync(coreFile) && statSync(coreFile).isFile()) {
 unlinkSync(coreFile)
+deleted++
 }
 } catch {}
 
@@ -372,11 +386,11 @@ clearPresences(subbot)
 }
 }
 
-console.log(chalk.gray(`✿ Limpieza completada: ${deleted} archivos temporales eliminados.`))
+console.log(chalk.gray(`✿ Limpieza completada: ${deleted} elementos eliminados.`))
 }
 
 cleanBotData()
-setInterval(cleanBotData, 3 * 60 * 60 * 1000)
+setInterval(cleanBotData, 30 * 60 * 1000)
 
 setInterval(async () => {
 if (stopped === 'close' || !conn || !conn?.user) return;
