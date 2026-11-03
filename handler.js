@@ -267,6 +267,7 @@ async function processMessage(chatUpdate) {
             adminonly: false,
             antilinks: true,
             antiLink: true,
+            antichannel: true,
             notprefix: false,
             bannedGrupo: false,
             economy: true,
@@ -286,6 +287,7 @@ async function processMessage(chatUpdate) {
         if (!('adminonly' in chat)) chat.adminonly = false
         if (!('antilinks' in chat)) chat.antilinks = true
         if (!('antiLink' in chat)) chat.antiLink = chat.antilinks
+        if (!('antichannel' in chat)) chat.antichannel = true
         if (!('notprefix' in chat)) chat.notprefix = false
         if (!('bannedGrupo' in chat)) chat.bannedGrupo = false
         if (!('economy' in chat)) chat.economy = true
