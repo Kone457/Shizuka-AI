@@ -12,6 +12,7 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 ┃֪࣪
 ├ׁ̟̇❍✎ welcome ${statusIcon(chatData.welcome)}
 ├ׁ̟̇❍✎ antilink ${statusIcon(chatData.antiLink)}
+├ׁ̟̇❍✎ antichannel ${statusIcon(chatData.antichannel)}
 ├ׁ̟̇❍✎ antiprivado ${statusIcon(chatData.antiprivado ?? true)}
 ├ׁ̟̇❍✎ economia ${statusIcon(chatData.economy)}
 ├ׁ̟̇❍✎ gacha ${statusIcon(chatData.gacha)}
@@ -53,6 +54,12 @@ ${command} welcome
       reply('Anti Enlaces');
       break;
 
+    case 'antichannel':
+    case 'anticanales':
+    case 'anticanal':
+      chatData.antichannel = status;
+      reply('Anti Canales');
+      break;
 
     case 'antiprivado':
     case 'antiprivados':
@@ -62,7 +69,6 @@ ${command} welcome
       reply('Anti Privado');
       break;
 
-
     case 'rpg':
     case 'economia':
       chatData.rpg = status;
@@ -70,12 +76,10 @@ ${command} welcome
       reply('Economía');
       break;
 
-
     case 'gacha':
       chatData.gacha = status;
       reply('Gacha');
       break;
-
 
     case 'level':
     case 'niveles':
@@ -84,7 +88,6 @@ ${command} welcome
       reply('Niveles');
       break;
 
-
     case 'modoadmin':
     case 'adminonly':
     case 'onlyadmin':
@@ -92,12 +95,10 @@ ${command} welcome
       reply('Modo Admin');
       break;
 
-
     case 'nsfw':
       chatData.nsfw = status;
       reply('NSFW');
       break;
-
 
     case 'bienvenida':
     case 'welcome':
@@ -105,20 +106,17 @@ ${command} welcome
       reply('Bienvenida');
       break;
 
-
     case 'reaccion':
     case 'reaction':
       chatData.reaction = status;
       reply('Reacciones');
       break;
 
-
     case 'alerts':
     case 'alertas':
       chatData.alerts = status;
       reply('Alertas');
       break;
-
 
     case 'notprefix':
     case 'noprefix':
@@ -127,11 +125,9 @@ ${command} welcome
       reply('Sin Prefijo (NotPrefix)');
       break;
 
-
     case 'serbot':
     case 'jadibot':
     case 'subbots':
-
       if (!isOwner) {
         return m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
@@ -147,9 +143,7 @@ ${command} welcome
         botSettings.jadibotmd = status;
         reply('Subbots (JadiBot)');
       }
-
       break;
-
 
     default:
       m.reply(`
@@ -165,18 +159,9 @@ ${configList}
   }
 };
 
-handler.help = [
-  'on',
-  'off'
-];
-
+handler.help = ['on', 'off'];
 handler.tags = ['grupo'];
-
-handler.command = [
-  'on',
-  'off'
-];
-
+handler.command = ['on', 'off'];
 handler.admin = true;
 handler.botAdmin = false;
 
