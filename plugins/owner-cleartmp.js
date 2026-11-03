@@ -100,7 +100,7 @@ const i = Math.floor(Math.log(bytes) / Math.log(1024))
 return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i]
 }
 
-await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos/Carpetas eliminados: ' + totalFiles + '\n💾 Espacio liberado: ' + formatSize(totalSize) + '\n🗂️ Directorios revisados: 3\n💥 Archivo core: ' + coreStatus + '\n⚠️ Errores: ' + errors +', m)
+await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos/Carpetas eliminados: ' + totalFiles + '\n💾 Espacio liberado: ' + formatSize(totalSize) + '\n🗂️ Directorios revisados: 3\n💥 Archivo core: ' + coreStatus + '\n⚠️ Errores: ' + errors, m)
 }
 
 handler.help = ['cleartmp']
