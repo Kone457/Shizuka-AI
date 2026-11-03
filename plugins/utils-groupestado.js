@@ -1,7 +1,5 @@
 import * as baileys from "@whiskeysockets/baileys";
 import crypto from "node:crypto";
-import { Readable, PassThrough } from 'stream';
-import ffmpeg from 'fluent-ffmpeg';
 
 let handler = async (m, { conn, text }) => {
   let [textoEntrada, colorTexto, url] = text.split('|');
@@ -47,21 +45,18 @@ let handler = async (m, { conn, text }) => {
     const buffer = await citado.download().catch(() => null);
     if (!buffer) return m.reply('✿ Error al obtener el audio.');
 
-    const audioVoz = await convertirAVoz(buffer);
-    const formaOnda = await generarFormaOnda(buffer);
-
     const estado = await enviarEstadoGrupo(conn, id, {
-      audio: audioVoz,
-      waveform: formaOnda,
-      mimetype: "audio/ogg; codecs=opus",
+      audio: buffer,
+      mimetype: mime || "audio/ogg; codecs=opus",
       ptt: true
     });
 
     return conn.reply(m.chat, '✿ Estado subido correctamente.', estado);
   }
 
-  else if (colorTexto) {
-    if (!caption) return m.reply('✿ No hay texto para subir al estado del grupo.');
+  else if (colorTexto || caption) {
+    const textoFinal = colorTexto ? caption : (textoEntrada || caption);
+    if (!textoFinal) return m.reply('✿ No hay texto para subir al estado del grupo.');
 
     const coloresWA = new Map([
       ['azul',    '#34B7F1'],
@@ -76,20 +71,19 @@ let handler = async (m, { conn, text }) => {
       ['cian',    '#00BCD4']
     ]);
 
-    const textoColor = colorTexto.toLowerCase();
-    let color = null;
-
-    for (const [nombre, codigo] of coloresWA.entries()) {
-      if (textoColor.includes(nombre)) {
-        color = codigo;
-        break;
+    let color = '#25D366';
+    if (colorTexto) {
+      const textoColor = colorTexto.toLowerCase();
+      for (const [nombre, codigo] of coloresWA.entries()) {
+        if (textoColor.includes(nombre)) {
+          color = codigo;
+          break;
+        }
       }
     }
 
-    if (!color) return m.reply('✿ No se encontró un color válido en tu texto.');
-
     const estado = await enviarEstadoGrupo(conn, id, {
-      text: caption,
+      text: textoFinal,
       backgroundColor: color
     });
 
@@ -106,23 +100,41 @@ async function enviarEstadoGrupo(conn, jid, contenido) {
   delete contenido.backgroundColor;
 
   const contenidoInterno = await baileys.generateWAMessageContent(contenido, {
-    upload: conn.waUploadToServer,
-    backgroundColor
+    upload: conn.waUploadToServer
   });
 
   const secretoMensaje = crypto.randomBytes(32);
 
-  const mensaje = baileys.generateWAMessageFromContent(jid, {
-    messageContextInfo: { messageSecret: secretoMensaje },
-    groupStatusMessageV2: {
-      message: {
-        ...contenidoInterno,
-        messageContextInfo: { messageSecret: secretoMensaje }
-      }
+  const finalContent = {
+    ...contenidoInterno,
+    messageContextInfo: {
+      messageSecret: secretoMensaje
     }
-  }, {});
+  };
 
-  await conn.relayMessage(jid, mensaje.message, { messageId: mensaje.key.id, additionalAttributes: { participant: jid } });
+  if (backgroundColor && finalContent.extendedTextMessage) {
+    finalContent.extendedTextMessage.backgroundArgb = parseInt(backgroundColor.replace('#', '0xFF'), 16);
+  }
+
+  const mensaje = baileys.generateWAMessageFromContent(jid, {
+    groupStatusMessageV2: {
+      message: finalContent
+    }
+  }, {
+    userJid: conn.user.id
+  });
+
+  mensaje.message.messageContextInfo = {
+    messageSecret: secretoMensaje
+  };
+
+  await conn.relayMessage(jid, mensaje.message, {
+    messageId: mensaje.key.id,
+    additionalAttributes: {
+      participant: jid
+    }
+  });
+
   return mensaje;
 }
 
@@ -130,75 +142,5 @@ handler.help = ["swgc", "upswgc"];
 handler.command = ["swgc", "upswgc"];
 handler.tags = ["tools"];
 handler.admin = true;
-
-async function convertirAVoz(inputBuffer) {
-  return new Promise((resolve, reject) => {
-    const entrada = new PassThrough();
-    const salida = new PassThrough();
-    const chunks = [];
-
-    entrada.end(inputBuffer);
-
-    ffmpeg(entrada)
-      .noVideo()
-      .audioCodec('libopus')
-      .format('ogg')
-      .audioBitrate('48k')
-      .audioChannels(1)
-      .audioFrequency(48000)
-      .outputOptions([
-        '-map_metadata', '-1',
-        '-application', 'voip',
-        '-compression_level', '10',
-        '-page_duration', '20000'
-      ])
-      .on('error', reject)
-      .on('end', () => resolve(Buffer.concat(chunks)))
-      .pipe(salida, { end: true });
-
-    salida.on('data', c => chunks.push(c));
-  });
-}
-
-async function generarFormaOnda(inputBuffer, barras = 64) {
-  return new Promise((resolve, reject) => {
-    const inputStream = new PassThrough();
-    inputStream.end(inputBuffer);
-
-    const chunks = [];
-
-    ffmpeg(inputStream)
-      .audioChannels(1)
-      .audioFrequency(16000)
-      .format("s16le")
-      .on("error", reject)
-      .on("end", () => {
-        const rawData = Buffer.concat(chunks);
-        const muestras = rawData.length / 2;
-
-        const amplitudes = [];
-        for (let i = 0; i < muestras; i++) {
-          let val = rawData.readInt16LE(i * 2);
-          amplitudes.push(Math.abs(val) / 32768);
-        }
-
-        let tamañoBloque = Math.floor(amplitudes.length / barras);
-        let promedio = [];
-
-        for (let i = 0; i < barras; i++) {
-          let bloque = amplitudes.slice(i * tamañoBloque, (i + 1) * tamañoBloque);
-          promedio.push(bloque.reduce((a, b) => a + b, 0) / bloque.length);
-        }
-
-        let max = Math.max(...promedio);
-        let normalizado = promedio.map(v => Math.floor((v / max) * 100));
-
-        let buffer = Buffer.from(new Uint8Array(normalizado));
-        resolve(buffer.toString("base64"));
-      })
-      .pipe()
-      .on("data", chunk => chunks.push(chunk));
-  });
-}
 
 export default handler;
