@@ -8,13 +8,12 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
     const user = `@${m.sender.split`@`[0]}`;
     const groupAdmins = participants.filter(p => p.admin);
 
-    const isChannelForward = m.message?.extendedTextMessage?.contextInfo?.isForwarded && 
-                             m.message?.extendedTextMessage?.contextInfo?.forwardingScore > 0 &&
-                             !m.message?.extendedTextMessage?.contextInfo?.participant;
-                             
-    const isNewsletterMessage = m.mtype === 'reactionMessage' || m.msg?.contextInfo?.forwardingScore > 0 && m.msg?.contextInfo?.isForwarded;
+    const contextInfo = m.message?.[m.mtype]?.contextInfo || m.msg?.contextInfo || m.message?.imageMessage?.contextInfo || m.message?.videoMessage?.contextInfo || m.message?.documentMessage?.contextInfo || m.message?.audioMessage?.contextInfo;
 
-    if (isChannelForward || isNewsletterMessage) {
+    const isChannelForward = (contextInfo?.isForwarded || contextInfo?.forwardingScore > 0) && (!contextInfo?.participant || contextInfo?.remoteJid?.includes('@newsletter') || String(contextInfo?.stanzaId || '').length > 15);
+    const isNewsletterJid = m.chat?.includes('@newsletter') || m.sender?.includes('@newsletter');
+
+    if (isChannelForward || isNewsletterJid) {
         await conn.sendMessage(m.chat, { text: `*「 CANAL DETECTADO 」*\n\n《✧》${user} Está prohibido enviar mensajes de canales en este grupo, serás eliminado...`, mentions: [m.sender] }, { quoted: m });
 
         if (!isBotAdmin) {
