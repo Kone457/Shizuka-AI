@@ -122,7 +122,7 @@ async function enviarEstadoGrupo(conn, jid, contenido) {
     }
   }, {});
 
-  await conn.relayMessage(jid, mensaje.message, { messageId: mensaje.key.id });
+  await conn.relayMessage(jid, mensaje.message, { messageId: mensaje.key.id, additionalAttributes: { participant: jid } });
   return mensaje;
 }
 
