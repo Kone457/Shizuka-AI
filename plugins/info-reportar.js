@@ -42,6 +42,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.help = ['reportar']
 handler.tags = ['info']
-handler.command = ['reporte', 'report', 'reportar', 'bug', 'error']
+handler.command = ['reporte', 'report', 'reportar']
 
 export default handler
