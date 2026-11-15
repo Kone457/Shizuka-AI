@@ -1,13 +1,8 @@
+
 import axios from 'axios'
 import * as cheerio from 'cheerio'
-import fs from 'fs'
-import path from 'path'
-import { pipeline } from 'stream/promises'
 
-const TMP_DIR = path.join(process.cwd(), 'tmp')
 const MAX_SIZE = 1024 * 1024 * 1024
-if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true })
-
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
 
 function parseFileSize(size) {
@@ -41,7 +36,7 @@ async function mediafire(url) {
   const link1 = ($('#downloadButton').attr('href') || '').trim()
   const link2 = ($('#download_link > a.retry').attr('href') || '').trim()
 
-  if (!link1 && !link2) throw new Error('No se encontró link de descarga (¿archivo eliminado o link inválido?)')
+  if (!link1 && !link2) throw new Error('No se encontró link de descarga')
 
   const $intro = $('div.dl-info > div.intro')
   const filenameRaw = $intro.find('div.filename').text() || ''
@@ -55,34 +50,16 @@ async function mediafire(url) {
   const $li = $('div.dl-info > ul.details > li')
   const aploud = String($li.eq(1).find('span').text() || '').trim() || 'Desconocido'
   const size = String($li.eq(0).find('span').text() || '').trim() || 'Desconocido'
-  const sizeB = parseFileSize(size)
 
-  return { filename, url: link1 || link2, type: String(filetypeRaw).trim() || 'Archivo', ext, aploud, size, sizeB }
-}
-
-async function downloadToDisk(url, filename) {
-  const safe = String(filename || `mediafire_${Date.now()}`).replace(/[^\w.\-]/g, '_')
-  const destino = path.join(TMP_DIR, `${Date.now()}_${safe}`)
-
-  const res = await axios.get(url, {
-    responseType: 'stream',
-    timeout: 0,
-    maxContentLength: Infinity,
-    maxBodyLength: Infinity,
-    headers: { 'User-Agent': UA, 'Accept': '*/*' }
-  })
-
-  if (!res.data) throw new Error('MediaFire no devolvió contenido para descargar')
-
-  await pipeline(res.data, fs.createWriteStream(destino))
-
-  const st = fs.statSync(destino)
-  if (st.size === 0) {
-    try { fs.unlinkSync(destino) } catch {}
-    throw new Error('El archivo descargado está vacío (link expirado o bloqueado)')
+  return {
+    filename,
+    url: link1 || link2,
+    type: String(filetypeRaw).trim() || 'Archivo',
+    ext,
+    aploud,
+    size,
+    sizeB: parseFileSize(size)
   }
-
-  return destino
 }
 
 function nombreFinal(filename, ext) {
@@ -105,15 +82,17 @@ const handler = async (m, { conn, args }) => {
 `.trim(), m)
   }
 
-  let rutaLocal = null
-
   try {
-    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
+    await conn.sendMessage(m.chat, {
+      react: { text: '⏳', key: m.key }
+    })
 
     const res = await mediafire(args[0])
 
     if (res.sizeB > MAX_SIZE) {
-      await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
+      await conn.sendMessage(m.chat, {
+        react: { text: '⚠️', key: m.key }
+      })
       return conn.reply(m.chat, `✿ El archivo pesa *${res.size}* y supera el límite de *1 GB*.`, m)
     }
 
@@ -133,13 +112,19 @@ const handler = async (m, { conn, args }) => {
 `.trim()
     }, { quoted: m })
 
-    await conn.sendMessage(m.chat, { react: { text: '📥', key: m.key } })
-    rutaLocal = await downloadToDisk(res.url, finalName)
+    await conn.sendMessage(m.chat, {
+      react: { text: '📤', key: m.key }
+    })
 
-    await conn.sendMessage(m.chat, { react: { text: '📤', key: m.key } })
-    await conn.sendFile(m.chat, rutaLocal, finalName, '', m)
+    await conn.sendMessage(m.chat, {
+      document: { url: res.url },
+      fileName: finalName,
+      mimetype: 'application/octet-stream'
+    }, { quoted: m })
 
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+    await conn.sendMessage(m.chat, {
+      react: { text: '✅', key: m.key }
+    })
 
   } catch (e) {
     await conn.reply(m.chat, `
@@ -150,11 +135,10 @@ const handler = async (m, { conn, args }) => {
 ├ׁ̟̇❍✎ ${e.message}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(), m)
-    await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
-  } finally {
-    if (rutaLocal && fs.existsSync(rutaLocal)) {
-      try { fs.unlinkSync(rutaLocal) } catch {}
-    }
+
+    await conn.sendMessage(m.chat, {
+      react: { text: '⚠️', key: m.key }
+    })
   }
 }
 
