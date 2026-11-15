@@ -124,8 +124,6 @@ export default handler
 
 
 
-
-
 import axios from 'axios'
 import * as cheerio from 'cheerio'
 import fs from 'fs'
@@ -136,10 +134,12 @@ const TMP_DIR = path.join(process.cwd(), 'tmp')
 const MAX_SIZE = 1024 * 1024 * 1024
 if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true })
 
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+
 function parseFileSize(size) {
   if (!size) return 0
   const units = { B: 1, KB: 1024, MB: 1024 ** 2, GB: 1024 ** 3, TB: 1024 ** 4 }
-  const match = size.toString().trim().match(/([\d.]+)\s*(B|KB|MB|GB|TB)/i)
+  const match = String(size).trim().match(/([\d.]+)\s*(B|KB|MB|GB|TB)/i)
   if (!match) return 0
   return Math.round(parseFloat(match[1]) * units[match[2].toUpperCase()])
 }
@@ -147,39 +147,80 @@ function parseFileSize(size) {
 async function mediafire(url) {
   if (!url) throw new Error('URL requerida')
 
-  const { data } = await axios.get(url, { timeout: 20000 })
+  let data
+  try {
+    const r = await axios.get(url, {
+      timeout: 20000,
+      headers: {
+        'User-Agent': UA,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      }
+    })
+    data = r.data
+  } catch (e) {
+    throw new Error(`No se pudo conectar a MediaFire: ${e.message}`)
+  }
+
+  if (!data || typeof data !== 'string') {
+    throw new Error('MediaFire no devolvió HTML válido')
+  }
+
   const $ = cheerio.load(data)
 
   const link1 = ($('#downloadButton').attr('href') || '').trim()
   const link2 = ($('#download_link > a.retry').attr('href') || '').trim()
 
+  if (!link1 && !link2) {
+    throw new Error('No se encontró link de descarga (¿archivo eliminado o link inválido?)')
+  }
+
   const $intro = $('div.dl-info > div.intro')
-  const filename = $intro.find('div.filename').text().trim()
-  const filetype = $intro.find('div.filetype > span').eq(0).text().trim()
-  const extMatch = /\(\.(.*?)\)/.exec($intro.find('div.filetype > span').eq(1).text())
-  const ext = extMatch?.[1]?.trim() || 'bin'
+  const filenameRaw = $intro.find('div.filename').text() || ''
+  const filetypeRaw = $intro.find('div.filetype > span').eq(0).text() || ''
+  const extSource = $intro.find('div.filetype > span').eq(1).text() || ''
+
+  const extMatch = /\(\.(.*?)\)/.exec(String(extSource))
+  const ext = (extMatch?.[1] || 'bin').trim() || 'bin'
+  const filename = String(filenameRaw).trim() || `mediafire_${Date.now()}`
 
   const $li = $('div.dl-info > ul.details > li')
-  const aploud = $li.eq(1).find('span').text().trim()
-  const size = $li.eq(0).find('span').text().trim()
+  const aploud = String($li.eq(1).find('span').text() || '').trim() || 'Desconocido'
+  const size = String($li.eq(0).find('span').text() || '').trim() || 'Desconocido'
   const sizeB = parseFileSize(size)
 
-  if (!link1 && !link2) throw new Error('No se pudo obtener el link')
-
-  return { filename, url: link1 || link2, type: filetype, ext, aploud, size, sizeB }
+  return {
+    filename,
+    url: link1 || link2,
+    type: String(filetypeRaw).trim() || 'Archivo',
+    ext,
+    aploud,
+    size,
+    sizeB
+  }
 }
 
 async function downloadToDisk(url, filename) {
-  const safe = filename.replace(/[^\w.\-]/g, '_')
+  const safe = String(filename || `mediafire_${Date.now()}`).replace(/[^\w.\-]/g, '_')
   const destino = path.join(TMP_DIR, `${Date.now()}_${safe}`)
+
   const res = await axios.get(url, {
     responseType: 'stream',
     timeout: 0,
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
-    headers: { 'User-Agent': 'Mozilla/5.0' }
+    headers: { 'User-Agent': UA, 'Accept': '*/*' }
   })
+
+  if (!res.data) throw new Error('MediaFire no devolvió contenido para descargar')
+
   await pipeline(res.data, fs.createWriteStream(destino))
+
+  const st = fs.statSync(destino)
+  if (st.size === 0) {
+    try { fs.unlinkSync(destino) } catch {}
+    throw new Error('El archivo descargado está vacío (link expirado o bloqueado)')
+  }
+
   return destino
 }
 
