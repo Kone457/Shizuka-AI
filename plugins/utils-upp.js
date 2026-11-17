@@ -1,17 +1,30 @@
-
-import fetch from 'node-fetch'
-import { FormData, Blob } from 'formdata-node'
+import crypto from 'crypto'
 import { fileTypeFromBuffer } from 'file-type'
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'
+const processed = new Set()
 
 let handler = async (m, { conn }) => {
-  let q = m.quoted ? m.quoted : m
-  let mime = (q.msg || q).mimetype || ''
-  if (!mime) return conn.reply(m.chat, '📦 Por favor, responde a un archivo válido (imagen, video, etc.).', m)
+  const messageId = m.key?.id
+
+  if (messageId && processed.has(messageId)) return
+  if (messageId) {
+    processed.add(messageId)
+    const timer = setTimeout(() => processed.delete(messageId), 30000)
+    timer.unref?.()
+  }
+
+  let q = m.quoted || m
+  let mime = q.mimetype || q.msg?.mimetype || q.message?.imageMessage?.mimetype || q.message?.videoMessage?.mimetype || q.message?.documentMessage?.mimetype || ''
+
+  if (!mime) {
+    return conn.reply(m.chat, '📦 Por favor, responde a un archivo válido (imagen, video, etc.).', m)
+  }
 
   try {
     let media = await q.download()
+    if (!Buffer.isBuffer(media) || !media.length) throw new Error('No se pudo obtener el archivo.')
+
     let type = await fileTypeFromBuffer(media)
     let ext = type?.ext || 'bin'
     let mimetype = type?.mime || mime
@@ -21,10 +34,11 @@ let handler = async (m, { conn }) => {
       litterbox(media, ext),
       puticu(media, mimetype),
       uguu(media, ext),
-      quax(media, ext)
+      quax(media, ext),
+      evogb(media, ext, mimetype)
     ])
 
-    let names = ['Catbox', 'Litterbox', 'Put.icu', 'Uguu', 'Qu.ax']
+    let names = ['Catbox', 'Litterbox', 'Put.icu', 'Uguu', 'Qu.ax', 'Evogb']
     let links = results.map((result, i) => {
       if (result.status === 'fulfilled') {
         return `✅ *${names[i]}*\n${result.value}`
@@ -44,7 +58,7 @@ let handler = async (m, { conn }) => {
     await conn.reply(m.chat, txt, m)
   } catch (e) {
     console.error(e)
-    await m.reply(`❌ Error al subir el archivo.\n${e.message}`)
+    await conn.reply(m.chat, `❌ Error al subir el archivo.\n${e.message}`, m)
   }
 }
 
@@ -168,5 +182,23 @@ async function quax(buffer, ext = 'jpg') {
   const json = await res.json()
   const url = json?.files?.[0]?.url
   if (!res.ok || !url || !isURL(url)) throw new Error('Qu.ax: respuesta inválida')
+  return url
+}
+
+async function evogb(buffer, ext = 'bin', mime = 'application/octet-stream') {
+  const fileName = `${crypto.randomBytes(5).toString('hex')}.${ext}`
+  const form = new FormData()
+  form.append('file', bufToBlob(buffer, mime), fileName)
+
+  const res = await fetch('https://evogb.win/api/upload', {
+    method: 'POST',
+    body: form
+  })
+
+  if (!res.ok) throw new Error('Evogb: error HTTP')
+  const json = await res.json()
+  const url = json?.url || json?.link
+
+  if (!url || !isURL(url)) throw new Error('Evogb: respuesta inválida')
   return url
 }
