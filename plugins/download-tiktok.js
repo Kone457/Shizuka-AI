@@ -80,25 +80,52 @@ const errorStickers = [
   'https://project-sxl.vercel.app/files/6603fbc23dce.mp4'
 ]
 
+const getVideoData = (json) => {
+  if (!json?.status) return null
+
+  if (json?.result?.data) {
+    return json.result.data
+  }
+
+  if (json?.result?.result?.data) {
+    return json.result.result.data
+  }
+
+  return null
+}
+
 const handler = async (m, { conn, args }) => {
   if (!args.length) {
     return conn.reply(m.chat, '《✧》 Ingresa un enlace o una búsqueda.', m)
   }
 
-  await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
+  await conn.sendMessage(m.chat, {
+    react: {
+      text: '⏳',
+      key: m.key
+    }
+  })
 
   let fkontak
+
   try {
     let thumb
+
     try {
       const pp = await conn.profilePictureUrl(m.sender, 'image')
-      const buf = await axios.get(pp, { responseType: 'arraybuffer' })
+      const buf = await axios.get(pp, {
+        responseType: 'arraybuffer'
+      })
       thumb = Buffer.from(buf.data)
     } catch {
       thumb = fs.readFileSync('./src/logo.jpg')
     }
+
     fkontak = {
-      key: { fromMe: false, participant: '0@s.whatsapp.net' },
+      key: {
+        fromMe: false,
+        participant: '0@s.whatsapp.net'
+      },
       message: {
         contactMessage: {
           displayName: m.pushName,
@@ -117,45 +144,113 @@ const handler = async (m, { conn, args }) => {
     const query = args.join(' ')
 
     if (isUrl(query)) {
-      if (!isTikTokUrl(query)) throw new Error('El enlace no pertenece a TikTok.')
+      if (!isTikTokUrl(query)) {
+        throw new Error('El enlace no pertenece a TikTok.')
+      }
+
       let url = query
-      if (url.includes('vt.tiktok.com') || url.includes('vm.tiktok.com')) {
+
+      if (
+        url.includes('vt.tiktok.com') ||
+        url.includes('vm.tiktok.com')
+      ) {
         url = await resolveTikTokUrl(url)
       }
-      const res = await fetch(`${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${api.key}`)
+
+      const res = await fetch(
+        `${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${api.key}`
+      )
+
       const json = await res.json()
-      if (!json.status || !json.result?.data) throw new Error('No se pudo descargar el video.')
-      const data = json.result.data
+      const data = getVideoData(json)
+
+      if (!data) {
+        throw new Error('No se pudo descargar el video.')
+      }
+
       video = data.hdplay || data.play || data.wmplay
+
       text += `\n\n📝 ${data.title || 'Sin título'}`
     } else {
-      const res = await fetch(`${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${api.key}`)
+      const res = await fetch(
+        `${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${api.key}`
+      )
+
       const json = await res.json()
-      if (!json.status || !json.result?.length) throw new Error('No se encontró ningún video.')
+
+      if (!json.status || !json.result?.length) {
+        throw new Error('No se encontró ningún video.')
+      }
+
       const first = json.result[0]
       const url = `https://www.tiktok.com/@${first.author.unique_id}/video/${first.video_id}`
-      const dl = await fetch(`${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${api.key}`)
-      const data = await dl.json()
-      if (!data.status || !data.result?.data) throw new Error('No se pudo descargar el resultado encontrado.')
-      const result = data.result.data
+
+      const dl = await fetch(
+        `${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${api.key}`
+      )
+
+      const jsonDl = await dl.json()
+      const result = getVideoData(jsonDl)
+
+      if (!result) {
+        throw new Error('No se pudo descargar el resultado encontrado.')
+      }
+
       video = result.hdplay || result.play || result.wmplay
+
       text += `\n\n📝 ${result.title || 'Sin título'}`
     }
 
-    if (!video) throw new Error('No se pudo obtener el archivo de video.')
+    if (!video) {
+      throw new Error('No se pudo obtener el archivo de video.')
+    }
 
-    await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-    await tryRandomSticker(conn, m.chat, successStickers, fkontak)
+    await conn.sendFile(
+      m.chat,
+      video,
+      'tiktok.mp4',
+      text,
+      m
+    )
+
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '✅',
+        key: m.key
+      }
+    })
+
+    await tryRandomSticker(
+      conn,
+      m.chat,
+      successStickers,
+      fkontak
+    )
   } catch (e) {
-    await conn.reply(m.chat, `❏ Error.\n❏ Detalles: ${e.message}`, m)
-    await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
-    await tryRandomSticker(conn, m.chat, errorStickers, fkontak)
+    await conn.reply(
+      m.chat,
+      `❏ Error.\n❏ Detalles: ${e.message}`,
+      m
+    )
+
+    await conn.sendMessage(m.chat, {
+      react: {
+        text: '⚠️',
+        key: m.key
+      }
+    })
+
+    await tryRandomSticker(
+      conn,
+      m.chat,
+      errorStickers,
+      fkontak
+    )
   }
 }
 
 handler.command = ['tiktok', 'tt']
-handler.help = ['tiktok <url|texto>']
+handler.help = ['tiktok']
 handler.tags = ['descargas']
 handler.group = true
 
