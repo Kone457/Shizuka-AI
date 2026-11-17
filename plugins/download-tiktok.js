@@ -1,4 +1,3 @@
-
 import axios from 'axios'
 import fs from 'fs'
 import os from 'os'
@@ -71,14 +70,14 @@ async function tryRandomSticker(conn, chat, list, quoted) {
 
 const successStickers = [
   'https://files.evogb.win/LEqn4G.mp4',
-  'https://project-sxl.vercel.app/files/c16fefa13a85.mp4',
-  'https://project-sxl.vercel.app/files/07aa385ccb7a.mp4'
+  'https://files.evogb.win/8LNmCH.mp4',
+  'https://files.evogb.win/hFXNdw.mp4'
 ]
 
 const errorStickers = [
   'https://files.evogb.win/Y8tiC9.mp4',
-  'https://project-sxl.vercel.app/files/d390bde3699c.mp4',
-  'https://project-sxl.vercel.app/files/6603fbc23dce.mp4'
+  'https://files.evogb.win/hFXNdw.mp4',
+  'https://files.evogb.win/m557yq.mp4'
 ]
 
 async function downloadTikTok(url) {
