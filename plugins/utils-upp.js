@@ -1,3 +1,4 @@
+
 import crypto from 'crypto'
 import { fileTypeFromBuffer } from 'file-type'
 
@@ -6,30 +7,26 @@ const processed = new Set()
 
 let handler = async (m, { conn }) => {
   const messageId = m.key?.id
+  if (!m.quoted || !messageId || processed.has(messageId)) return
 
-  if (messageId && processed.has(messageId)) return
-  if (messageId) {
-    processed.add(messageId)
-    const timer = setTimeout(() => processed.delete(messageId), 30000)
-    timer.unref?.()
-  }
+  processed.add(messageId)
+  const timer = setTimeout(() => processed.delete(messageId), 60000)
+  timer.unref?.()
 
-  let q = m.quoted || m
-  let mime = q.mimetype || q.msg?.mimetype || q.message?.imageMessage?.mimetype || q.message?.videoMessage?.mimetype || q.message?.documentMessage?.mimetype || ''
+  const q = m.quoted
+  const mime = q.mimetype || q.msg?.mimetype || ''
 
-  if (!mime) {
-    return conn.reply(m.chat, '📦 Por favor, responde a un archivo válido (imagen, video, etc.).', m)
-  }
+  if (!mime) return
 
   try {
-    let media = await q.download()
-    if (!Buffer.isBuffer(media) || !media.length) throw new Error('No se pudo obtener el archivo.')
+    const media = await q.download()
+    if (!Buffer.isBuffer(media) || !media.length) return
 
-    let type = await fileTypeFromBuffer(media)
-    let ext = type?.ext || 'bin'
-    let mimetype = type?.mime || mime
+    const type = await fileTypeFromBuffer(media)
+    const ext = type?.ext || 'bin'
+    const mimetype = type?.mime || mime
 
-    let results = await Promise.allSettled([
+    const results = await Promise.allSettled([
       catbox(media, ext),
       litterbox(media, ext),
       puticu(media, mimetype),
@@ -38,16 +35,18 @@ let handler = async (m, { conn }) => {
       evogb(media, ext, mimetype)
     ])
 
-    let names = ['Catbox', 'Litterbox', 'Put.icu', 'Uguu', 'Qu.ax', 'Evogb']
-    let links = results.map((result, i) => {
+    const names = ['Catbox', 'Litterbox', 'Put.icu', 'Uguu', 'Qu.ax', 'Evogb']
+    const successful = results.filter(r => r.status === 'fulfilled').length
+
+    if (!successful) throw new Error('Todos los servidores rechazaron la subida.')
+
+    const links = results.map((result, i) => {
       if (result.status === 'fulfilled') {
         return `✅ *${names[i]}*\n${result.value}`
       }
+      console.error(`${names[i]}:`, result.reason?.message || result.reason)
       return `❌ *${names[i]}*\nNo disponible`
     })
-
-    let successful = results.filter(r => r.status === 'fulfilled').length
-    if (!successful) throw new Error('Todos los servidores rechazaron la subida.')
 
     let txt = `*乂 T O U R L 乂*\n\n`
     txt += `📦 *Archivo:* ${Date.now()}.${ext}\n`
@@ -55,10 +54,12 @@ let handler = async (m, { conn }) => {
     txt += `🌐 *Servidores:* ${successful}/${results.length}\n\n`
     txt += links.join('\n\n')
 
-    await conn.reply(m.chat, txt, m)
+    await conn.sendMessage(m.chat, { text: txt }, { quoted: m })
   } catch (e) {
     console.error(e)
-    await conn.reply(m.chat, `❌ Error al subir el archivo.\n${e.message}`, m)
+    await conn.sendMessage(m.chat, {
+      text: `❌ Error al subir el archivo.\n${e.message}`
+    }, { quoted: m })
   }
 }
 
@@ -141,6 +142,7 @@ async function puticu(buffer, mime = 'application/octet-stream') {
 
   const json = await res.json()
   const url = json?.direct_url || json?.url
+
   if (!res.ok || !url || !isURL(url)) throw new Error('Put.icu: respuesta inválida')
   return url.trim()
 }
@@ -161,6 +163,7 @@ async function uguu(buffer, ext = 'jpg') {
 
   const json = await res.json()
   const url = json?.files?.[0]?.url
+
   if (!res.ok || !url || !isURL(url)) throw new Error('Uguu: respuesta inválida')
   return url.trim()
 }
@@ -181,6 +184,7 @@ async function quax(buffer, ext = 'jpg') {
 
   const json = await res.json()
   const url = json?.files?.[0]?.url
+
   if (!res.ok || !url || !isURL(url)) throw new Error('Qu.ax: respuesta inválida')
   return url
 }
@@ -196,6 +200,7 @@ async function evogb(buffer, ext = 'bin', mime = 'application/octet-stream') {
   })
 
   if (!res.ok) throw new Error('Evogb: error HTTP')
+
   const json = await res.json()
   const url = json?.url || json?.link
 
