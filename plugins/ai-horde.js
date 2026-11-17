@@ -36,9 +36,9 @@ let handler = async (m, { conn, args }) => {
         prompt,
         params: {
           n: 1,
-          width: 1024,
-          height: 1024,
-          steps: 25,
+          width: 512,
+          height: 512,
+          steps: 20,
           cfg_scale: 7
         },
         nsfw: false,
