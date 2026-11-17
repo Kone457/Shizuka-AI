@@ -15,19 +15,13 @@ let handler = async (m, { conn, args }) => {
   const prompt = args.join(' ').trim();
 
   if (!prompt) {
-    return m.reply('《✧》 Ingresa un *prompt* para que *AI Horde* genere tu imagen.');
+    return m.reply('《✧》 Ingresa un *prompt* para generar tu imagen.');
   }
 
-  let key;
-
   try {
-    const msg = await conn.sendMessage(
-      m.chat,
-      { text: 'ⴵ *AI Horde* está preparando tu generación...\n\n✧ Enviando solicitud a la cola gratuita.' },
-      { quoted: m }
-    );
-
-    key = msg.key;
+    await conn.sendMessage(m.chat, {
+      react: { text: '⏳', key: m.key }
+    });
 
     const response = await fetch(`${API}/generate/async`, {
       method: 'POST',
@@ -56,7 +50,6 @@ let handler = async (m, { conn, args }) => {
 
     const id = data.id;
     let completed = false;
-    let lastUpdate = 0;
 
     for (let i = 0; i < 110; i++) {
       await sleep(5000);
@@ -75,26 +68,10 @@ let handler = async (m, { conn, args }) => {
         completed = true;
         break;
       }
-
-      if (Date.now() - lastUpdate >= 15000) {
-        lastUpdate = Date.now();
-
-        const position = check.queue_position ?? 'Calculando';
-        const waiting = check.waiting ?? 0;
-        const processing = check.processing ?? 0;
-
-        await conn.sendMessage(
-          m.chat,
-          {
-            text: `ⴵ *AI Horde · Generando imagen*\n\n✧ Posición en cola: ${position}\n✧ Solicitudes esperando: ${waiting}\n✧ En procesamiento: ${processing}...`,
-          },
-          { quoted: m, edit: key }
-        );
-      }
     }
 
     if (!completed) {
-      throw new Error('La generación está tardando demasiado. Inténtalo nuevamente.');
+      throw new Error('La generación está tardando demasiado.\n> Inténtalo nuevamente.');
     }
 
     const resultResponse = await fetch(`${API}/generate/status/${id}`, {
@@ -122,26 +99,18 @@ let handler = async (m, { conn, args }) => {
       { quoted: m }
     );
 
-    await conn.sendMessage(
-      m.chat,
-      { text: '✓ *Generación completada correctamente.*' },
-      { quoted: m, edit: key }
-    );
+    await conn.sendMessage(m.chat, {
+      react: { text: '✓', key: m.key }
+    });
 
   } catch (error) {
     console.error('[AI HORDE]', error);
 
-    const message = `❏ *Error en AI Horde*\n\n${error.message || 'Ocurrió un error al generar tu imagen.'}`;
+    await conn.sendMessage(m.chat, {
+      react: { text: '❌', key: m.key }
+    });
 
-    if (key) {
-      await conn.sendMessage(
-        m.chat,
-        { text: message },
-        { quoted: m, edit: key }
-      ).catch(() => m.reply(message));
-    } else {
-      await m.reply(message);
-    }
+    await m.reply(`❏ *Error*\n\n${error.message || 'Ocurrió un error al generar tu imagen.'}`);
   }
 };
 
