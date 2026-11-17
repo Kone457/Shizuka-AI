@@ -17,7 +17,7 @@ const isTikTokUrl = (text) => {
       'm.tiktok.com',
       'vt.tiktok.com',
       'vm.tiktok.com'
-    ].includes(hostname)
+    ].includes(hostname.toLowerCase())
   } catch {
     return false
   }
@@ -27,9 +27,10 @@ async function resolveTikTokUrl(url) {
   try {
     const res = await axios.get(url, {
       maxRedirects: 5,
+      timeout: 20000,
       headers: { 'User-Agent': 'Mozilla/5.0' }
     })
-    return res.request?.res?.responseUrl || url
+    return res.request?.res?.responseUrl || res.config?.url || url
   } catch {
     return url
   }
@@ -38,7 +39,7 @@ async function resolveTikTokUrl(url) {
 const mp4ToWebp = (input, output) => {
   return new Promise((resolve, reject) => {
     exec(
-      `ffmpeg -i "${input}" -vf "scale=512:512:force_original_aspect_ratio=decrease,fps=15,pad=512:512:-1:-1:color=white@0.0" -loop 0 -ss 0 -t 6 -preset default -an -vsync 0 "${output}" -y`,
+      `ffmpeg -y -i "${input}" -vf "scale=512:512:force_original_aspect_ratio=decrease,fps=15,pad=512:512:-1:-1:color=white@0.0" -loop 0 -t 6 -preset default -an -vsync 0 "${output}"`,
       (err) => {
         if (err) reject(err)
         else resolve(output)
@@ -48,16 +49,32 @@ const mp4ToWebp = (input, output) => {
 }
 
 async function sendMp4Sticker(conn, chat, url, quoted) {
-  const tmpMp4 = path.join(os.tmpdir(), `${Date.now()}.mp4`)
-  const tmpWebp = path.join(os.tmpdir(), `${Date.now()}.webp`)
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  const tmpMp4 = path.join(os.tmpdir(), `${id}.mp4`)
+  const tmpWebp = path.join(os.tmpdir(), `${id}.webp`)
+
   try {
-    const { data } = await axios.get(url, { responseType: 'arraybuffer' })
+    const { data } = await axios.get(url, {
+      responseType: 'arraybuffer',
+      timeout: 30000,
+      maxContentLength: 20 * 1024 * 1024,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    })
+
     writeFileSync(tmpMp4, Buffer.from(data))
     await mp4ToWebp(tmpMp4, tmpWebp)
-    await conn.sendMessage(chat, { sticker: fs.readFileSync(tmpWebp) }, { quoted })
+
+    if (!fs.existsSync(tmpWebp)) throw new Error('No se pudo generar el sticker.')
+
+    await conn.sendMessage(chat, {
+      sticker: fs.readFileSync(tmpWebp)
+    }, { quoted })
   } finally {
-    if (fs.existsSync(tmpMp4)) unlinkSync(tmpMp4)
-    if (fs.existsSync(tmpWebp)) unlinkSync(tmpWebp)
+    for (const file of [tmpMp4, tmpWebp]) {
+      try {
+        if (fs.existsSync(file)) unlinkSync(file)
+      } catch {}
+    }
   }
 }
 
@@ -66,9 +83,8 @@ function randomSticker(list) {
 }
 
 async function tryRandomSticker(conn, chat, list, quoted) {
-  const url = randomSticker(list)
   try {
-    await sendMp4Sticker(conn, chat, url, quoted)
+    await sendMp4Sticker(conn, chat, randomSticker(list), quoted)
   } catch {}
 }
 
@@ -84,51 +100,201 @@ const errorStickers = [
   'https://project-sxl.vercel.app/files/6603fbc23dce.mp4'
 ]
 
+function getErrorMessage(json, fallback = 'Error desconocido de la API.') {
+  const candidates = [
+    json?.message,
+    json?.msg,
+    json?.error?.message,
+    json?.error,
+    json?.result?.msg,
+    json?.result?.message,
+    json?.result?.error,
+    json?.data?.msg,
+    json?.data?.message
+  ]
+
+  for (const value of candidates) {
+    if (typeof value === 'string' && value.trim()) return value.trim()
+  }
+
+  return fallback
+}
+
 function getTikTokData(json) {
-  const data = json?.result?.data || json?.data || json?.result
-  if (!json?.status || !data) return null
-  return data
+  if (!json || json.status !== true) return null
+
+  const candidates = [
+    json?.result?.data,
+    json?.data,
+    json?.result
+  ]
+
+  for (const data of candidates) {
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      if (data.hdplay || data.play || data.wmplay || data.video || data.url) {
+        return data
+      }
+    }
+  }
+
+  return null
 }
 
 function getTikTokVideo(data) {
-  return data?.hdplay || data?.play || data?.wmplay || data?.video || data?.url || null
+  const candidates = [
+    data?.hdplay,
+    data?.play,
+    data?.wmplay,
+    data?.video,
+    data?.video_url,
+    data?.download,
+    data?.url
+  ]
+
+  return candidates.find(value =>
+    typeof value === 'string' && /^https?:\/\/\S+$/i.test(value)
+  ) || null
+}
+
+async function apiRequest(url) {
+  let response
+
+  try {
+    response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0'
+      },
+      signal: AbortSignal.timeout(60000)
+    })
+  } catch (e) {
+    throw new Error(e?.name === 'TimeoutError'
+      ? 'La API tardó demasiado en responder.'
+      : e?.message || 'No se pudo conectar con la API.')
+  }
+
+  const raw = await response.text()
+  let json
+
+  try {
+    json = JSON.parse(raw)
+  } catch {
+    throw new Error(`La API devolvió una respuesta inválida (HTTP ${response.status}).`)
+  }
+
+  if (!response.ok) {
+    throw new Error(getErrorMessage(json, `Error HTTP ${response.status}.`))
+  }
+
+  return json
 }
 
 async function downloadTikTok(url) {
-  const res = await fetch(`${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${api.key}`)
-  if (!res.ok) throw new Error(`Error HTTP ${res.status} al descargar TikTok.`)
-  const json = await res.json()
+  const endpoint = `${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${encodeURIComponent(api.key)}`
+  const json = await apiRequest(endpoint)
+
   const data = getTikTokData(json)
-  if (!data) throw new Error(json?.result?.msg || 'No se pudo descargar el video.')
+
+  if (!data) {
+    throw new Error(getErrorMessage(json, 'La API no devolvió información válida del video.'))
+  }
+
   const video = getTikTokVideo(data)
-  if (!video) throw new Error('La API no devolvió un enlace de video válido.')
-  return { video, title: data.title || 'Sin título' }
+
+  if (!video) {
+    throw new Error(getErrorMessage(json, 'La API no devolvió un enlace de video válido.'))
+  }
+
+  return {
+    video,
+    title: typeof data.title === 'string' && data.title.trim()
+      ? data.title.trim()
+      : 'Sin título'
+  }
+}
+
+async function searchTikTok(query) {
+  const endpoint = `${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${encodeURIComponent(api.key)}`
+  const json = await apiRequest(endpoint)
+
+  if (json?.status !== true) {
+    throw new Error(getErrorMessage(json, 'No se pudo realizar la búsqueda en TikTok.'))
+  }
+
+  const candidates = [
+    json?.result?.data,
+    json?.result,
+    json?.data
+  ]
+
+  let results = candidates.find(Array.isArray)
+
+  if (!results && json?.result?.data && typeof json.result.data === 'object') {
+    results = [json.result.data]
+  }
+
+  if (!results?.length) {
+    throw new Error(getErrorMessage(json, 'No se encontraron videos.'))
+  }
+
+  const first = results[0]
+
+  if (typeof first === 'string' && isTikTokUrl(first)) return first
+
+  if (first?.url && isTikTokUrl(first.url)) return first.url
+
+  const author = first?.author?.unique_id ||
+    first?.author?.uniqueId ||
+    first?.unique_id
+
+  const id = first?.video_id || first?.id
+
+  if (!author || !id) {
+    throw new Error('La búsqueda no devolvió un enlace válido de TikTok.')
+  }
+
+  return `https://www.tiktok.com/@${author}/video/${id}`
 }
 
 const handler = async (m, { conn, args }) => {
-  if (!args.length) {
+  if (!args?.length) {
     return conn.reply(m.chat, '《✧》 Ingresa un enlace o una búsqueda.', m)
   }
 
-  await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
+  await conn.sendMessage(m.chat, {
+    react: { text: '⏳', key: m.key }
+  }).catch(() => {})
 
-  let fkontak
+  let fkontak = m
+
   try {
     let thumb
+
     try {
       const pp = await conn.profilePictureUrl(m.sender, 'image')
-      const buf = await axios.get(pp, { responseType: 'arraybuffer' })
+      const buf = await axios.get(pp, {
+        responseType: 'arraybuffer',
+        timeout: 15000
+      })
       thumb = Buffer.from(buf.data)
     } catch {
-      thumb = fs.readFileSync('./src/logo.jpg')
+      try {
+        thumb = fs.readFileSync('./src/logo.jpg')
+      } catch {}
     }
-    fkontak = {
-      key: { fromMe: false, participant: '0@s.whatsapp.net' },
-      message: {
-        contactMessage: {
-          displayName: m.pushName,
-          vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;${m.pushName};;;\nFN:${m.pushName}\nitem1.TEL;waid=${m.sender.replace(/[^0-9]/g, '')}:${m.sender}\nitem1.X-ABLabel:Cel\nEND:VCARD`,
-          jpegThumbnail: thumb
+
+    if (thumb) {
+      fkontak = {
+        key: {
+          fromMe: false,
+          participant: '0@s.whatsapp.net'
+        },
+        message: {
+          contactMessage: {
+            displayName: m.pushName || 'Usuario',
+            vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;${m.pushName || 'Usuario'};;;\nFN:${m.pushName || 'Usuario'}\nitem1.TEL;waid=${String(m.sender).replace(/[^0-9]/g, '')}:${m.sender}\nitem1.X-ABLabel:Cel\nEND:VCARD`,
+            jpegThumbnail: thumb
+          }
         }
       }
     }
@@ -137,46 +303,63 @@ const handler = async (m, { conn, args }) => {
   }
 
   try {
-    let video
-    let text = '✿ Aquí tienes.'
-    const query = args.join(' ')
-
-    if (isUrl(query)) {
-      if (!isTikTokUrl(query)) throw new Error('El enlace no pertenece a TikTok.')
-      let url = query
-      if (url.includes('vt.tiktok.com') || url.includes('vm.tiktok.com')) {
-        url = await resolveTikTokUrl(url)
-      }
-      const result = await downloadTikTok(url)
-      video = result.video
-      text += `\n\n📝 ${result.title}`
-    } else {
-      const res = await fetch(`${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${api.key}`)
-      if (!res.ok) throw new Error(`Error HTTP ${res.status} al buscar TikTok.`)
-      const json = await res.json()
-      const results = json?.result?.data || json?.result
-      if (!json.status || !Array.isArray(results) || !results.length) {
-        throw new Error('No se encontró ningún video.')
-      }
-
-      const first = results[0]
-      const author = first.author?.unique_id || first.author?.uniqueId || first.unique_id
-      const id = first.video_id || first.id
-      const url = first.url || (author && id ? `https://www.tiktok.com/@${author}/video/${id}` : null)
-
-      if (!url) throw new Error('No se pudo obtener el enlace del video encontrado.')
-
-      const result = await downloadTikTok(url)
-      video = result.video
-      text += `\n\n📝 ${result.title}`
+    if (!api?.url || !api?.key) {
+      throw new Error('La API no está configurada correctamente.')
     }
 
-    await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+    const query = args.join(' ').trim()
+
+    if (!query) {
+      throw new Error('Ingresa un enlace o una búsqueda.')
+    }
+
+    let url
+
+    if (isUrl(query)) {
+      if (!isTikTokUrl(query)) {
+        throw new Error('El enlace no pertenece a TikTok.')
+      }
+
+      url = query
+
+      if (/^(vt|vm)\.tiktok\.com$/i.test(new URL(url).hostname)) {
+        url = await resolveTikTokUrl(url)
+      }
+    } else {
+      url = await searchTikTok(query)
+    }
+
+    const result = await downloadTikTok(url)
+
+    await conn.sendFile(
+      m.chat,
+      result.video,
+      'tiktok.mp4',
+      `✿ Aquí tienes.\n\n📝 ${result.title}`,
+      m
+    )
+
+    await conn.sendMessage(m.chat, {
+      react: { text: '✅', key: m.key }
+    }).catch(() => {})
+
     await tryRandomSticker(conn, m.chat, successStickers, fkontak)
+
   } catch (e) {
-    await conn.reply(m.chat, `❏ Error.\n❏ Detalles: ${e.message}`, m)
-    await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
+    const error = typeof e?.message === 'string' && e.message.trim()
+      ? e.message.trim()
+      : 'Error desconocido al procesar el video.'
+
+    await conn.reply(
+      m.chat,
+      `❏ Error.\n❏ Detalles: ${error}`,
+      m
+    ).catch(() => {})
+
+    await conn.sendMessage(m.chat, {
+      react: { text: '⚠️', key: m.key }
+    }).catch(() => {})
+
     await tryRandomSticker(conn, m.chat, errorStickers, fkontak)
   }
 }
