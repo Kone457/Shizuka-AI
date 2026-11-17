@@ -1,10 +1,13 @@
 
+
 import axios from 'axios'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { writeFileSync, unlinkSync } from 'fs'
 import { exec } from 'child_process'
+
+const FALLBACK_API = 'https://aquire-api.vercel.app'
 
 const isUrl = (text) => /^https?:\/\/[^\s]+$/i.test(text)
 
@@ -189,10 +192,9 @@ async function apiRequest(url) {
   return json
 }
 
-async function downloadTikTok(url) {
-  const endpoint = `${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${encodeURIComponent(api.key)}`
+async function downloadFromAPI(base, url, key = '') {
+  const endpoint = `${base}/download/tiktok?url=${encodeURIComponent(url)}${key ? `&apikey=${encodeURIComponent(key)}` : ''}`
   const json = await apiRequest(endpoint)
-
   const data = getTikTokData(json)
 
   if (!data) {
@@ -213,7 +215,31 @@ async function downloadTikTok(url) {
   }
 }
 
+async function downloadTikTok(url) {
+  const errors = []
+
+  if (api?.url) {
+    try {
+      return await downloadFromAPI(api.url, url, api.key)
+    } catch (e) {
+      errors.push(`API principal: ${e?.message || 'Error desconocido'}`)
+    }
+  }
+
+  try {
+    return await downloadFromAPI(FALLBACK_API, url)
+  } catch (e) {
+    errors.push(`API alternativa: ${e?.message || 'Error desconocido'}`)
+  }
+
+  throw new Error(errors.join('\n'))
+}
+
 async function searchTikTok(query) {
+  if (!api?.url || !api?.key) {
+    throw new Error('La búsqueda necesita la API principal configurada.')
+  }
+
   const endpoint = `${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${encodeURIComponent(api.key)}`
   const json = await apiRequest(endpoint)
 
@@ -240,7 +266,6 @@ async function searchTikTok(query) {
   const first = results[0]
 
   if (typeof first === 'string' && isTikTokUrl(first)) return first
-
   if (first?.url && isTikTokUrl(first.url)) return first.url
 
   const author = first?.author?.unique_id ||
@@ -303,10 +328,6 @@ const handler = async (m, { conn, args }) => {
   }
 
   try {
-    if (!api?.url || !api?.key) {
-      throw new Error('La API no está configurada correctamente.')
-    }
-
     const query = args.join(' ').trim()
 
     if (!query) {
