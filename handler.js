@@ -253,6 +253,15 @@ async function processMessage(chatUpdate) {
             else if (lidUser && pnUser && lidUser !== pnUser) users[m.senderPn] = { ...lidUser, ...pnUser }
             user = users[m.senderPn] || user
         }
+        const targetJids = [...(Array.isArray(m.mentionedJid) ? m.mentionedJid : []), m.quoted?.sender].filter(Boolean)
+        for (const targetJid of new Set(targetJids)) {
+            const participant = findParticipant(participants, targetJid)
+            const targetPn = resolvePhoneJid(targetJid, participants)
+            const targetKey = isPnJid(targetPn) ? targetPn : targetJid
+            const aliases = participant ? [participant.id, participant.jid, participant.phoneNumber, participant.lid, targetJid] : [targetJid]
+            const targetName = participant?.notify || participant?.name || participant?.verifiedName || ''
+            resolveDatabaseUser(users, targetKey, aliases, targetName)
+        }
     } catch {
         return
     }
