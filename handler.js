@@ -18,12 +18,12 @@ const escapeRegex = str => String(str).replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
 const normalizeNum = jid => {
     if (!jid) return ''
     if (typeof jid === 'object') jid = jid.jid || jid.id || jid.phoneNumber || jid.lid || ''
-    return String(jid).split('@')[0].split(':')[0]
+    return String(jid).replace(/:\d+(?=@)/g, '').split('@')[0]
 }
 const normalizeJid = jid => {
     if (!jid) return ''
     if (typeof jid === 'object') jid = jid.jid || jid.id || jid.phoneNumber || jid.lid || ''
-    const value = String(jid).split(':')[0]
+    const value = String(jid).replace(/:\d+(?=@)/g, '')
     if (value.includes('@')) return value
     return `${value}@s.whatsapp.net`
 }
@@ -41,14 +41,14 @@ const resolvePhoneJid = (senderJid, participants = []) => {
     if (!senderJid) return null
     if (typeof senderJid === 'object') senderJid = senderJid.jid || senderJid.id || senderJid.phoneNumber || senderJid.lid || ''
     if (!senderJid) return null
-    if (isPnJid(senderJid)) return senderJid.split(':')[0]
+    if (isPnJid(senderJid)) return senderJid.replace(/:\d+(?=@)/g, '')
     if (isLidJid(senderJid)) {
         const p = findParticipant(participants, senderJid)
-        if (p?.phoneNumber && isPnJid(p.phoneNumber)) return p.phoneNumber.split(':')[0]
-        if (p?.id && isPnJid(p.id)) return p.id.split(':')[0]
-        if (p?.jid && isPnJid(p.jid)) return p.jid.split(':')[0]
+        if (p?.phoneNumber && isPnJid(p.phoneNumber)) return p.phoneNumber.replace(/:\d+(?=@)/g, '')
+        if (p?.id && isPnJid(p.id)) return p.id.replace(/:\d+(?=@)/g, '')
+        if (p?.jid && isPnJid(p.jid)) return p.jid.replace(/:\d+(?=@)/g, '')
     }
-    return String(senderJid).split(':')[0]
+    return String(senderJid).replace(/:\d+(?=@)/g, '')
 }
 const getOwnerJids = () => {
     const owners = globalThis.owner || []
@@ -94,7 +94,7 @@ const resolveMentionValue = (value, participants = []) => {
     if (!value) return null
     if (typeof value === 'object') value = value.jid || value.id || value.phoneNumber || value.lid || value.participant || ''
     if (!value) return null
-    value = String(value).split(':')[0]
+    value = String(value).replace(/:\d+(?=@)/g, '')
     if (isPnJid(value)) return value
     if (isLidJid(value)) {
         const resolved = resolvePhoneJid(value, participants)
@@ -344,7 +344,7 @@ async function processMessage(chatUpdate) {
     m.exp += Math.ceil(Math.random() * 10)
     if (m.pushName && m.sender) {
         if (!this.contacts) this.contacts = {}
-        const cleanSender = String(m.sender).split(':')[0].trim()
+        const cleanSender = String(m.sender).replace(/:\d+(?=@)/g, '').trim()
         if (cleanSender) {
             if (!this.contacts[cleanSender]) this.contacts[cleanSender] = {}
             if (!this.contacts[cleanSender].notify) this.contacts[cleanSender].notify = m.pushName
@@ -358,7 +358,7 @@ async function processMessage(chatUpdate) {
             if (!this.contacts[numJid].name) this.contacts[numJid].name = m.pushName
         }
         if (m.senderLid) {
-            const cleanLid = String(m.senderLid).split(':')[0].trim()
+            const cleanLid = String(m.senderLid).replace(/:\d+(?=@)/g, '').trim()
             if (cleanLid) {
                 if (!this.contacts[cleanLid]) this.contacts[cleanLid] = {}
                 if (!this.contacts[cleanLid].notify) this.contacts[cleanLid].notify = m.pushName
