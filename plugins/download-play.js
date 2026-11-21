@@ -149,280 +149,185 @@ async function downloadWithApi(link, isAudio) {
     downloadUrl: json.data.download
   }
 }
+const PENDING_TTL = 5 * 60 * 1000
+export const playSessions = new Map()
+const pending = playSessions
+const pendingKey = (m) => `${m.chat}|${m.sender}`
+
+const AUDIO_CMDS = new Set(['mp3', 'ytmp3', 'صوت', 'يوت_صوت', 'اغنية', 'يوت_اغنيه'])
+const VIDEO_CMDS = new Set(['mp4', 'ytmp4', 'فيديو', 'يوت_فيديو'])
+
+export function parseChoice(text) {
+  const raw = String(text || '').trim().replace(/^[./!#]/, '')
+  const match = raw.match(/^(?:([12])|(صوت|فيديو)(?:\s*(\d+))?)$/i)
+  if (!match) return null
+  return {
+    isAudio: match[1] ? match[1] === '1' : match[2] === 'صوت',
+    idx: match[3] ? Number(match[3]) : 1
+  }
+}
+
+async function downloadAndSend({ m, conn, fkontak, item, isAudio }) {
+  const { data, downloadUrl } = await downloadWithApi(item.url, isAudio)
+  const apiDuration = getDurationSeconds(
+    data.seconds || data.duration || data.length || data.duration_seconds || data.timestamp
+  )
+  if (apiDuration && apiDuration > MAX_DURATION) {
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+    return conn.sendMessage(m.chat, { text: 'الملف عدّى الحد المسموح.' }, { quoted: fkontak })
+  }
+  const size = await getSize(downloadUrl)
+  if (size > MAX_BYTES) {
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+    return conn.sendMessage(
+      m.chat,
+      { text: `الملف عدّى الحد المسموح (${formatSize(size)}).` },
+      { quoted: fkontak }
+    )
+  }
+  const cleanTitle = (data.title || item.title || 'media').replace(/[^\w\s-]/gi, '').trim()
+  await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+  if (isAudio) {
+    return conn.sendMessage(
+      m.chat,
+      {
+        audio: { url: downloadUrl },
+        mimetype: 'audio/mpeg',
+        fileName: `${cleanTitle || 'audio'}.mp3`
+      },
+      { quoted: fkontak }
+    )
+  }
+  return conn.sendMessage(
+    m.chat,
+    {
+      video: { url: downloadUrl },
+      mimetype: 'video/mp4',
+      fileName: `${cleanTitle || 'video'}.mp4`
+    },
+    { quoted: fkontak }
+  )
+}
+
+export function buildSearchText(query, results, m) {
+  const list = results
+    .map((v, i) => `├❍ ${i + 1}. *${v.title}*\n├❍    ⏱️ ${v.timestamp || '؟'} · 👤 ${v.author?.name || '؟'}`)
+    .join('\n')
+  return `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
+├❍ 🔎 *نتائج البحث:* ${query}
+├❍
+${list}
+╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
+
+@${String(m.sender).split('@')[0]} عايز تنزّل إيه؟
+1️⃣ *صوت* — mp3
+2️⃣ *فيديو* — mp4
+
+> عايز نتيجة تانية؟ اكتب *صوت 3* أو *فيديو 2*`
+}
+
 const handler = async (m, { conn, command, text }) => {
   const fkontak = await buildContact(m, conn)
   if (!text) {
-    await conn.sendMessage(m.chat, {
-      react: {
-        text: '⚠️',
-        key: m.key
-      }
-    })
-    return conn.sendMessage(
-      m.chat,
-      {
-        text: 'اكتب اسم أو لينك يوتيوب.'
-      },
-      {
-        quoted: fkontak
-      }
-    )
+    await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
+    return conn.sendMessage(m.chat, { text: 'اكتب اسم أو لينك يوتيوب.' }, { quoted: m })
   }
+
   try {
-    await conn.sendMessage(m.chat, {
-      react: {
-        text: '⏳',
-        key: m.key
+    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
+
+    const forced = AUDIO_CMDS.has(command) ? true : VIDEO_CMDS.has(command) ? false : null
+
+    if (isUrl(text)) {
+      let video = null
+      try {
+        const search = await yts(text)
+        video = search.videos?.find(item => item.url === text) || search.videos?.[0] || null
+      } catch {}
+      const seconds = getDurationSeconds(video?.seconds || video?.timestamp)
+      if (!video || !seconds || seconds > MAX_DURATION) {
+        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+        return conn.sendMessage(m.chat, { text: 'الملف عدّى الحد المسموح.' }, { quoted: fkontak })
       }
-    })
-    let link = text
-    let selectedItem = null
-    if (!isUrl(text)) {
-      const search = await yts(text)
-      if (!search.videos?.length) {
-        await conn.sendMessage(m.chat, {
-          react: {
-            text: '❌',
-            key: m.key
-          }
-        })
-        return conn.sendMessage(
-          m.chat,
-          {
-            text: 'مفيش نتائج، جرّب اسم تاني.'
-          },
-          {
-            quoted: fkontak
-          }
-        )
-      }
-      selectedItem = search.videos.find(video => {
+      return downloadAndSend({ m, conn, fkontak, item: video, isAudio: forced !== null ? forced : true })
+    }
+
+    const search = await yts(text)
+    const results = (search.videos || [])
+      .filter(video => {
         const seconds = getDurationSeconds(video.seconds || video.timestamp)
         return seconds > 0 && seconds <= MAX_DURATION
       })
-      if (!selectedItem) {
-        await conn.sendMessage(m.chat, {
-          react: {
-            text: '❌',
-            key: m.key
-          }
-        })
-        return conn.sendMessage(
-          m.chat,
-          {
-            text: 'الملف عدّى الحد المسموح.'
-          },
-          {
-            quoted: fkontak
-          }
-        )
-      }
-      link = selectedItem.url
-      const caption = `
-╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
-├ׁ̟̇❍✎ ❖ ${selectedItem.title || 'محتوى يوتيوب'}
-├ׁ̟̇❍✎ ✿ القناة: ${selectedItem.author?.name || 'غير معروف'}
-├ׁ̟̇❍✎ ⏱️ المدة: ${selectedItem.timestamp || 'غير معروف'}
-├ׁ̟̇❍✎ 🔗 Link:
-├ׁ̟̇❍✎ ${link}
-╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
-`.trim()
-      if (selectedItem.thumbnail) {
-        try {
-          const thumbRes = await fetch(selectedItem.thumbnail)
-          const thumb = await thumbRes.buffer()
-          await conn.sendMessage(
-            m.chat,
-            {
-              image: thumb,
-              caption
-            },
-            {
-              quoted: fkontak
-            }
-          )
-        } catch {
-          await conn.sendMessage(
-            m.chat,
-            {
-              text: caption
-            },
-            {
-              quoted: fkontak
-            }
-          )
-        }
-      } else {
-        await conn.sendMessage(
-          m.chat,
-          {
-            text: caption
-          },
-          {
-            quoted: fkontak
-          }
-        )
-      }
-    } else {
+      .slice(0, 5)
+
+    if (!results.length) {
+      await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+      return conn.sendMessage(m.chat, { text: 'مفيش نتائج، جرّب اسم تاني.' }, { quoted: fkontak })
+    }
+
+    if (forced !== null) {
+      return downloadAndSend({ m, conn, fkontak, item: results[0], isAudio: forced })
+    }
+
+    pending.set(pendingKey(m), { results, at: Date.now() })
+
+    const caption = buildSearchText(text, results, m)
+    let sent = false
+    if (results[0].thumbnail) {
       try {
-        const search = await yts(text)
-        const video = search.videos?.find(item => item.url === text) || search.videos?.[0]
-        if (!video) {
-          await conn.sendMessage(m.chat, {
-            react: {
-              text: '❌',
-              key: m.key
-            }
-          })
-          return conn.sendMessage(
-            m.chat,
-            {
-              text: 'الملف عدّى الحد المسموح.'
-            },
-            {
-              quoted: fkontak
-            }
-          )
-        }
-        const seconds = getDurationSeconds(video.seconds || video.timestamp)
-        if (!seconds || seconds > MAX_DURATION) {
-          await conn.sendMessage(m.chat, {
-            react: {
-              text: '❌',
-              key: m.key
-            }
-          })
-          return conn.sendMessage(
-            m.chat,
-            {
-              text: 'الملف عدّى الحد المسموح.'
-            },
-            {
-              quoted: fkontak
-            }
-          )
-        }
-        selectedItem = video
-      } catch {
-        await conn.sendMessage(m.chat, {
-          react: {
-            text: '❌',
-            key: m.key
-          }
-        })
-        return conn.sendMessage(
-          m.chat,
-          {
-            text: 'الملف عدّى الحد المسموح.'
-          },
-          {
-            quoted: fkontak
-          }
-        )
-      }
+        const thumbRes = await fetch(results[0].thumbnail)
+        const thumb = await thumbRes.buffer()
+        await conn.sendMessage(m.chat, { image: thumb, caption, mentions: [m.sender] }, { quoted: m })
+        sent = true
+      } catch {}
     }
-    const isAudio = ['play', 'mp3', 'ytmp3'].includes(command)
-    const { data, downloadUrl } = await downloadWithApi(link, isAudio)
-    const apiDuration = getDurationSeconds(
-      data.seconds ||
-      data.duration ||
-      data.length ||
-      data.duration_seconds ||
-      data.timestamp
-    )
-    if (apiDuration && apiDuration > MAX_DURATION) {
-      await conn.sendMessage(m.chat, {
-        react: {
-          text: '❌',
-          key: m.key
-        }
-      })
-      return conn.sendMessage(
-        m.chat,
-        {
-          text: 'الملف عدّى الحد المسموح.'
-        },
-        {
-          quoted: fkontak
-        }
-      )
+    if (!sent) {
+      await conn.sendMessage(m.chat, { text: caption, mentions: [m.sender] }, { quoted: m })
     }
-    const size = await getSize(downloadUrl)
-    if (size > MAX_BYTES) {
-      await conn.sendMessage(m.chat, {
-        react: {
-          text: '❌',
-          key: m.key
-        }
-      })
-      return conn.sendMessage(
-        m.chat,
-        {
-          text: `الملف عدّى الحد المسموح (${formatSize(size)}).`
-        },
-        {
-          quoted: fkontak
-        }
-      )
-    }
-    const cleanTitle = (data.title || selectedItem?.title || 'descarga')
-      .replace(/[^\w\s-]/gi, '')
-      .trim()
-    await conn.sendMessage(m.chat, {
-      react: {
-        text: '✅',
-        key: m.key
-      }
-    })
-    if (isAudio) {
-      return conn.sendMessage(
-        m.chat,
-        {
-          audio: {
-            url: downloadUrl
-          },
-          mimetype: 'audio/mpeg',
-          fileName: `${cleanTitle || 'audio'}.mp3`
-        },
-        {
-          quoted: fkontak
-        }
-      )
-    }
-    return conn.sendMessage(
-      m.chat,
-      {
-        video: {
-          url: downloadUrl
-        },
-        mimetype: 'video/mp4',
-        fileName: `${cleanTitle || 'video'}.mp4`
-      },
-      {
-        quoted: fkontak
-      }
-    )
+    await conn.sendMessage(m.chat, { react: { text: '❔', key: m.key } })
   } catch (e) {
-    await conn.sendMessage(m.chat, {
-      react: {
-        text: '❌',
-        key: m.key
-      }
-    })
-    return conn.sendMessage(
-      m.chat,
-      {
-        text: 'خطأ غير متوقع، جرّب تاني.'
-      },
-      {
-        quoted: fkontak
-      }
-    )
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+    return conn.sendMessage(m.chat, { text: 'خطأ غير متوقع، جرّب تاني.' }, { quoted: m })
   }
 }
+
+handler.before = async (m, { conn }) => {
+  const key = pendingKey(m)
+  const session = pending.get(key)
+  if (!session) return false
+  if (Date.now() - session.at > PENDING_TTL) {
+    pending.delete(key)
+    return false
+  }
+
+  const choice = parseChoice(m.text)
+  if (!choice) return false
+
+  const { isAudio, idx } = choice
+  const item = session.results[idx - 1]
+  if (!item) {
+    await conn.sendMessage(
+      m.chat,
+      { text: `مفيش نتيجة رقم ${idx} — اختار من 1 لـ ${session.results.length}` },
+      { quoted: m }
+    )
+    return true
+  }
+
+  pending.delete(key)
+  const fkontak = await buildContact(m, conn)
+  try {
+    await downloadAndSend({ m, conn, fkontak, item, isAudio })
+  } catch {
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+    await conn.sendMessage(m.chat, { text: 'فشل التحميل، جرّب تاني.' }, { quoted: m })
+  }
+  return true
+}
+
 handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4', 'يوتيوب', 'صوت', 'فيديو', 'يوت_صوت', 'يوت_فيديو', 'يوت_اغنيه']
 handler.tags = ['descargas']
 handler.help = ['يوتيوب']
 handler.group = true
+
 export default handler
