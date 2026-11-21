@@ -35,6 +35,6 @@ let handler = async (m, { conn }) => {
   await conn.sendMessage(m.chat, { image: { url: avatarUrl }, caption: txt, contextInfo: { mentionedJid: [who, ...(user.marry ? [user.marry] : [])], isForwarded: true } }, { quoted: m })
 }
 handler.help = ['ملفي']
-handler.tags = ['perfil']
+handler.tags = ['game']
 handler.command = ['perfil', 'profile', 'ملفي', 'حسابي', 'بروفايل']
 export default handler

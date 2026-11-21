@@ -75,7 +75,7 @@ test('صفحة القسم بتعرض أوامر القسم بس + تنقّل', a
 test('أمر .ق1 بيتحل على info-menu', async (t) => {
   if (skipNoDeps(t)) return
   const plugins = await loadPlugins()
-  for (const n of [1, 2, 7, 13]) {
+  for (const n of [1, 2, 5, 10]) {
     const r = resolveCommand(plugins, `ق${n}`)
     assert.ok(r, `ق${n} مش بيتحل`)
     assert.equal(r.plugin, 'info-menu.js')
@@ -136,7 +136,7 @@ test('رد المينيو بيبقى ردّ (quote) على رسالة اليوز
   const reply = calls.filter(c => !c.content.react).pop()
   assert.ok(reply, 'مفيش رد اتـsend')
   assert.equal(reply.opts?.quoted, m, 'الرد مش quote على رسالة اليوزر')
-  assert.match(reply.content.caption || reply.content.text, /معلومات/)
+  assert.match(reply.content.caption || reply.content.text, /المشرفين/)
 })
 
 test('أسماء الأوامر موحّدة: مفيش مسافات/شرطات، مفيش تكرار، help ⊆ command', async (t) => {
@@ -178,4 +178,49 @@ test('كل أمر عربي بيتحل على الـplugin بتاعه', async (t)
     }
   }
   assert.deepEqual(bad, [])
+})
+
+test('الأقسام اتظبطت: ١٠ أقسام، المشرفين الأول، مفيش معلومات/جاتشا/ملف شخصي', async (t) => {
+  if (skipNoDeps(t)) return
+  global.plugins = await loadPlugins()
+  const { collectCategories } = await import('../plugins/info-menu.js')
+  const cats = collectCategories()
+  const labels = cats.map(c => c.label)
+
+  assert.equal(cats.length, 10)
+  assert.equal(labels[0], '⊹ المشرفين ⊹')
+  for (const gone of ['معلومات', 'جاتشا', 'الملف الشخصي']) {
+    assert.ok(!labels.some(l => l.includes(gone)), `قسم ${gone} لسه موجود`)
+  }
+})
+
+test('أوامر الملف الشخصي دخلت قسم الألعاب', async (t) => {
+  if (skipNoDeps(t)) return
+  global.plugins = await loadPlugins()
+  const { collectCategories } = await import('../plugins/info-menu.js')
+  const games = collectCategories().find(c => c.label.includes('ألعاب'))
+  for (const cmd of ['ملفي', 'طلاق', 'توب']) {
+    assert.ok(games.cmds.includes(cmd), `${cmd} مش في قسم الألعاب`)
+  }
+})
+
+test('مفيش أي أوامر جاتشا', async (t) => {
+  if (skipNoDeps(t)) return
+  const plugins = await loadPlugins()
+  const names = Object.values(plugins).flatMap(p => [].concat(p.command || [])).filter(c => typeof c === 'string')
+  for (const gone of ['رول', 'استلم', 'مجموعتي', 'توب_ويفو', 'ويفو_متاح', 'صورة_ويفو', 'معلومات_ويفو', 'فوت', 'اهدى']) {
+    assert.ok(!names.includes(gone), `أمر جاتشا لسه موجود: ${gone}`)
+  }
+  const gachaFiles = fs.readdirSync(path.join(root, 'plugins')).filter(f => f.startsWith('gacha-'))
+  assert.deepEqual(gachaFiles, [])
+})
+
+test('قسم الاقتصاد شامل كل الأوامر (tags rpg + economy)', async (t) => {
+  if (skipNoDeps(t)) return
+  global.plugins = await loadPlugins()
+  const { collectCategories } = await import('../plugins/info-menu.js')
+  const eco = collectCategories().find(c => c.label.includes('الاقتصاد'))
+  for (const cmd of ['رصيد', 'يومي', 'وظيفة', 'احفر', 'معلوماتي', 'راهن']) {
+    assert.ok(eco.cmds.includes(cmd), `${cmd} مش في قسم الاقتصاد`)
+  }
 })

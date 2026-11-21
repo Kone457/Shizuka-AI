@@ -90,7 +90,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 }
 
 handler.help = ['فكرة']
-handler.tags = ['info']
+handler.tags = ['tools']
 handler.command = ['suggest', 'suggestion', 'sugerencia', 'sugerir', 'فكرة', 'اقتراح']
 
 export default handler

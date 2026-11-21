@@ -575,7 +575,6 @@ global.dfail = (type, m, conn) => {
         admin: `✿ الأمر *${command}* لمشرفين الجروب بس.`,
         botAdmin: `✿ عشان أستخدم *${command}* لازم أكون مشرف في الجروب.`,
         nsfw: `✿ أوامر *NSFW* متقفلة.\n> المشرف يقدر يفتحها بـ:\n> *.on nsfw*`,
-        gacha: `✿ أوامر *Gacha* متقفلة.\n> المشرف يقدر يفتحها بـ:\n> *.on gacha*`,
         restrict: `✿ *الخاصية دي متقفلة*`
     }[type]
     if (!msg || !m) return

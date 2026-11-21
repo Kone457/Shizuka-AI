@@ -37,7 +37,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 }
 
 handler.help = ['ds']
-handler.tags = ['info']
+handler.tags = ['tools']
 handler.command = ['fixmsgespera', 'ds', 'اصلاح']
 handler.owner = true
 

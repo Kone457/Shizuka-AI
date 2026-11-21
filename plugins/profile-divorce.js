@@ -63,6 +63,6 @@ handler.before = async function (m, { conn }) {
 }
 
 handler.help = ['طلاق']
-handler.tags = ['perfil']
+handler.tags = ['game']
 handler.command = ['divorciar', 'طلاق']
 export default handler

@@ -3,24 +3,14 @@ import { getBotConfig } from '../lib/botconfig.js'
 import { createCanvas, loadImage } from '@napi-rs/canvas'
 
 const CATEGORY_META = {
-  main: '⊹ الرئيسية ⊹',
-  rg: '⊹ التسجيل ⊹',
-  info: '⊹ معلومات ⊹',
+  grupo: '⊹ المشرفين ⊹',
   ia: '⊹ ذكاء اصطناعي ⊹',
-  nable: '⊹ وظائف ⊹',
   buscadores: '⊹ البحث ⊹',
   descargas: '⊹ التحميل ⊹',
-  imagen: '⊹ صور ⊹',
-  fun: '⊹ ترفيه ⊹',
   game: '⊹ ألعاب ⊹',
   anime: '⊹ أنمي ⊹',
-  grupo: '⊹ المشرفين ⊹',
-  gacha: '⊹ جاتشا ⊹',
-  text: '⊹ تأثيرات ⊹',
   rpg: '⊹ الاقتصاد ⊹',
   economy: '⊹ الاقتصاد ⊹',
-  perfil: '⊹ الملف الشخصي ⊹',
-  sticker: '⊹ ستيكرز ⊹',
   tools: '⊹ أدوات ⊹',
   owner: '⊹ المطور ⊹',
   serbot: '⊹ بوتات فرعية ⊹'
@@ -29,7 +19,6 @@ const CATEGORY_META = {
 const CATEGORY_EMOJI = {
   '⊹ الرئيسية ⊹': '🏠',
   '⊹ التسجيل ⊹': '📝',
-  '⊹ معلومات ⊹': 'ℹ️',
   '⊹ ذكاء اصطناعي ⊹': '🤖',
   '⊹ وظائف ⊹': '💼',
   '⊹ البحث ⊹': '🔎',
@@ -39,10 +28,8 @@ const CATEGORY_EMOJI = {
   '⊹ ألعاب ⊹': '🎮',
   '⊹ أنمي ⊹': '🌸',
   '⊹ المشرفين ⊹': '🛡️',
-  '⊹ جاتشا ⊹': '🎴',
   '⊹ تأثيرات ⊹': '✨',
   '⊹ الاقتصاد ⊹': '💰',
-  '⊹ الملف الشخصي ⊹': '👤',
   '⊹ ستيكرز ⊹': '🏷️',
   '⊹ أدوات ⊹': '🧰',
   '⊹ المطور ⊹': '👑',
@@ -282,7 +269,7 @@ let handler = async (m, { conn, command, args }) => {
 }
 
 handler.help = ['اوامر']
-handler.tags = ['info']
+handler.tags = ['tools']
 handler.command = ['menu', 'help', 'منيو', 'اوامر', 'الاوامر', 'قائمة', 'القائمة', 'مساعدة', /^ق\d{1,2}$/]
 
 export default handler

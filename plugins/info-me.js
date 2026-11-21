@@ -85,7 +85,7 @@ const handler = async (m, { conn }) => {
 }
 
 handler.help = ['انا']
-handler.tags = ['info']
+handler.tags = ['tools']
 handler.command = ['me', 'انا']
 
 export default handler

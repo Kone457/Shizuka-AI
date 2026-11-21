@@ -18,7 +18,6 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 ├ׁ̟̇❍✎ القنوات ${statusIcon(chatData.antichannel)}
 ├ׁ̟̇❍✎ الخاص ${statusIcon(chatData.antiprivado ?? true)}
 ├ׁ̟̇❍✎ الاقتصاد ${statusIcon(chatData.economy)}
-├ׁ̟̇❍✎ جاتشا ${statusIcon(chatData.gacha)}
 ├ׁ̟̇❍✎ المستويات ${statusIcon(chatData.level ?? true)}
 ├ׁ̟̇❍✎ المشرفين ${statusIcon(chatData.adminonly)}
 ├ׁ̟̇❍✎ التفاعل ${statusIcon(chatData.reaction)}
@@ -80,12 +79,6 @@ ${command} ترحيب
       chatData.rpg = status;
       chatData.economy = status;
       reply('الاقتصاد');
-      break;
-
-    case 'جاتشا':
-    case 'gacha':
-      chatData.gacha = status;
-      reply('Gacha');
       break;
 
     case 'المستويات':
