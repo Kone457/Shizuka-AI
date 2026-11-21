@@ -1,5 +1,5 @@
 import { smsg } from './lib/simple.js'
-import { resolveCommand } from './lib/command-resolver.js'
+import { resolveCommand, matchesResolved, acceptsCommand } from './lib/command-resolver.js'
 import { format } from 'util'
 import { fileURLToPath } from 'url'
 import path, { join } from 'path'
@@ -449,14 +449,23 @@ async function processMessage(chatUpdate) {
         const usedPrefix = match[0][0] || ''
         const noPrefix = m.text.slice(usedPrefix.length)
         const words = noPrefix.trim().split(/\s+/).filter(Boolean)
-        let resolved = resolvedCache.get(noPrefix)
-        if (resolved === undefined) {
-            resolved = resolveCommand(plugins, noPrefix)
-            resolvedCache.set(noPrefix, resolved)
+        let command, consumed
+        if (plugin.customPrefix) {
+            command = (words[0] || '').toLowerCase()
+            consumed = 1
+            if (!acceptsCommand(plugin.command, command, { allowCatchAll: true })) continue
+        } else {
+            let resolved = resolvedCache.get(noPrefix)
+            if (resolved === undefined) {
+                resolved = resolveCommand(plugins, noPrefix)
+                resolvedCache.set(noPrefix, resolved)
+            }
+            // الرسالة الواحدة تتنفّذ مرة واحدة: الـplugin اللي حلّ الأمر بس
+            if (!matchesResolved(plugin, resolved) || name !== resolved.plugin) continue
+            command = resolved.command
+            consumed = resolved.consumed
         }
-        if (!resolved) continue
-        const command = resolved.command
-        const parts = words.slice(resolved.consumed)
+        const parts = words.slice(consumed)
         const args = parts
         const _args = [...args]
         const text = args.join(' ')
@@ -465,7 +474,7 @@ async function processMessage(chatUpdate) {
         user.usedcommands = (Number(user.usedcommands) || 0) + 1
         m.plugin = name
         m.command = command
-        const allowedWhenOff = ['bot']
+        const allowedWhenOff = ['bot', 'بوت']
         if (chat?.bannedGrupo && !isOwner && !allowedWhenOff.includes(command)) continue
         if (!m.isGroup && chat?.antiprivado !== false && !isOwner) continue
         if (!m.chat?.endsWith('g.us') && !isOwner) continue

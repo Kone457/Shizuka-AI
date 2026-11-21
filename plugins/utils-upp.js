@@ -48,10 +48,10 @@ let handler = async (m, { conn }) => {
       return `❌ *${names[i]}*\nغير متاح`
     })
 
-    let txt = `*乂 T O U R L 乂*\n\n`
+    let txt = `*乂 رفع الميديا 乂*\n\n`
     txt += `📦 *الملف:* ${Date.now()}.${ext}\n`
     txt += `📏 *الحجم:* ${formatBytes(media.length)}\n`
-    txt += `🌐 *Servidores:* ${successful}/${results.length}\n\n`
+    txt += `🌐 *السيرفرات:* ${successful}/${results.length}\n\n`
     txt += links.join('\n\n')
 
     await conn.sendMessage(m.chat, { text: txt }, { quoted: m })
@@ -65,7 +65,7 @@ let handler = async (m, { conn }) => {
 
 handler.help = ['رفعميديا']
 handler.tags = ['tools']
-handler.command = ['tourl', 'رفعميديا']
+handler.command = ['رفعميديا']
 
 export default handler
 

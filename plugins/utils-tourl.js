@@ -37,10 +37,10 @@ let handler = async (m, { conn }) => {
     let successful = results.filter(r => r.status === 'fulfilled').length
     if (!successful) throw new Error('كل السيرفرات رفضت الرفع.')
 
-    let txt = `*乂 T O U R L 乂*\n\n`
+    let txt = `*乂 رفع الميديا 乂*\n\n`
     txt += `📦 *الملف:* ${Date.now()}.${ext}\n`
     txt += `📏 *الحجم:* ${formatBytes(media.length)}\n`
-    txt += `🌐 *Servidores:* ${successful}/${results.length}\n\n`
+    txt += `🌐 *السيرفرات:* ${successful}/${results.length}\n\n`
     txt += links.join('\n\n')
 
     await conn.reply(m.chat, txt, m)
