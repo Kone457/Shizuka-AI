@@ -36,7 +36,7 @@ conn.reply(m.chat, `✿ استلمت مكافأتك اليومية *${reward.toL
 
 handler.help = ['يومي']
 handler.tags = ['rpg']
-handler.command = ['daily', 'diario', 'يومي', 'اليومية']
+handler.command = ['daily', 'diario', 'يومي']
 handler.group = true
 
 export default handler

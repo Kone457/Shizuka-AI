@@ -43,8 +43,8 @@ test('matchesResolved: الـplugin المطابق بس', () => {
 })
 
 test('matchesResolved: الأوامر اللي فيها مسافة', () => {
-  const resolved = { command: 'طرد الكل', consumed: 2, plugin: 'group-kickall.js' }
-  assert.equal(matchesResolved({ command: ['kickall', 'طردالكل', 'طرد الكل'] }, resolved), true)
+  const resolved = { command: 'طرد_الكل', consumed: 1, plugin: 'group-kickall.js' }
+  assert.equal(matchesResolved({ command: ['kickall', 'طرد_الكل'] }, resolved), true)
   assert.equal(matchesResolved({ command: ['kick', 'طرد'] }, resolved), false)
 })
 
@@ -58,7 +58,7 @@ test('رسالة واحدة = plugin واحد بالكتير (plugins حقيقي
   if (skipNoDeps(t)) return
   const plugins = await loadRealPlugins()
   assert.ok(Object.keys(plugins).length > 100, 'المفروض يتحمّل أكتر من ١٠٠ plugin')
-  const texts = ['قائمة', 'بينج', 'طرد', 'طرد الكل', 'ترتيب المستويات', 'كتم', 'تشغيل', 'يومي', 'ستيكر', 'غضب', 'معلومات الجروب']
+  const texts = ['اوامر', 'بينج', 'طرد', 'طرد_الكل', 'توب_المستوى', 'كتم', 'تشغيل', 'يومي', 'ملصق', 'غضب', 'معلومات_الجروب']
   for (const text of texts) {
     const n = dispatchCount(plugins, text)
     assert.equal(n, 1, `"${text}" شغّلت ${n} plugin بدل ١`)

@@ -32,7 +32,7 @@ let handler = async (m, { conn, args }) => {
 
 handler.help = ['اغنى']
 handler.tags = ['rpg']
-handler.command = ['baltop', 'eboard', 'economyboard', 'اغنى', 'لوحةالاقتصاد', 'اقتصاد', 'لوحة الاقتصاد', 'لوحة_الاقتصاد']
+handler.command = ['baltop', 'eboard', 'economyboard', 'اغنى', 'لوحة_الاقتصاد', 'اقتصاد']
 handler.group = true
 handler.register = true
 

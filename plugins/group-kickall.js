@@ -15,7 +15,7 @@ var handler = async (m, { conn, participants }) => {
 }
 handler.help = ['طرد_الكل']
 handler.tags = ['grupo']
-handler.command = ['kickall', 'طرد_الكل', 'طردالكل', 'طرد الكل', 'طرد-الكل']
+handler.command = ['kickall', 'طرد_الكل']
 handler.admin = true
 handler.botAdmin = true
 export default handler

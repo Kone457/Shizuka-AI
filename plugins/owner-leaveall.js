@@ -19,9 +19,9 @@ let handler = async (m, { conn, isOwner }) => {
   await m.reply('✿ *تمام، بقيت حر* 😎')
 }
 
-handler.help = ['غادر_الكل']
+handler.help = ['اسيب_الكل']
 handler.tags = ['owner']
-handler.command = ['salirdetodo', 'leaveall', 'salirdetodos', 'massleave', 'اسيبالكل', 'غادرالكل', 'اطلعمنالكل', 'خروججماعي', 'اسيب الكل', 'غادر الكل', 'اطلع من الكل', 'خروج جماعي', 'اسيب_الكل', 'غادر_الكل', 'اطلع_من_الكل', 'خروج_جماعي']
+handler.command = ['salirdetodo', 'leaveall', 'salirdetodos', 'massleave', 'اسيب_الكل', 'غادر_الكل', 'اطلع_من_الكل', 'خروج_جماعي']
 handler.owner = true 
 
 export default handler

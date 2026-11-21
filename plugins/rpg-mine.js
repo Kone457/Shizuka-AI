@@ -47,7 +47,7 @@ await conn.reply(m.chat, mensaje, m)
 
 handler.help = ['احفر']
 handler.tags = ['economy']
-handler.command = ['minar', 'miming', 'mine', 'احفر', 'ميمينج', 'حفر']
+handler.command = ['minar', 'miming', 'mine', 'احفر', 'حفر']
 handler.group = true
 
 export default handler

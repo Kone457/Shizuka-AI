@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { resolveCommand } from '../lib/command-resolver.js'
+import { resolveCommand, acceptsCommand } from '../lib/command-resolver.js'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const hasDeps = fs.existsSync(path.join(root, 'node_modules'))
@@ -137,4 +137,45 @@ test('رد المينيو بيبقى ردّ (quote) على رسالة اليوز
   assert.ok(reply, 'مفيش رد اتـsend')
   assert.equal(reply.opts?.quoted, m, 'الرد مش quote على رسالة اليوزر')
   assert.match(reply.content.caption || reply.content.text, /معلومات/)
+})
+
+test('أسماء الأوامر موحّدة: مفيش مسافات/شرطات، مفيش تكرار، help ⊆ command', async (t) => {
+  if (skipNoDeps(t)) return
+  const plugins = await loadPlugins()
+  const AR = /[\u0600-\u06FF]/
+  const seen = new Map()
+  const problems = []
+  for (const [f, p] of Object.entries(plugins)) {
+    if (p.customPrefix) continue
+    const cmds = [].concat(p.command || []).filter(c => typeof c === 'string')
+    for (const c of cmds) {
+      if (AR.test(c)) {
+        if (c.includes(' ')) problems.push(`${f}: مسافة في "${c}"`)
+        if (c.includes('-')) problems.push(`${f}: شرطة في "${c}"`)
+        if (/^_|_$|__/.test(c)) problems.push(`${f}: شرطة سفلية زيادة في "${c}"`)
+      }
+      if (seen.has(c) && seen.get(c) !== f) problems.push(`تكرار "${c}" في ${seen.get(c)} و ${f}`)
+      seen.set(c, f)
+    }
+    for (const h of [].concat(p.help || [])) {
+      if (typeof h !== 'string') continue
+      if (!acceptsCommand(p.command, h)) problems.push(`${f}: help "${h}" مش في command`)
+    }
+  }
+  assert.deepEqual(problems, [])
+})
+
+test('كل أمر عربي بيتحل على الـplugin بتاعه', async (t) => {
+  if (skipNoDeps(t)) return
+  const plugins = await loadPlugins()
+  const AR = /[\u0600-\u06FF]/
+  const bad = []
+  for (const [f, p] of Object.entries(plugins)) {
+    for (const c of [].concat(p.command || [])) {
+      if (typeof c !== 'string' || !AR.test(c)) continue
+      const r = resolveCommand(plugins, c)
+      if (!r || r.plugin !== f) bad.push(`${c} → ${r?.plugin || 'null'} (المفروض ${f})`)
+    }
+  }
+  assert.deepEqual(bad, [])
 })

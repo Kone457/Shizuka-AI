@@ -56,7 +56,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 };
 
 handler.help = ['ترحيب']
-handler.command = ['setwelcome', 'setbye', 'ترحيب', 'وداع', 'مغادره', 'المغادره', 'الترحيب'];
+handler.command = ['setwelcome', 'setbye', 'ترحيب', 'وداع', 'مغادرة', 'المغادره'];
 handler.group = true;
 handler.admin = true;
 

@@ -71,9 +71,9 @@ let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
   skyJadiBot({ pathSkyJadiBot, m, conn, args, usedPrefix, command, fromCommand: true })
 } 
 
-handler.help = ['كود_qr']
+handler.help = ['كود']
 handler.tags = ['serbot']
-handler.command = ['qr', 'code', 'كود', 'كودqr', 'كود qr', 'كود_qr']
+handler.command = ['qr', 'code', 'كود', 'كود_qr']
 export default handler 
 
 async function downloadImage(url) {

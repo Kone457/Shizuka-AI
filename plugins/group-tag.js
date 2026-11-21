@@ -31,6 +31,6 @@ await conn.reply(m.chat, htextos, null, { mentions: users })
 }}}
 handler.help = ['منشن']
 handler.tags = ['grupo']
-handler.command = ['hidetag', 'tag', 'n', 'منشن', 'منشنالكل', 'تاج', 'منشن الكل', 'منشن_الكل']
+handler.command = ['hidetag', 'tag', 'n', 'منشن', 'منشن_الكل']
 handler.admin = true
 export default handler

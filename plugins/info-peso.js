@@ -136,7 +136,7 @@ await conn.reply(m.chat, '✿ التحليل خلص.\n🔒 مفيش أي ملف 
 
 handler.help = ['حجم_البوت']
 handler.tags = ['owner']
-handler.command = ['peso', 'diskusage', 'tamanobot', 'حجمالبوت', 'مساحة', 'حجمبوت', 'حجم البوت', 'قياس البوت', 'حجم_البوت', 'قياس_البوت', 'الرام']
+handler.command = ['peso', 'diskusage', 'tamanobot', 'حجم_البوت', 'مساحة', 'قياس_البوت', 'الرام']
 handler.owner = true
 
 export default handler

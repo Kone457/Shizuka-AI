@@ -89,8 +89,8 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 }
 
-handler.help = ['فكرة', 'اقتراح']
+handler.help = ['فكرة']
 handler.tags = ['info']
-handler.command = ['suggest', 'suggestion', 'sugerencia', 'sugerir', 'فكرة', 'افكار', 'اقتراح', 'اقترح']
+handler.command = ['suggest', 'suggestion', 'sugerencia', 'sugerir', 'فكرة', 'اقتراح']
 
 export default handler

@@ -118,7 +118,7 @@ handler.before = async function (m, { conn }) {
 
 handler.help = ['زواج']
 handler.tags = ['perfil']
-handler.command = ['marry', 'casarse', 'matrimonio', 'زواج', 'اتجوز', 'جوز'];
+handler.command = ['marry', 'casarse', 'matrimonio', 'زواج', 'اتجوز'];
 handler.group = true;
 
 export default handler;

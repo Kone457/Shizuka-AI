@@ -27,7 +27,7 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['باكج_البوت']
 handler.tags = ['owner']
-handler.command = ['setpack', 'packname', 'باكجالبوت', 'اسمالباكج', 'باكج البوت', 'اسم الباكج', 'باكج_البوت', 'اسم_الباكج']
+handler.command = ['setpack', 'packname', 'باكج_البوت', 'اسم_الباكج']
 handler.owner = true
 
 export default handler

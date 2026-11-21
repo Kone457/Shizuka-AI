@@ -22,9 +22,9 @@ user.bank -= count * 1
 user.coin += count * 1
 await m.reply(`✿ سحبت *${count.toLocaleString()} ${currency}* من البنك، دلوقتي تقدر تستخدمهم بس ممكن حد يسرقهم.`)}
 
-handler.help = ['اسحب']
+handler.help = ['سحب']
 handler.tags = ['rpg']
-handler.command = ['withdraw', 'retirar', 'with', 'سحب', 'اسحب', 'مع']
+handler.command = ['withdraw', 'retirar', 'with', 'سحب', 'اسحب']
 handler.group = true
 
 export default handler

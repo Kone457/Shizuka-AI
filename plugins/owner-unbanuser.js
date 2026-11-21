@@ -92,7 +92,7 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['فك_حظر'];
 handler.tags = ['owner'];
-handler.command = ['unbanuser', 'فك_حظر', 'فكالحظر', 'فك الحظر', 'فك_الحظر', 'فك-حظر'];
+handler.command = ['unbanuser', 'فك_حظر'];
 handler.owner = true;
 
 export default handler;

@@ -63,9 +63,9 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['رفعميديا']
+handler.help = ['رفع_ميديا']
 handler.tags = ['tools']
-handler.command = ['رفعميديا']
+handler.command = ['رفع_ميديا']
 
 export default handler
 

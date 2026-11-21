@@ -23,9 +23,9 @@ user.coin -= count * 1
 user.bank += count * 1
 await m.reply(`✿ ودّعت *${count.toLocaleString()} ${currency}* في البنك، محدش يقدر يسرقهم.`)}
 
-handler.help = ['توديع']
+handler.help = ['اودع']
 handler.tags = ['rpg']
-handler.command = ['deposit', 'depositar', 'd', 'dep', 'اودع', 'توديع', 'وديعة']
+handler.command = ['deposit', 'depositar', 'd', 'dep', 'اودع', 'وديعة', 'ايداع']
 handler.group = true
 
 export default handler
