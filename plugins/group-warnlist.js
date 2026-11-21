@@ -15,7 +15,7 @@ let handler = async (m, { conn }) => {
         if (user?.warn > 0) {
             found = true
             mentions.push(jid)
-            text += `┃ @${jid.split('@')[0]} • ${user.warn} advertencia${user.warn > 1 ? 's' : ''}\n`
+            text += `┃ @${jid.split('@')[0]} • ${user.warn} إنذار\n`
         }
     }
 

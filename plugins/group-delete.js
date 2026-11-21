@@ -1,6 +1,6 @@
 let handler = async (m, { conn, usedPrefix, command }) => {
 
-if (!m.quoted) return conn.reply(m.chat, `《✧》 Por favor, cita el mensaje que deseas eliminar.`, m)
+if (!m.quoted) return conn.reply(m.chat, `《✧》 اعمل رد على الرسالة اللي عايز تحذفها.`, m)
 try {
 let delet = m.message.extendedTextMessage.contextInfo.participant
 let bang = m.message.extendedTextMessage.contextInfo.stanzaId

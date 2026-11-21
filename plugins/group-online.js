@@ -23,21 +23,21 @@ let handler = async (m, { conn, args }) => {
       })
     const adminsList = participantesOrdenados
       .filter(p => admins.includes(normalizeNum(p)))
-      .map(p => `✰ *@${p.split("@")[0]}* (admin)`)
+      .map(p => `✰ *@${p.split("@")[0]}* (مشرف)`)
     const usersList = participantesOrdenados
       .filter(p => !admins.includes(normalizeNum(p)))
       .map(p => `❖ *@${p.split("@")[0]}*`)
     const resultado = [
-      "✿ Escaneo de Presencia en Línea*\n",
+      "✿ مسح الحضور في الجروب*\n",
       adminsList.length ? `✰ *Administradores activos:*\n${adminsList.join("\n")}\n` : "",
-      usersList.length ? `✿ *Miembros activos:*\n${usersList.join("\n")}` : "✧ No hay otros usuarios en línea.",
-      "\n✿ _Información procesada con precisión._"
+      usersList.length ? `✿ *الأعضاء النشطين:*\n${usersList.join("\n")}` : "✧ مفيش مستخدمين تانيين أونلاين.",
+      "\n✿ _البيانات اتظبطت بدقة._"
     ].join("\n")
     await conn.sendMessage(m.chat, { text: resultado, contextInfo: { mentionedJid: participantesOrdenados } }, { quoted: m })
     if (m.react) await m.react("👻")
   } catch (error) {
     console.error(error)
-    await m.reply(`❏ *Se detectó un fallo durante el escaneo.*\n\n✰ Detalles técnicos: ${error.message}\n\n> ❖ Verifica que el grupo esté activo, con mensajes recientes y que tenga acceso completo.`)
+    await m.reply(`❏ *حصل خطأ أثناء المسح.*\n\n✰ تفاصيل تقنية: ${error.message}\n\n> ❖ اتأكد إن الجروب شغّال وفيه رسائل حديثة وإن عندي صلاحيات كاملة.`)
   }
 }
 handler.help = ["listonline"]

@@ -1,6 +1,6 @@
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!m.isGroup) {
-    return m.reply('❌ Este comando solo se puede utilizar dentro de un grupo.');
+    return m.reply('❌ الأمر ده للجروبات بس.');
   }
 
   const chat = globalThis.db.data.chats[m.chat] ||= {};
@@ -9,10 +9,10 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) {
       return m.reply(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🌟  **CONFIGURAR BIENVENIDA**  🌟
+🌟  **إعداد رسالة الترحيب**  🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-Por favor, escribe el mensaje que deseas establecer.
+من فضلك اكتب الرسالة que deseas establecer.
 
 📌 **Variables disponibles:**
 • @user (Mencionar al usuario)
@@ -22,22 +22,22 @@ Por favor, escribe el mensaje que deseas establecer.
 • %users (Total de miembros)
 
 💡 **Ejemplo de uso:**
-${usedPrefix + command} 🌟 ¡Hola @user! Bienvenido a @group. Lee las reglas.
+🌟  **إعداد رسالة الترحيب**  🌟
       `.trim());
     }
 
     chat.sWelcome = text;
-    return m.reply('✅ ¡El mensaje de bienvenida se ha actualizado!');
+    return m.reply('✅ رسالة الترحيب اتحدثت!');
   }
 
   if (command === 'setbye') {
     if (!text) {
       return m.reply(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-💔  **CONFIGURAR DESPEDIDA**  💔
+💔  **إعداد رسالة الوداع**  💔
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-Por favor, escribe el mensaje personalizado que deseas establecer.
+من فضلك اكتب الرسالة personalizado que deseas establecer.
 
 📌 **Variables disponibles:**
 • @user (Mencionar al usuario)
@@ -46,12 +46,12 @@ Por favor, escribe el mensaje personalizado que deseas establecer.
 • %users (Total de miembros actual)
 
 💡 **Ejemplo de uso:**
-${usedPrefix + command} 💔 Adiós @user, esperamos que vuelvas pronto a @group.
+💔  **إعداد رسالة الوداع**  💔
       `.trim());
     }
 
     chat.sBye = text;
-    return m.reply('✅ ¡El mensaje de despedida se ha actualizado!');
+    return m.reply('✅ رسالة الوداع اتحدثت!');
   }
 };
 

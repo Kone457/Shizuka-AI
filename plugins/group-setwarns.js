@@ -12,7 +12,7 @@ let handler = async (m, { conn, args }) => {
 
     conn.reply(
         m.chat,
-        `✅ Límite de advertencias configurado en *${num}*.`,
+        `✅ حد الإنذارات اتظبط على *${num}*.`,
         m
     )
 }

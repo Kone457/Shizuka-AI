@@ -8,7 +8,7 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 
   const configList = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐂𝐎𝐍𝐅𝐈𝐆𝐔𝐑𝐀𝐂𝐈𝐎́𝐍 ⚙️╮
+╭╼⚙️ الإعدادات ⚙️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ welcome ${statusIcon(chatData.welcome)}
 ├ׁ̟̇❍✎ antilink ${statusIcon(chatData.antiLink)}
@@ -25,7 +25,7 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 ├ׁ̟̇❍✎ serbot ${statusIcon(botSettings?.jadibotmd)}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
-✎ Ejemplo:
+✎ مثال:
 ${command} welcome
 `.trim();
 
@@ -38,10 +38,10 @@ ${command} welcome
   const reply = (name) =>
     m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐅𝐔𝐍𝐂𝐈Ó𝐍 ⚙️╮
+╭╼⚙️ الحالة ⚙️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ ${name}
-├ׁ̟̇❍✎ ${status ? '🟢 ACTIVADA' : '🔴 DESACTIVADA'}
+├ׁ̟̇❍✎ ${status ? '🟢 مفعّلة' : '🔴 مقفولة'}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim());
 
@@ -73,7 +73,7 @@ ${command} welcome
     case 'economia':
       chatData.rpg = status;
       chatData.economy = status;
-      reply('Economía');
+      reply('الاقتصاد');
       break;
 
     case 'gacha':
@@ -92,7 +92,7 @@ ${command} welcome
     case 'adminonly':
     case 'onlyadmin':
       chatData.adminonly = status;
-      reply('Modo Admin');
+      reply('وضع المشرفين');
       break;
 
     case 'nsfw':
@@ -131,10 +131,10 @@ ${command} welcome
       if (!isOwner) {
         return m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐀𝐂𝐂𝐄𝐒𝐎 𝐃𝐄𝐍𝐄𝐆𝐀𝐃𝐎 ⛔╮
+╭╼⛔ ممنوع ⛔╮
 ┃֪࣪
-├ׁ̟̇❍✎ Solo el creador puede modificar
-├ׁ̟̇❍✎ esta función del sistema
+├ׁ̟̇❍✎ المطور بس اللي يقدر يعدّل
+├ׁ̟̇❍✎ الخاصية دي في النظام
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim());
       }
@@ -148,9 +148,9 @@ ${command} welcome
     default:
       m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐎𝐏𝐂𝐈Ó𝐍 𝐍𝐎 𝐕𝐀́𝐋𝐈𝐃𝐀 ⚙️╮
+╭╼⚙️ اختيار غير صحيح ⚙️╮
 ┃֪࣪
-├ׁ̟̇❍✎ Usa una opción válida
+├ׁ̟̇❍✎ استخدم اختيار صحيح
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
 ${configList}

@@ -4,9 +4,7 @@ let handler = async (m, { conn, participants }) => {
     let users = global.db.data.users
     if (!users[user]) users[user] = {}
     users[user].warn = users[user].warn || 0
-    await conn.reply(m.chat, `📋 Advertencias de @${user.split('@')[0]}
-
-> ✦ Total: *${users[user].warn}*`, m, { mentions: [user] })
+    await conn.reply(m.chat, `📋 إنذارات @${user.split('@')[0]}\n\n> ✦ الإجمالي: *${users[user].warn}*`, m, { mentions: [user] })
 }
 handler.help = ['warnings']
 handler.tags = ['grupo']

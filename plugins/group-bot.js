@@ -5,12 +5,12 @@ let handler = async (m, { conn, text, args }) => {
 
   if (!args[0]) {
     const estado = global.db.data.chats[m.chat]?.bannedGrupo ?? false;
-    const estadoTexto = estado ? '✗ Desactivado' : '✓ Activado';
-    const info = `✿ *Estado de ${botname}*\n` +
+    const estadoTexto = estado ? '✗ متوقف' : '✓ Activado';
+    const info = `✿ *حالة ${botname}*\n` +
                  `✰ *Actual ›* ${estadoTexto}\n\n` +
-                 `> Puedes cambiarlo con:\n` +
-                 `> ● _Activar ›_ *bot on*\n` +
-                 `> ● _Desactivar ›_ *bot off*`;
+                 `> تقدر تغيّرها بـ:\n` +
+                 `> ● _تشغيل ›_ *bot on*\n` +
+                 `> ● _إيقاف ›_ *bot off*`;
     return m.reply(info);
   }
 
@@ -20,20 +20,20 @@ let handler = async (m, { conn, text, args }) => {
     const accion = args[0].toLowerCase();
 
     if (accion === 'off') {
-      if (estado) return m.reply(`✿ *${botname}* ya estaba *desactivado* en este grupo.`);
+      if (estado) return m.reply(`✿ *${botname}* متوقف بالفعل في الجروب ده.`);
       chat.bannedGrupo = true;
-      return m.reply(`✿ Has Desactivado a ${botname} en este grupo.`);
+      return m.reply(`✿ أوقفت ${botname} في الجروب ده.`);
     }
 
     if (accion === 'on') {
-      if (!estado) return m.reply(`✿ *${botname}* ya estaba *activa* en este grupo.`);
+      if (!estado) return m.reply(`✿ *${botname}* شغّال بالفعل في الجروب ده.`);
       chat.bannedGrupo = false;
-      return m.reply(`✿ Has activado a *${botname}*  en este grupo.`);
+      return m.reply(`✿ شغّلت *${botname}* في الجروب ده.`);
     }
 
-    return m.reply('> ✿ Usa: *bot on* o *bot off* para cambiar el estado.');
+    return m.reply('> ✿ استخدم: *bot on* أو *bot off* لتغيير الحالة.');
   } catch (e) {
-    await m.reply('❏ Ocurrió un error al intentar cambiar el estado del bot.');
+    await m.reply('❏ حصل خطأ وأنا بحاول أغيّر حالة البوت.');
   }
 };
 

@@ -2,12 +2,12 @@ var handler = async (m, { conn, args }) => {
 
 let group = m.chat
 let link = 'https://chat.whatsapp.com/' + await conn.groupInviteCode(group)
-conn.reply(m.chat, '\t\t✿:･✧ link del grupo ✧･:✿\n\n\v' + link, m, { detectLink: true })
+conn.reply(m.chat, '\t\t✿:･✧ لينك الجروب ✧･:✿\n\n\u000b' + link, m, { detectLink: true })
 
 }
 handler.help = ['link']
 handler.tags = ['grupo']
-handler.command = ['link', 'enlace']
+handler.command = ['link', 'لينك']
 handler.group = true
 handler.botAdmin = true
 

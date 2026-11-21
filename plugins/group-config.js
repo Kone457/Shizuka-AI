@@ -23,42 +23,42 @@ let handler = async (m, { conn, command, args }) => {
     if (command === 'close') {
       if (!time) {
         if (groupAnnouncement === true) {
-          return conn.reply(m.chat, `✿ *El grupo ya estaba cerrado.*`, m)
+          return conn.reply(m.chat, `✿ *الجروب مقفول بالفعل.*`, m)
         }
         await conn.groupSettingUpdate(m.chat, 'announcement')
-        return conn.reply(m.chat, `✿ *El grupo ha sido cerrado correctamente.*\n> Solo los admins pueden hablar.`, m)
+        return conn.reply(m.chat, `✿ *الجروب اتقفل بنجاح.*\n> المشرفين بس اللي يقدروا يتكلموا.`, m)
       }
 
-      conn.reply(m.chat, `✿ *El grupo se cerrará en ${time}${unit}*`, m)
+      conn.reply(m.chat, `✿ *الجروب هيتقفل بعد ${time}${unit}*`, m)
 
       setTimeout(async () => {
         await conn.groupSettingUpdate(m.chat, 'announcement')
-        conn.reply(m.chat, `✿ *El grupo ha sido cerrado automáticamente.*`, m)
+        conn.reply(m.chat, `✿ *الجروب اتقفل تلقائيًا.*`, m)
       }, delayTime)
 
     } else if (command === 'open') {
       if (!time) {
         if (groupAnnouncement === false) {
-          return conn.reply(m.chat, `✿ *El grupo ya estaba abierto.*`, m)
+          return conn.reply(m.chat, `✿ *الجروب مفتوح بالفعل.*`, m)
         }
         await conn.groupSettingUpdate(m.chat, 'not_announcement')
-        return conn.reply(m.chat, `✿ *El grupo ha sido abierto correctamente.*\n> ¡Todos pueden participar de nuevo! 🙌`, m)
+        return conn.reply(m.chat, `✿ *الجروب اتفتح بنجاح.*\n> الكل يقدر يشارك تاني! 🙌`, m)
       }
 
-      conn.reply(m.chat, `✿ *El grupo se abrirá en ${time}${unit}*`, m)
+      conn.reply(m.chat, `✿ *الجروب هيتفتح بعد ${time}${unit}*`, m)
 
       setTimeout(async () => {
         await conn.groupSettingUpdate(m.chat, 'not_announcement')
-        conn.reply(m.chat, `✿ *El grupo ha sido abierto automáticamente.*`, m)
+        conn.reply(m.chat, `✿ *الجروب اتفتح تلقائيًا.*`, m)
       }, delayTime)
 
     } else {
-      return conn.reply(m.chat, `❏ *Comando no reconocido.*`, m)
+      return conn.reply(m.chat, `❏ *أمر غير معروف.*`, m)
     }
 
   } catch (e) {
     console.error(e)
-    conn.reply(m.chat, `❏ *Error:*\n> ${e.message}`, m)
+    conn.reply(m.chat, `❏ *خطأ:*\n> ${e.message}`, m)
   }
 }
 
