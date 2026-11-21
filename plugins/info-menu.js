@@ -283,6 +283,6 @@ let handler = async (m, { conn, command, args }) => {
 
 handler.help = ['اوامر']
 handler.tags = ['info']
-handler.command = ['menu', 'help', 'اوامر', 'قائمة', 'مساعدة', /^ق\d{1,2}$/]
+handler.command = ['menu', 'help', 'منيو', 'اوامر', 'الاوامر', 'قائمة', 'القائمة', 'مساعدة', /^ق\d{1,2}$/]
 
 export default handler

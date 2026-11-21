@@ -50,7 +50,7 @@ conn.reply(m.chat, `✿ معندكش *${formatNumber(count)} ${currency}* تلع
 
 handler.help = ['راهن']
 handler.tags = ['rpg']
-handler.command = ['apostar', 'casino', 'راهن', 'كازينو']
+handler.command = ['apostar', 'casino', 'راهن', 'رهان', 'كازينو']
 handler.group = true
 
 export default handler

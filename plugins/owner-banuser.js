@@ -97,7 +97,7 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['حظر'];
 handler.tags = ['owner'];
-handler.command = ['banuser', 'حظر'];
+handler.command = ['banuser', 'حظر', 'تبنيد'];
 handler.owner = true;
 
 export default handler;

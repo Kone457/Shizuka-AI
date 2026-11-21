@@ -325,7 +325,7 @@ handler.before = async (m, { conn }) => {
   return true
 }
 
-handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4', 'يوتيوب', 'صوت', 'فيديو', 'يوت_صوت', 'يوت_فيديو', 'يوت_اغنيه']
+handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4', 'يوتيوب', 'صوت', 'فيديو', 'يوت_صوت', 'يوت_فيديو', 'يوت_اغنيه', 'اغنيه']
 handler.tags = ['descargas']
 handler.help = ['يوتيوب']
 handler.group = true
