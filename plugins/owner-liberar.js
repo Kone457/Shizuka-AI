@@ -7,7 +7,7 @@ async function loadCharacters() {
         const data = await fs.readFile(charactersFilePath, 'utf-8')
         return JSON.parse(data)
     } catch {
-        throw new Error('❏ No se pudo cargar el archivo characters.json.')
+        throw new Error('❏ مقدرتش أحمّل ملف characters.json.')
     }
 }
 
@@ -19,7 +19,7 @@ async function saveCharacters(characters) {
             'utf-8'
         )
     } catch {
-        throw new Error('❏ No se pudo guardar el archivo characters.json.')
+        throw new Error('❏ مقدرتش أحفظ ملف characters.json.')
     }
 }
 

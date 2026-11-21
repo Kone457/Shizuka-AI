@@ -509,7 +509,7 @@ let handler = async (m, { conn }) => {
                         submessages: [
                             {
                                 messageType: 2,
-                                messageText: '🎮 TRES EN LÍNEA'
+                                messageText: '🎮 إكس أو'
                             }
                         ],
                         unifiedResponse: {

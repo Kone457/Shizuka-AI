@@ -7,7 +7,7 @@ async function loadCharacters() {
         const data = await fs.readFile(charactersFilePath, 'utf-8');
         return JSON.parse(data);
     } catch (error) {
-        throw new Error('《✧》No se pudo cargar el archivo characters.json.');
+        throw new Error('《✧》مقدرتش أحمّل ملف characters.json.');
     }
 }
 
@@ -25,17 +25,17 @@ let handler = async (m, { conn, args }) => {
 
         const charactersToShow = sortedCharacters.slice(startIndex, endIndex);
 
-        let message = '✿ *Personajes con más valor:*\n';
+        let message = '✿ *أعلى الشخصيات قيمة:*\n';
         charactersToShow.forEach((character, index) => {
             message += `✰ ${startIndex + index + 1} » *${character.name}*\n`;
             message += `\t\t→ Valor: *${character.value}*\n`;
         });
 
-        message += `⌦ • Página *${page}* de *${totalPages}*.`;
+        message += `⌦ • صفحة *${page}* من *${totalPages}*.`;
 
         await conn.reply(m.chat, message, m);
     } catch (error) {
-        await conn.reply(m.chat, `✘ Error al cargar los personajes: ${error.message}`, m);
+        await conn.reply(m.chat, `✘ خطأ في تحميل الشخصيات: ${error.message}`, m);
     }
 };
 

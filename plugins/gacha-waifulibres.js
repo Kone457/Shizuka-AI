@@ -19,10 +19,10 @@ let handler = async (m, { conn }) => {
         const claimedCharacters = characters.filter(c => c.user)
 
         const message = `
-╭━━〔 HAREM INFO 〕━━⬣
-┃ ✦ Total » *${characters.length}*
-┃ ✦ Libres » *${freeCharacters.length}*
-┃ ✦ Reclamados » *${claimedCharacters.length}*
+╭━━〔 معلومات المجموعة 〕━━⬣
+┃ ✦ الإجمالي » *${characters.length}*
+┃ ✦ المتاح » *${freeCharacters.length}*
+┃ ✦ المطالب بيهم » *${claimedCharacters.length}*
 ╰━━━━━━━━━━━━━━━━⬣
 `.trim()
 
@@ -30,7 +30,7 @@ let handler = async (m, { conn }) => {
     } catch (error) {
         await conn.reply(
             m.chat,
-            `✘ Error al cargar los datos: ${error.message}`,
+            `✘ خطأ في تحميل البيانات: ${error.message}`,
             m
         )
     }
