@@ -71,7 +71,7 @@ let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
   skyJadiBot({ pathSkyJadiBot, m, conn, args, usedPrefix, command, fromCommand: true })
 } 
 
-handler.help = ['كود qr']
+handler.help = ['كود_qr']
 handler.tags = ['serbot']
 handler.command = ['qr', 'code', 'كود', 'كودqr', 'كود qr', 'كود_qr']
 export default handler 

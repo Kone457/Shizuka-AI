@@ -543,7 +543,7 @@ let handler = async (m, { conn }) => {
         {}
     )
 }
-handler.help = ['اكس او']
+handler.help = ['اكس_او']
 handler.tags = ['game']
 handler.command = ['tictactoe', 'ttt', 'اكساو', 'تيكتاك', 'اكس او', 'اكس_او']
 export default handler

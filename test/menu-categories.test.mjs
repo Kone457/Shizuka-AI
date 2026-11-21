@@ -81,3 +81,40 @@ test('أمر .ق1 بيتحل على info-menu', async (t) => {
     assert.equal(r.plugin, 'info-menu.js')
   }
 })
+
+test('مفيش أوامر إباحية خالص', async (t) => {
+  if (skipNoDeps(t)) return
+  const plugins = await loadPlugins()
+  const bad = []
+  for (const [f, p] of Object.entries(plugins)) {
+    if (p.nsfw) bad.push(`${f}:nsfw`)
+    const helps = [].concat(p.help || [])
+    for (const h of helps) if (/سكس|اباحي|إباحي|لولي|نيكو|xnxx|hentai|porn/i.test(String(h))) bad.push(`${f}:${h}`)
+  }
+  assert.deepEqual(bad, [])
+  const files = fs.readdirSync(path.join(root, 'plugins'))
+  assert.ok(!files.some(f => f.startsWith('nsfw-')), 'فيه ملفات nsfw لسه موجودة')
+})
+
+test('قسم المطور موجود وأوامره مش متكررة في أقسام تانية', async (t) => {
+  if (skipNoDeps(t)) return
+  const { collectCategories } = await setup()
+  const cats = collectCategories()
+  const owner = cats.find(c => c.label.includes('المطور'))
+  assert.ok(owner, 'قسم المطور مش موجود')
+  assert.ok(owner.cmds.length >= 10, `أوامر المطور قليلة: ${owner.cmds.length}`)
+  for (const c of cats) {
+    if (c === owner) continue
+    const overlap = c.cmds.filter(x => owner.cmds.includes(x))
+    assert.deepEqual(overlap, [], `أوامر مطور ظهرت في ${c.label}`)
+  }
+})
+
+test('كل قسم فيه إيموجي', async (t) => {
+  if (skipNoDeps(t)) return
+  const { collectCategories, buildIndexText } = await setup()
+  const cats = collectCategories()
+  for (const c of cats) assert.ok(c.emoji && c.emoji !== '▸', `قسم من غير إيموجي: ${c.label}`)
+  const text = buildIndexText({ categories: cats, userName: 'تست', botname: 'بوت', botType: '', channelUrl: '' })
+  for (const c of cats) assert.ok(text.includes(c.emoji), `إيموجي ${c.label} مش في القائمة`)
+})

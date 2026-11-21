@@ -9,7 +9,7 @@ let handler = async (m, { conn, participants }) => {
     users[user].warn--
     await conn.reply(m.chat, `✅ اتشال إنذار من @${user.split('@')[0]}\n> ✦ الإنذارات الحالية: *${users[user].warn}*`, m, { mentions: [user] })
 }
-handler.help = ['شيل انذار']
+handler.help = ['شيل_انذار']
 handler.tags = ['grupo']
 handler.command = ['unwarn', 'شيلانذار', 'شيل انذار', 'شيل_انذار']
 handler.group = true

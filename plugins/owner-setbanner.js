@@ -84,7 +84,7 @@ let handler = async (m, { conn, text, args }) => {
   }
 }
 
-handler.help = ['بانر البوت']
+handler.help = ['بانر_البوت']
 handler.tags = ['owner']
 handler.command = ['setbanner', 'banner', 'بانرالبوت', 'بانر', 'بانر البوت', 'بانر_البوت']
 handler.owner = true

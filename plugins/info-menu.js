@@ -26,8 +26,31 @@ const CATEGORY_META = {
   perfil: '⊹ الملف الشخصي ⊹',
   sticker: '⊹ ستيكرز ⊹',
   tools: '⊹ أدوات ⊹',
-  nsfw: '⊹ NSFW ⊹',
+  owner: '⊹ المطور ⊹',
   serbot: '⊹ بوتات فرعية ⊹'
+}
+
+const CATEGORY_EMOJI = {
+  '⊹ الرئيسية ⊹': '🏠',
+  '⊹ التسجيل ⊹': '📝',
+  '⊹ معلومات ⊹': 'ℹ️',
+  '⊹ ذكاء اصطناعي ⊹': '🤖',
+  '⊹ وظائف ⊹': '💼',
+  '⊹ البحث ⊹': '🔎',
+  '⊹ التحميل ⊹': '📥',
+  '⊹ صور ⊹': '🖼️',
+  '⊹ ترفيه ⊹': '🎉',
+  '⊹ ألعاب ⊹': '🎮',
+  '⊹ أنمي ⊹': '🌸',
+  '⊹ المشرفين ⊹': '🛡️',
+  '⊹ جاتشا ⊹': '🎴',
+  '⊹ تأثيرات ⊹': '✨',
+  '⊹ الاقتصاد ⊹': '💰',
+  '⊹ الملف الشخصي ⊹': '👤',
+  '⊹ ستيكرز ⊹': '🏷️',
+  '⊹ أدوات ⊹': '🧰',
+  '⊹ المطور ⊹': '👑',
+  '⊹ بوتات فرعية ⊹': '🧩'
 }
 
 const CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O'
@@ -136,7 +159,7 @@ export function collectCategories() {
   const pluginsActivos = Object.values(global.plugins || {}).filter(p => !p?.disabled)
   const byTag = {}
   for (const plugin of pluginsActivos) {
-    const tags = Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : [])
+    const tags = plugin.owner ? ['owner'] : (Array.isArray(plugin.tags) ? plugin.tags : (plugin.tags ? [plugin.tags] : []))
     const helps = Array.isArray(plugin.help) ? plugin.help : (plugin.help ? [plugin.help] : [])
     for (const tag of tags) {
       if (!CATEGORY_META[tag]) continue
@@ -153,7 +176,7 @@ export function collectCategories() {
     for (const c of set) entry.cmds.add(c)
     merged.set(label, entry)
   }
-  return [...merged.values()].map((e, i) => ({ n: i + 1, label: e.label, cmds: [...e.cmds].sort() }))
+  return [...merged.values()].map((e, i) => ({ n: i + 1, label: e.label, cmds: [...e.cmds].sort(), emoji: CATEGORY_EMOJI[e.label] || '▸' }))
 }
 
 const cleanLabel = label => label.replace(/⊹/g, '').trim()
@@ -165,7 +188,7 @@ export function buildIndexText({ categories, userName, botname, botType, channel
   l.push(`عندي *${categories.length}* أقسام — اختار القسم اللي تحبه 👇`)
   l.push('')
   for (const c of categories) {
-    l.push(`${numEmoji(c.n)} *ق${c.n}* — ${cleanLabel(c.label)} (${c.cmds.length} أمر)`)
+    l.push(`${numEmoji(c.n)} *ق${c.n}*  ${c.emoji} ${cleanLabel(c.label)}  (${c.cmds.length})`)
   }
   l.push('')
   l.push('✎ اكتب *.ق1* أو *.اوامر 1* عشان تشوف أوامر القسم')
@@ -176,7 +199,7 @@ export function buildIndexText({ categories, userName, botname, botType, channel
 export function buildCategoryText({ categories, index, userName, botname, channelUrl }) {
   const c = categories[index - 1]
   const l = []
-  l.push(`*${c.label}*  ⟪ ${index}/${categories.length} ⟫`)
+  l.push(`${c.emoji} *${c.label}*  ⟪ ${index}/${categories.length} ⟫`)
   l.push(`أهلاً *${userName}* — دي أوامر قسم ${cleanLabel(c.label)}`)
   l.push('')
   l.push(c.cmds.map(x => `├❍ .${x}`).join('\n'))

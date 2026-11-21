@@ -22,7 +22,6 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 ├ׁ̟̇❍✎ المستويات ${statusIcon(chatData.level ?? true)}
 ├ׁ̟̇❍✎ المشرفين ${statusIcon(chatData.adminonly)}
 ├ׁ̟̇❍✎ التفاعل ${statusIcon(chatData.reaction)}
-├ׁ̟̇❍✎ اباحي ${statusIcon(chatData.nsfw)}
 ├ׁ̟̇❍✎ التنبيهات ${statusIcon(chatData.alerts)}
 ├ׁ̟̇❍✎ بدونبادئة ${statusIcon(chatData.notprefix)}
 ├ׁ̟̇❍✎ الفرعية ${statusIcon(botSettings?.jadibotmd)}
@@ -103,12 +102,6 @@ ${command} ترحيب
     case 'onlyadmin':
       chatData.adminonly = status;
       reply('وضع المشرفين');
-      break;
-
-    case 'اباحي':
-    case 'nsfw':
-      chatData.nsfw = status;
-      reply('NSFW');
       break;
 
     case 'ترحيب':

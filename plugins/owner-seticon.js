@@ -49,7 +49,7 @@ let handler = async (m, { conn, text }) => {
   }, { quoted: m })
 }
 
-handler.help = ['ايقونة البوت']
+handler.help = ['ايقونة_البوت']
 handler.tags = ['owner']
 handler.command = ['seticon', 'icono', 'ايقونةالبوت', 'ايقونة', 'ايقونة البوت', 'ايقونة_البوت']
 handler.owner = true
