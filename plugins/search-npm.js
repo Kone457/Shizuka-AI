@@ -65,9 +65,9 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['ابحثباكدج'];
+handler.help = ['ابحث باكدج'];
 handler.tags = ['buscadores'];
-handler.command = ['npmsearch', 'npms', 'ابحثباكدج', 'بحثباكدج'];
+handler.command = ['npmsearch', 'npms', 'ابحثباكدج', 'بحثباكدج', 'ابحث باكدج', 'بحث باكدج'];
 handler.group = true;
 
 export default handler;

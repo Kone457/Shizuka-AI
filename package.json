@@ -9,7 +9,8 @@
     "plugins": "plugins"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node --test \"test/**/*.test.mjs\""
   },
   "repository": {
     "type": "git",

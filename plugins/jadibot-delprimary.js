@@ -26,9 +26,9 @@ let handler = async (m, { conn }) => {
   }
 };
 
-handler.help = ['مسحالاساسي'];
+handler.help = ['مسح الاساسي'];
 handler.tags = ["jadibot"];
-handler.command = ["delprimary", 'مسحالاساسي'];
+handler.command = ["delprimary", 'مسحالاساسي', 'مسح الاساسي'];
 handler.group = true;
 handler.admin = true;
 

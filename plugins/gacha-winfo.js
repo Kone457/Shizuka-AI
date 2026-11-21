@@ -54,7 +54,7 @@ let handler = async (m, { conn, args }) => {
 
 handler.help = ['ويفومعلومة'];
 handler.tags = ['gacha'];
-handler.command = ['charinfo', 'winfo', 'waifuinfo', 'شخصية', 'ويفومعلومة', 'معلوماتويفو'];
+handler.command = ['charinfo', 'winfo', 'waifuinfo', 'شخصية', 'ويفومعلومة', 'معلوماتويفو', 'معلومات ويفو'];
 handler.group = true;
 handler.gacha = true;
 

@@ -105,7 +105,7 @@ await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos/Carpetas eli
 
 handler.help = ['تنظيف']
 handler.tags = ['owner']
-handler.command = ['cleartmp', 'limpiartmp', 'تنظيف', 'مسحمؤقت']
+handler.command = ['cleartmp', 'limpiartmp', 'تنظيف', 'مسحمؤقت', 'مسح المؤقت']
 handler.owner = true
 
 export default handler

@@ -36,8 +36,8 @@ await global.db.write()
 }
 
 handler.tags = ['rpg']
-handler.help = ['صيدسمك', 'صيد']
-handler.command = ['pescar', 'fish', 'صيدسمك', 'صيد']
+handler.help = ['صيد سمك', 'صيد']
+handler.command = ['pescar', 'fish', 'صيدسمك', 'صيد', 'صيد سمك']
 handler.group = true
 
 export default handler

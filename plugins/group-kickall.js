@@ -13,9 +13,9 @@ var handler = async (m, { conn, participants }) => {
   await conn.groupParticipantsUpdate(m.chat, [...new Set(targets)], 'remove')
   await conn.reply(m.chat, `✦ كل المستخدمين اتطردوا من الجروب...`, m)
 }
-handler.help = ['طردالكل']
+handler.help = ['طرد الكل']
 handler.tags = ['grupo']
-handler.command = ['kickall', 'طردالكل']
+handler.command = ['kickall', 'طردالكل', 'طرد الكل']
 handler.admin = true
 handler.botAdmin = true
 export default handler

@@ -32,9 +32,9 @@ let handler = async (m, { conn }) => {
   }
 };
 
-handler.help = ["hd"];
+handler.help = ["اتشدي"];
 handler.tags = ["tools"];
-handler.command = ["hd"];
+handler.command = ["hd", "اتشدي"];
 
 export default handler;
 

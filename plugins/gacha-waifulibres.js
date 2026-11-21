@@ -36,9 +36,9 @@ let handler = async (m, { conn }) => {
     }
 }
 
-handler.help = ['ويفومتاح']
+handler.help = ['ويفو متاح']
 handler.tags = ['gacha']
-handler.command = ['waifulibres', 'ويفومتاح']
+handler.command = ['waifulibres', 'ويفومتاح', 'ويفو متاح']
 handler.group = true
 handler.gacha = true
 

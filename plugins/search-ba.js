@@ -26,8 +26,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['ba'];
+handler.help = ['رصيدي'];
 handler.tags = ['buscadores'];
-handler.command = ['ba'];
+handler.command = ['ba', 'رصيدي'];
 
 export default handler;

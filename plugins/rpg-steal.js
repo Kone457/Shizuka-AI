@@ -36,7 +36,7 @@ conn.reply(m.chat, `✿ Le robaste *${rob.toLocaleString()} ${currency}* a *${na
 
 handler.help = ['سرق']
 handler.tags = ['rpg']
-handler.command = ['robar', 'steal', 'rob', 'اسرق', 'اسرقستيكر', 'سرق']
+handler.command = ['robar', 'steal', 'rob', 'اسرق', 'اسرقستيكر', 'سرق', 'اسرق ستيكر']
 handler.group = true
 
 export default handler

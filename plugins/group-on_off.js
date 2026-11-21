@@ -1,5 +1,8 @@
 let handler = async (m, { conn, args, command, isOwner }) => {
-  const setting = args[0]?.toLowerCase();
+  const words = (args || []).map(a => String(a).toLowerCase());
+  const setting = words.length > 1 && ['بدون بادئة'].includes(words.slice(0, 2).join(' '))
+    ? words.slice(0, 2).join(' ')
+    : words[0];
 
   const chatData = global.db.data.chats[m.chat];
   const botSettings = global.db.data.settings[conn.user.jid];
@@ -129,6 +132,7 @@ ${command} ترحيب
       reply('Alertas');
       break;
 
+    case 'بدون بادئة':
     case 'بدونبادئة':
     case 'notprefix':
     case 'noprefix':

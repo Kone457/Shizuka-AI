@@ -36,8 +36,9 @@ let handler = async (m, { conn, args, isOwner }) => {
   )
 }
 
+handler.help = ['سورس']
 handler.tags = ['owner']
-handler.command = ['sf']
+handler.command = ['sf', 'سورس']
 handler.owner = true
 
 export default handler

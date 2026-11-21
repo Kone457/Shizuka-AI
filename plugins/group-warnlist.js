@@ -37,9 +37,9 @@ let handler = async (m, { conn }) => {
     )
 }
 
-handler.help = ['قائمةالانذارات']
+handler.help = ['قائمة الانذارات']
 handler.tags = ['grupo']
-handler.command = ['warnlist', 'قائمةالانذارات']
+handler.command = ['warnlist', 'قائمةالانذارات', 'قائمة الانذارات']
 handler.group = true
 handler.admin = true
 

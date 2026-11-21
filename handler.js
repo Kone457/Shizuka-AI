@@ -1,4 +1,5 @@
 import { smsg } from './lib/simple.js'
+import { resolveCommand } from './lib/command-resolver.js'
 import { format } from 'util'
 import { fileURLToPath } from 'url'
 import path, { join } from 'path'
@@ -394,6 +395,7 @@ async function processMessage(chatUpdate) {
     const isBotAdmin = !!botGroup?.admin
     const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), './plugins')
     const plugins = globalThis.plugins || {}
+    const resolvedCache = new Map()
     for (const name of Object.keys(plugins)) {
         const plugin = plugins[name]
         if (!plugin || plugin.disabled) continue
@@ -446,13 +448,18 @@ async function processMessage(chatUpdate) {
         if (!match[0]) continue
         const usedPrefix = match[0][0] || ''
         const noPrefix = m.text.slice(usedPrefix.length)
-        const parts = noPrefix.trim().split(/\s+/).filter(Boolean)
-        let command = (parts.shift() || '').toLowerCase()
+        const words = noPrefix.trim().split(/\s+/).filter(Boolean)
+        let resolved = resolvedCache.get(noPrefix)
+        if (resolved === undefined) {
+            resolved = resolveCommand(plugins, noPrefix)
+            resolvedCache.set(noPrefix, resolved)
+        }
+        if (!resolved) continue
+        const command = resolved.command
+        const parts = words.slice(resolved.consumed)
         const args = parts
         const _args = [...args]
         const text = args.join(' ')
-        const isAccept = plugin.command instanceof RegExp ? testRegex(plugin.command, command) : Array.isArray(plugin.command) ? plugin.command.some(cmd => cmd instanceof RegExp ? testRegex(cmd, command) : cmd === command) : typeof plugin.command === 'string' ? plugin.command === command : false
-        if (!isAccept) continue
         if (setting.self && !isOwner) continue
         setting.botcommando = (Number(setting.botcommando) || 0) + 1
         user.usedcommands = (Number(user.usedcommands) || 0) + 1
