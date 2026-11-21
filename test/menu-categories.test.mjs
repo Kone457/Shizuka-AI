@@ -118,3 +118,23 @@ test('كل قسم فيه إيموجي', async (t) => {
   const text = buildIndexText({ categories: cats, userName: 'تست', botname: 'بوت', botType: '', channelUrl: '' })
   for (const c of cats) assert.ok(text.includes(c.emoji), `إيموجي ${c.label} مش في القائمة`)
 })
+
+test('رد المينيو بيبقى ردّ (quote) على رسالة اليوزر', async (t) => {
+  if (skipNoDeps(t)) return
+  global.plugins = await loadPlugins()
+  global.db = { data: { users: {}, chats: {}, settings: {} } }
+  const mod = await import('../plugins/info-menu.js')
+  const calls = []
+  const conn = {
+    user: { jid: '201000000000:1@s.whatsapp.net', id: '201000000000:1@s.whatsapp.net' },
+    sendMessage: async (chat, content, opts) => { calls.push({ content, opts }) },
+    profilePictureUrl: async () => { throw new Error('no pp') },
+    waUploadToServer: async () => ({})
+  }
+  const m = { chat: '201111111111@s.whatsapp.net', sender: '201111111111@s.whatsapp.net', pushName: 'تست', key: { id: 'ABC', remoteJid: '201111111111@s.whatsapp.net' }, message: { conversation: '.ق1' } }
+  await mod.default.call(conn, m, { conn, command: 'ق1', args: [], usedPrefix: '.', text: '' })
+  const reply = calls.filter(c => !c.content.react).pop()
+  assert.ok(reply, 'مفيش رد اتـsend')
+  assert.equal(reply.opts?.quoted, m, 'الرد مش quote على رسالة اليوزر')
+  assert.match(reply.content.caption || reply.content.text, /معلومات/)
+})

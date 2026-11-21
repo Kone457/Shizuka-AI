@@ -1,8 +1,4 @@
 import moment from 'moment-timezone'
-import {
-  generateWAMessageFromContent,
-  prepareWAMessageMedia
-} from '@whiskeysockets/baileys'
 import { getBotConfig } from '../lib/botconfig.js'
 import { createCanvas, loadImage } from '@napi-rs/canvas'
 
@@ -74,15 +70,6 @@ async function getBannerBuffer(url) {
     return buf
   } catch {
     return null
-  }
-}
-
-function quotedContext(m) {
-  if (!m?.key) return {}
-  return {
-    stanzaId: m.key.id,
-    participant: m.key.participant || m.key.remoteJid,
-    quotedMessage: m.message
   }
 }
 
@@ -278,58 +265,16 @@ let handler = async (m, { conn, command, args }) => {
       console.error('خطأ في الرسم:', e)
     }
 
-    const media = await prepareWAMessageMedia(
-      { image: finalBuffer },
-      { upload: conn.waUploadToServer }
-    )
-
-    const nativeFlowPayload = {
-      header: {
-        title: null,
-        subtitle: `${dev}`,
-        hasMediaAttachment: true,
-        imageMessage: media.imageMessage
-      },
-      body: { text: menuTexto.trim() },
-      footer: { text: `${dev}` },
-      nativeFlowMessage: {
-        buttons: [],
-        messageParamsJson: JSON.stringify({
-          limited_time_offer: {
-            text: botnameConfig,
-            url: CHANNEL_URL,
-            copy_code: null,
-            expiration_time: null
-          }
-        })
-      },
-      contextInfo: {
-        mentionedJid: [],
-        groupMentions: [],
-        ...quotedContext(m)
-      }
-    }
-
-    const msg = generateWAMessageFromContent(
+    return await conn.sendMessage(
       m.chat,
       {
-        viewOnceMessage: {
-          message: {
-            messageContextInfo: {
-              deviceListMetadata: {},
-              deviceListMetadataVersion: 2
-            },
-            interactiveMessage: nativeFlowPayload
-          }
-        }
+        image: finalBuffer,
+        caption: menuTexto.trim(),
+        mimetype: 'image/png',
+        footer: botnameConfig
       },
-      {
-        quoted: m,
-        userJid: conn.user?.jid || conn.user?.id
-      }
+      { quoted: m }
     )
-
-    return await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
 
   } catch (e) {
     await conn.sendMessage(m.chat, { text: `✿ خطأ: ${e.message || e}` }, { quoted: m })
