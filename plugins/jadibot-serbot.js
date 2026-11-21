@@ -15,23 +15,23 @@ import { getBotConfig } from '../lib/botconfig.js'
 
 let rtx = `
 > الربط عن طريق QR
-> ✿ *امسح الـQR ده* con otro celular o PC para ser un *بوت فرعي مؤقت.*
+> ✿ *امسح الـQR ده* بموبايل أو كمبيوتر تاني عشان تبقى *بوت فرعي مؤقت.*
 
 > ✿ *الخطوات:*
-> ✿ افتح *tres puntos* arriba a la derecha  
-> ✿ Toca *Dispositivos vinculados*  
-> ✿ Escanea el *código QR* para iniciar sesión
+> ✿ افتح *التلات نقط* فوق على اليمين  
+> ✿ دوس على *الأجهزة المرتبطة*  
+> ✿ امسح *كود QR* عشان تسجل الدخول
 
 `.trim()
 let rtx2 = `
 > الربط عن طريق الكود
-> ✿ استخدم *الكود* ده para ser un *بوت فرعي مؤقت.*
+> ✿ استخدم *الكود* ده عشان تبقى *بوت فرعي مؤقت.*
 
 > ✿ *الخطوات:*
-> ✿ افتح *tres puntos* arriba a la derecha  
-> ✿ Toca *Dispositivos vinculados*  
-> ✿ Selecciona *Vincular con número de teléfono*  
-> ✿ Ingresa el *código* de vinculación.
+> ✿ افتح *التلات نقط* فوق على اليمين  
+> ✿ دوس على *الأجهزة المرتبطة*  
+> ✿ اختار *الربط برقم التليفون*  
+> ✿ اكتب *كود* الربط.
 
 `.trim()
 

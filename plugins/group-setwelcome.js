@@ -12,16 +12,16 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 🌟  **إعداد رسالة الترحيب**  🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-من فضلك اكتب الرسالة que deseas establecer.
+من فضلك اكتب الرسالة اللي عايز تحطها.
 
-📌 **Variables disponibles:**
-• @user (Mencionar al usuario)
-• @group (Nombre del grupo)
-• @desc (Descripción del grupo)
-• @action (Acción de entrada)
-• %users (Total de miembros)
+📌 **المتغيرات المتاحة:**
+• @user (منشن المستخدم)
+• @group (اسم الجروب)
+• @desc (وصف الجروب)
+• @action (سبب الدخول)
+• %users (إجمالي الأعضاء)
 
-💡 **Ejemplo de uso:**
+💡 **مثال للاستخدام:**
 🌟  **إعداد رسالة الترحيب**  🌟
       `.trim());
     }
@@ -37,15 +37,15 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 💔  **إعداد رسالة الوداع**  💔
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-من فضلك اكتب الرسالة personalizado que deseas establecer.
+من فضلك اكتب الرسالة المخصصة اللي عايز تحطها.
 
-📌 **Variables disponibles:**
-• @user (Mencionar al usuario)
-• @group (Nombre del grupo)
-• @action (Acción de salida/eliminación)
-• %users (Total de miembros actual)
+📌 **المتغيرات المتاحة:**
+• @user (منشن المستخدم)
+• @group (اسم الجروب)
+• @action (سبب الخروج/الطرد)
+• %users (إجمالي الأعضاء حالياً)
 
-💡 **Ejemplo de uso:**
+💡 **مثال للاستخدام:**
 💔  **إعداد رسالة الوداع**  💔
       `.trim());
     }

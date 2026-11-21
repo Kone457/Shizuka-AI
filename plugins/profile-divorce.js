@@ -19,7 +19,7 @@ let handler = async (m, { conn }) => {
   let userName = await conn.getName(userJid)
 
   await conn.sendMessage(m.chat, {
-    text: `📜 ${userName}, على وشك تتطلق من ${parejaName}.\n\nمتأكد؟\nرد بـ:\n• *sí* للتأكيد\n• *no* para cancelar`,
+    text: `📜 ${userName}, على وشك تتطلق من ${parejaName}.\n\nمتأكد؟\nرد بـ:\n• *نعم* للتأكيد\n• *لا* للإلغاء`,
     mentions: [userJid, user.marry]
   }, { quoted: m })
 }
@@ -35,7 +35,7 @@ handler.before = async function (m, { conn }) {
 
   let txt = m.text.trim().toLowerCase()
 
-  if (['sí', 'si', 'confirmo'].includes(txt)) {
+  if (['sí', 'si', 'confirmo', 'نعم', 'أكيد'].includes(txt)) {
     let user = getUser(globalThis.db.data.users, userJid)
     let parejaJid = intento.pareja
     let pareja = getUser(globalThis.db.data.users, parejaJid) || {}
@@ -52,7 +52,7 @@ handler.before = async function (m, { conn }) {
       text: `💔 الحب خلص! ${userName} و${parejaName} قرروا يتطلقوا رسميًا. 📜🥀`,
       mentions: [userJid, parejaJid]
     }, { quoted: m })
-  } else if (['no', 'cancelar'].includes(txt)) {
+  } else if (['no', 'cancelar', 'لا', 'إلغاء'].includes(txt)) {
     delete divorciosPendientes[userJid]
 
     await conn.sendMessage(m.chat, {

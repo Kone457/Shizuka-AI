@@ -24,13 +24,13 @@ let handler = async (m, { conn }) => {
 
 👤 *الاسم:* ${name}
 📈 *المستوى:* ${level}
-⭐ *Experiencia (XP):* ${exp}
+⭐ *الخبرة (XP):* ${exp}
 
-💍 *Pareja:* ${pareja}
+💍 *الشريك:* ${pareja}
 
-🍫 *Chocolates:* ${chocolates}
-🪙 *Coins:* ${coin}
-🏦 *Banco:* ${bank}
+🍫 *الشوكولاتة:* ${chocolates}
+🪙 *كوينز:* ${coin}
+🏦 *البنك:* ${bank}
   `.trim()
   await conn.sendMessage(m.chat, { image: { url: avatarUrl }, caption: txt, contextInfo: { mentionedJid: [who, ...(user.marry ? [user.marry] : [])], isForwarded: true } }, { quoted: m })
 }

@@ -67,7 +67,7 @@ let handler = async (m, { conn, args }) => {
 
     const hora = moment.tz('America/Havana').locale('es').format('hh:mm A')
     const fecha = moment.tz('America/Havana').locale('es').format('dddd, DD [de] MMMM [de] YYYY')
-    const wm = `البوت: ${getBotConfig(conn, 'packname')}\nالمستخدم: ${m.pushName || 'Usuario'}\nالوقت: ${hora}\nالتاريخ: ${fecha}\nالمطور: ${global.author}\n${global.dev}`
+    const wm = `البوت: ${getBotConfig(conn, 'packname')}\nالمستخدم: ${m.pushName || 'مستخدم'}\nالوقت: ${hora}\nالتاريخ: ${fecha}\nالمطور: ${global.author}\n${global.dev}`
     const pack = ''
 
     let thumb = null

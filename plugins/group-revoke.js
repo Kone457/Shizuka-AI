@@ -13,14 +13,14 @@ let handler = async (m, { conn }) => {
 ❖ *لينك الدعوة القديم اتلغى.*
 ✰ *لينك دخول جديد اتولد:*\n${enlaceCompleto}
 
-✦ *Sistema listo para nuevas instrucciones.*`, 
+✦ *النظام جاهز لأوامر جديدة.*`, 
       m)
   } catch (error) {
     console.error(error)
     await m.reply(`️❏ *خطأ في عملية تجديد اللينك.*
 
 ❏ تفاصيل تقنية: ${error.message}
-⌦ اتأكد إن tenga privilegios administrativos para completar esta orden.`)
+⌦ اتأكد إن عندي صلاحيات إدارية عشان أكمّل العملية.`)
   }
 }
 

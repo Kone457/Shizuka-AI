@@ -45,7 +45,7 @@ const roboauto = [
 { tipo: 'victoria', mensaje: "سرقت تانك من الحرب العالمية التانية من المتحف، كسبت." },
   { tipo: 'victoria', mensaje: "كسرت قفل عربية فخمة وهربت، كسبت." },
   { tipo: 'victoria', mensaje: "اخترقت نظام عربية كهربائية وبعتها تاني، كسبت." },
-  { tipo: 'derrota', mensaje: "Fuiste atrapado y violado por 3 negros sin parar, perdiste." },
+  { tipo: 'derrota', mensaje: "اتقبض عليك في الآخر، خسرت." },
   { tipo: 'derrota', mensaje: "صاحب المكان طلع في الوقت المناسب ومسكك، خسرت." },
   { tipo: 'derrota', mensaje: "الشرطة تتبعت الـGPS ووقفتك، خسرت." }
 ]

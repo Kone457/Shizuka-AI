@@ -2,7 +2,7 @@ import ws from 'ws'
 
 let handler = async (m, { conn, args, isOwner }) => {
   if (!isOwner) return m.reply('❌ المطور بس اللي يقدر يستخدم الأمر ده.')
-  if (!args[0]) return m.reply('Que haces?')
+  if (!args[0]) return m.reply('بتعمل إيه؟')
 
   const linkRegex = /whatsapp\.com\/channel\/([0-9A-Za-z]+)/i
   const match = args[0].match(linkRegex)

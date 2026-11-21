@@ -24,7 +24,7 @@ let handler = async (m, { conn }) => {
     if (!found) {
         return conn.reply(
             m.chat,
-            '✅ No hay usuarios con advertencias.',
+            '✅ مفيش مستخدمين عندهم إنذارات.',
             m
         )
     }

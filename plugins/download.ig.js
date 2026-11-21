@@ -4,7 +4,7 @@ const handler = async (m, { args, conn }) => {
   if (!args[0]) {
     return conn.sendMessage(
       m.chat,
-      { text: '《✧》 Ingresa un enlace válido de Instagram.' },
+      { text: '《✧》 هات لينك إنستجرام صحيح.' },
       { quoted: m }
     );
   }
@@ -36,7 +36,7 @@ const handler = async (m, { args, conn }) => {
       }
     }
 
-    if (!mediaUrl) throw new Error('No se pudo descargar el video de Instagram.');
+    if (!mediaUrl) throw new Error('مقدرتش أحمّل فيديو إنستجرام.');
 
     await conn.sendFile(
       m.chat,

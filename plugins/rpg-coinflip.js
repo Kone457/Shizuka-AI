@@ -18,7 +18,7 @@ const acierto = resultado === eleccion
 const cambio = acierto ? cantidad : -cantidad
 user.coin += cambio
 if (user.coin < 0) user.coin = 0
-const mensaje = `✿ العملة طلعت *${capitalize(resultado)}* و${acierto ? 'كسبت' : 'خسرت'} *${Math.abs(cambio).toLocaleString()} ${currency}*!\n> Tu elección fue *${capitalize(eleccion)}*`
+const mensaje = `✿ العملة طلعت *${capitalize(resultado)}* و${acierto ? 'كسبت' : 'خسرت'} *${Math.abs(cambio).toLocaleString()} ${currency}*!\n> اختيارك كان *${capitalize(eleccion)}*`
 return conn.reply(m.chat, mensaje, m)
 }
 

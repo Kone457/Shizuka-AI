@@ -78,7 +78,7 @@ let handler = async (m, { conn, args }) => {
             const timeLeft = expirationTime - Date.now();
             const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
             const seconds = Math.floor((timeLeft / 1000) % 60);
-            await conn.reply(m.chat, `《✧》El personaje *${originalCharacterName}* اتصوّت لها قريب. لازم تستنى *${Math.floor(minutes)} minutos ${seconds} segundos* para volver a votar.`, m);
+            await conn.reply(m.chat, `《✧》الشخصية *${originalCharacterName}* اتصوّت لها قريب. لازم تستنى *${Math.floor(minutes)} دقيقة ${seconds} ثانية* عشان تصوّت تاني.`, m);
             return;
         }
 
@@ -106,7 +106,7 @@ let handler = async (m, { conn, args }) => {
         cooldowns.set(userId, Date.now());
         characterVotes.set(originalCharacterName, Date.now() + cooldownTime);
 
-        await conn.reply(m.chat, `✰ صوّتت للشخصية *${originalCharacterName}*\n> قيمتها الجديدة *${character.value}* (زادت *${incrementValue}*)\n> Total de votos: *${character.votes}*`, m);
+        await conn.reply(m.chat, `✰ صوّتت للشخصية *${originalCharacterName}*\n> قيمتها الجديدة *${character.value}* (زادت *${incrementValue}*)\n> الإجمالي الأصوات: *${character.votes}*`, m);
     } catch (e) {
         await conn.reply(m.chat, `✘ خطأ في تحديث القيمة: ${e.message}`, m);
     }

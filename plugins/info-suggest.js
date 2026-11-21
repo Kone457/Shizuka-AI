@@ -39,7 +39,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         )
 
     const teks = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼💡 𝐍𝐔𝐄𝐕𝐀 𝐒𝐔𝐆𝐄𝐑𝐄𝐍𝐂𝐈𝐀 💡╮
+╭╼💡 اقتراح جديد 💡╮
 ┃֪࣪
 ├ׁ̟̇❍✎ 📱 الرقم:
 ├ׁ̟̇❍✎ wa.me/${m.sender.split('@')[0]}
