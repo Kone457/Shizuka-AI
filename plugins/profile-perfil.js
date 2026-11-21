@@ -36,5 +36,5 @@ let handler = async (m, { conn }) => {
 }
 handler.help = ['ملفي']
 handler.tags = ['perfil']
-handler.command = ['perfil', 'profile', 'ملفي', 'حسابي']
+handler.command = ['perfil', 'profile', 'ملفي', 'حسابي', 'بروفايل']
 export default handler

@@ -421,7 +421,7 @@ const handler = async (m, { conn, command, text }) => {
     )
   }
 }
-handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4', 'يوتيوب', 'يوتيوب2', 'صوت', 'فيديو', 'يوتصوت', 'يوتفيديو', 'صوت يوتيوب', 'فيديو يوتيوب']
+handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4', 'يوتيوب', 'يوتيوب2', 'صوت', 'فيديو', 'يوتصوت', 'يوتفيديو', 'صوت يوتيوب', 'فيديو يوتيوب', 'صوت_يوتيوب', 'فيديو_يوتيوب', 'اغنيه', 'اغنية', 'يوت_اغنيه']
 handler.tags = ['descargas']
 handler.help = ['يوتيوب']
 handler.group = true

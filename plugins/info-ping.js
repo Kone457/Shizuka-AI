@@ -20,7 +20,7 @@ let handler = async (m, { conn }) => {
 
 handler.help = ['بينج']
 handler.tags = ['info']
-handler.command = ['ping', 'p', 'بينج']
+handler.command = ['ping', 'p', 'بينج', 'بنج']
 handler.owner = false
 
 export default handler

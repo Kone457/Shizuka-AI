@@ -73,7 +73,7 @@ let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
 
 handler.help = ['كود qr']
 handler.tags = ['serbot']
-handler.command = ['qr', 'code', 'كود', 'كودqr', 'كود qr']
+handler.command = ['qr', 'code', 'كود', 'كودqr', 'كود qr', 'كود_qr']
 export default handler 
 
 async function downloadImage(url) {

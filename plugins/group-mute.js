@@ -35,9 +35,9 @@ handler.before = async function (m, { conn, chat, isBotAdmin }) {
     }
     return false
 }
-handler.help = ['mute @user', 'unmute @user']
+handler.help = ['كتم', 'فك_كتم']
 handler.tags = ['grupo']
-handler.command = ['mute', 'silenciar', 'unmute', 'desilenciar', 'كتم', 'فكالكتم']
+handler.command = ['mute', 'silenciar', 'unmute', 'desilenciar', 'كتم', 'فكالكتم', 'فك_كتم', 'فك-كتم']
 handler.group = true
 handler.admin = true
 handler.botAdmin = true

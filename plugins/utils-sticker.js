@@ -166,8 +166,8 @@ let handler = async (m, { conn, args }) => {
     }
 }
 
-handler.help = ['ستيكر']
+handler.help = ['ملصق']
 handler.tags = ['tools']
-handler.command = ['s', 'sticker', 'ستيكر']
+handler.command = ['s', 'sticker', 'ستيكر', 'ملصق']
 
 export default handler

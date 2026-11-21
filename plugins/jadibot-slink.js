@@ -56,6 +56,6 @@ Total: *${results.length}*
 }
 
 handler.tags = ['serbot']
-handler.command = ['slink', 'لينكالجروب', 'لينك الجروب']
+handler.command = ['slink', 'لينكالجروب', 'لينك الجروب', 'لينك_الجروب']
 
 export default handler

@@ -38,7 +38,7 @@ let handler = async (m, { conn, text }) => {
 
 handler.help = ['باكج سكس'];
 handler.tags = ['nsfw'];
-handler.command = ['pack', 'باكجسكس', 'باكج سكس'];
+handler.command = ['pack', 'باكجسكس', 'باكج سكس', 'باكج_سكس'];
 handler.nsfw = true;
 
 export default handler;

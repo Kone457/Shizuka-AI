@@ -29,8 +29,8 @@ conn.sendMessage(m.chat, { sticker: mediax, mentions: users }, { quoted: null })
 } else {
 await conn.reply(m.chat, htextos, null, { mentions: users })
 }}}
-handler.help = ['منشن الكل', 'تاج']
+handler.help = ['منشن']
 handler.tags = ['grupo']
-handler.command = ['hidetag', 'tag', 'n', 'منشنالكل', 'تاج', 'منشن الكل']
+handler.command = ['hidetag', 'tag', 'n', 'منشن', 'منشنالكل', 'تاج', 'منشن الكل', 'منشن_الكل']
 handler.admin = true
 export default handler

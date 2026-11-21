@@ -277,7 +277,7 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.command = ['bots', 'بوتات']
+handler.command = ['bots', 'بوتات', 'البوتات']
 handler.help = ['بوتات']
 handler.tags = ['serbot']
 

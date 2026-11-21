@@ -30,7 +30,7 @@ await conn.reply(m.chat, mensaje, m)
 
 handler.help = ['شغل اضافي']
 handler.tags = ['rpg']
-handler.command = ['slut', 'protituirse', 'شغلاضافي', 'شحاته', 'شغل اضافي']
+handler.command = ['slut', 'protituirse', 'شغلاضافي', 'شحاته', 'شغل اضافي', 'شغل_اضافي']
 handler.group = true
 
 export default handler

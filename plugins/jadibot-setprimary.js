@@ -220,7 +220,7 @@ let handler = async (m, { conn, args }) => {
         )
     }
 }
-handler.help = ['setprimary <@tag>']
+handler.help = ['اساسي']
 handler.tags = ['jadibot']
 handler.command = ['setprimary', 'اساسي']
 handler.group = true

@@ -34,9 +34,9 @@ user.lastrob = Date.now() + 7200000
 conn.reply(m.chat, `✿ Le robaste *${rob.toLocaleString()} ${currency}* a *${name}*`, m, { mentions: [who] })
 }
 
-handler.help = ['سرق']
+handler.help = ['سرقة']
 handler.tags = ['rpg']
-handler.command = ['robar', 'steal', 'rob', 'اسرق', 'اسرقستيكر', 'سرق', 'اسرق ستيكر']
+handler.command = ['robar', 'steal', 'rob', 'اسرق', 'اسرقستيكر', 'سرق', 'اسرق ستيكر', 'اسرق_ستيكر', 'سرقة']
 handler.group = true
 
 export default handler

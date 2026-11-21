@@ -178,7 +178,7 @@ ${configList}
 
 handler.help = ['تشغيل', 'ايقاف'];
 handler.tags = ['grupo'];
-handler.command = ['on', 'off', 'تشغيل', 'ايقاف'];
+handler.command = ['on', 'off', 'تشغيل', 'ايقاف', 'تفعيل'];
 handler.admin = true;
 handler.botAdmin = false;
 

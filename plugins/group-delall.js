@@ -30,7 +30,7 @@ var handler = async (m, { conn }) => {
 
 handler.help = ['امسحالكل']
 handler.tags = ['grupo']
-handler.command = ['delall', 'امسحالكل']
+handler.command = ['delall', 'امسحالكل', 'امسح_الكل']
 handler.admin = true
 handler.botAdmin = true
 

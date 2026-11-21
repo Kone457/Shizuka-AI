@@ -11,7 +11,7 @@ let handler = async (m, { conn, participants }) => {
 }
 handler.help = ['شيل انذار']
 handler.tags = ['grupo']
-handler.command = ['unwarn', 'شيلانذار', 'شيل انذار']
+handler.command = ['unwarn', 'شيلانذار', 'شيل انذار', 'شيل_انذار']
 handler.group = true
 handler.admin = true
 export default handler
