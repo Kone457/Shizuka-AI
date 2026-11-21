@@ -3,12 +3,12 @@ import { setBotConfig, getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, text }) => {
   if (!text) {
     return m.reply(
-      `✿ *Configurar Pack de Stickers*\n\n` +
-      `📌 *Uso:* .setpack <nombre del pack>\n\n` +
-      `📋 *Valor actual de este bot:* *${getBotConfig(conn, 'packname')}*\n\n` +
+      `✿ *إعداد باكج الستيكرز*\n\n` +
+      `📌 *الاستخدام:* .setpack <اسم الباكج>\n\n` +
+      `📋 *القيمة الحالية للبوت ده:* *${getBotConfig(conn, 'packname')}*\n\n` +
       `💡 *Ejemplos:*\n` +
       `› .setpack MiPack\n` +
-      `› .setpack Stickers de MiBot`
+      `› .setpack ستيكرز البوت`
     )
   }
 
@@ -18,10 +18,10 @@ let handler = async (m, { conn, text }) => {
   setBotConfig(conn, 'packname', nuevoPack)
 
   await m.reply(
-    `✅ *Pack de stickers actualizado para este bot*\n\n` +
+    `✅ *باكج الستيكرز اتحدّث للبوت ده*\n\n` +
     `› Anterior: *${anterior}*\n` +
-    `› Nuevo: *${nuevoPack}*\n\n` +
-    `> Solo afecta a este bot (${conn.user.jid.split('@')[0]})`
+    `› الجديد: *${nuevoPack}*\n\n` +
+    `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )
 }
 

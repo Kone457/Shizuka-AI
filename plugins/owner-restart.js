@@ -1,7 +1,7 @@
 let handler = async (m, { conn }) => {
   await conn.reply(
     m.chat, 
-    `🔄⚙️ *Reiniciando la Bot...*\n> Por favor, espere un momento mientras reinicio el sistema`, 
+    `🔄⚙️ *بجدد تشغيل البوت...*\n> استنى لحظة وأنا بعيد تشغيل النظام`, 
     m
   );
 

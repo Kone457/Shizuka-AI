@@ -8,9 +8,9 @@ let handler = async (m, { conn, args }) => {
 
   try {
     await conn.sendMessage(conn.user.jid, { text })
-    enviados.push(conn.user?.id || 'Bot principal')
+    enviados.push(conn.user?.id || 'البوت الأساسي')
   } catch {
-    fallidos.push(conn.user?.id || 'Bot principal')
+    fallidos.push(conn.user?.id || 'البوت الأساسي')
   }
 
   if (global.conns && Array.isArray(global.conns)) {

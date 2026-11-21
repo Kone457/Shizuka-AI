@@ -3,11 +3,11 @@ import { setBotConfig, getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, text }) => {
   if (!text) {
     return m.reply(
-      `✿ *Configurar Nombre Completo del Bot*\n\n` +
-      `📌 *Uso:* .setname2 <nombre completo>\n\n` +
-      `📋 *Valor actual de este bot:*\n` +
+      `✿ *إعداد الاسم الكامل للبوت*\n\n` +
+      `📌 *الاستخدام:* .setname2 <الاسم الكامل>\n\n` +
+      `📋 *القيمة الحالية للبوت ده:*\n` +
       `› Nombre completo: *${getBotConfig(conn, 'namebot')}*\n\n` +
-      `💡 *Ejemplo:* .setname2 Shizuka-AI`
+      `💡 *مثال:* .setname2 Shizuka-AI`
     )
   }
 
@@ -17,10 +17,10 @@ let handler = async (m, { conn, text }) => {
   setBotConfig(conn, 'namebot', nuevoNombre)
 
   await m.reply(
-    `✅ *Nombre completo actualizado para este bot*\n\n` +
+    `✅ *الاسم الكامل اتحدّث للبوت ده*\n\n` +
     `› Anterior: *${anterior}*\n` +
-    `› Nuevo: *${nuevoNombre}*\n\n` +
-    `> Solo afecta a este bot (${conn.user.jid.split('@')[0]})`
+    `› الجديد: *${nuevoNombre}*\n\n` +
+    `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )
 }
 

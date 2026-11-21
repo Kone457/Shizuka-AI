@@ -32,7 +32,7 @@ let handler = async (m, { conn }) => {
         if (!claimedCharacters.length) {
             return await conn.reply(
                 m.chat,
-                '❏ No hay personajes reclamados para liberar.',
+                '❏ مفيش شخصيات مطالب بيها عشان تتحرر.',
                 m
             )
         }
@@ -46,14 +46,14 @@ let handler = async (m, { conn }) => {
 
         await conn.reply(
             m.chat,
-            `✦ Se han liberado *${claimedCharacters.length}* personajes correctamente.\n\n> Ahora todos están disponibles nuevamente.`,
+            `✦ اتحرر *${claimedCharacters.length}* شخصية بنجاح.\n\n> دلوقتي كلهم متاحين تاني.`,
             m
         )
 
     } catch (error) {
         await conn.reply(
             m.chat,
-            `✘ Error al liberar los personajes: ${error.message}`,
+            `✘ خطأ في تحرير الشخصيات: ${error.message}`,
             m
         )
     }

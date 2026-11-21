@@ -6,12 +6,12 @@ let handler = async (m, { conn, text }) => {
     return conn.sendMessage(m.chat, {
       image: { url: getBotConfig(conn, 'icon') },
       caption:
-        `✿ *Configurar Ícono del Bot*\n\n` +
-        `📌 *Uso:* .seticon <url>\n` +
-        `› También puedes responder a una imagen con .seticon\n\n` +
-        `📋 *Ícono actual de este bot:*\n` +
+        `✿ *إعداد أيقونة البوت*\n\n` +
+        `📌 *الاستخدام:* .seticon <url>\n` +
+        `› كمان تقدر ترد على صورة بـ .seticon\n\n` +
+        `📋 *الأيقونة الحالية للبوت ده:*\n` +
         `› ${getBotConfig(conn, 'icon')}\n\n` +
-        `💡 *Ejemplo:*\n` +
+        `💡 *مثال:*\n` +
         `› .seticon https://i.imgur.com/ejemplo.jpg`
     }, { quoted: m })
   }
@@ -21,18 +21,18 @@ let handler = async (m, { conn, text }) => {
   if (!url || (!url.startsWith('http://') && !url.startsWith('https://'))) {
     const quoted = m.quoted
     if (!quoted) {
-      return m.reply(`❌ Debes proporcionar una URL válida o responder a una imagen.`)
+      return m.reply(`❌ لازم تدّي URL صحيح أو ترد على صورة.`)
     }
     const mime = (quoted.msg || quoted).mimetype || quoted.mediaType || ''
     if (!/image/.test(mime)) {
-      return m.reply(`❌ El mensaje citado no es una imagen.`)
+      return m.reply(`❌ الرسالة المردود عليها مش صورة.`)
     }
-    await m.reply(`⏳ Subiendo imagen, espera un momento...`)
+    await m.reply(`⏳ برفع الصورة، استنى لحظة...`)
     try {
       const img = await quoted.download()
       url = await uploadImage(img)
     } catch (e) {
-      return m.reply(`❌ Error al subir la imagen: ${e.message}`)
+      return m.reply(`❌ خطأ في رفع الصورة: ${e.message}`)
     }
   }
 
@@ -42,10 +42,10 @@ let handler = async (m, { conn, text }) => {
   await conn.sendMessage(m.chat, {
     image: { url },
     caption:
-      `✅ *Ícono actualizado para este bot*\n\n` +
+      `✅ *الأيقونة اتحدّثت للبوت ده*\n\n` +
       `› Anterior: ${anterior}\n` +
-      `› Nuevo: ${url}\n\n` +
-      `> Solo afecta a este bot (${conn.user.jid.split('@')[0]})`
+      `› الجديد: ${url}\n\n` +
+      `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   }, { quoted: m })
 }
 

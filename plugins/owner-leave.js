@@ -9,7 +9,7 @@ let handler = async (m, { conn, text, command }) => {
 
   await conn.reply(
     id, 
-    `✿ *${botname} se despide del grupo...*\n> Gracias por los momentos compartidos.`, 
+    `✿ *${botname} بيسيب الجروب...*\n> شكراً على اللحظات الحلوة.`, 
     m
   ) 
 
@@ -19,7 +19,7 @@ let handler = async (m, { conn, text, command }) => {
     chat.welcome = true
   } catch (e) {
     await m.reply(
-      `❏ Ocurrio un error`, 
+      `❏ حصل خطأ`, 
       m
     ) 
     return console.log(e)

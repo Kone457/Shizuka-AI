@@ -3,7 +3,7 @@ let handler = async (m, { conn, text }) => {
     if (!text) {
       return conn.reply(
         m.chat,
-        `《✧》 Ejemplo de uso:\n.inspect https://whatsapp.com/channel/1234`,
+        `《✧》 مثال للاستخدام:\n.inspect https://whatsapp.com/channel/1234`,
         m
       )
     }
@@ -15,13 +15,13 @@ let handler = async (m, { conn, text }) => {
 
       await conn.sendMessage(m.chat, { react: { text: "☑️", key: m.key } })
     } else {
-      return conn.reply(m.chat, `《✧》 Ingresa un link válido.`, m)
+      return conn.reply(m.chat, `《✧》 اكتب لينك صحيح.`, m)
     }
   } catch (error) {
     console.error(error)
     await conn.reply(
       m.chat,
-      `❏ Error al obtener la información del canal:\n> ${error.message}`,
+      `❏ خطأ في جلب معلومات القناة:\n> ${error.message}`,
       m
     )
   }
@@ -38,7 +38,7 @@ async function getInfo(conn, url) {
   const match = url.match(/https:\/\/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i)
   if (!match)
     throw new Error(
-      '❏ El enlace proporcionado no es válido o no pertenece a un canal de WhatsApp.'
+      '❏ اللينك ده مش صحيح أو مش تبع قناة واتساب.'
     )
 
   const channelId = match[1]
@@ -47,6 +47,6 @@ async function getInfo(conn, url) {
     const info = await conn.newsletterMetadata('invite', channelId)
     return { id: info.id } 
   } catch (error) {
-    throw new Error(`❏ No se pudo obtener la información del canal: ${error.message}`)
+    throw new Error(`❏ مقدرتش أجيب معلومات القناة: ${error.message}`)
   }
 }

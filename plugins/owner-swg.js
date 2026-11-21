@@ -15,7 +15,7 @@ let handler = async (m, { conn, text }) => {
 
   if (/image/.test(mime)) {
     const buffer = await citado.download().catch(() => null);
-    if (!buffer) return m.reply("✿ Error al obtener la imagen.");
+    if (!buffer) return m.reply("✿ خطأ في جلب الصورة.");
 
     await conn.sendMessage(jid, { image: buffer, caption });
     return m.reply("✿ Estado subido correctamente.");
@@ -23,7 +23,7 @@ let handler = async (m, { conn, text }) => {
 
   else if (/video/.test(mime)) {
     const buffer = await citado.download().catch(() => null);
-    if (!buffer) return m.reply("✿ Error al obtener el video.");
+    if (!buffer) return m.reply("✿ خطأ في جلب الفيديو.");
 
     await conn.sendMessage(jid, { video: buffer, caption });
     return m.reply("✿ Estado subido correctamente.");
@@ -31,7 +31,7 @@ let handler = async (m, { conn, text }) => {
 
   else if (/audio/.test(mime)) {
     const buffer = await citado.download().catch(() => null);
-    if (!buffer) return m.reply("✿ Error al obtener el audio.");
+    if (!buffer) return m.reply("✿ خطأ في جلب الصوت.");
 
     const audioVoz = await convertirAVoz(buffer);
     const formaOnda = await generarFormaOnda(buffer);
@@ -47,7 +47,7 @@ let handler = async (m, { conn, text }) => {
   }
 
   else if (colorTexto) {
-    if (!caption) return m.reply("✿ No hay texto para subir al estado.");
+    if (!caption) return m.reply("✿ مفيش نص تبعته للحالة.");
 
     const coloresWA = new Map([
       ["azul", "#34B7F1"],
@@ -72,14 +72,14 @@ let handler = async (m, { conn, text }) => {
       }
     }
 
-    if (!color) return m.reply("✿ No se encontró un color válido.");
+    if (!color) return m.reply("✿ مفيش لون صحيح.");
 
     await conn.sendMessage(jid, { text: caption, backgroundColor: color });
     return m.reply("✿ Estado publicado correctamente.");
   }
 
   else {
-    return m.reply("✿ Responde a un medio (imagen/video/audio) o envía texto con color.");
+    return m.reply("✿ رد على ميديا (صورة/فيديو/صوت) أو ابعت نص مع لون.");
   }
 };
 

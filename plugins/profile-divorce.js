@@ -2,12 +2,12 @@ import { getUser } from '../lib/userdb.js'
 let divorciosPendientes = globalThis.divorciosPendientes || (globalThis.divorciosPendientes = {})
 
 let handler = async (m, { conn }) => {
-  if (!m.isGroup) return m.reply('❌ Este comando solo se puede usar en grupos.')
+  if (!m.isGroup) return m.reply('❌ الأمر ده للجروبات بس.')
 
   let userJid = m.sender
   let user = getUser(globalThis.db.data.users, userJid) || {}
 
-  if (!user.marry) return m.reply('⚠️ Actualmente no estás casado/a con nadie.')
+  if (!user.marry) return m.reply('⚠️ انت مش متجوز حد دلوقتي.')
 
   divorciosPendientes[userJid] = {
     pareja: user.marry,
@@ -19,7 +19,7 @@ let handler = async (m, { conn }) => {
   let userName = await conn.getName(userJid)
 
   await conn.sendMessage(m.chat, {
-    text: `📜 ${userName}, estás a punto de divorciarte de ${parejaName}.\n\n¿Estás seguro?\nResponde con:\n• *sí* para confirmar\n• *no* para cancelar`,
+    text: `📜 ${userName}, على وشك تتطلق من ${parejaName}.\n\nمتأكد؟\nرد بـ:\n• *sí* للتأكيد\n• *no* para cancelar`,
     mentions: [userJid, user.marry]
   }, { quoted: m })
 }
@@ -49,14 +49,14 @@ handler.before = async function (m, { conn }) {
     let userName = await conn.getName(userJid)
 
     await conn.sendMessage(m.chat, {
-      text: `💔 ¡Se acabó el amor! ${userName} y ${parejaName} han decidido divorciarse oficialmente. 📜🥀`,
+      text: `💔 الحب خلص! ${userName} و${parejaName} قرروا يتطلقوا رسميًا. 📜🥀`,
       mentions: [userJid, parejaJid]
     }, { quoted: m })
   } else if (['no', 'cancelar'].includes(txt)) {
     delete divorciosPendientes[userJid]
 
     await conn.sendMessage(m.chat, {
-      text: `✅ El divorcio ha sido cancelado. El amor sigue vivo ❤️`,
+      text: `✅ الطلاق اتلغى. الحب لسه عايش ❤️`,
       mentions: [userJid, intento.pareja]
     }, { quoted: m })
   }

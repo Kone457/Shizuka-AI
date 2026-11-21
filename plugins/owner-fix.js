@@ -35,7 +35,7 @@ var handler = async (m, { conn }) => {
     const baseDir = path.resolve('./')
     const jsFiles = await getAllJSFiles(baseDir)
 
-    let response = `✰ *Revisión de Syntax Errors En ${jsFiles.length} archivos:*\n\n`
+    let response = `✰ *فحص أخطاء الصياغة في ${jsFiles.length} ملف:*\n\n`
     let hasErrors = false
 
     for (const file of jsFiles) {
@@ -43,12 +43,12 @@ var handler = async (m, { conn }) => {
         await import(`file://${file}`);
       } catch (error) {
         hasErrors = true;
-        response += `❏ *Error en:* ${file.replace(baseDir + '/', '')}\n${error.message}\n\n`
+        response += `❏ *خطأ في:* ${file.replace(baseDir + '/', '')}\n${error.message}\n\n`
       }
     }
 
     if (!hasErrors) {
-      response += '✿ ¡Todo está en orden! No se detectaron errores de sintaxis.'
+      response += '✿ كل حاجة تمام! مفيش أخطاء صياغة.'
     }
 
     await conn.reply(m.chat, response, m);
@@ -58,7 +58,7 @@ var handler = async (m, { conn }) => {
     });
 
   } catch (err) {
-    conn.reply(m.chat, `❏ *Error:* ${err.message}`, m);
+    conn.reply(m.chat, `❏ *خطأ:* ${err.message}`, m);
   }
 }
 

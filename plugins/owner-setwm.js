@@ -3,9 +3,9 @@ import { setBotConfig, getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, text }) => {
   if (!text) {
     return m.reply(
-      `✿ *Configurar Marca de Agua (Stickers)*\n\n` +
-      `📌 *Uso:* .setwm <texto>\n\n` +
-      `📋 *Valor actual de este bot:* *${getBotConfig(conn, 'wm')}*\n\n` +
+      `✿ *إعداد العلامة المائية (ستيكرز)*\n\n` +
+      `📌 *الاستخدام:* .setwm <النص>\n\n` +
+      `📋 *القيمة الحالية للبوت ده:* *${getBotConfig(conn, 'wm')}*\n\n` +
       `💡 *Ejemplos:*\n` +
       `› .setwm MiBot\n` +
       `› .setwm © Shizuka-AI`
@@ -18,10 +18,10 @@ let handler = async (m, { conn, text }) => {
   setBotConfig(conn, 'wm', nuevoWm)
 
   await m.reply(
-    `✅ *Marca de agua actualizada para este bot*\n\n` +
+    `✅ *العلامة المائية اتحدّثت للبوت ده*\n\n` +
     `› Anterior: *${anterior}*\n` +
     `› Nueva: *${nuevoWm}*\n\n` +
-    `> Solo afecta a este bot (${conn.user.jid.split('@')[0]})`
+    `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )
 }
 
