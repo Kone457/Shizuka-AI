@@ -3,7 +3,7 @@ import { getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, usedPrefix, command }) => {
 const currency = getBotConfig(conn, 'currency')
 if (!db.data.chats[m.chat].economy && m.isGroup) {
-return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 }
 let user = getUser(global.db.data.users, m.sender)
 user.lastcrime = user.lastcrime || 0
@@ -13,7 +13,7 @@ const ahora = Date.now()
 if (ahora < user.lastcrime) {
 const restante = user.lastcrime - ahora
 const wait = formatTimeMs(restante)
-return conn.reply(m.chat, `✿ Debes esperar *${wait}* para usar *${usedPrefix + command}* de nuevo.`, m)
+return conn.reply(m.chat, `✿ لازم تستنى *${wait}* عشان تستخدم *${usedPrefix + command}* تاني.`, m)
 }
 user.lastcrime = ahora + cooldown
 const evento = pickRandom(crimen)
@@ -49,24 +49,24 @@ function pickRandom(list) {
 return list[Math.floor(Math.random() * list.length)]
 }
 const crimen = [
-{ tipo: 'victoria', mensaje: "Hackeaste un cajero automático usando un exploit del sistema y retiraste efectivo sin alertas, ganaste." },
-{ tipo: 'victoria', mensaje: "Te infiltraste como técnico en una mansión y robaste joyas mientras inspeccionabas la red, ganaste." },
-{ tipo: 'victoria', mensaje: "Simulaste una transferencia bancaria falsa y obtuviste fondos antes de que cancelaran la operación, ganaste." },
-{ tipo: 'victoria', mensaje: "Interceptaste un paquete de lujo en una recepción corporativa y lo revendiste, ganaste." },
-{ tipo: 'victoria', mensaje: "Vaciaste una cartera olvidada en un restaurante sin que nadie lo notara, ganaste." },
-{ tipo: 'victoria', mensaje: "Accediste al servidor de una tienda digital y aplicaste descuentos fraudulentos para obtener productos gratis, ganaste." },
-{ tipo: 'victoria', mensaje: "Te hiciste pasar por repartidor y sustrajiste un paquete de colección sin levantar sospechas, ganaste." },
-{ tipo: 'victoria', mensaje: "Copiaste la llave maestra de una galería de arte y vendiste una escultura sin registro, ganaste." },
-{ tipo: 'victoria', mensaje: "Creaste un sitio falso de caridad y lograste que cientos de personas donaran, ganaste." },
-{ tipo: 'victoria', mensaje: "Manipulaste un lector de tarjetas en una tienda local y vaciaste cuentas privadas, ganaste." },
-{ tipo: 'victoria', mensaje: "Falsificaste entradas VIP para un evento y accediste a un área con objetos exclusivos, ganaste." },
-{ tipo: 'victoria', mensaje: "Engañaste a un coleccionista vendiéndole una réplica como pieza original, ganaste." },
-{ tipo: 'victoria', mensaje: "Capturaste la contraseña de un empresario en un café y transferiste fondos a tu cuenta, ganaste." },
-{ tipo: 'victoria', mensaje: "Convenciste a un anciano de participar en una inversión falsa y retiraste sus ahorros, ganaste." },
-{ tipo: 'derrota', mensaje: "Intentaste vender un reloj falso, pero el comprador notó el engaño y te denunció, perdiste." },
-{ tipo: 'derrota', mensaje: "Hackeaste una cuenta bancaria, pero olvidaste ocultar tu IP y fuiste rastreado, perdiste." },
-{ tipo: 'derrota', mensaje: "Robaste una mochila en un evento, pero una cámara oculta capturó todo el acto, perdiste." },
-{ tipo: 'derrota', mensaje: "Te infiltraste en una tienda de lujo, pero el sistema silencioso activó la alarma, perdiste." },
-{ tipo: 'derrota', mensaje: "Simulaste ser técnico en una mansión, pero el dueño te reconoció y llamó a seguridad, perdiste." },
-{ tipo: 'derrota', mensaje: "Intentaste vender documentos secretos, pero eran falsos y nadie quiso comprarlos, perdiste." }
+{ tipo: 'victoria', mensaje: "اخترقت ماكينة ATM بثغرة في النظام وسحبت كاش من غير تنبيه، كسبت." },
+{ tipo: 'victoria', mensaje: "دخلت فيلا بشكل فني وسرقت جواهر وانت بتفحص الشبكة، كسبت." },
+{ tipo: 'victoria', mensaje: "عملت تحويل بنكي مزور وخدت الفلوس قبل ما يلغوا العملية، كسبت." },
+{ tipo: 'victoria', mensaje: "اعترضت طرد فخم في استقبال شركة وبعته تاني، كسبت." },
+{ tipo: 'victoria', mensaje: "فضّيت محفظة منسية في مطعم من غير ما حد ياخد باله، كسبت." },
+{ tipo: 'victoria', mensaje: "دخلت سيرفر متجر أونلاين وعملت خصومات وهمية وخدت منتجات ببلاش، كسبت." },
+{ tipo: 'victoria', mensaje: "اتنكرت في شكل دليفري وخدت طرد كولكشن من غير شكوك، كسبت." },
+{ tipo: 'victoria', mensaje: "نسخت المفتاح الرئيسي لمعرض فنون وبعت تمثال من غير تسجيل، كسبت." },
+{ tipo: 'victoria', mensaje: "عملت موقع تبرعات مزيف وخليت مئات الناس تتبرع، كسبت." },
+{ tipo: 'victoria', mensaje: "تلاعبت في قارئ كروت في محل وفضّيت حسابات ناس، كسبت." },
+{ tipo: 'victoria', mensaje: "زوّرت تذاكر VIP لفعالية ودخلت منطقة فيها حاجات حصرية، كسبت." },
+{ tipo: 'victoria', mensaje: "نصبت على جامع تحف وبعتله نسخة على إنها أصلية، كسبت." },
+{ tipo: 'victoria', mensaje: "صوّرت باسورد رجل أعمال في كافيه وحوّلت فلوس لحسابك، كسبت." },
+{ tipo: 'victoria', mensaje: "أقنعت راجل كبير باستثمار وهمي وخدت مدخراته، كسبت." },
+{ tipo: 'derrota', mensaje: "حاولت تبيع ساعة مقلدة، بس الشاري كشف الخدعة وبلّغ عليك، خسرت." },
+{ tipo: 'derrota', mensaje: "اخترقت حساب بنكي، بس نسيت تخفي الـIP واتتبعت، خسرت." },
+{ tipo: 'derrota', mensaje: "سرقت شنطة في فعالية، بس كاميرا مخفية صوّرت كل حاجة، خسرت." },
+{ tipo: 'derrota', mensaje: "دخلت محل فخم، بس نظام الإنذار الصامت اشتغل، خسرت." },
+{ tipo: 'derrota', mensaje: "اتنكرت في شكل فني في فيلا، بس صاحبها عرفك ونده الأمن، خسرت." },
+{ tipo: 'derrota', mensaje: "حاولت تبيع ورق سري، بس كان مزور ومحدش اشتراه، خسرت." }
 ]

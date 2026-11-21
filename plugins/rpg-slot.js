@@ -5,19 +5,19 @@ import { delay } from "@whiskeysockets/baileys"
 const handler = async (m, { args, usedPrefix, command, conn }) => {
 const currency = getBotConfig(conn, 'currency')
 if (!db.data.chats[m.chat].economy && m.isGroup) {
-return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 }
 const users = getUser(global.db.data.users, m.sender)
 if (!args[0] || isNaN(args[0]) || parseInt(args[0]) <= 0) {
-return m.reply(`✿ Por favor, ingresa la cantidad que deseas apostar.`)
+return m.reply(`✿ من فضلك اكتب المبلغ اللي عايز تراهن بيه.`)
 }
 const apuesta = parseInt(args[0])
 if (Date.now() - users.lastslot < 10000) {
 const restante = users.lastslot + 10000 - Date.now()
-return m.reply(`✿ Debes esperar *${formatTime(restante)}* para usar *${usedPrefix + command}* nuevamente.`)
+return m.reply(`✿ لازم تستنى *${formatTime(restante)}* عشان تستخدم *${usedPrefix + command}* تاني.`)
 }
-if (apuesta < 100) return m.reply(`✿ El mínimo para apostar es de 100 *${currency}*.`)
-if (users.coin < apuesta) return m.reply(`✿ Tus *${currency}* no son suficientes para apostar esa cantidad.`)
+if (apuesta < 100) return m.reply(`✿ أقل رهان 100 *${currency}*.`)
+if (users.coin < apuesta) return m.reply(`✿ *${currency}* بتاعتك مش كفاية للرهان ده.`)
 const emojis = ['✾', '❃', '✿']
 const getRandomEmojis = () => {
 const x = Array.from({ length: 3 }, () => emojis[Math.floor(Math.random() * emojis.length)])
@@ -43,23 +43,17 @@ await animateSlots()
 const { x, y, z } = getRandomEmojis()
 let resultado
 if (x[0] === y[0] && y[0] === z[0]) {
-resultado = `✿ Ganaste! *${(apuesta * 2).toLocaleString()} ${currency}*.`
+resultado = `✿ كسبت! *${(apuesta * 2).toLocaleString()} ${currency}*.`
 users.coin += apuesta
 } else if (x[0] === y[0] || x[0] === z[0] || y[0] === z[0]) {
-resultado = `✿ Casi lo logras. *Toma 10 ${currency}* por intentarlo.`
+resultado = `✿ كدت تنجح. *خد 10 ${currency}* على المحاولة.`
 users.coin += 10
 } else {
-resultado = `✿ Perdiste *${apuesta.toLocaleString()} ${currency}*.`
+resultado = `✿ خسرت *${apuesta.toLocaleString()} ${currency}*.`
 users.coin -= apuesta
 }
 users.lastslot = Date.now()
-const finalText = `「✿」| *SLOTS* 
-────────
-${x[0]} : ${y[0]} : ${z[0]}
-${x[1]} : ${y[1]} : ${z[1]}
-${x[2]} : ${y[2]} : ${z[2]}
-────────
-${resultado}`
+const finalText = `「✿」| *ماكينة الحظ* \n────────\n${x[0]} : ${y[0]} : ${z[0]}\n${x[1]} : ${y[1]} : ${z[1]}\n${x[2]} : ${y[2]} : ${z[2]}\n────────\n${resultado}`
 await conn.sendMessage(m.chat, { text: finalText, edit: key }, { quoted: m })
 }
 

@@ -4,11 +4,11 @@ import { getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, usedPrefix }) => {
   const currency = getBotConfig(conn, 'currency')
   if (!global.db.data.chats[m.chat].economy && m.isGroup) {
-    return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con:\n» *${usedPrefix}on economy*`)
+    return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بـ:\n» *${usedPrefix}on economy*`)
   }
 
   let user = getUser(global.db.data.users, m.sender)
-  if (!user) return m.reply("✿ No estás en la base de datos.")
+  if (!user) return m.reply("✿ انت مش موجود في قاعدة البيانات.")
 
   const ahora = Date.now()
 
@@ -28,7 +28,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 
   const tiempoRestante = (last, cd) => {
     const restante = last ? last - ahora : 0
-    return restante > 0 ? formatTime(restante) : "Disponible"
+    return restante > 0 ? formatTime(restante) : "متاح"
   }
 
   const texto = [

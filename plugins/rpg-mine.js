@@ -3,7 +3,7 @@ import { getBotConfig } from '../lib/botconfig.js'
 var handler = async (m, { conn, usedPrefix, command }) => {
 const currency = getBotConfig(conn, 'currency')
 if (!db.data.chats[m.chat].economy && m.isGroup) {
-return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 }
 const user = getUser(global.db.data.users, m.sender)
 if (!user) return
@@ -13,12 +13,12 @@ user.exp = user.exp || 0
 user.health = user.health || 100
 user.pickaxedurability = user.pickaxedurability || 100
 if (user.health < 5)
-return conn.reply(m.chat, `✿ No tienes suficiente salud para volver a *minar*.\n> Usa *"${usedPrefix}heal"* para curarte.`, m)
+return conn.reply(m.chat, `✿ صحتك مش كفاية عشان تنزل *تحفر* تاني.\n> استخدم *"${usedPrefix}heal"* عشان تتعالج.`, m)
 const gap = 10 * 60 * 1000
 const now = Date.now()
 if (now < user.lastmine) {
 const restante = user.lastmine - now
-return conn.reply(m.chat, `✿ Debes esperar *${formatTime(restante)}* para usar *${usedPrefix + command}* de nuevo.`, m)
+return conn.reply(m.chat, `✿ لازم تستنى *${formatTime(restante)}* عشان تستخدم *${usedPrefix + command}* تاني.`, m)
 }
 user.lastmine = now + gap
 const evento = pickRandom(eventos)
@@ -65,19 +65,19 @@ function pickRandom(list) {
 return list[Math.floor(Math.random() * list.length)]
 }
 const eventos = [
-{ tipo: 'victoria', mensaje: 'Descubriste una veta de oro entre rocas inestables y lograste extraerla con éxito, ganaste.' },
-{ tipo: 'victoria', mensaje: 'Hallaste una cámara secreta con gemas ocultas por siglos. Ganaste.' },
-{ tipo: 'victoria', mensaje: 'Te cruzaste con un minero anciano que compartió herramientas y conocimientos valiosos, ganaste.' },
-{ tipo: 'victoria', mensaje: 'Excavaste un túnel olvidado y encontraste un cofre de minerales raros, ganaste.' },
-{ tipo: 'victoria', mensaje: 'Encontraste una cueva iluminada por cristales naturales que revelaban un tesoro oculto. Ganaste.' },
-{ tipo: 'victoria', mensaje: 'Un golem de piedra te dio acceso a una sala de esmeraldas tras superar su acertijo, ganaste.' },
-{ tipo: 'victoria', mensaje: 'Minaste junto a otros exploradores y compartieron contigo los beneficios de una fuente mágica, ganaste.' },
-{ tipo: 'victoria', mensaje: 'Tras horas de excavación, hallaste una cámara sellada repleta de piedras lunares, ganaste.' },
-{ tipo: 'victoria', mensaje: 'Tu pico tocó una superficie metálica: era un cofre con monedas antiguas de gran valor, ganaste.' },
-{ tipo: 'victoria', mensaje: 'Siguiendo un mapa maltratado, diste con una cavidad llena de rubíes, ganaste.' },
-{ tipo: 'derrota', mensaje: 'Tus herramientas se rompieron justo antes de descubrir un filón valioso. Te retiraste con las manos vacías, perdiste.' },
-{ tipo: 'derrota', mensaje: 'Una explosión de gas te sorprendió y te hizo perder parte del botín mientras escapabas, perdiste.' },
-{ tipo: 'derrota', mensaje: 'La cueva colapsó parcialmente y tus minerales quedaron enterrados, perdiste.' },
-{ tipo: 'derrota', mensaje: 'Te atacaron murciélagos cegadores y saliste herido sin completar la recolección. Perdiste.' },
-{ tipo: 'derrota', mensaje: 'Una trampa antigua se activó y dañó tu mochila, perdiendo varias gemas, perdiste.' }
+{ tipo: 'victoria', mensaje: 'كشفت عرق دهب بين صخور متزحزحة وقدرت تستخرجه بنجاح، كسبت.' },
+{ tipo: 'victoria', mensaje: 'لقيت غرفة سرية فيها جواهر مدفونة لقرون. كسبت.' },
+{ tipo: 'victoria', mensaje: 'قابلت عامل منجم كبير شاركك أدوات ومعرفة غالية، كسبت.' },
+{ tipo: 'victoria', mensaje: 'حفرت نفق منسي ولقيت صندوق معادن نادرة، كسبت.' },
+{ tipo: 'victoria', mensaje: 'لقيت كهف منوّر بكريستالات طبيعية بتكشف كنز مخفي. كسبت.' },
+{ tipo: 'victoria', mensaje: 'جولم حجر سمحلك تدخل غرفة زمرد بعد ما حلّيت لغزه، كسبت.' },
+{ tipo: 'victoria', mensaje: 'اشتغلت مع مستكشفين تانيين وشاركوك أرباح نبع سحري، كسبت.' },
+{ tipo: 'victoria', mensaje: 'بعد ساعات حفر لقيت غرفة مقفولة مليانة أحجار قمرية، كسبت.' },
+{ tipo: 'victoria', mensaje: 'الفأس خبط سطح معدني: كان صندوق عملات قديمة غالية، كسبت.' },
+{ tipo: 'victoria', mensaje: 'مشيت على خريطة متهالكة ولقيت تجويف مليان ياقوت، كسبت.' },
+{ tipo: 'derrota', mensaje: 'أدواتك اتكسرت قبل ما تكتشف عرق غالي. سحبت بإيدك فاضية، خسرت.' },
+{ tipo: 'derrota', mensaje: 'انفجار غاز فاجأك وخلاك تخسر جزء من الغنيمة وانت بتهرب، خسرت.' },
+{ tipo: 'derrota', mensaje: 'الكهف انهار جزئيًا ومعادنك اتدفنت، خسرت.' },
+{ tipo: 'derrota', mensaje: 'خفافيش عمياء هجمت عليك وطلعت مصاب من غير ما تكمّل الجمع. خسرت.' },
+{ tipo: 'derrota', mensaje: 'فخ قديم اشتغل وبوّظ شنطتك وضيّعت جواهر، خسرت.' }
 ]

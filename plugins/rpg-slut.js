@@ -3,7 +3,7 @@ import { getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, usedPrefix, command }) => {
 const currency = getBotConfig(conn, 'currency')
 if (!db.data.chats[m.chat].economy && m.isGroup) {
-return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 }
 let user = getUser(global.db.data.users, m.sender)
 user.lastslut = user.lastslut || 0
@@ -11,7 +11,7 @@ const cooldown = 5 * 60 * 1000
 if (Date.now() < user.lastslut) {
 const restante = user.lastslut - Date.now()
 const tiempoRestante = formatTime(restante)
-return conn.reply(m.chat, `✿ Debes esperar *${tiempoRestante}* para usar *${usedPrefix + command}* de nuevo.`, m)
+return conn.reply(m.chat, `✿ لازم تستنى *${tiempoRestante}* عشان تستخدم *${usedPrefix + command}* تاني.`, m)
 }
 user.lastslut = Date.now() + cooldown
 const evento = pickRandom(slut)

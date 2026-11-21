@@ -3,7 +3,7 @@ import { getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, command, usedPrefix }) => {
 const currency = getBotConfig(conn, 'currency')
 if (!global.db.data.chats[m.chat].economy && m.isGroup) {
-return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 }
 let user = getUser(global.db.data.users, m.sender)
 if (!user) user = ensureUser(global.db.data.users, m.sender, { coin: 0, exp: 0, health: 100, lastAdventure: 0 })
@@ -12,13 +12,13 @@ if (user.exp == null) user.exp = 0
 if (user.health == null) user.health = 100
 if (user.lastAdventure == null) user.lastAdventure = 0
 if (user.health < 5)
-return conn.reply(m.chat, `✿ No tienes suficiente salud para volver a *aventurarte*.\n> Usa *"${usedPrefix}heal"* para curarte.`, m)
+return conn.reply(m.chat, `✿ صحتك مش كفاية عشان تروح *مغامرة* تاني.\n> استخدم *"${usedPrefix}heal"* عشان تتعالج.`, m)
 const cooldown = 20 * 60 * 1000
 const now = Date.now()
 if (now < user.lastAdventure) {
 const restante = user.lastAdventure - now
 const wait = formatTime(restante)
-return conn.reply(m.chat, `✿ Debes esperar *${wait}* para usar *${usedPrefix + command}* de nuevo.`, m)
+return conn.reply(m.chat, `✿ لازم تستنى *${wait}* عشان تستخدم *${usedPrefix + command}* تاني.`, m)
 }
 user.lastAdventure = now + cooldown
 const evento = pickRandom(aventuras)
@@ -69,22 +69,22 @@ function pickRandom(list) {
 return list[Math.floor(Math.random() * list.length)]
 }
 const aventuras = [
-{ tipo: 'victoria', mensaje: 'Derrotaste a un ogro emboscado entre los árboles de Drakonia,' },
-{ tipo: 'victoria', mensaje: 'Te conviertes en campeón del torneo de gladiadores de Valoria,' },
-{ tipo: 'victoria', mensaje: 'Rescatas un libro mágico del altar de los Susurros,' },
-{ tipo: 'victoria', mensaje: 'Liberas a aldeanos atrapados en las minas de Ulderan tras vencer a los trolls,' },
-{ tipo: 'victoria', mensaje: 'Derrotas a un dragón joven en los acantilados de Flamear,' },
-{ tipo: 'victoria', mensaje: 'Encuentras un relicario sagrado en las ruinas de Iskaria y lo proteges de saqueadores,' },
-{ tipo: 'victoria', mensaje: 'Triunfas en el duelo contra el caballero corrupto de Invalion,' },
-{ tipo: 'victoria', mensaje: 'Conquistas la fortaleza maldita de las Sombras Rojas sin sufrir bajas,' },
-{ tipo: 'victoria', mensaje: 'Te infiltras en el templo del Vacío y recuperas el cristal del equilibrio,' },
-{ tipo: 'victoria', mensaje: 'Resuelves el acertijo de la cripta eterna y obtienes un tesoro legendario,' },
-{ tipo: 'derrota', mensaje: 'El hechicero oscuro te lanzó una maldición y huyes perdiendo recursos,' },
-{ tipo: 'derrota', mensaje: 'Te extravías en la jungla de Zarkelia y unos bandidos te asaltan,' },
-{ tipo: 'derrota', mensaje: 'Un basilisco te embiste y escapas herido sin botín,' },
-{ tipo: 'derrota', mensaje: 'Fracasa tu incursión a la torre de hielo cuando caes en una trampa mágica,' },
-{ tipo: 'derrota', mensaje: 'Pierdes orientación entre los portales del bosque espejo y terminas sin recompensa,' },
+{ tipo: 'victoria', mensaje: 'غلبت غول كان مستخبي بين شجر دراكونيا،' },
+{ tipo: 'victoria', mensaje: 'بقيت بطل بطولة المصارعين في فالوريا،' },
+{ tipo: 'victoria', mensaje: 'أنقذت كتاب سحري من مذبح الهمسات،' },
+{ tipo: 'victoria', mensaje: 'حرّرت قرويين محبوسين في مناجم أولديران بعد ما غلبت التروولز،' },
+{ tipo: 'victoria', mensaje: 'غلبت تنين صغير على جروف فلاميار،' },
+{ tipo: 'victoria', mensaje: 'لقيت أثر مقدس في أطلال إسكاريا وحميته من الناهبين،' },
+{ tipo: 'victoria', mensaje: 'كسبت المبارزة ضد فارس إنفاليون الفاسد،' },
+{ tipo: 'victoria', mensaje: 'فتحت قلعة الظلال الحمرا الملعونة من غير خساير،' },
+{ tipo: 'victoria', mensaje: 'دخلت معبد الفراغ ورجّعت كريستالة التوازن،' },
+{ tipo: 'victoria', mensaje: 'حلّيت لغز المقبرة الأبدية وخدت كنز أسطوري،' },
+{ tipo: 'derrota', mensaje: 'الساحر المظلم عمل عليك تعويذة وهربت وخسرت موارد،' },
+{ tipo: 'derrota', mensaje: 'تهت في غابة زاركيليا وقطاع طرق هجموا عليك،' },
+{ tipo: 'derrota', mensaje: 'بازيليسك خبطك وهربت مصاب من غير غنيمة،' },
+{ tipo: 'derrota', mensaje: 'فشلت محاولتك تدخل برج التلج لما وقعت في فخ سحري،' },
+{ tipo: 'derrota', mensaje: 'ضعت بين بوابات غابة المرايا وخلصت من غير مكافأة،' },
 { tipo: 'neutro', mensaje: 'Exploras ruinas antiguas y aprendes secretos ocultos sin hallar tesoros.' },
-{ tipo: 'neutro', mensaje: 'Sigues la pista de un espectro pero desaparece entre la niebla.' },
-{ tipo: 'neutro', mensaje: 'Acompañas a una princesa por los desiertos de Thaloria sin contratiempos.' }
+{ tipo: 'neutro', mensaje: 'تتبعت أثر شبح بس اختفى في الضباب.' },
+{ tipo: 'neutro', mensaje: 'رافقت أميرة في صحاري ثالوريا من غير مشاكل.' }
 ]
