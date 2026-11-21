@@ -38,8 +38,8 @@ let handler = async (m, { conn, text, args }) => {
 };
 
 handler.tags = ['grupo'];
-handler.help = ['bot'];
-handler.command = ['bot'];
+handler.help = ['بوت'];
+handler.command = ['bot', 'بوت'];
 handler.admin = true;
 handler.group = true;
 

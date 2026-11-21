@@ -90,9 +90,9 @@ let handler = async (m, { conn, text }) => {
   );
 };
 
-handler.help = ['unbanuser'];
+handler.help = ['فكالحظر'];
 handler.tags = ['owner'];
-handler.command = ['unbanuser'];
+handler.command = ['unbanuser', 'فكالحظر'];
 handler.owner = true;
 
 export default handler;

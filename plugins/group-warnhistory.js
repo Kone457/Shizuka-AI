@@ -14,9 +14,9 @@ let handler = async (m, { conn, participants }) => {
     }
     await conn.reply(m.chat, txt.trim(), m, { mentions: [user, ...data.warnHistory.map(v => v.by)] })
 }
-handler.help = ['warnhistory']
+handler.help = ['سجلالانذارات']
 handler.tags = ['grupo']
-handler.command = ['warnhistory']
+handler.command = ['warnhistory', 'سجلالانذارات']
 handler.group = true
 handler.admin = true
 export default handler

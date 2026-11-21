@@ -33,9 +33,9 @@ if (lost) msg += `\n> ☆ خسرت سلسلة الأسابيع بتاعتك!`
 conn.reply(m.chat, `✿ استلمت مكافأتك الأسبوعية *${coins.toLocaleString()} ${currency}* (الأسبوع *${user.weeklyStreak}*)\n${msg}`, m)
 }
 
-handler.help = ['weekly', 'semanal']
+handler.help = ['الاسبوعي', 'اسبوعي']
 handler.tags = ['rpg']
-handler.command = ['weekly', 'semanal']
+handler.command = ['weekly', 'semanal', 'الاسبوعي', 'اسبوعي']
 handler.group = true
 
 export default handler

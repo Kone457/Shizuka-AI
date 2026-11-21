@@ -40,8 +40,8 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-handler.command = ['groupinfo', 'ginfo']
-handler.help = ['ginfo']
+handler.command = ['groupinfo', 'ginfo', 'معلوماتالمجموعة', 'معلوماتجروب']
+handler.help = ['معلوماتجروب']
 handler.tags = ['tools']
 handler.owner = true
 

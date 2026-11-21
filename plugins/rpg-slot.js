@@ -57,9 +57,9 @@ const finalText = `「✿」| *ماكينة الحظ* \n────────
 await conn.sendMessage(m.chat, { text: finalText, edit: key }, { quoted: m })
 }
 
-handler.help = ['slot']
+handler.help = ['سلوت']
 handler.tags = ['rpg']
-handler.command = ['slot']
+handler.command = ['slot', 'سلوت']
 handler.group = true
 
 export default handler

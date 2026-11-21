@@ -609,7 +609,7 @@ contextInfo:{forwardingScore:1,isForwarded:true,forwardOrigin:4}
 }
 }, {})
 }
-handler.help=['moto']
+handler.help=['موتوسيكل']
 handler.tags=['game']
-handler.command=['moto']
+handler.command=['moto', 'موتوسيكل']
 export default handler

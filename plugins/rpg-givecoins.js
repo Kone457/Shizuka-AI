@@ -26,9 +26,9 @@ if (!name) { try { const n = await conn.getName(who); name = typeof n === 'strin
 m.reply(`✿ حوّلت *${count.toLocaleString()} ${currency}* لـ *${name}*\n> دلوقتي عندك *${user.bank.toLocaleString()} ${currency}* إجمالي في البنك.`, null, { mentions: [who] })
 }
 
-handler.help = ['pay']
+handler.help = ['دفع']
 handler.tags = ['rpg']
-handler.command = ['pay', 'coinsgive', 'givecoins']
+handler.command = ['pay', 'coinsgive', 'givecoins', 'دفع', 'اهداء', 'حول']
 handler.group = true
 
 export default handler

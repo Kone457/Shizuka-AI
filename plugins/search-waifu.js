@@ -26,8 +26,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['waifu'];
+handler.help = ['ويفو'];
 handler.tags = ['buscadores'];
-handler.command = ['waifu'];
+handler.command = ['waifu', 'ويفو'];
 
 export default handler;

@@ -30,8 +30,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['flux'];
+handler.help = ['فلوكس'];
 handler.tags = ['ia'];
-handler.command = ['flux'];
+handler.command = ['flux', 'فلوكس'];
 
 export default handler;

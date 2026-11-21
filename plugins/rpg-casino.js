@@ -48,9 +48,9 @@ conn.reply(m.chat, replyMsg.trim(), m)
 conn.reply(m.chat, `✿ معندكش *${formatNumber(count)} ${currency}* تلعب بيهم!`, m)
 }}
 
-handler.help = ['apostar']
+handler.help = ['راهن']
 handler.tags = ['rpg']
-handler.command = ['apostar', 'casino']
+handler.command = ['apostar', 'casino', 'راهن', 'كازينو']
 handler.group = true
 
 export default handler

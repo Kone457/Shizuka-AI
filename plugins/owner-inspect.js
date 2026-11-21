@@ -27,8 +27,8 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-handler.command = ['inspector', 'inspect', 'id']
-handler.help = ['inspect']
+handler.command = ['inspector', 'inspect', 'id', 'مفتش', 'فحص', 'ايدي']
+handler.help = ['فحص']
 handler.tags = ['tools']
 handler.owner = false
 

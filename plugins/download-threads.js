@@ -42,9 +42,9 @@ const handler = async (m, { args, conn }) => {
   }
 };
 
-handler.command = ['threads'];
+handler.command = ['threads', 'ثريدز'];
 handler.tags = ['descargas'];
-handler.help = ['threads'];
+handler.help = ['ثريدز'];
 handler.group = true;
 
 export default handler;

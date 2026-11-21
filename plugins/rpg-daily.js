@@ -34,9 +34,9 @@ if (lost) msg += `\n> ☆ خسرت سلسلة الأيام بتاعتك!`
 conn.reply(m.chat, `✿ استلمت مكافأتك اليومية *${reward.toLocaleString()} ${currency}*! (اليوم *${user.streak}*)\n${msg}`, m)
 }
 
-handler.help = ['daily']
+handler.help = ['يومي']
 handler.tags = ['rpg']
-handler.command = ['daily', 'diario']
+handler.command = ['daily', 'diario', 'يومي', 'اليومية']
 handler.group = true
 
 export default handler

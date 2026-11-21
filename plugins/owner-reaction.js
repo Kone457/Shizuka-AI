@@ -52,7 +52,7 @@ let handler = async (m, { conn, text, command }) => {
 
 
 handler.tags = ['owner']
-handler.command = ['react']
+handler.command = ['react', 'تفاعل']
 handler.owner = true
 
 export default handler

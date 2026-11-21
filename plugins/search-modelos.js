@@ -55,8 +55,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['modelos <كلمة>'];
+handler.help = ['موديلات'];
 handler.tags = ['buscadores'];
-handler.command = ['modelos', 'ai', 'hf'];
+handler.command = ['modelos', 'ai', 'hf', 'موديلات'];
 
 export default handler;

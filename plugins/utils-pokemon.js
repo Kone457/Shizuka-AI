@@ -56,8 +56,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ["pokemon"];
+handler.help = ['بوكيمون'];
 handler.tags = ["tools"];
-handler.command = ["pokemon"];
+handler.command = ["pokemon", 'بوكيمون'];
 
 export default handler;

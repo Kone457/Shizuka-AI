@@ -50,8 +50,8 @@ await global.db.write()
 }
 
 handler.tags = ['rpg']
-handler.help = ['adventure', 'aventura']
-handler.command = ['adventure', 'aventura']
+handler.help = ['مغامرة', 'رحلة']
+handler.command = ['adventure', 'aventura', 'مغامرة', 'رحلة']
 handler.group = true
 
 export default handler

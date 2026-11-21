@@ -44,9 +44,9 @@ const handler = async (m, { args, conn }) => {
   }
 };
 
-handler.command = ['twitter', 'tw', 'x'];
+handler.command = ['twitter', 'tw', 'x', 'تويتر'];
 handler.tags = ['descargas'];
-handler.help = ['twitter', 'tw', 'x'];
+handler.help = ['تويتر', 'tw', 'x'];
 handler.group = true;
 
 export default handler;

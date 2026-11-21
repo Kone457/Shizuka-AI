@@ -595,7 +595,7 @@ let handler = async (m, { conn }) => {
         {}
     )
 }
-handler.help = ['race']
+handler.help = ['سباق']
 handler.tags = ['game']
-handler.command = ['race']
+handler.command = ['race', 'سباق']
 export default handler

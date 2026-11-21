@@ -84,8 +84,8 @@ const handler = async (m, { conn }) => {
   await conn.sendMessage(m.chat, { text: lines.join('\n') }, { quoted: m })
 }
 
-handler.help = ['me']
+handler.help = ['انا']
 handler.tags = ['info']
-handler.command = ['me']
+handler.command = ['me', 'انا']
 
 export default handler

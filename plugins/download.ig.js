@@ -58,9 +58,9 @@ const handler = async (m, { args, conn }) => {
   }
 };
 
-handler.command = ['instagram', 'ig'];
+handler.command = ['instagram', 'ig', 'انستقرام'];
 handler.tags = ['descargas'];
-handler.help = ['instagram', 'ig'];
+handler.help = ['انستقرام', 'ig'];
 handler.group = true;
 
 export default handler;

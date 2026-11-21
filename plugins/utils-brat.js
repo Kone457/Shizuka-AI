@@ -67,8 +67,8 @@ let handler = async (m, { conn, args }) => {
   }
 }
 
-handler.help = ['brat']
+handler.help = ['برات']
 handler.tags = ['tools']
-handler.command = ['brat']
+handler.command = ['brat', 'برات']
 
 export default handler

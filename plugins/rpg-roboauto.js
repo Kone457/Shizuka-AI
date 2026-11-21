@@ -24,9 +24,9 @@ const currency = getBotConfig(conn, 'currency')
   return conn.reply(m.chat, `✿ ${evento.mensaje} *${cantidad.toLocaleString()} ${currency}*`, m)
 }
 
-handler.help = ['roboauto']
+handler.help = ['عربية']
 handler.tags = ['rpg']
-handler.command = ['roboauto']
+handler.command = ['roboauto', 'عربية']
 handler.group = true
 
 export default handler

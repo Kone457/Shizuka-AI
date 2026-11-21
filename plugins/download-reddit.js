@@ -42,9 +42,9 @@ const handler = async (m, { args, conn }) => {
   }
 };
 
-handler.command = ['reddit'];
+handler.command = ['reddit', 'ريديت'];
 handler.tags = ['descargas'];
-handler.help = ['reddit'];
+handler.help = ['ريديت'];
 handler.group = true;
 
 export default handler;

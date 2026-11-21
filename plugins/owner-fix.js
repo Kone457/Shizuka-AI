@@ -62,8 +62,8 @@ var handler = async (m, { conn }) => {
   }
 }
 
-handler.command = ['revsall'];
-handler.help = ['revsall'];
+handler.command = ['revsall', 'تجديدالكل'];
+handler.help = ['تجديدالكل'];
 handler.tags = ['owner'];
 handler.owner = true;
 

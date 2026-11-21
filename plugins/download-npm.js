@@ -60,9 +60,9 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['npm'];
+handler.help = ['باكدج'];
 handler.tags = ['descargas'];
-handler.command = ['npm'];
+handler.command = ['npm', 'باكدج'];
 handler.group = true;
 
 export default handler;

@@ -57,7 +57,41 @@ let handler = async (m, { conn, command }) => {
         bofetada: 'slap',
         dormir: 'sleep',
         fumar: 'smoke',
-        pensar: 'think'
+        pensar: 'think',
+        غضب: 'angry',
+        حمام: 'bath',
+        عض: 'bite',
+        به: 'bleh',
+        خجل: 'blush',
+        ملل: 'bored',
+        تصفيق: 'clap',
+        قهوة: 'coffee',
+        بكاء: 'cry',
+        حنان: 'cuddle',
+        رقص: 'dance',
+        سكر: 'drunk',
+        اكل: 'eat',
+        كف: 'facepalm',
+        فرح: 'happy',
+        حضن: 'hug',
+        قتل: 'kill',
+        بوسة: 'kiss',
+        ضحك: 'laugh',
+        لحس: 'lick',
+        حب: 'love',
+        مداعبة: 'pat',
+        وخز: 'poke',
+        زعل: 'pout',
+        لكمة: 'punch',
+        جري: 'run',
+        حزن: 'sad',
+        خوف: 'scared',
+        اغراء: 'seduce',
+        كسوف: 'shy',
+        صفعة: 'slap',
+        نوم: 'sleep',
+        تدخين: 'smoke',
+        تفكير: 'think'
     }
 
     let cmd = command.toLowerCase()
@@ -90,18 +124,22 @@ let handler = async (m, { conn, command }) => {
     )
 }
 
+const sfwArabic = [
+    'غضب','حمام','عض','به','خجل','ملل','تصفيق','قهوة','بكاء',
+    'حنان','رقص','سكر','اكل','كف','فرح','حضن','قتل','بوسة',
+    'ضحك','لحس','حب','مداعبة','وخز','زعل','لكمة','جري','حزن','خوف',
+    'اغراء','كسوف','صفعة','نوم','تدخين','تفكير'
+]
+
 const sfwCommands = [
     'angry','bath','bite','bleh','blush','bored','clap','coffee','cry',
     'cuddle','dance','drunk','eat','facepalm','happy','hug','kill','kiss',
     'laugh','lick','love','pat','poke','pout','punch','run','sad','scared',
     'seduce','shy','slap','sleep','smoke','think',
-    'enojado','baño','morder','sonrojar','aburrido','aplauso','قهوة','llorar',
-    'acurrucar','bailar','borracho','comer','feliz','abrazo','matar','beso','besar',
-    'reír','lamer','amor','acariciar','puchero','golpear','correr','triste','asustado',
-    'seducir','tímido','bofetada','dormir','fumar','pensar'
+    ...sfwArabic
 ]
 
-handler.help = sfwCommands
+handler.help = sfwArabic
 handler.tags = ['anime']
 handler.command = new RegExp(`^(${sfwCommands.join('|')})$`, 'i')
 handler.group = true

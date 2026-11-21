@@ -24,7 +24,7 @@ return conn.reply(m.chat, mensaje, m)
 
 handler.help = ['cf']
 handler.tags = ['rpg']
-handler.command = ['cf', 'suerte', 'coinflip', 'flip']
+handler.command = ['cf', 'suerte', 'coinflip', 'flip', 'حظ', 'عملة', 'اقلب']
 handler.group = true
 
 export default handler

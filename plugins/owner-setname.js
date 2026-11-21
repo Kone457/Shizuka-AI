@@ -28,9 +28,9 @@ let handler = async (m, { conn, text }) => {
   )
 }
 
-handler.help = ['setname']
+handler.help = ['اسمالبوت']
 handler.tags = ['owner']
-handler.command = ['setname', 'setnombre']
+handler.command = ['setname', 'setnombre', 'اسمالبوت', 'اسم2']
 handler.owner = true
 
 export default handler

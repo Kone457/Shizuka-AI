@@ -21,8 +21,8 @@ let handler = async (m, { conn, text, isOwner }) => {
     }
 };
 
-handler.help = ['invite'];
+handler.help = ['دعوة'];
 handler.tags = ['owner'];
-handler.command = ['invite', 'join'];
+handler.command = ['invite', 'join', 'دعوة', 'انضم'];
 
 export default handler;

@@ -20,7 +20,7 @@ let handler = async (m, { conn, command, args }) => {
     let unit = args[1]
     let delayTime = parseTime(time, unit)
 
-    if (command === 'close') {
+    if (['close', 'قفل'].includes(command)) {
       if (!time) {
         if (groupAnnouncement === true) {
           return conn.reply(m.chat, `✿ *الجروب مقفول بالفعل.*`, m)
@@ -36,7 +36,7 @@ let handler = async (m, { conn, command, args }) => {
         conn.reply(m.chat, `✿ *الجروب اتقفل تلقائيًا.*`, m)
       }, delayTime)
 
-    } else if (command === 'open') {
+    } else if (['open', 'فتح'].includes(command)) {
       if (!time) {
         if (groupAnnouncement === false) {
           return conn.reply(m.chat, `✿ *الجروب مفتوح بالفعل.*`, m)
@@ -62,9 +62,9 @@ let handler = async (m, { conn, command, args }) => {
   }
 }
 
-handler.help = ['close', 'open']
+handler.help = ['قفل', 'فتح']
 handler.tags = ['grupo']
-handler.command = ['close', 'open']
+handler.command = ['close', 'open', 'قفل', 'فتح']
 handler.admin = true
 handler.botAdmin = true
 

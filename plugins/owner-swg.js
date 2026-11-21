@@ -83,8 +83,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ["swp", "upswp"];
-handler.command = ["swp", "upswp"];
+handler.help = ['سواب', 'ابلودسواب'];
+handler.command = ["swp", "upswp", 'سواب', 'ابلودسواب'];
 handler.tags = ["tools"];
 handler.owner = true;
 

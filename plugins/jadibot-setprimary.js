@@ -222,7 +222,7 @@ let handler = async (m, { conn, args }) => {
 }
 handler.help = ['setprimary <@tag>']
 handler.tags = ['jadibot']
-handler.command = ['setprimary']
+handler.command = ['setprimary', 'اساسي']
 handler.group = true
 handler.admin = true
 export default handler

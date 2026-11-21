@@ -28,9 +28,9 @@ let handler = async (m, { conn, text, participants }) => {
         await conn.reply(m.chat, `⚠️ إنذار لـ @${user.split('@')[0]}\n\n✦ السبب: ${reason}\n✦ الإنذارات: *${users[user].warn}/${max}*`, m, { mentions: [user] })
     }
 }
-handler.help = ['warn']
+handler.help = ['انذار']
 handler.tags = ['grupo']
-handler.command = ['warn']
+handler.command = ['warn', 'انذار']
 handler.group = true
 handler.admin = true
 handler.botAdmin = true

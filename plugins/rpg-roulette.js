@@ -25,8 +25,8 @@ conn.reply(m.chat, `✿ الروليت طلع *${resultColor}* وخسرت *${coi
 }}
 
 handler.tags = ['rpg']
-handler.help = ['ruleta']
-handler.command = ['ruleta', 'roulette', 'rt']
+handler.help = ['عجلة']
+handler.command = ['ruleta', 'roulette', 'rt', 'عجلة', 'روليت']
 handler.group = true
 
 export default handler

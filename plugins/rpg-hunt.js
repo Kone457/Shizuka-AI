@@ -47,8 +47,8 @@ conn.reply(m.chat, `✿ ${evento.mensaje} *${monedas.toLocaleString()} ${currenc
 }
 
 handler.tags = ['rpg']
-handler.help = ['cazar', 'hunt']
-handler.command = ['cazar', 'hunt']
+handler.help = ['اصطاد', 'قنص']
+handler.command = ['cazar', 'hunt', 'اصطاد', 'قنص']
 handler.group = true
 
 export default handler

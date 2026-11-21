@@ -103,8 +103,8 @@ const handler = async (m, { conn, args }) => {
   }
 }
 
-handler.help = ['wallpaper']
+handler.help = ['خلفيات']
 handler.tags = ['buscadores']
-handler.command = ['wallpaper']
+handler.command = ['wallpaper', 'خلفيات']
 
 export default handler

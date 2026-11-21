@@ -26,9 +26,9 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['neko'];
+handler.help = ['نيكو'];
 handler.tags = ['buscadores'];
-handler.command = ['neko'];
+handler.command = ['neko', 'نيكو'];
 handler.nsfw = true
 
 export default handler;

@@ -57,9 +57,9 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['gitclone'];
+handler.help = ['نسخ'];
 handler.tags = ['descargas'];
-handler.command = ['gitclone'];
+handler.command = ['gitclone', 'نسخ'];
 handler.group = true;
 
 export default handler;

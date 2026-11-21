@@ -7,9 +7,9 @@ let handler = async (m, { conn, usedPrefix, command, isOwner }) => {
   return conn.reply(m.chat, `✿ Has *recibido*  *${cantidad.toLocaleString()} Coins*.`, m)
 }
 
-handler.help = ['chetar']
+handler.help = ['غش']
 handler.tags = ['owner']
-handler.command = ['chetar']
+handler.command = ['chetar', 'غش']
 handler.owner = true
 
 export default handler

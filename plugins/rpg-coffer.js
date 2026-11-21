@@ -23,9 +23,9 @@ user.lastcofre = now + gap
 conn.reply(m.chat, `「✿」 ${pickRandom(cofres)}\n> Has recibido *${reward.toLocaleString()} ${currency}*.`, m)
 }
 
-handler.help = ['cofre']
+handler.help = ['صندوق']
 handler.tags = ['rpg']
-handler.command = ['coffer', 'cofre', 'abrircofre', 'cofreabrir']
+handler.command = ['coffer', 'cofre', 'abrircofre', 'cofreabrir', 'كنز', 'صندوق', 'صندوقي', 'صناديقي']
 handler.group = true
 
 export default handler

@@ -30,8 +30,8 @@ await conn.reply(m.chat, `✿ ${evento.mensaje} *${cantidad.toLocaleString()} ${
 }
 
 handler.tags = ['rpg']
-handler.help = ['crimen']
-handler.command = ['crimen', 'crime']
+handler.help = ['جرايم']
+handler.command = ['crimen', 'crime', 'جرايم', 'جريمة']
 handler.group = true
 
 export default handler

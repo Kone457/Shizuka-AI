@@ -52,9 +52,9 @@ let handler = async (m, { conn, usedPrefix }) => {
   conn.reply(m.chat, texto, m)
 }
 
-handler.help = ['einfo']
+handler.help = ['معلوماتي']
 handler.tags = ['economy']
-handler.command = ['einfo']
+handler.command = ['einfo', 'معلوماتي']
 handler.group = true
 
 export default handler

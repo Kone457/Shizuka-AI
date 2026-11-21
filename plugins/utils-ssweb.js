@@ -28,8 +28,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ["ssweb"];
+handler.help = ['لقطة'];
 handler.tags = ["tools"];
-handler.command = ["ssweb", "ss"];
+handler.command = ["ssweb", "ss", 'لقطة'];
 
 export default handler;

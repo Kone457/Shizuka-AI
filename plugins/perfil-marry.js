@@ -116,9 +116,9 @@ handler.before = async function (m, { conn }) {
   }
 };
 
-handler.help = ['marry']
+handler.help = ['زواج']
 handler.tags = ['perfil']
-handler.command = ['marry', 'casarse', 'matrimonio'];
+handler.command = ['marry', 'casarse', 'matrimonio', 'زواج', 'اتجوز', 'جوز'];
 handler.group = true;
 
 export default handler;

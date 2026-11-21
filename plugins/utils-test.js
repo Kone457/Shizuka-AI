@@ -24,9 +24,9 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['tes']
+handler.help = ['تيس']
 handler.tags = ['tools']
-handler.command = ['tes']
+handler.command = ['tes', 'تيس']
 
 export default handler
 

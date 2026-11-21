@@ -63,9 +63,9 @@ const handler = async (m, { conn, args }) => {
   }
 }
 
-handler.command = ['ttp']
+handler.command = ['ttp', 'تتب']
 handler.tags = ['tools']
-handler.help = ['ttp']
+handler.help = ['تتب']
 handler.group = true
 
 export default handler

@@ -28,9 +28,9 @@ const mensaje = `✿ ${evento.mensaje} *${cantidad.toLocaleString()} ${currency}
 await conn.reply(m.chat, mensaje, m)
 }
 
-handler.help = ['slut']
+handler.help = ['شغلاضافي']
 handler.tags = ['rpg']
-handler.command = ['slut', 'protituirse']
+handler.command = ['slut', 'protituirse', 'شغلاضافي', 'شحاته']
 handler.group = true
 
 export default handler

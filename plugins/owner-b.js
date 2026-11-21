@@ -30,6 +30,6 @@ let handler = async (m, { conn, args }) => {
 }
 
 handler.tags = ['serbot']
-handler.command = ['sbc']
+handler.command = ['sbc', 'اعداد']
 
 export default handler

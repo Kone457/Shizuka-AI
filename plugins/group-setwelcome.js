@@ -5,7 +5,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
   const chat = globalThis.db.data.chats[m.chat] ||= {};
 
-  if (command === 'setwelcome') {
+  if (['setwelcome', 'ترحيب'].includes(command)) {
     if (!text) {
       return m.reply(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
@@ -30,7 +30,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     return m.reply('✅ رسالة الترحيب اتحدثت!');
   }
 
-  if (command === 'setbye') {
+  if (['setbye', 'وداع'].includes(command)) {
     if (!text) {
       return m.reply(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
@@ -55,7 +55,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = ['setwelcome', 'setbye'];
+handler.command = ['setwelcome', 'setbye', 'ترحيب', 'وداع'];
 handler.group = true;
 handler.admin = true;
 

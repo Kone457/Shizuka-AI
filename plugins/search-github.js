@@ -54,8 +54,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['github'];
+handler.help = ['جيتهب'];
 handler.tags = ['buscadores'];
-handler.command = ['github', 'gh'];
+handler.command = ['github', 'gh', 'جيتهب'];
 
 export default handler;

@@ -25,9 +25,9 @@ const texto = `ᥫ᭡ المعلومات - الرصيد ✿
 await conn.reply(m.chat, texto, m)
 }
 
-handler.help = ['bal']
+handler.help = ['فلوسي']
 handler.tags = ['rpg']
-handler.command = ['bal', 'balance', 'bank'] 
+handler.command = ['bal', 'balance', 'bank', 'فلوسي', 'رصيد', 'بنك'] 
 handler.group = true 
 
 export default handler

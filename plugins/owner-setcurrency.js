@@ -22,9 +22,9 @@ let handler = async (m, { conn, text }) => {
   )
 }
 
-handler.help = ['setmoneda']
+handler.help = ['عملةالبوت']
 handler.tags = ['owner']
-handler.command = ['setmoneda', 'setcurrency', 'moneda']
+handler.command = ['setmoneda', 'setcurrency', 'moneda', 'عملةالبوت', 'العملة', 'كوينز']
 handler.owner = true
 
 export default handler

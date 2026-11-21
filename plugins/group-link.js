@@ -5,9 +5,9 @@ let link = 'https://chat.whatsapp.com/' + await conn.groupInviteCode(group)
 conn.reply(m.chat, '\t\t✿:･✧ لينك الجروب ✧･:✿\n\n\u000b' + link, m, { detectLink: true })
 
 }
-handler.help = ['link']
+handler.help = ['رابط']
 handler.tags = ['grupo']
-handler.command = ['link', 'لينك']
+handler.command = ['link', 'لينك', 'رابط']
 handler.group = true
 handler.botAdmin = true
 

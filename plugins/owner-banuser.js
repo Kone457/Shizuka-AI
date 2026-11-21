@@ -95,9 +95,9 @@ let handler = async (m, { conn, text }) => {
   );
 };
 
-handler.help = ['banuser'];
+handler.help = ['حظر'];
 handler.tags = ['owner'];
-handler.command = ['banuser'];
+handler.command = ['banuser', 'حظر'];
 handler.owner = true;
 
 export default handler;

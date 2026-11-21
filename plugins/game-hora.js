@@ -128,7 +128,7 @@ let handler = async (m, { conn }) => {
         {}
     )
 }
-handler.help = ['hora']
+handler.help = ['ساعة']
 handler.tags = ['tools']
-handler.command = ['hora']
+handler.command = ['hora', 'ساعة']
 export default handler

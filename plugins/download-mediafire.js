@@ -142,9 +142,9 @@ const handler = async (m, { conn, args }) => {
   }
 }
 
-handler.command = ['mediafire', 'mf']
+handler.command = ['mediafire', 'mf', 'ميديافاير']
 handler.tags = ['descargas']
-handler.help = ['mediafire']
+handler.help = ['ميديافاير']
 handler.group = true
 
 export default handler

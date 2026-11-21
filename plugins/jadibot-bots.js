@@ -277,8 +277,8 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.command = ['bots']
-handler.help = ['bots']
+handler.command = ['bots', 'بوتات']
+handler.help = ['بوتات']
 handler.tags = ['serbot']
 
 export default handler

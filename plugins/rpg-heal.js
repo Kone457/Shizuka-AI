@@ -19,9 +19,9 @@ const info = `✿ اتعالجت ${curable} نقطة صحة.\n⛁ ${currency} ا
 await conn.sendMessage(m.chat, { text: info }, { quoted: m })
 }
 
-handler.help = ['heal']
+handler.help = ['شفاء']
 handler.tags = ['rpg']
-handler.command = ['heal', 'curar']
+handler.command = ['heal', 'curar', 'شفاء', 'علاج']
 handler.group = true
 
 export default handler

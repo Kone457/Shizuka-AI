@@ -25,9 +25,9 @@ let handler = async (m, { conn, text }) => {
   )
 }
 
-handler.help = ['setwm']
+handler.help = ['مائية']
 handler.tags = ['owner']
-handler.command = ['setwm', 'watermark']
+handler.command = ['setwm', 'watermark', 'مائية', 'علامة']
 handler.owner = true
 
 export default handler

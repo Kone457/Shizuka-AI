@@ -22,6 +22,7 @@ const CATEGORY_META = {
   gacha: '⊹ جاتشا ⊹',
   text: '⊹ تأثيرات ⊹',
   rpg: '⊹ الاقتصاد ⊹',
+  economy: '⊹ الاقتصاد ⊹',
   perfil: '⊹ الملف الشخصي ⊹',
   sticker: '⊹ ستيكرز ⊹',
   tools: '⊹ أدوات ⊹',
@@ -276,8 +277,8 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['menu']
+handler.help = ['قائمة']
 handler.tags = ['info']
-handler.command = ['menu', 'help']
+handler.command = ['menu', 'help', 'قائمة', 'مساعدة']
 
 export default handler

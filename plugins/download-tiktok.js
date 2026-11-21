@@ -170,8 +170,8 @@ const handler = async (m, { conn, args }) => {
   }
 }
 
-handler.command = ['tiktok', 'tt']
-handler.help = ['tiktok']
+handler.command = ['tiktok', 'tt', 'تيكتوك']
+handler.help = ['تيكتوك']
 handler.tags = ['descargas']
 handler.group = true
 

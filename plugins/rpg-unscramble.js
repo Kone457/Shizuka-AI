@@ -105,9 +105,9 @@ handler.before = async function (m) {
     return true
 }
 
-handler.help = ['unscramble']
+handler.help = ['رتب']
 handler.tags = ['rpg']
-handler.command = ['unscramble']
+handler.command = ['unscramble', 'رتب']
 handler.group = true
 
 export default handler

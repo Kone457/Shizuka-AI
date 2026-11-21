@@ -62,7 +62,7 @@ handler.before = async function (m, { conn }) {
   }
 }
 
-handler.help = ['divorciar']
+handler.help = ['طلاق']
 handler.tags = ['perfil']
-handler.command = ['divorciar']
+handler.command = ['divorciar', 'طلاق']
 export default handler

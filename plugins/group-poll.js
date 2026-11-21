@@ -16,9 +16,9 @@ var handler = async (m, { conn, text }) => {
   })
 }
 
-handler.help = ['poll']
+handler.help = ['تصويت']
 handler.tags = ['grupo']
-handler.command = ['poll']
+handler.command = ['poll', 'تصويت']
 handler.group = true
 handler.admin = true
 handler.botAdmin = true

@@ -62,8 +62,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['playstore'];
+handler.help = ['متجر'];
 handler.tags = ['buscadores'];
-handler.command = ['playstore'];
+handler.command = ['playstore', 'متجر'];
 
 export default handler;

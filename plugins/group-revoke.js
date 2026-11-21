@@ -24,9 +24,9 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['revoke']
+handler.help = ['الغاء']
 handler.tags = ['group']
-handler.command = ['revoke', 'restablecer']
+handler.command = ['revoke', 'restablecer', 'الغاء', 'تجديد']
 handler.group = true
 handler.admin = true
 handler.botAdmin = true

@@ -52,9 +52,9 @@ let handler = async (m, { conn, args }) => {
     }
 };
 
-handler.help = ['winfo'];
+handler.help = ['ويفومعلومة'];
 handler.tags = ['gacha'];
-handler.command = ['charinfo', 'winfo', 'waifuinfo'];
+handler.command = ['charinfo', 'winfo', 'waifuinfo', 'شخصية', 'ويفومعلومة', 'معلوماتويفو'];
 handler.group = true;
 handler.gacha = true;
 

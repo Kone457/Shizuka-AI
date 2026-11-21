@@ -92,9 +92,9 @@ const handler = async (m, { conn, args }) => {
   }
 }
 
-handler.command = ['apk']
+handler.command = ['apk', 'تطبيق']
 handler.tags = ['descargas']
-handler.help = ['apk']
+handler.help = ['تطبيق']
 handler.group = true
 
 export default handler

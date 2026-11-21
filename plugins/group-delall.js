@@ -28,9 +28,9 @@ var handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['delall']
+handler.help = ['امسحالكل']
 handler.tags = ['grupo']
-handler.command = ['delall']
+handler.command = ['delall', 'امسحالكل']
 handler.admin = true
 handler.botAdmin = true
 

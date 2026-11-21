@@ -21,7 +21,7 @@ export async function before(m, { groupMetadata }) {
   if (chat.adminonly) return;
   if (settings.self) return;
   if (!command) return;
-  if (command === 'mute') return;
+  if (['mute', 'silenciar', 'كتم'].includes(command)) return;
   if (chat.bannedGrupo && !owner) return;
 
   

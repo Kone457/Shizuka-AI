@@ -112,9 +112,9 @@ let handler = async (m, { conn, args }) => {
     }
 };
 
-handler.help = ['vote'];
+handler.help = ['فوت'];
 handler.tags = ['gacha'];
-handler.command = ['vote', 'votar'];
+handler.command = ['vote', 'votar', 'فوت', 'صوّت'];
 handler.group = true;
 handler.gacha = true;
 

@@ -45,9 +45,9 @@ const mensaje = `✿ ${evento.mensaje} *${monedas.toLocaleString()} ${currency}*
 await conn.reply(m.chat, mensaje, m)
 }
 
-handler.help = ['minar']
+handler.help = ['احفر']
 handler.tags = ['economy']
-handler.command = ['minar', 'miming', 'mine']
+handler.command = ['minar', 'miming', 'mine', 'احفر', 'ميمينج', 'حفر']
 handler.group = true
 
 export default handler

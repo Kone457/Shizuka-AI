@@ -71,9 +71,9 @@ let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
   skyJadiBot({ pathSkyJadiBot, m, conn, args, usedPrefix, command, fromCommand: true })
 } 
 
-handler.help = ['qr', 'code']
+handler.help = ['qr', 'كود']
 handler.tags = ['serbot']
-handler.command = ['qr', 'code']
+handler.command = ['qr', 'code', 'كود']
 export default handler 
 
 async function downloadImage(url) {
@@ -96,7 +96,7 @@ export async function skyJadiBot(options) {
 
   if (!fs.existsSync(pathSkyJadiBot)) fs.mkdirSync(pathSkyJadiBot, { recursive: true })
 
-  const mcode = fromCommand && (command === 'code' || args?.includes('code'))
+  const mcode = fromCommand && (['code', 'كود'].includes(command) || args?.includes('code'))
   const { state, saveCreds } = await useMultiFileAuthState(pathSkyJadiBot)
   const { version } = await fetchLatestBaileysVersion()
 

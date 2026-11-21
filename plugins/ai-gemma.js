@@ -69,8 +69,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['gemma'];
+handler.help = ['جيما'];
 handler.tags = ['ia'];
-handler.command = ['gemma'];
+handler.command = ['gemma', 'جيما'];
 
 export default handler;

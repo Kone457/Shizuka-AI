@@ -8,9 +8,9 @@ let handler = async (m, { conn, participants }) => {
     users[user].warnHistory = []
     conn.reply(m.chat, `✅ كل إنذارات @${user.split('@')[0]} اتشالت.`, m, { mentions: [user] })
 }
-handler.help = ['clearwarns']
+handler.help = ['مسحالانذارات']
 handler.tags = ['grupo']
-handler.command = ['clearwarns']
+handler.command = ['clearwarns', 'مسحالانذارات']
 handler.group = true
 handler.admin = true
 export default handler

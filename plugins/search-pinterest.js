@@ -169,9 +169,9 @@ let handler = async (m, { conn, args, text }) => {
   }
 }
 
-handler.help = ['pinterest']
+handler.help = ['بينترست']
 handler.tags = ['buscadores']
-handler.command = ['pinterest', 'pin']
+handler.command = ['pinterest', 'pin', 'بينترست', 'تثبيت']
 handler.group = true
 
 export default handler

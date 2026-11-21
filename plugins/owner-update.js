@@ -40,9 +40,9 @@ await conn.reply(m.chat, errorMessage2, m)
 
 }
 
-handler.help = ['update'];
+handler.help = ['تحديثالبوت'];
 handler.tags = ['owner'];
-handler.command = ['update', 'actualizar', 'up']
+handler.command = ['update', 'actualizar', 'up', 'تحديثالبوت', 'تحديث']
 handler.owner = true
 
 export default handler

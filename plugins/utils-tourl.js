@@ -50,9 +50,9 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['tourl']
+handler.help = ['رفع']
 handler.tags = ['tools']
-handler.command = ['tourl']
+handler.command = ['tourl', 'رفع']
 
 export default handler
 

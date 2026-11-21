@@ -34,8 +34,8 @@ let handler = async (m, { conn }) => {
   }
 };
 
-handler.help = ['pfp', 'getpic'];
+handler.help = ['صورتي', 'صورة'];
 handler.tags = ['tools'];
-handler.command = ['pfp', 'getpic'];
+handler.command = ['pfp', 'getpic', 'صورتي', 'صورة'];
 
 export default handler;

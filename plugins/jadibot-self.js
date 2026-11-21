@@ -32,8 +32,8 @@ let handler = async (m, { conn, args }) => {
   );
 };
 
-handler.help = ['self'];
+handler.help = ['سيلف'];
 handler.tags = ['serbot'];
-handler.command = ['self'];
+handler.command = ['self', 'سيلف'];
 
 export default handler;

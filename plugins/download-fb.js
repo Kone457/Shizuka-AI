@@ -91,9 +91,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.help = ['facebook'];
+handler.help = ['فيسبوك'];
 handler.tags = ['descargas'];
-handler.command = ['fb', 'facebook'];
+handler.command = ['fb', 'facebook', 'فيسبوك'];
 handler.group = true;
 
 export default handler;

@@ -15,9 +15,9 @@ let handler = async (m, { conn }) => {
   }, 3000);
 };
 
-handler.help = ['restart'];
+handler.help = ['ريستارت'];
 handler.tags = ['owner'];
-handler.command = ['restart','reiniciar'];
+handler.command = ['restart','reiniciar', 'ريستارت', 'اعادة'];
 handler.owner = true;
 
 export default handler;

@@ -8,7 +8,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 
 handler.help = ["r"]
 handler.tags = ["tools"]
-handler.command = ["replay", "r"]
+handler.command = ["replay", "r", 'كرر']
 handler.group = true
 
 export default handler

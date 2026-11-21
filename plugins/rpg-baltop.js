@@ -30,9 +30,9 @@ let handler = async (m, { conn, args }) => {
   await conn.reply(m.chat, text.trim(), m, { mentions: conn.parseMention(text) })
 }
 
-handler.help = ['baltop']
+handler.help = ['اغنى']
 handler.tags = ['rpg']
-handler.command = ['baltop', 'eboard', 'economyboard']
+handler.command = ['baltop', 'eboard', 'economyboard', 'اغنى', 'لوحةالاقتصاد', 'اقتصاد']
 handler.group = true
 handler.register = true
 

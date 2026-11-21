@@ -79,9 +79,9 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['gemini'];
+handler.help = ['جيميني'];
 handler.tags = ['ia'];
-handler.command = ['gemini', 'ia'];
+handler.command = ['gemini', 'ia', 'جيميني'];
 handler.group = true;
 
 export default handler;

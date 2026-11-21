@@ -421,8 +421,8 @@ const handler = async (m, { conn, command, text }) => {
     )
   }
 }
-handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4']
+handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4', 'يوتيوب', 'يوتيوب2', 'صوت', 'فيديو', 'يوتصوت', 'يوتفيديو']
 handler.tags = ['descargas']
-handler.help = ['play']
+handler.help = ['يوتيوب']
 handler.group = true
 export default handler

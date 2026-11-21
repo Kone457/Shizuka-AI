@@ -42,8 +42,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['get'];
+handler.help = ['هات'];
 handler.tags = ['tools'];
-handler.command = ['get'];
+handler.command = ['get', 'هات'];
 
 export default handler;

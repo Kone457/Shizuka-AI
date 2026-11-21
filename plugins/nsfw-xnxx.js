@@ -51,9 +51,9 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 }
 
-handler.help = ['xnxx']
+handler.help = ['اكسكس']
 handler.tags = ['nsfw']
-handler.command = ['xnxx']
+handler.command = ['xnxx', 'اكسكس']
 handler.group = true
 handler.nsfw = true
 

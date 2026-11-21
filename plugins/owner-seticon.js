@@ -49,9 +49,9 @@ let handler = async (m, { conn, text }) => {
   }, { quoted: m })
 }
 
-handler.help = ['seticon']
+handler.help = ['ايقونةالبوت']
 handler.tags = ['owner']
-handler.command = ['seticon', 'icono']
+handler.command = ['seticon', 'icono', 'ايقونةالبوت', 'ايقونة']
 handler.owner = true
 
 export default handler

@@ -43,8 +43,8 @@ let handler = async (m, { conn, text }) => {
   }
 }
 
-handler.help = ['tenor']
+handler.help = ['تنور']
 handler.tags = ['buscadores']
-handler.command = ['tenor', 'gif']
+handler.command = ['tenor', 'gif', 'تنور', 'جيف']
 
 export default handler

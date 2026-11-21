@@ -22,8 +22,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['leave2'];
+handler.help = ['اسيب'];
 handler.tags = ['serbot'];
-handler.command = ['leave2'];
+handler.command = ['leave2', 'اسيب'];
 
 export default handler;

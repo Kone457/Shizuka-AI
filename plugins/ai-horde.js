@@ -114,8 +114,8 @@ let handler = async (m, { conn, args }) => {
   }
 };
 
-handler.help = ['horde'];
+handler.help = ['هورد'];
 handler.tags = ['ia'];
-handler.command = ['horde'];
+handler.command = ['horde', 'هورد'];
 
 export default handler;

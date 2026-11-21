@@ -26,9 +26,9 @@ let handler = async (m, { conn }) => {
   }
 };
 
-handler.help = ["delprimary"];
+handler.help = ['مسحالاساسي'];
 handler.tags = ["jadibot"];
-handler.command = ["delprimary"];
+handler.command = ["delprimary", 'مسحالاساسي'];
 handler.group = true;
 handler.admin = true;
 

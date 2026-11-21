@@ -41,8 +41,8 @@ conn.sendMessage(m.chat, { sticker: mediax, mentions }, { quoted: null })
 await conn.relayMessage(m.chat, { extendedTextMessage: { text: `${htextos}\n`, contextInfo: { mentionedJid: mentions }}})
 }}}
 
-handler.help = ['say']
-handler.command = ['say', 'decir']
+handler.help = ['اتكلم']
+handler.command = ['say', 'decir', 'اتكلم', 'قول']
 handler.tags = ['tools']
 handler.group = true
 

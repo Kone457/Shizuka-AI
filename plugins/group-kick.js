@@ -50,9 +50,9 @@ var handler = async (m, { conn }) => {
   const dbUser = globalThis.db?.data?.users?.[user] || globalThis.db?.data?.users?.[`${normalize(user)}@s.whatsapp.net`]
   await conn.reply(m.chat, `✿ *المستخدم* ${dbUser?.name ||`@${normalize(user)}`} *اتطرد من الجروب بنجاح.*\n> الباب اتقفل وراه.`, m)
 }
-handler.help = ['kick']
+handler.help = ['طرد']
 handler.tags = ['grupo']
-handler.command = ['kick']
+handler.command = ['kick', 'طرد']
 handler.admin = true
 handler.botAdmin = true
 export default handler

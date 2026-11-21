@@ -134,9 +134,9 @@ for (const chunk of chunks) {
 await conn.reply(m.chat, '✿ التحليل خلص.\n🔒 مفيش أي ملف اتحذف.', m)
 }
 
-handler.help = ['peso']
+handler.help = ['حجمالبوت']
 handler.tags = ['owner']
-handler.command = ['peso', 'diskusage', 'tamanobot']
+handler.command = ['peso', 'diskusage', 'tamanobot', 'حجمالبوت', 'مساحة', 'حجمبوت']
 handler.owner = true
 
 export default handler

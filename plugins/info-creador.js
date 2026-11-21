@@ -72,9 +72,9 @@ let handler = async (m, { conn }) => {
   })
 }
 
-handler.help = ['creador']
+handler.help = ['مطور']
 handler.tags = ['info']
-handler.command = ['creador', 'owner']
+handler.command = ['creador', 'owner', 'مطور', 'المطور']
 handler.owner = false
 
 export default handler

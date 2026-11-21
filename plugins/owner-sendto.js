@@ -37,8 +37,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 }
 
-handler.command = ['sendto', 'sendmsg']
-handler.help = ['sendto']
+handler.command = ['sendto', 'sendmsg', 'ابعت', 'ارسال']
+handler.help = ['ابعت']
 handler.tags = ['owner']
 handler.group = false
 handler.owner = true

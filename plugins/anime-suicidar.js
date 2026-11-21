@@ -50,7 +50,7 @@ let handler = async (m, { conn }) => {
 
 handler.help = ['suicidar']
 handler.tags = ['anime']
-handler.command = /^suicidar$/i
+handler.command = ['suicidar', 'انتحار']
 handler.group = true
 
 export default handler

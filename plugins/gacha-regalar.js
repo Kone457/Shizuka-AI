@@ -88,9 +88,9 @@ let handler = async (m, { conn, args }) => {
     }
 }
 
-handler.help = ['regalar']
+handler.help = ['اهدي']
 handler.tags = ['gacha']
-handler.command = ['regalar', 'givewaifu', 'givechar']
+handler.command = ['regalar', 'givewaifu', 'givechar', 'اهدي', 'هديةويفو', 'هديةشخصية']
 handler.group = true
 handler.gacha = true
 

@@ -52,8 +52,8 @@ const handler = async (m, { conn }) => {
   }
 }
 
-handler.command = ['luz', 'une', 'apagon']
-handler.help = ['luz']
+handler.command = ['luz', 'une', 'apagon', 'نور', 'اتحد', 'كهربا']
+handler.help = ['نور']
 handler.tags = ['info']
 handler.group = false
 

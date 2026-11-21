@@ -40,8 +40,8 @@ let handler = async (m, { conn, args }) => {
     await m.reply(`❏ *حصل خطأ أثناء المسح.*\n\n✰ تفاصيل تقنية: ${error.message}\n\n> ❖ اتأكد إن الجروب شغّال وفيه رسائل حديثة وإن عندي صلاحيات كاملة.`)
   }
 }
-handler.help = ["listonline"]
+handler.help = ['المتصلين']
 handler.tags = ["group"]
-handler.command = ["listonline", "online", "linea", "enlinea"]
+handler.command = ["listonline", "online", "linea", "enlinea", 'المتصلين', 'متصل', 'خط', 'اونلاين']
 handler.group = true
 export default handler

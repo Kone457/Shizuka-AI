@@ -18,9 +18,9 @@ await conn.reply(m.chat, `✿ ${pickRandom(trabajo)} *${rsl.toLocaleString()} ${
 user.coin += rsl
 }
 
-handler.help = ['trabajar']
+handler.help = ['اعمل']
 handler.tags = ['economy']
-handler.command = ['w', 'work', 'chambear', 'chamba', 'trabajar']
+handler.command = ['w', 'work', 'chambear', 'chamba', 'trabajar', 'وظيفة', 'اشتغل', 'شغل', 'اعمل']
 handler.group = true
 
 export default handler

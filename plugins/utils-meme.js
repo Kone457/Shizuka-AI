@@ -28,9 +28,9 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['meme']
+handler.help = ['ميمز']
 handler.tags = ['tools']
-handler.command = ['meme', 'hispameme']
+handler.command = ['meme', 'hispameme', 'ميمز', 'ميم']
 handler.group = false
 
 export default handler

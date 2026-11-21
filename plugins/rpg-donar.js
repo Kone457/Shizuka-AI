@@ -18,9 +18,9 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
   conn.reply(m.chat, `✿ Has donado *${cantidad.toLocaleString()} Coins* a @${target.split("@")[0]}`, m, { mentions: [target] })
 }
 
-handler.help = ['donar']
+handler.help = ['تبرع']
 handler.tags = ['rpg']
-handler.command = ['donar']
+handler.command = ['donar', 'تبرع']
 handler.group = true
 
 export default handler

@@ -31,8 +31,8 @@ let handler = async (m, { conn }) => {
 
 }
 
-handler.help = ['toimg']
+handler.help = ['صورةستيكر']
 handler.tags = ['tools']
-handler.command = ['toimg','stickerimg','simg']
+handler.command = ['toimg','stickerimg','simg', 'صورةستيكر', 'ستيكرصورة', 'سيمج']
 
 export default handler

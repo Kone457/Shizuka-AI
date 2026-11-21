@@ -62,8 +62,8 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['steam'];
+handler.help = ['ستيم'];
 handler.tags = ['buscadores'];
-handler.command = ['steam'];
+handler.command = ['steam', 'ستيم'];
 
 export default handler;

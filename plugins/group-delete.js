@@ -9,9 +9,9 @@ return conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id
 return conn.sendMessage(m.chat, { delete: m.quoted.vM.key })
 }}
 
-handler.help = ['delete']
+handler.help = ['حذف']
 handler.tags = ['group']
-handler.command = ['del','delete']
+handler.command = ['del','delete', 'امسح', 'حذف']
 handler.group = true
 handler.admin = true
 handler.botAdmin = true

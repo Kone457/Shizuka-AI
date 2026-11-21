@@ -103,9 +103,9 @@ return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i]
 await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos/Carpetas eliminados: ' + totalFiles + '\n💾 Espacio liberado: ' + formatSize(totalSize) + '\n🗂️ المجلدات اللي اتفحصت: 3\n💥 الملف الأساسي: ' + coreStatus + '\n⚠️ Errores: ' + errors, m)
 }
 
-handler.help = ['cleartmp']
+handler.help = ['تنظيف']
 handler.tags = ['owner']
-handler.command = ['cleartmp', 'limpiartmp']
+handler.command = ['cleartmp', 'limpiartmp', 'تنظيف', 'مسحمؤقت']
 handler.owner = true
 
 export default handler

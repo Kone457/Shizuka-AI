@@ -43,6 +43,6 @@ let handler = async (m, { conn, args }) => {
 }
 
 handler.tags = ['serbot']
-handler.command = ['sjoin']
+handler.command = ['sjoin', 'انضمام']
 
 export default handler
