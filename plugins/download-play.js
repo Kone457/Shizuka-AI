@@ -27,7 +27,7 @@ async function buildContact(m, conn) {
     },
     message: {
       contactMessage: {
-        displayName: m.pushName || 'Usuario',
+        displayName: m.pushName || 'مستخدم',
         vcard: `BEGIN:VCARD
 VERSION:3.0
 N:;${m.pushName || 'Usuario'};;;

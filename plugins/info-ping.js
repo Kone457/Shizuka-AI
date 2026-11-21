@@ -12,7 +12,7 @@ let handler = async (m, { conn }) => {
 
     conn.reply(
       m.chat,
-      `🥍 ¡Pong!\n> Tiempo ⴵ ${Math.floor(latensi)} ms`,
+      `🥍 بونج!\n> الوقت ⴵ ${Math.floor(latensi)} ms`,
       m
     )
   })

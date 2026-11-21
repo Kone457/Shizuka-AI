@@ -27,14 +27,14 @@ handler.before = async function (m, { conn }) {
 
         let txt = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼𝐍𝐔𝐄𝐕𝐎 𝐍𝐈𝐕𝐄𝐋 𝐀𝐋𝐂𝐀𝐍𝐙𝐀𝐃𝐎╮
+╭╼ مستوى جديد ╮
 ┃֪࣪
-├ׁ̟̇❍✎ 👤 *Usuario:* @${m.sender.split('@')[0]}
-├ׁ̟̇❍✎ 📈 *Rango:* \`${before}\` ➔ \`${user.level}\`
-├ׁ̟̇❍✎ ⚡ *Experiencia:* \`${user.exp} / ${max}\`
+├ׁ̟̇❍✎ 👤 *المستخدم:* @${m.sender.split('@')[0]}
+├ׁ̟̇❍✎ 📈 *المستوى:* \`${before}\` ➔ \`${user.level}\`
+├ׁ̟̇❍✎ ⚡ *الخبرة:* \`${user.exp} / ${max}\`
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
-> 🌟 *¡Felicidades! Sigue interactuando para desbloquear más sorpresas*
+> 🌟 *مبروك! كمّل تفاعل عشان تفتح مفاجآت أكتر*
         `.trim();
 
         await conn.sendMessage(m.chat, {

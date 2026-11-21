@@ -68,7 +68,7 @@ let handler = async (m, { conn, text }) => {
   user.banned = true;
   user.bannedAt = Date.now();
 
-  let name = 'Usuario';
+  let name = 'مستخدم';
 
   try {
     name = await conn.getName(realJid);

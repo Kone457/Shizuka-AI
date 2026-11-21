@@ -95,7 +95,7 @@ const sfwCommands = [
     'cuddle','dance','drunk','eat','facepalm','happy','hug','kill','kiss',
     'laugh','lick','love','pat','poke','pout','punch','run','sad','scared',
     'seduce','shy','slap','sleep','smoke','think',
-    'enojado','baño','morder','sonrojar','aburrido','aplauso','café','llorar',
+    'enojado','baño','morder','sonrojar','aburrido','aplauso','قهوة','llorar',
     'acurrucar','bailar','borracho','comer','feliz','abrazo','matar','beso','besar',
     'reír','lamer','amor','acariciar','puchero','golpear','correr','triste','asustado',
     'seducir','tímido','bofetada','dormir','fumar','pensar'

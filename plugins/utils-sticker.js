@@ -94,7 +94,7 @@ let handler = async (m, { conn, args }) => {
         },
         message: {
             contactMessage: {
-                displayName: m.pushName || 'Usuario',
+                displayName: m.pushName || 'مستخدم',
                 vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;${m.pushName};;;\nFN:${m.pushName}\nitem1.TEL;waid=${m.sender.replace(/[^0-9]/g, '')}:${m.sender}\nitem1.X-ABLabel:Cel\nEND:VCARD`,
                 jpegThumbnail: thumb || fs.readFileSync('./src/logo.jpg')
             }

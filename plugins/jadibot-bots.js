@@ -7,7 +7,7 @@ import { getBotConfig } from '../lib/botconfig.js'
 
 async function fetchBuffer(url) {
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`Error descargando imagen: ${res.status}`)
+  if (!res.ok) throw new Error(`خطأ في تحميل الصورة: ${res.status}`)
   return Buffer.from(await res.arrayBuffer())
 }
 
@@ -199,7 +199,7 @@ Total activos › *${totalActive}*
     const nativeFlowPayload = {
       header: {
         title: null,
-        subtitle: '© Todos los derechos reservados',
+        subtitle: '© جميع الحقوق محفوظة',
         hasMediaAttachment: true,
         imageMessage: media.imageMessage
       },
@@ -209,7 +209,7 @@ Total activos › *${totalActive}*
       },
 
       footer: {
-        text: '© Todos los derechos reservados'
+        text: '© جميع الحقوق محفوظة'
       },
 
       nativeFlowMessage: {

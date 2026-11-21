@@ -17,10 +17,10 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
             if (m.text.includes(linkThisGroup)) return !0;
         }
 
-        await conn.sendMessage(m.chat, { text: `*「 ENLACE DETECTADO 」*\n\n《✧》${user} Rompiste las reglas del Grupo serás eliminado...`, mentions: [m.sender] }, { quoted: m });
+        await conn.sendMessage(m.chat, { text: `*「 تم رصد لينك 」*\n\n《✧》${user} خالفت قوانين الجروب وتم طردك...`, mentions: [m.sender] }, { quoted: m });
 
         if (!isBotAdmin) {
-            return conn.sendMessage(m.chat, { text: `《✧》 El antilink está activo pero no puedo eliminarte porque no soy admin.`, mentions: groupAdmins.map(v => v.id) }, { quoted: m });
+            return conn.sendMessage(m.chat, { text: `《✧》 مكافحة اللينكات مفعّلة لكني مش مشرف فمش قادر أطردك.`, mentions: groupAdmins.map(v => v.id) }, { quoted: m });
         }
 
         if (isBotAdmin) {

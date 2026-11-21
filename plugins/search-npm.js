@@ -29,7 +29,7 @@ let handler = async (m, { conn, text }) => {
       const pkg = data.objects[i].package;
       const version = pkg.version;
       const fecha = new Date(pkg.date).toLocaleDateString('es-ES');
-      const desc = pkg.description? pkg.description.substring(0, 120) + '...' : 'Sin descripción';
+      const desc = pkg.description? pkg.description.substring(0, 120) + '...' : 'بدون وصف';
       const keywords = pkg.keywords? pkg.keywords.slice(0, 3).join(', ') : 'N/A';
       const links = pkg.links;
 

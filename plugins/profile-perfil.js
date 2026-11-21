@@ -2,8 +2,8 @@ import { getUser } from '../lib/userdb.js'
 let handler = async (m, { conn }) => {
   let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
   let user = getUser(globalThis.db.data.users, who) || {}
-  let name = typeof user.name === 'string' && user.name.trim() && user.name.trim() !== '[object Promise]' ? user.name.trim() : 'Usuario'
-  if (!name || name === 'Usuario' || name === '[object Promise]') {
+  let name = typeof user.name === 'string' && user.name.trim() && user.name.trim() !== '[object Promise]' ? user.name.trim() : 'مستخدم'
+  if (!name || name === 'مستخدم' || name === '[object Promise]') {
     try {
       const n = await conn.getName(who)
       if (typeof n === 'string' && n.trim()) name = n.trim()

@@ -3,19 +3,19 @@ import fetch from 'node-fetch'
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) {
         return conn.reply(m.chat, `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐑𝐄𝐏𝐎𝐑𝐓𝐄 𝐃𝐄 𝐄𝐑𝐑𝐎𝐑 ☁️╮
+╭╼☁️ الإبلاغ عن مشكلة ☁️╮
 ┃֪࣪
-├ׁ̟̇❍✎ ✖️ USO DEL COMANDO
-├ׁ̟̇❍✎ ${usedPrefix + command} <mensaje>
+├ׁ̟̇❍✎ ✖️ طريقة الاستخدام
+├ׁ̟̇❍✎ ${usedPrefix + command} <الرسالة>
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`, m)
     }
 
-    if (text.length < 10) return conn.reply(m.chat, "⚠️ El reporte debe tener mínimo 10 caracteres.", m)
-    if (text.length > 1000) return conn.reply(m.chat, "⚠️ El reporte no puede superar los 1000 caracteres.", m)
+    if (text.length < 10) return conn.reply(m.chat, "⚠️ البلاغ لازم يكون 10 حروف على الأقل.", m)
+    if (text.length > 1000) return conn.reply(m.chat, "⚠️ البلاغ مايزيدش عن 1000 حرف.", m)
 
     const payload = {
         numero: `wa.me/${m.sender.split('@')[0]}`,
-        usuario: m.pushName || 'Anónimo',
+        usuario: m.pushName || 'مجهول',
         mensaje: text,
         cita: m.quoted ? m.quoted.text : null
     }
@@ -28,15 +28,15 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         })
         const json = await res.json()
         m.reply(`╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼☁️ 𝐑𝐄𝐏𝐎𝐑𝐓𝐄 𝐄𝐍𝐕𝐈𝐀𝐃𝐎 ☁️╮
+╭╼☁️ تم إرسال البلاغ ☁️╮
 ┃֪࣪
-├ׁ̟̇❍✎ 📨 Tu mensaje fue enviado
-├ׁ̟̇❍✎ al servidor de reportes
+├ׁ̟̇❍✎ 📨 رسالتك اتبعتت
+├ׁ̟̇❍✎ لسيرفر البلاغات
 ┃֪࣪
-├ׁ̟̇❍✎ ✅ Estado: ${json.status || 'OK'}
+├ׁ̟̇❍✎ ✅ الحالة: ${json.status || 'OK'}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`)
     } catch (e) {
-        m.reply("❌ Error enviando el reporte al servidor.")
+        m.reply("❌ خطأ في إرسال البلاغ للسيرفر.")
     }
 }
 

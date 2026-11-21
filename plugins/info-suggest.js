@@ -5,13 +5,13 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         return conn.reply(
             m.chat,
             `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼💡 𝐒𝐔𝐆𝐄𝐑𝐄𝐍𝐂𝐈𝐀𝐒 💡╮
+╭╼💡 الاقتراحات 💡╮
 ┃֪࣪
-├ׁ̟̇❍✎ ✖️ USO DEL COMANDO
+├ׁ̟̇❍✎ ✖️ طريقة الاستخدام
 ├ׁ̟̇❍✎ ${usedPrefix + command}
 ┃֪࣪
-├ׁ̟̇❍✎ Este comando sirve para enviar
-├ׁ̟̇❍✎ sugerencias o ideas para el bot
+├ׁ̟̇❍✎ الأمر ده بيبعت
+├ׁ̟̇❍✎ اقتراحات أو أفكار للبوت
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`,
             m
         )
@@ -21,9 +21,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         return conn.reply(
             m.chat,
             `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-├ׁ̟̇❍✎ ⚠️ ERROR
-├ׁ̟̇❍✎ Mínimo 10 caracteres
-├ׁ̟̇❍✎ Explica mejor tu sugerencia
+├ׁ̟̇❍✎ ⚠️ خطأ
+├ׁ̟̇❍✎ 10 حروف على الأقل
+├ׁ̟̇❍✎ اشرح اقتراحك أوضح
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`,
             m
         )
@@ -32,8 +32,8 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         return conn.reply(
             m.chat,
             `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-├ׁ̟̇❍✎ ⚠️ ERROR
-├ׁ̟̇❍✎ Máximo 1000 caracteres
+├ׁ̟̇❍✎ ⚠️ خطأ
+├ׁ̟̇❍✎ الحد الأقصى 1000 حرف
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`,
             m
         )
@@ -41,10 +41,10 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const teks = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼💡 𝐍𝐔𝐄𝐕𝐀 𝐒𝐔𝐆𝐄𝐑𝐄𝐍𝐂𝐈𝐀 💡╮
 ┃֪࣪
-├ׁ̟̇❍✎ 📱 Número:
+├ׁ̟̇❍✎ 📱 الرقم:
 ├ׁ̟̇❍✎ wa.me/${m.sender.split('@')[0]}
 ┃֪࣪
-├ׁ̟̇❍✎ 👤 Usuario:
+├ׁ̟̇❍✎ 👤 المستخدم:
 ├ׁ̟̇❍✎ ${m.pushName || 'Anónimo'}
 ┃֪࣪
 ├ׁ̟̇❍✎ 💬 Sugerencia:
@@ -67,13 +67,13 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
         m.reply(
 `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼💡 𝐒𝐔𝐆𝐄𝐑𝐄𝐍𝐂𝐈𝐀 𝐄𝐍𝐕𝐈𝐀𝐃𝐀 💡╮
+╭╼💡 تم إرسال الاقتراح 💡╮
 ┃֪࣪
-├ׁ̟̇❍✎ 📨 Tu sugerencia fue enviada
-├ׁ̟̇❍✎ correctamente al desarrollador
+├ׁ̟̇❍✎ 📨 اقتراحك اتبعت
+├ׁ̟̇❍✎ للمطور بنجاح
 ┃֪࣪
-├ׁ̟̇❍✎ ✨ Gracias por ayudar
-├ׁ̟̇❍✎ a mejorar el bot
+├ׁ̟̇❍✎ ✨ شكراً على مساعدتك
+├ׁ̟̇❍✎ في تحسين البوت
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`
         )
     } catch (e) {
@@ -81,9 +81,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
         m.reply(
 `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-├ׁ̟̇❍✎ ❌ ERROR
-├ׁ̟̇❍✎ No se pudo enviar
-├ׁ̟̇❍✎ la sugerencia
+├ׁ̟̇❍✎ ❌ خطأ
+├ׁ̟̇❍✎ مقدرتش أبعت
+├ׁ̟̇❍✎ الاقتراح
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`
         )
     }

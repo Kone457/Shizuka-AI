@@ -10,7 +10,7 @@ let handler = async (m, { conn }) => {
       return {
         name: meta.subject || 'Sin nombre',
         members: meta.participants?.length || 0,
-        desc: meta.desc || 'Sin descripción',
+        desc: meta.desc || 'بدون وصف',
         link: `https://chat.whatsapp.com/${code}`,
         jid: jid,
         bot: c.user?.id || 'Bot'

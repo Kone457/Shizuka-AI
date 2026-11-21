@@ -554,13 +554,13 @@ async function processMessage(chatUpdate) {
 global.dfail = (type, m, conn) => {
     const command = m?.command || ''
     const msg = {
-        owner: `✿ El comando *${command}* solo puede ser ejecutado por mi Creador.`,
-        mods: `✿ El comando *${command}* solo puede ser ejecutado por los mods.`,
-        admin: `✿ El comando *${command}* solo puede ser ejecutado por los admins del Grupo.`,
-        botAdmin: `✿ Para usar el comando *${command}* debo ser admin del Grupo.`,
-        nsfw: `✿ Los comandos *NSFW* están desáctívados.\n> Un admin puede activarlo con:\n> *.on nsfw*`,
-        gacha: `✿ Los comandos *Gacha* están desáctívados.\n> Un admin puede activarlo con:\n> *.on gacha*`,
-        restrict: `✿ *_¡Esta característica está -deshabilitada-_*`
+        owner: `✿ الأمر *${command}* للمطور بس.`,
+        mods: `✿ الأمر *${command}* للمشرفين بس.`,
+        admin: `✿ الأمر *${command}* لمشرفين الجروب بس.`,
+        botAdmin: `✿ عشان أستخدم *${command}* لازم أكون مشرف في الجروب.`,
+        nsfw: `✿ أوامر *NSFW* متقفلة.\n> المشرف يقدر يفتحها بـ:\n> *.on nsfw*`,
+        gacha: `✿ أوامر *Gacha* متقفلة.\n> المشرف يقدر يفتحها بـ:\n> *.on gacha*`,
+        restrict: `✿ *الخاصية دي متقفلة*`
     }[type]
     if (!msg || !m) return
     try {

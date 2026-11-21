@@ -21,7 +21,7 @@ function saveDB() {
 let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
   const userId = m.sender.replace(/[^0-9]/g, '');
-  const pushName = m.pushName || 'Usuario';
+  const pushName = m.pushName || 'مستخدم';
 
   const ownerNumber = global.owner[0][0];
   const ownerName = global.owner[0][1];

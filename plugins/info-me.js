@@ -1,15 +1,15 @@
 const show = value => {
   if (value === undefined) return 'undefined'
   if (value === null) return 'null'
-  if (typeof value === 'string') return value || '(vacío)'
+  if (typeof value === 'string') return value || '(فاضي)'
   try { return JSON.stringify(value) } catch { return String(value) }
 }
 
 const phoneFromJid = jid => {
-  if (typeof jid !== 'string') return 'No disponible'
+  if (typeof jid !== 'string') return 'غير متوفر'
   const clean = jid.replace(/:\d+(?=@|$)/g, '')
   if (clean.endsWith('@s.whatsapp.net')) return clean.split('@')[0]
-  return 'No es un PN; puede ser LID u otro identificador'
+  return 'مش رقم PN؛ يمكن LID أو معرّف تاني'
 }
 
 const findContextInfo = value => {
@@ -47,9 +47,9 @@ const handler = async (m, { conn }) => {
   const quotedMapped = await resolveLid(conn, quotedRaw)
 
   const lines = [
-    '乂 *DIAGNÓSTICO DE JID*',
+    '乂 *تشخيص الـJID*',
     '',
-    '❖ *USUARIO QUE EJECUTA EL COMANDO*',
+    '❖ *المستخدم اللي بينفّذ الأمر*',
     `• m.sender: ${show(m.sender)}`,
     `• m.key.participant: ${show(key.participant)}`,
     `• m.participant: ${show(m.participant)}`,
@@ -60,18 +60,18 @@ const handler = async (m, { conn }) => {
     `• m.senderLid: ${show(m.senderLid)}`,
     `• Identificador principal: ${show(senderRaw)}`,
     `• Identificador alternativo: ${show(senderAlt)}`,
-    `• Número PN detectado: ${phoneFromJid(senderAlt || senderRaw)}`,
+    `• رقم PN اللي اتحدد: ${phoneFromJid(senderAlt || senderRaw)}`,
     `• PN resuelto desde LID: ${show(senderMapped)}`,
     '',
-    '❖ *MENSAJE RESPONDIDO*',
-    `• ¿Respondió a alguien?: ${context?.quotedMessage || quoted ? 'Sí' : 'No'}`,
+    '❖ *الرسالة المردود عليها*',
+    `• ردّ على حد؟: ${context?.quotedMessage || quoted ? 'نعم' : 'لا'}`,
     `• m.quoted.sender: ${show(quoted?.sender)}`,
     `• contextInfo.participant: ${show(context?.participant)}`,
     `• contextInfo.participantAlt: ${show(context?.participantAlt)}`,
     `• contextInfo.remoteJid: ${show(context?.remoteJid)}`,
     `• contextInfo.stanzaId: ${show(context?.stanzaId)}`,
     `• Identificador citado: ${show(quotedRaw)}`,
-    `• Número PN citado: ${phoneFromJid(quotedAlt || quotedRaw)}`,
+    `• رقم PN المذكور: ${phoneFromJid(quotedAlt || quotedRaw)}`,
     `• PN citado resuelto desde LID: ${show(quotedMapped)}`,
     '',
     '❖ *CONTEXTO*',

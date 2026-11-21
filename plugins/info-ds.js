@@ -3,7 +3,7 @@ import path from 'path'
 
 let handler = async (m, { conn, usedPrefix }) => {
     if (global.conn.user.jid !== conn.user.jid) {
-        return conn.reply(m.chat, `✿ *Este comando solo puede usarse desde el número principal.*`, m)
+        return conn.reply(m.chat, `✿ *الأمر ده بيتنفذ من الرقم الأساسي بس.*`, m)
     }
 
     let chatId = m.isGroup ? [m.chat, m.sender] : [m.sender]
@@ -24,15 +24,15 @@ let handler = async (m, { conn, usedPrefix }) => {
         }
 
         if (filesDeleted === 0) {
-            await conn.reply(m.chat, `✿ *No se ha encontrado ningún archivo de sesión relacionado con este chat.*`, m)
+            await conn.reply(m.chat, `✿ *مفيش أي ملفات جلسة مرتبطة بالشات ده.*`, m)
         } else {
-            await conn.reply(m.chat, `✿ Se han eliminado con éxito ${filesDeleted} fragmentos de sesión.*`, m)
-            await conn.reply(m.chat, `✿ *Hola de nuevo... ¿me ves ahora?*`, m)
+            await conn.reply(m.chat, `✿ تم حذف ${filesDeleted} جزء من الجلسة بنجاح.*`, m)
+            await conn.reply(m.chat, `✿ *أهلاً بيك تاني... شايفني دلوقتي؟*`, m)
         }
 
     } catch (err) {
-        console.error('❏ Error en la limpieza de sesión:', err)
-        await conn.reply(m.chat, `Error en la limpieza de sesión`, m)
+        console.error('❏ خطأ في تنظيف الجلسة:', err)
+        await conn.reply(m.chat, `خطأ في تنظيف الجلسة`, m)
     }
 }
 
