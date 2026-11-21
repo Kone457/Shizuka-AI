@@ -1,7 +1,7 @@
 let handler = async (m, { conn }) => {
   await conn.reply(
     m.chat, 
-    `🔄⚙️ *Reiniciando la Bot...*\n> Por favor, espere un momento mientras reinicio el sistema`, 
+    `🔄⚙️ *بجدد تشغيل البوت...*\n> استنى لحظة وأنا بعيد تشغيل النظام`, 
     m
   );
 
@@ -15,9 +15,9 @@ let handler = async (m, { conn }) => {
   }, 3000);
 };
 
-handler.help = ['restart'];
+handler.help = ['ريستارت'];
 handler.tags = ['owner'];
-handler.command = ['restart','reiniciar'];
+handler.command = ['restart','reiniciar', 'ريستارت', 'اعادة'];
 handler.owner = true;
 
 export default handler;

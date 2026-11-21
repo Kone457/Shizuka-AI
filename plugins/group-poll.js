@@ -1,10 +1,10 @@
 var handler = async (m, { conn, text }) => {
-  if (!text) return conn.reply(m.chat, `《✧》 Escribe el título y las opciones separadas por |.\nEjemplo: ${usedPrefix}poll ¿Cuál es tu anime favorito? | Naruto | One Piece | Bleach`, m)
+  if (!text) return conn.reply(m.chat, `《✧》 اكتب العنوان والاختيارات مفصولة بـ |.\nمثال: ${usedPrefix}poll إيه أنمي المفضل عندك؟ | Naruto | One Piece | Bleach`, m)
 
   let [title, ...options] = text.split('|').map(v => v.trim())
 
   if (!title || options.length < 2) {
-    return conn.reply(m.chat, `《✧》 Debes escribir un título y al menos 2 opciones.`, m)
+    return conn.reply(m.chat, `《✧》 لازم تكتب عنوان واختيارين على الأقل.`, m)
   }
 
   await conn.sendMessage(m.chat, {
@@ -16,9 +16,9 @@ var handler = async (m, { conn, text }) => {
   })
 }
 
-handler.help = ['poll']
+handler.help = ['تصويت']
 handler.tags = ['grupo']
-handler.command = ['poll']
+handler.command = ['poll', 'تصويت']
 handler.group = true
 handler.admin = true
 handler.botAdmin = true

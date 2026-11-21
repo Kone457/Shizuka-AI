@@ -3,14 +3,14 @@ import { getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, usedPrefix, command }) => {
 const currency = getBotConfig(conn, 'currency')
 if (!db.data.chats[m.chat].economy && m.isGroup) {
-return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 }
 let user = getUser(global.db.data.users, m.sender)
 const cooldown = 2 * 60 * 1000
 user.lastwork = user.lastwork || 0
 if (Date.now() < user.lastwork) {
 const tiempoRestante = formatTime(user.lastwork - Date.now())
-return conn.reply(m.chat, `✿ Debes esperar *${tiempoRestante}* para usar *${usedPrefix + command}* de nuevo.`, m)
+return conn.reply(m.chat, `✿ لازم تستنى *${tiempoRestante}* عشان تستخدم *${usedPrefix + command}* تاني.`, m)
 }
 user.lastwork = Date.now() + cooldown
 let rsl = Math.floor(Math.random() * 1501) + 2000
@@ -18,9 +18,9 @@ await conn.reply(m.chat, `✿ ${pickRandom(trabajo)} *${rsl.toLocaleString()} ${
 user.coin += rsl
 }
 
-handler.help = ['trabajar']
+handler.help = ['اعمل']
 handler.tags = ['economy']
-handler.command = ['w', 'work', 'chambear', 'chamba', 'trabajar']
+handler.command = ['w', 'work', 'chambear', 'chamba', 'trabajar', 'وظيفة', 'اشتغل', 'شغل', 'اعمل']
 handler.group = true
 
 export default handler
@@ -38,37 +38,37 @@ function pickRandom(list) {
 return list[Math.floor(list.length * Math.random())]
 }
 const trabajo = [
-"Trabajas como cortador de galletas y ganas",
-"Trabaja para una empresa militar privada, ganando",
-"Organiza un evento de cata de vinos y obtienes",
-"Limpias la chimenea y encuentras",
-"Desarrollas juegos para ganarte la vida y ganas",
-"Trabajaste en la oficina horas extras por",
-"Trabajas como secuestrador de novias y ganas",
-"Alguien vino y representó una obra de teatro. Por mirar te dieron",
-"Compraste y vendiste artículos y ganaste",
-"Trabajas en el restaurante de la abuela como cocinera y ganas",
-"Trabajas 10 minutos en un Pizza Hut local. Ganaste",
-"Trabajas como escritor(a) de galletas de la fortuna y ganas",
-"Revisas tu bolso y decides vender algunos artículos inútiles que no necesitas. Resulta que toda esa basura valía",
-"Desarrollas juegos para ganarte la vida y ganas",
-"Trabajas todo el día en la empresa por",
-"Diseñaste un logo para una empresa por",
-"¡Trabajó lo mejor que pudo en una imprenta que estaba contratando y ganó su bien merecido!",
-"Trabajas como podador de arbustos y ganas",
-"Trabajas como actor de voz para Bob Esponja y te las arreglaste para ganar",
-"Estabas cultivando y Ganaste",
-"Trabajas como constructor de castillos de arena y ganas",
+"اشتغلت تقطيع بسكويت وكسبت",
+"اشتغلت مع شركة عسكرية خاصة وكسبت",
+"نظّمت حفلة تذوق عصاير وخدت",
+"نضّفت المدخنة ولقيت",
+"طوّرت ألعاب عشان تعيش وكسبت",
+"اشتغلت أوفر تايم في المكتب وكسبت",
+"اشتغلت في خطف العرايس وكسبت",
+"حد جه مثّل مسرحية، وانت اتفرجت وخدت",
+"اشتريت وبعت حاجات وكسبت",
+"اشتغلت طباخة في مطعم تيتة وكسبت",
+"اشتغلت 10 دقايق في بيتزا هت وكسبت",
+"كتبت حظاظات البسكويت وكسبت",
+"بصيت في شنطتك وبعت حاجات مش محتاجها، وطلعت تساوي",
+"طوّرت ألعاب عشان تعيش وكسبت",
+"اشتغلت اليوم كله في الشركة وكسبت",
+"صمّمت لوجو لشركة وخدت",
+"اشتغلت بأحسن ما تقدر في مطبعة وكانت بتوظّف وخدت اللي يستاهله!",
+"اشتغلت تقليم شجر وكسبت",
+"اشتغلت صوت لسبونج بوب وكسبت",
+"كنت بتزرع وكسبت",
+"اشتغلت بناء قلع رمل وكسبت",
 "Trabajas como artista callejera y ganas",
-"¡Hiciste trabajo social por una buena causa! por tu buena causa Recibiste",
-"Reparaste un tanque T-60 averiado en Afganistán. La tripulación te pagó",
-"Trabajas como ecologista de anguilas y ganas",
-"Trabajas en Disneyland como un panda disfrazado y ganas",
-"Reparas las máquinas recreativas y recibes",
-"Hiciste algunos trabajos ocasionales en la ciudad y ganaste",
-"Limpias un poco de moho tóxico de la ventilación y ganas",
-"Resolviste el misterio del brote de cólera y el gobierno te recompensó con una suma de",
-"Trabajas como zoólogo y ganas",
-"Vendiste sándwiches de pescado y obtuviste",
-"Reparas las máquinas recreativas y recibes"
+"عملت شغل اجتماعي لقضية كويسة! وخدت",
+"صلّحت تانك T-60 باظ في أفغانستان. الطاقم دفعلك",
+"اشتغلت حارس ثعابين بحر وكسبت",
+"اشتغلت في ديزني لاند لبست بدلة باندا وكسبت",
+"صلّحت ماكينات الأركيد وخدت",
+"عملت شغلانة يوم في المدينة وكسبت",
+"نضّفت عفن سام من التهوية وكسبت",
+"حلّيت لغز انتشار الكوليرا والحكومة كافأتك بمبلغ",
+"اشتغلت زولوجي وكسبت",
+"بعت سندوتشات سمك وخدت",
+"صلّحت ماكينات الأركيد وخدت"
 ]

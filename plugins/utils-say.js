@@ -2,9 +2,9 @@ import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
 import * as fs from 'fs'
 
 let handler = async (m, { conn, text, usedPrefix }) => {
-if (!m.quoted && !text) return conn.reply(m.chat, `《✧》 Por favor, escribe el texto que deseas repetir.`, m)
+if (!m.quoted && !text) return conn.reply(m.chat, `《✧》 من فضلك اكتب النص اللي عايز تكرره.`, m)
 let mentionedJid = await m.mentionedJid
-let htextos = text ? text : (m.quoted && m.quoted.text) ? m.quoted.text : "¡¡¡Hola!!!"
+let htextos = text ? text : (m.quoted && m.quoted.text) ? m.quoted.text : "أهلاً!!!"
 if ((mentionedJid && mentionedJid.length) || (m.quoted && m.quoted.mentionedJid && m.quoted.mentionedJid.length)) {
 let copy = htextos
 let list = mentionedJid || m.quoted.mentionedJid
@@ -41,8 +41,8 @@ conn.sendMessage(m.chat, { sticker: mediax, mentions }, { quoted: null })
 await conn.relayMessage(m.chat, { extendedTextMessage: { text: `${htextos}\n`, contextInfo: { mentionedJid: mentions }}})
 }}}
 
-handler.help = ['say']
-handler.command = ['say', 'decir']
+handler.help = ['اتكلم']
+handler.command = ['say', 'decir', 'اتكلم', 'قول']
 handler.tags = ['tools']
 handler.group = true
 

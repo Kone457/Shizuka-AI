@@ -3,9 +3,9 @@ import { setBotConfig, getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, text }) => {
   if (!text) {
     return m.reply(
-      `✿ *Configurar Moneda del Bot*\n\n` +
-      `📌 *Uso:* .setmoneda <nombre>\n\n` +
-      `📋 *Moneda actual de este bot:* *${getBotConfig(conn, 'currency')}*\n\n` 
+      `✿ *إعداد عملة البوت*\n\n` +
+      `📌 *الاستخدام:* .setmoneda <الاسم>\n\n` +
+      `📋 *العملة الحالية للبوت ده:* *${getBotConfig(conn, 'currency')}*\n\n` 
     )
   }
 
@@ -15,16 +15,16 @@ let handler = async (m, { conn, text }) => {
   setBotConfig(conn, 'currency', nuevaMoneda)
 
   await m.reply(
-    `✅ *Moneda actualizada para este bot*\n\n` +
-    `› Anterior: *${anterior}*\n` +
+    `✅ *العملة اتحدّثت للبوت ده*\n\n` +
+    `› السابق: *${anterior}*\n` +
     `› Nueva: *${nuevaMoneda}*\n\n` +
-    `> Solo afecta a este bot (${conn.user.jid.split('@')[0]})`
+    `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )
 }
 
-handler.help = ['setmoneda']
+handler.help = ['عملة البوت']
 handler.tags = ['owner']
-handler.command = ['setmoneda', 'setcurrency', 'moneda']
+handler.command = ['setmoneda', 'setcurrency', 'moneda', 'عملةالبوت', 'العملة', 'كوينز', 'عملة البوت']
 handler.owner = true
 
 export default handler

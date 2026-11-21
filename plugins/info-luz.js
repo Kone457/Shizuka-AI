@@ -15,9 +15,9 @@ const handler = async (m, { conn }) => {
 
     const $ = cheerio.load(data)
 
-    const titulo = $('meta[property="og:title"]').attr('content') || 'Estado del SEN'
+    const titulo = $('meta[property="og:title"]').attr('content') || 'حالة الكهرباء'
     const fecha = $('meta[property="og:updated_time"]').attr('content') || $('meta[property="article:modified_time"]').attr('content')
-    const fechaFormateada = fecha ? new Date(fecha).toLocaleString('es-CU', {timeZone: 'America/Havana'}) : 'Hoy'
+    const fechaFormateada = fecha ? new Date(fecha).toLocaleString('ar-EG', {timeZone: 'America/Havana'}) : 'Hoy'
 
     let texto = ''
     $('.entry-content p, .entry-content li').each((i, el) => {
@@ -28,7 +28,7 @@ const handler = async (m, { conn }) => {
     })
 
     if (!texto) {
-      texto = $('meta[property="og:description"]').attr('content') || 'No se pudo leer la nota.'
+      texto = $('meta[property="og:description"]').attr('content') || 'مقدرتش أقرأ الخبر.'
     }
 
     const tienePico = /horario pico|Disponibilidad|Demanda|Afec/i.test(texto)
@@ -36,7 +36,7 @@ const handler = async (m, { conn }) => {
       ? texto.split('\n\n').filter(p => /pico|MW|disponibilidad|demanda|afect/i.test(p)).join('\n\n')
       : texto.substring(0, 900)
 
-    const reporte = `📢 *${titulo}*\n🗓️ ${fechaFormateada}\n\n${resumen}\n\n> ⚡ Manténgase informado. Fuente: Unión Eléctrica`
+    const reporte = `📢 *${titulo}*\n🗓️ ${fechaFormateada}\n\n${resumen}\n\n> ⚡ خلّيك متابع. المصدر: شركة الكهرباء`
 
     await conn.sendMessage(m.chat, {
       image: { url: 'https://www.unionelectrica.cu/wp-content/uploads/2025/01/nota-informativa.png' },
@@ -46,14 +46,14 @@ const handler = async (m, { conn }) => {
   } catch (e) {
     await conn.reply(
       m.chat,
-      '⚠️ No fue posible obtener el informe de la Unión Eléctrica.\n> La web puede estar caída o cambió de estructura.',
+      '⚠️ مقدرتش أجيب تقرير الكهرباء.\n> يمكن الموقع واقع أو غيّر شكله.',
       m
     )
   }
 }
 
-handler.command = ['luz', 'une', 'apagon']
-handler.help = ['luz']
+handler.command = ['luz', 'une', 'apagon', 'نور', 'اتحد', 'كهربا']
+handler.help = ['نور']
 handler.tags = ['info']
 handler.group = false
 

@@ -15,10 +15,10 @@ let handler = async (m, { conn, text }) => {
     const buffer = Buffer.from(arrayBuffer);
 
     if (!contentType.startsWith('image/')) {
-      throw new Error(`La API no devolvió una imagen (content-type: ${contentType})`);
+      throw new Error(`الـAPI مرجّعش صورة (content-type: ${contentType})`);
     }
 
-    const caption = `✿ Aquí tienes ${senderName} `;
+    const caption = `✿ اتفضل ${senderName}`;
 
     await conn.sendMessage(
       m.chat,
@@ -32,13 +32,13 @@ let handler = async (m, { conn, text }) => {
 
   } catch (error) {
     console.error(error);
-    m.reply('❏ *Error al obtener la imagen.* Intenta nuevamente más tarde.');
+    m.reply('❏ *خطأ في جلب الصورة.* جرّب تاني بعد شوية.');
   }
 };
 
-handler.help = ['pack'];
+handler.help = ['باكج سكس'];
 handler.tags = ['nsfw'];
-handler.command = ['pack'];
+handler.command = ['pack', 'باكجسكس', 'باكج سكس'];
 handler.nsfw = true;
 
 export default handler;

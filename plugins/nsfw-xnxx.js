@@ -5,7 +5,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) {
     return conn.reply(
       m.chat,
-      `《✧》 Por favor, ingrese la búsqueda.`,
+      `《✧》 من فضلك اكتب البحث.`,
       m
     )
   }
@@ -13,7 +13,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await conn.reply(
       m.chat,
-      `Buscando y procesando los 5 primeros resultados...\n\n> - El tiempo de envío depende del peso y duración de cada video.`,
+      `ببحث وبجهّز أول 5 نتائج...\n\n> - وقت الإرسال بيعتمد على حجم ومدة كل فيديو.`,
       m
     )
 
@@ -21,7 +21,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const results = searchRes.result
 
     if (!results || results.length === 0) {
-      throw '❏ No se encontraron resultados.'
+      throw '❏ مفيش نتائج.'
     }
 
     const firstFive = results.slice(0, 5)
@@ -45,15 +45,15 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   } catch (e) {
     return conn.reply(
       m.chat,
-      `❏ Ocurrió un error.\n\nDetalles: ${e}`,
+      `❏ حصل خطأ.\n\nالتفاصيل: ${e}`,
       m
     )
   }
 }
 
-handler.help = ['xnxx']
+handler.help = ['اكسكس']
 handler.tags = ['nsfw']
-handler.command = ['xnxx']
+handler.command = ['xnxx', 'اكسكس']
 handler.group = true
 handler.nsfw = true
 

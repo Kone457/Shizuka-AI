@@ -7,7 +7,7 @@ import { getBotConfig } from '../lib/botconfig.js'
 
 async function fetchBuffer(url) {
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`Error descargando imagen: ${res.status}`)
+  if (!res.ok) throw new Error(`خطأ في تحميل الصورة: ${res.status}`)
   return Buffer.from(await res.arrayBuffer())
 }
 
@@ -153,13 +153,13 @@ let handler = async (m, { conn }) => {
     }
 
     let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-🌐 SUB-BOTS EN ESTE GRUPO 🌐
-Subs › *${subbotsInfo.length}*
-Total activos › *${totalActive}*
+🌐 البوتات الفرعية في الجروب ده 🌐
+الفرعية › *${subbotsInfo.length}*
+إجمالي الشغّال › *${totalActive}*
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n`
 
     if (subbotsInfo.length === 0) {
-      txt += `\n⚠️ No hay subbots activos en este grupo.\nUsa .qr o .code`
+      txt += `\n⚠️ مفيش بوتات فرعية شغالة في الجروب ده.\nاستخدم .qr أو .code`
     } else {
       subbotsInfo.forEach((subbot, i) => {
         txt += `\n${i + 1}) ${subbot.number}`
@@ -199,7 +199,7 @@ Total activos › *${totalActive}*
     const nativeFlowPayload = {
       header: {
         title: null,
-        subtitle: '© Todos los derechos reservados',
+        subtitle: '© جميع الحقوق محفوظة',
         hasMediaAttachment: true,
         imageMessage: media.imageMessage
       },
@@ -209,14 +209,14 @@ Total activos › *${totalActive}*
       },
 
       footer: {
-        text: '© Todos los derechos reservados'
+        text: '© جميع الحقوق محفوظة'
       },
 
       nativeFlowMessage: {
         buttons: [],
         messageParamsJson: JSON.stringify({
           limited_time_offer: {
-            text: '🌐 Sub-Bots',
+            text: '🌐 البوتات الفرعية',
             url: BANNER_URL,
             copy_code: null,
             expiration_time: null
@@ -277,8 +277,8 @@ Total activos › *${totalActive}*
   }
 }
 
-handler.command = ['bots']
-handler.help = ['bots']
+handler.command = ['bots', 'بوتات']
+handler.help = ['بوتات']
 handler.tags = ['serbot']
 
 export default handler

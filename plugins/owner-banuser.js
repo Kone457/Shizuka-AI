@@ -11,7 +11,7 @@ let handler = async (m, { conn, text }) => {
 
   if (!who) {
     return m.reply(
-      '⚠️ Debes mencionar al usuario que deseas bloquear.'
+      '⚠️ لازم تعمل منشن للمستخدم اللي عايز تحظره.'
     );
   }
 
@@ -41,8 +41,8 @@ let handler = async (m, { conn, text }) => {
 
   if (who.endsWith('@lid')) {
     return m.reply(
-      '⚠️ No fue posible obtener el número real de este usuario.\n\n' +
-      'Responde directamente a uno de sus mensajes e inténtalo nuevamente.'
+      '⚠️ مقدرتش أجيب الرقم الحقيقي للمستخدم ده.\n\n' +
+      'رد على واحدة من رسائله وجرّب تاني.'
     );
   }
 
@@ -53,7 +53,7 @@ let handler = async (m, { conn, text }) => {
   const realJid = who;
 
   if (realJid === conn.user?.jid) {
-    return m.reply('❌ No puedes bloquear el acceso del propio bot.');
+    return m.reply('❌ مش تقدر تحظر البوت نفسه.');
   }
 
   global.db.data.users ||= {};
@@ -62,13 +62,13 @@ let handler = async (m, { conn, text }) => {
   const user = global.db.data.users[realJid];
 
   if (user.banned === true) {
-    return m.reply('ℹ️ Este usuario ya tiene el acceso restringido al bot.');
+    return m.reply('ℹ️ المستخدم ده متحظر من البوت بالفعل.');
   }
 
   user.banned = true;
   user.bannedAt = Date.now();
 
-  let name = 'Usuario';
+  let name = 'مستخدم';
 
   try {
     name = await conn.getName(realJid);
@@ -79,11 +79,11 @@ let handler = async (m, { conn, text }) => {
     {
       text: `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼🚫 𝐀𝐂𝐂𝐄𝐒𝐎 𝐑𝐄𝐒𝐓𝐑𝐈𝐍𝐆𝐈𝐃𝐎 🚫╮
+╭╼🚫 الوصول متوقف 🚫╮
 ┃֪࣪
-├ׁ̟̇❍✎ 👤 Usuario: ${name}
-├ׁ̟̇❍✎ 📱 Número: +${realJid.split('@')[0]}
-├ׁ̟̇❍✎ 🔒 Estado: Bloqueado
+├ׁ̟̇❍✎ 👤 المستخدم: ${name}
+├ׁ̟̇❍✎ 📱 الرقم: +${realJid.split('@')[0]}
+├ׁ̟̇❍✎ 🔒 الحالة: محظور
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(),
       contextInfo: {
@@ -95,9 +95,9 @@ let handler = async (m, { conn, text }) => {
   );
 };
 
-handler.help = ['banuser'];
+handler.help = ['حظر'];
 handler.tags = ['owner'];
-handler.command = ['banuser'];
+handler.command = ['banuser', 'حظر'];
 handler.owner = true;
 
 export default handler;

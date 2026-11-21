@@ -1,16 +1,16 @@
 import ws from 'ws'
 
 let handler = async (m, { conn, args }) => {
-  if (!args[0]) return m.reply('✿ *Escribe algo*')
+  if (!args[0]) return m.reply('✿ *اكتب حاجة*')
 
   const text = args.join(' ')
   let enviados = [], fallidos = []
 
   try {
     await conn.sendMessage(conn.user.jid, { text })
-    enviados.push(conn.user?.id || 'Bot principal')
+    enviados.push(conn.user?.id || 'البوت الأساسي')
   } catch {
-    fallidos.push(conn.user?.id || 'Bot principal')
+    fallidos.push(conn.user?.id || 'البوت الأساسي')
   }
 
   if (global.conns && Array.isArray(global.conns)) {
@@ -30,6 +30,6 @@ let handler = async (m, { conn, args }) => {
 }
 
 handler.tags = ['serbot']
-handler.command = ['sbc']
+handler.command = ['sbc', 'اعداد']
 
 export default handler

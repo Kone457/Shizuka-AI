@@ -108,9 +108,9 @@ opcion = '1'
 
 if (!methodCodeQR && !methodCode && !fs.existsSync(join(globalThis.sessions, 'creds.json'))) {
 do {
-opcion = await question(colors("✿ Seleccione una opción:\n") + qrOption("✿ 1. Con código QR\n") + textOption("✿ 2. Con código de texto de 8 dígitos\n--> "))
+opcion = await question(colors("✿ اختار من القائمة:\n") + qrOption("✿ 1. بكود QR\n") + textOption("✿ 2. بكود نصي من 8 أرقام\n-->"))
 if (!/^[1-2]$/.test(opcion)) {
-console.log(chalk.bold.redBright(`✿ No se permiten numeros que no sean 1 o 2, tampoco letras o símbolos especiales.`))
+console.log(chalk.bold.redBright(`✿ مسموح بس بالأرقام 1 أو 2، مفيش حروف أو رموز.`))
 }
 } while (opcion !== '1' && opcion !== '2' || fs.existsSync(join(globalThis.sessions, 'creds.json')))
 }
@@ -158,7 +158,7 @@ if (!!phoneNumber) {
 addNumber = phoneNumber.replace(/[^0-9]/g, '')
 } else {
 do {
-phoneNumber = await question(chalk.bgBlack(chalk.bold.blueBright(`✎ Por favor, Ingrese el número de WhatsApp.\n${chalk.bold.magentaBright('---> ')}`)))
+phoneNumber = await question(chalk.bgBlack(chalk.bold.blueBright(`✎ من فضلك اكتب رقم واتساب.\n${chalk.bold.magentaBright('---> ')}`)))
 phoneNumber = phoneNumber.replace(/\D/g,'')
 if (!phoneNumber.startsWith('+')) {
 phoneNumber = `+${phoneNumber}`
@@ -169,7 +169,7 @@ addNumber = phoneNumber.replace(/\D/g, '')
 setTimeout(async () => {
 let codeBot = await conn.requestPairingCode(addNumber)
 codeBot = codeBot.match(/.{1,4}/g)?.join("-") || codeBot
-console.log(chalk.bold.blue(chalk.bgMagenta(`✦ CÓDIGO DEL BOT ✦`)), chalk.bold.blue(chalk.red(codeBot)))
+console.log(chalk.bold.blue(chalk.bgMagenta(`✦ كود البوت ✦`)), chalk.bold.blue(chalk.red(codeBot)))
 }, 3000)
 }
 }
@@ -200,7 +200,7 @@ if (update.qr != 0 && update.qr != undefined || methodCodeQR) {
 if (opcion == '1' || methodCodeQR) {
 console.log(chalk.blue.bold(`
 ╭───────────────────╼
-│ ${chalk.red("Escanea este código QR para conectarte.")}
+│ ${chalk.red("امسح كود QR ده عشان تتصل.")}
 ╰───────────────────╼`))
 }
 }
@@ -211,9 +211,9 @@ console.log(chalk.bold.redBright('Conectado correctamente.'))
 let reason = new Boom(lastDisconnect?.error)?.output?.statusCode
 if (connection === "close") {
 if ([401, 440, 428, 405].includes(reason)) {
-console.log(chalk.blue(`→ (${code}) › Cierra la session Principal.`));
+console.log(chalk.blue(`→ (${code}) › اقفل الجلسة الأساسية.`));
 }
-console.log(chalk.red("→ Reconectando el Bot Principal..."));
+console.log(chalk.red("→ بعيد الاتصال بالبوت الأساسي..."));
 await globalThis.reloadHandler(true).catch(console.error)
 }
 };
@@ -255,7 +255,7 @@ return true
 };
 
 process.on('unhandledRejection', (reason) => {
-console.error("✿ Rechazo no manejado detectado:", reason);
+console.error("✿ اتقبض على رفض غير معالج:", reason);
 });
 
 const pluginFolder = globalThis.__dirname(join(__dirname, './plugins/index'))

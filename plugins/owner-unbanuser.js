@@ -11,7 +11,7 @@ let handler = async (m, { conn, text }) => {
 
   if (!who) {
     return m.reply(
-      '⚠️ Debes mencionar al usuario que deseas desbloquear.'
+      '⚠️ لازم تعمل منشن للمستخدم اللي عايز تفك حظره.'
     );
   }
 
@@ -41,7 +41,7 @@ let handler = async (m, { conn, text }) => {
 
   if (who.endsWith('@lid')) {
     return m.reply(
-      '⚠️ No fue posible obtener el número real de este usuario.'
+      '⚠️ مقدرتش أجيب الرقم الحقيقي للمستخدم ده.'
     );
   }
 
@@ -57,13 +57,13 @@ let handler = async (m, { conn, text }) => {
   const user = global.db.data.users[realJid];
 
   if (user.banned !== true) {
-    return m.reply('ℹ️ Este usuario no tiene el acceso restringido al bot.');
+    return m.reply('ℹ️ المستخدم ده مش محظور من البوت.');
   }
 
   user.banned = false;
   delete user.bannedAt;
 
-  let name = 'Usuario';
+  let name = 'مستخدم';
 
   try {
     name = await conn.getName(realJid);
@@ -74,11 +74,11 @@ let handler = async (m, { conn, text }) => {
     {
       text: `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼✅ 𝐀𝐂𝐂𝐄𝐒𝐎 𝐑𝐄𝐒𝐓𝐀𝐔𝐑𝐀𝐃𝐎 ✅╮
+╭╼✅ الوصول رجع ✅╮
 ┃֪࣪
-├ׁ̟̇❍✎ 👤 Usuario: ${name}
-├ׁ̟̇❍✎ 📱 Número: +${realJid.split('@')[0]}
-├ׁ̟̇❍✎ 🔓 Estado: Desbloqueado
+├ׁ̟̇❍✎ 👤 المستخدم: ${name}
+├ׁ̟̇❍✎ 📱 الرقم: +${realJid.split('@')[0]}
+├ׁ̟̇❍✎ 🔓 الحالة: مفكوك الحظر
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(),
       contextInfo: {
@@ -90,9 +90,9 @@ let handler = async (m, { conn, text }) => {
   );
 };
 
-handler.help = ['unbanuser'];
+handler.help = ['فك الحظر'];
 handler.tags = ['owner'];
-handler.command = ['unbanuser'];
+handler.command = ['unbanuser', 'فكالحظر', 'فك الحظر'];
 handler.owner = true;
 
 export default handler;

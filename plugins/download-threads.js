@@ -4,7 +4,7 @@ const handler = async (m, { args, conn }) => {
   if (!args[0]) {
     return conn.sendMessage(
       m.chat,
-      { text: '《✧》 Ingresa un enlace válido de Threads.' },
+      { text: '《✧》 هات لينك ثريدز صحيح.' },
       { quoted: m }
     );
   }
@@ -19,14 +19,14 @@ const handler = async (m, { args, conn }) => {
     const json = await res.json();
 
     if (!json.status || !json.data?.media?.[0]?.url) {
-      throw new Error('Respuesta inválida de la api.');
+      throw new Error('رد غير صحيح من الـAPI.');
     }
 
     await conn.sendFile(
       m.chat,
       json.data.media[0].url,
       'threads.mp4',
-      '✿ Aquí tienes.',
+      '✿ اتفضل.',
       m
     );
 
@@ -35,16 +35,16 @@ const handler = async (m, { args, conn }) => {
   } catch (e) {
     await conn.sendMessage(
       m.chat,
-      { text: `❏ Error.\n❏ Detalles: ${e.message}` },
+      { text: `❏ خطأ.\n❏ التفاصيل: ${e.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
   }
 };
 
-handler.command = ['threads'];
+handler.command = ['threads', 'ثريدز'];
 handler.tags = ['descargas'];
-handler.help = ['threads'];
+handler.help = ['ثريدز'];
 handler.group = true;
 
 export default handler;

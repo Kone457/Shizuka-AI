@@ -1,16 +1,16 @@
 import { getMentionTarget } from '../lib/groupuser.js'
 let handler = async (m, { conn, participants }) => {
     let user = getMentionTarget(m, participants)
-    if (!user) return conn.reply(m.chat, '《✧》Debes mencionar o responder al usuario.', m)
+    if (!user) return conn.reply(m.chat, '《✧》لازم تعمل منشن أو ترد على المستخدم.', m)
     let users = global.db.data.users
     if (!users[user]) users[user] = {}
     users[user].warn = 0
     users[user].warnHistory = []
-    conn.reply(m.chat, `✅ Todas las advertencias de @${user.split('@')[0]} han sido eliminadas.`, m, { mentions: [user] })
+    conn.reply(m.chat, `✅ كل إنذارات @${user.split('@')[0]} اتشالت.`, m, { mentions: [user] })
 }
-handler.help = ['clearwarns']
+handler.help = ['مسح الانذارات']
 handler.tags = ['grupo']
-handler.command = ['clearwarns']
+handler.command = ['clearwarns', 'مسحالانذارات', 'مسح الانذارات']
 handler.group = true
 handler.admin = true
 export default handler

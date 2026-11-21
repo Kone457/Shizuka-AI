@@ -12,15 +12,15 @@ let handler = async (m, { conn }) => {
 
     conn.reply(
       m.chat,
-      `🥍 ¡Pong!\n> Tiempo ⴵ ${Math.floor(latensi)} ms`,
+      `🥍 بونج!\n> الوقت ⴵ ${Math.floor(latensi)} ms`,
       m
     )
   })
 }
 
-handler.help = ['ping']
+handler.help = ['بينج']
 handler.tags = ['info']
-handler.command = ['ping', 'p']
+handler.command = ['ping', 'p', 'بينج']
 handler.owner = false
 
 export default handler

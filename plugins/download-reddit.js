@@ -4,7 +4,7 @@ const handler = async (m, { args, conn }) => {
   if (!args[0]) {
     return conn.sendMessage(
       m.chat,
-      { text: '《✧》 Ingresa un enlace válido de Reddit.' },
+      { text: '《✧》 هات لينك ريديت صحيح.' },
       { quoted: m }
     );
   }
@@ -19,14 +19,14 @@ const handler = async (m, { args, conn }) => {
     const json = await res.json();
 
     if (!json.status || !json.result?.url) {
-      throw new Error('Respuesta inválida de la API.');
+      throw new Error('رد غير صحيح من الـAPI.');
     }
 
     await conn.sendFile(
       m.chat,
       json.result.url,
       'reddit.mp4',
-      '✿ Aquí tienes.',
+      '✿ اتفضل.',
       m
     );
 
@@ -35,16 +35,16 @@ const handler = async (m, { args, conn }) => {
   } catch (e) {
     await conn.sendMessage(
       m.chat,
-      { text: `❏ Error.\n❏ Detalles: ${e.message}` },
+      { text: `❏ خطأ.\n❏ التفاصيل: ${e.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
   }
 };
 
-handler.command = ['reddit'];
+handler.command = ['reddit', 'ريديت'];
 handler.tags = ['descargas'];
-handler.help = ['reddit'];
+handler.help = ['ريديت'];
 handler.group = true;
 
 export default handler;

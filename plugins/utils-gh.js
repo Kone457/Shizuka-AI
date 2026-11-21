@@ -6,26 +6,26 @@ import { fileTypeFromBuffer } from "file-type"
 let handler = async (m, { conn }) => {
   let q = m.quoted ? m.quoted : m
   let mime = (q.msg || q).mimetype || ''
-  if (!mime) return conn.reply(m.chat, '📦 Por favor, responde a un archivo válido (imagen, video, etc.).', m)
+  if (!mime) return conn.reply(m.chat, '📦 من فضلك رد على ملف صحيح (صورة، فيديو، إلخ).', m)
 
   try {
     let media = await q.download()
     let link = await myCloud(media)
 
     let txt = `*乂 G I T H U B - U P L O A D E R 乂*\n\n`
-    txt += `*» Enlace* : ${link.enlace}\n`
-    txt += `*» Nombre* : ${link.nombre}\n`
+    txt += `*» اللينك* : ${link.enlace}\n`
+    txt += `*» الاسم* : ${link.nombre}\n`
   
     await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m)
   } catch (e) {
     console.error(e)
-    await m.reply('❌ Error al subir el archivo.')
+    await m.reply('❌ خطأ في رفع الملف.')
   }
 }
 
-handler.help = ['gh']
+handler.help = ['رفعسريع']
 handler.tags = ['tools']
-handler.command = ['gh']
+handler.command = ['ghup', 'رفعسريع']
 
 export default handler
 

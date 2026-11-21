@@ -2,23 +2,23 @@ import ws from 'ws'
 
 let handler = async (m, { conn, text, command }) => {
   if (!text) {
-    return m.reply(`Ejemplo:\n.${command} https://whatsapp.com/channel/XXXX/123 😘`)
+    return m.reply(`مثال:\n.${command} https://whatsapp.com/channel/XXXX/123 😘`)
   }
 
   const args = text.trim().split(/\s+/)
   const link = args.shift()
 
   if (!link.startsWith('https://whatsapp.com/channel/')) {
-    return m.reply('❌ Debes enviar un enlace válido del canal.')
+    return m.reply('❌ لازم تبعت لينك قناة صحيح.')
   }
 
   const parts = link.split('/')
-  if (parts.length < 6) return m.reply('❌ El enlace del canal no es válido.')
+  if (parts.length < 6) return m.reply('❌ لينك القناة غير صحيح.')
 
   const channelId = parts[4]
   const messageId = parts[5]
   const emoji = args.join(' ')
-  if (!emoji) return m.reply('❌ Debes poner un emoji.')
+  if (!emoji) return m.reply('❌ لازم تحط إيموجي.')
 
   const sendReaction = async (c) => {
     try {
@@ -52,7 +52,7 @@ let handler = async (m, { conn, text, command }) => {
 
 
 handler.tags = ['owner']
-handler.command = ['react']
+handler.command = ['react', 'تفاعل']
 handler.owner = true
 
 export default handler

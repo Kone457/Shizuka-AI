@@ -227,33 +227,33 @@ handler.before = async function (m, { conn }) {
     if (type === 29) {
         text = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-👑 𝐍𝐔𝐄𝐕𝐎 𝐀𝐃𝐌𝐈𝐍 👑
+👑 مشرف جديد 👑
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
 ✨ ${userTag}
-ahora es ADMINISTRADOR
+بقى مشرف دلوقتي
 
-📌 Acción realizada por:
+📌 العملية تمت بواسطة:
 ${adminTag}
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-⚡ 𝐏𝐎𝐃𝐄𝐑 𝐎𝐓𝐎𝐑𝐆𝐀𝐃Ｏ ⚡
+⚡ صلاحيات جديدة ⚡
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim()
     } else {
         text = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-⚠️ 𝐀𝐃𝐌𝐈𝐍 𝐑𝐄𝐌𝐎𝐕𝐈𝐃𝐎 ⚠️
+⚠️ تم سحب الإشراف ⚠️
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
 ❌ ${userTag}
-ya no es administrador
+مبقاش مشرف
 
-📌 Acción realizada por:
+📌 العملية تمت بواسطة:
 ${adminTag}
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🔒 𝐏ＥＲＭ𝐈𝐒Ｏ𝐒 𝐑𝐄𝐕𝐎𝐂Ａ𝐃Ｏ𝐒 🔒
+🔒 الصلاحيات اتسحبت 🔒
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim()
     }
@@ -274,7 +274,7 @@ ${adminTag}
                 )
                 return
             } catch (error) {
-                console.error('❏ Error enviando imagen de alerta:', error)
+                console.error('❏ خطأ في إرسال صورة التنبيه:', error)
             }
         }
 
@@ -287,7 +287,7 @@ ${adminTag}
             { quoted: null }
         )
     } catch (error) {
-        console.error('❏ Error enviando alerta de administrador:', error)
+        console.error('❏ خطأ في إرسال تنبيه المشرف:', error)
     }
 }
 

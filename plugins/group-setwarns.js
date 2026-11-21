@@ -12,14 +12,14 @@ let handler = async (m, { conn, args }) => {
 
     conn.reply(
         m.chat,
-        `✅ Límite de advertencias configurado en *${num}*.`,
+        `✅ حد الإنذارات اتظبط على *${num}*.`,
         m
     )
 }
 
-handler.help = ['setwarns']
+handler.help = ['حد الانذارات']
 handler.tags = ['grupo']
-handler.command = ['setwarns']
+handler.command = ['setwarns', 'حدالانذار', 'حد الانذارات']
 handler.group = true
 handler.admin = true
 

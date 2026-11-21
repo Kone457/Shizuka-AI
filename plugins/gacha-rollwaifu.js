@@ -9,7 +9,7 @@ async function loadCharacters() {
         const data = await fs.readFile(charactersFilePath, 'utf-8')
         return JSON.parse(data)
     } catch (error) {
-        throw new Error('❏ No se pudo cargar el archivo characters.json.')
+        throw new Error('❏ مقدرتش أحمّل ملف characters.json.')
     }
 }
 
@@ -24,7 +24,7 @@ let handler = async (m, { conn }) => {
 
         return await conn.reply(
             m.chat,
-            `《✧》Debes esperar *${minutes} minutos y ${seconds} segundos* para usar *#rw* de nuevo.`,
+            `《✧》لازم تستنى *${minutes} دقيقة و${seconds} ثانية* عشان تستخدم *#rw* تاني.`,
             m
         )
     }
@@ -37,7 +37,7 @@ let handler = async (m, { conn }) => {
         if (!freeCharacters.length) {
             return await conn.reply(
                 m.chat,
-                '❏ No quedan personajes libres disponibles.',
+                '❏ مفيش شخصيات متاحة دلوقتي.',
                 m
             )
         }
@@ -51,11 +51,11 @@ let handler = async (m, { conn }) => {
             ]
 
         const message = `
-✿ Nombre » *${randomCharacter.name}*
-⚥ Género » *${randomCharacter.gender}*
-✰ Valor » *${randomCharacter.value}*
-♡ Estado » *Libre*
-❖ Fuente » *${randomCharacter.source}*
+✿ الاسم » *${randomCharacter.name}*
+⚥ النوع » *${randomCharacter.gender}*
+✰ القيمة » *${randomCharacter.value}*
+♡ الحالة » *متاحة*
+❖ المصدر » *${randomCharacter.source}*
 ✦ ID » *${randomCharacter.id}*
 `.trim()
 
@@ -72,15 +72,15 @@ let handler = async (m, { conn }) => {
     } catch (error) {
         await conn.reply(
             m.chat,
-            `✘ Error al cargar el personaje: ${error.message}`,
+            `✘ خطأ في تحميل الشخصية: ${error.message}`,
             m
         )
     }
 }
 
-handler.help = ['rw', 'rollwaifu']
+handler.help = ['rw', 'رول']
 handler.tags = ['gacha']
-handler.command = ['rw', 'rollwaifu']
+handler.command = ['rw', 'rollwaifu', 'رول']
 handler.group = true
 handler.gacha = true
 

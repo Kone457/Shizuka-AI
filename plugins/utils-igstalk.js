@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 
 let handler = async (m, { conn, text }) => {
   if (!text) {
-    return conn.reply(m.chat, "《✧》 Por favor, indica el nombre de usuario de Instagram.", m);
+    return conn.reply(m.chat, "《✧》 من فضلك اكتب اسم مستخدم إنستجرام.", m);
   }
 
   try {
@@ -12,21 +12,21 @@ let handler = async (m, { conn, text }) => {
     const res = await fetch(apiUrl);
     const json = await res.json();
 
-    if (!json.status || !json.data) throw new Error("No se encontró el perfil.");
+    if (!json.status || !json.data) throw new Error("مقدرتش ألاقي البروفايل.");
 
     const ig = json.data;
 
-    const txt = `*» Usuario:* ${ig.username}\n`
-      + `*» Nombre:* ${ig.full_name}\n`
+    const txt = `*» المستخدم:* ${ig.username}\n`
+      + `*» الاسم:* ${ig.full_name}\n`
       + `*» ID:* ${ig.id}\n`
       + `*» URL:* ${ig.url}\n`
-      + `*» Biografía:* ${ig.biography}\n`
-      + `*» Privado:* ${ig.private ? "Sí" : "No"}\n`
-      + `*» Verificado:* ${ig.verified ? "Sí" : "No"}\n`
+      + `*» البايو:* ${ig.biography}\n`
+      + `*» خاص:* ${ig.private ? "نعم" : "لا"}\n`
+      + `*» موثّق:* ${ig.verified ? "نعم" : "لا"}\n`
       + `*» Publicaciones:* ${ig.posts}\n`
       + `*» Seguidores:* ${ig.followers}\n`
       + `*» Siguiendo:* ${ig.following}\n`
-      + `*» Página vinculada:* ${ig.page_name}\n`
+      + `*» الصفحة المرتبطة:* ${ig.page_name}\n`
       + `*» Pronombres:* ${ig.pronouns}`;
 
     await conn.sendFile(m.chat, ig.profile_picture, "profile.jpg", txt, m);
@@ -35,12 +35,12 @@ let handler = async (m, { conn, text }) => {
   } catch (e) {
     console.error(e);
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    m.reply(`《✧》 Error al consultar el perfil.\n\n*Detalles:* ${e.message}`);
+    m.reply(`《✧》 خطأ في جلب البروفايل.\n\n*التفاصيل:* ${e.message}`);
   }
 };
 
-handler.help = ["igstalk <usuario>"];
+handler.help = ["انستجرام"];
 handler.tags = ["tools"];
-handler.command = ["igstalk"];
+handler.command = ["igstalk", 'انستجرام'];
 
 export default handler;

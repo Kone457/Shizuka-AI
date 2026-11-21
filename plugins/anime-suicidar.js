@@ -20,8 +20,8 @@ let handler = async (m, { conn }) => {
     ]
 
     let texts = [
-        'se suicidó por',
-        'se ha suicidado ◑﹏◐'
+        'عملها في نفسه بسبب',
+        'عملها في نفسه ◑﹏◐'
     ]
 
     let str
@@ -50,7 +50,7 @@ let handler = async (m, { conn }) => {
 
 handler.help = ['suicidar']
 handler.tags = ['anime']
-handler.command = /^suicidar$/i
+handler.command = ['suicidar', 'انتحار']
 handler.group = true
 
 export default handler

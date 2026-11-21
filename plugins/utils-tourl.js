@@ -9,7 +9,7 @@ const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/
 let handler = async (m, { conn }) => {
   let q = m.quoted ? m.quoted : m
   let mime = (q.msg || q).mimetype || ''
-  if (!mime) return conn.reply(m.chat, '📦 Por favor, responde a un archivo válido (imagen, video, etc.).', m)
+  if (!mime) return conn.reply(m.chat, '📦 من فضلك رد على ملف صحيح (صورة، فيديو، إلخ).', m)
 
   try {
     let media = await q.download()
@@ -31,28 +31,28 @@ let handler = async (m, { conn }) => {
       if (result.status === 'fulfilled') {
         return `✅ *${names[i]}*\n${result.value}`
       }
-      return `❌ *${names[i]}*\nNo disponible`
+      return `❌ *${names[i]}*\nغير متاح`
     })
 
     let successful = results.filter(r => r.status === 'fulfilled').length
-    if (!successful) throw new Error('Todos los servidores rechazaron la subida.')
+    if (!successful) throw new Error('كل السيرفرات رفضت الرفع.')
 
-    let txt = `*乂 T O U R L 乂*\n\n`
-    txt += `📦 *Archivo:* ${Date.now()}.${ext}\n`
-    txt += `📏 *Tamaño:* ${formatBytes(media.length)}\n`
-    txt += `🌐 *Servidores:* ${successful}/${results.length}\n\n`
+    let txt = `*乂 رفع الميديا 乂*\n\n`
+    txt += `📦 *الملف:* ${Date.now()}.${ext}\n`
+    txt += `📏 *الحجم:* ${formatBytes(media.length)}\n`
+    txt += `🌐 *السيرفرات:* ${successful}/${results.length}\n\n`
     txt += links.join('\n\n')
 
     await conn.reply(m.chat, txt, m)
   } catch (e) {
     console.error(e)
-    await m.reply(`❌ Error al subir el archivo.\n${e.message}`)
+    await m.reply(`❌ خطأ في رفع الملف.\n${e.message}`)
   }
 }
 
-handler.help = ['tourl']
+handler.help = ['رفع']
 handler.tags = ['tools']
-handler.command = ['tourl']
+handler.command = ['tourl', 'رفع']
 
 export default handler
 
@@ -92,7 +92,7 @@ async function catbox(buffer, ext = 'jpg') {
   })
 
   const data = (await res.text()).trim()
-  if (!res.ok || !isURL(data)) throw new Error('Catbox: respuesta inválida')
+  if (!res.ok || !isURL(data)) throw new Error('Catbox: رد غير صحيح')
   return data
 }
 
@@ -113,7 +113,7 @@ async function litterbox(buffer, ext = 'jpg') {
   })
 
   const data = (await res.text()).trim()
-  if (!res.ok || !isURL(data)) throw new Error('Litterbox: respuesta inválida')
+  if (!res.ok || !isURL(data)) throw new Error('Litterbox: رد غير صحيح')
   return data
 }
 
@@ -129,7 +129,7 @@ async function puticu(buffer, mime = 'application/octet-stream') {
 
   const json = await res.json()
   const url = json?.direct_url || json?.url
-  if (!res.ok || !url || !isURL(url)) throw new Error('Put.icu: respuesta inválida')
+  if (!res.ok || !url || !isURL(url)) throw new Error('Put.icu: رد غير صحيح')
   return url.trim()
 }
 
@@ -149,7 +149,7 @@ async function uguu(buffer, ext = 'jpg') {
 
   const json = await res.json()
   const url = json?.files?.[0]?.url
-  if (!res.ok || !url || !isURL(url)) throw new Error('Uguu: respuesta inválida')
+  if (!res.ok || !url || !isURL(url)) throw new Error('Uguu: رد غير صحيح')
   return url.trim()
 }
 
@@ -169,7 +169,7 @@ async function quax(buffer, ext = 'jpg') {
 
   const json = await res.json()
   const url = json?.files?.[0]?.url
-  if (!res.ok || !url || !isURL(url)) throw new Error('Qu.ax: respuesta inválida')
+  if (!res.ok || !url || !isURL(url)) throw new Error('Qu.ax: رد غير صحيح')
   return url
 }
 
@@ -183,10 +183,10 @@ async function evogb(buffer, ext = 'bin', mime = 'application/octet-stream') {
     body: form
   })
 
-  if (!res.ok) throw new Error('Evogb: error HTTP')
+  if (!res.ok) throw new Error('Evogb: خطأ HTTP')
   const json = await res.json()
   const url = json?.url || json?.link
 
-  if (!url || !isURL(url)) throw new Error('Evogb: respuesta inválida')
+  if (!url || !isURL(url)) throw new Error('Evogb: رد غير صحيح')
   return url
 }

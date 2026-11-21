@@ -11,7 +11,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!numero || !mensaje) {
     return conn.reply(
       m.chat,
-      `《✧》 Formato incorrecto.\nUsa: ${usedPrefix + command} +1234567890|Mensaje.`,
+      `《✧》 الصيغة غلط.\nاستخدم: ${usedPrefix + command} +1234567890|الرسالة.`,
       m
     )
   }
@@ -31,14 +31,14 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     console.error(e)
     conn.reply(
       m.chat,
-      `《✧》 No se pudo enviar el mensaje.\n✰ Error: ${e.message}`,
+      `《✧》 مقدرتش أبعت الرسالة.\n✰ خطأ: ${e.message}`,
       m
     )
   }
 }
 
-handler.command = ['sendto', 'sendmsg']
-handler.help = ['sendto']
+handler.command = ['sendto', 'sendmsg', 'ابعت', 'ارسال']
+handler.help = ['ابعت']
 handler.tags = ['owner']
 handler.group = false
 handler.owner = true

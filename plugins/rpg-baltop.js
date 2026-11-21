@@ -1,6 +1,6 @@
 let handler = async (m, { conn, args }) => {
   if (!db.data.chats[m.chat].economy && m.isGroup) {
-    return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con:\n» *.on economy*`)
+    return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بـ:\n» *.on economy*`)
   }
 
   const users = [...new Map(Object.entries(global.db.data.users).map(([jid, data]) => [jid, { ...data, jid }])).values()]
@@ -10,7 +10,7 @@ let handler = async (m, { conn, args }) => {
   const startIndex = (page - 1) * 10
   const endIndex = startIndex + 10
 
-  let text = `「✿」Los usuarios con más *Coins* son:\n\n`
+  let text = `「✿」أكتر المستخدمين معاهم *كوينز*:\n\n`
   const slice = sorted.slice(startIndex, endIndex)
 
   for (let i = 0; i < slice.length; i++) {
@@ -26,13 +26,13 @@ let handler = async (m, { conn, args }) => {
     text += `\t\t Total→ *${total.toLocaleString()} Coins*\n`
   }
 
-  text += `\n> • Página *${page}* de *${totalPages}*`
+  text += `\n> • صفحة *${page}* من *${totalPages}*`
   await conn.reply(m.chat, text.trim(), m, { mentions: conn.parseMention(text) })
 }
 
-handler.help = ['baltop']
+handler.help = ['اغنى']
 handler.tags = ['rpg']
-handler.command = ['baltop', 'eboard', 'economyboard']
+handler.command = ['baltop', 'eboard', 'economyboard', 'اغنى', 'لوحةالاقتصاد', 'اقتصاد', 'لوحة الاقتصاد']
 handler.group = true
 handler.register = true
 

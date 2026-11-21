@@ -3,7 +3,7 @@ let marriages = globalThis.marriages || (globalThis.marriages = {});
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!m.isGroup)
-    return m.reply('❌ Este comando solo se puede usar en grupos.');
+    return m.reply('❌ الأمر ده للجروبات بس.');
 
   let mentioned = await m.mentionedJid;
 
@@ -13,24 +13,24 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
   if (!who) {
     return m.reply(
-      `⚠️ Debes etiquetar a la persona con la que deseas casarte`
+      `⚠️ لازم تعمل منشن للشخص اللي عايز تتجوزه`
     );
   }
 
   if (who === m.sender)
-    return m.reply('❌ No puedes casarte contigo mismo/a.');
+    return m.reply('❌ مش تقدر تتجوز نفسك.');
 
   if (who === conn.user.jid)
-    return m.reply('❌ ¡Muchas gracias por el detalle, pero estoy casado con el código!');
+    return m.reply('❌ شكراً على الاهتمام، بس أنا متجوز الكود!');
 
   let user = getUser(globalThis.db.data.users, m.sender) || (globalThis.db.data.users[getUserKey(globalThis.db.data.users, m.sender)] = {});
   let target = getUser(globalThis.db.data.users, who) || (globalThis.db.data.users[getUserKey(globalThis.db.data.users, who)] = {});
 
   if (user.marry)
-    return m.reply('⚠️ Ya estás casado/a con otra persona.');
+    return m.reply('⚠️ انت متجوز حد بالفعل.');
 
   if (target.marry)
-    return m.reply('⚠️ Esa persona ya está casada.');
+    return m.reply('⚠️ الشخص ده متجوز بالفعل.');
 
   marriages[who] = {
     proposer: m.sender,
@@ -42,11 +42,11 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     m.chat,
     {
       text:
-        `💍 ¡Atención @${who.split('@')[0]}!\n\n` +
+        `💍 *انتباه @${who.split('@')[0]}!*\n\n` +
         `@${m.sender.split('@')[0]} te ha propuesto matrimonio. 💐\n\n` +
-        `Responde a este mensaje con:\n` +
-        `• *acepto* para dar el "Sí, acepto" 💍\n` +
-        `• *rechazo* para rechazar la propuesta 💔`,
+        `رد على الرسالة دي بـ:\n` +
+        `• *موافق* عشان تقبل 💍\n` +
+        `• *مرفوض* عشان ترفض العرض 💔`,
       contextInfo: {
         mentionedJid: [who, m.sender],
         isForwarded: true
@@ -69,7 +69,7 @@ handler.before = async function (m, { conn }) {
 
   let txt = m.text.trim().toLowerCase();
 
-  if (txt === 'acepto' || txt === 'si' || txt === 'sí' || txt === 'aceptar') {
+  if (['acepto', 'si', 'sí', 'aceptar', 'موافق', 'موافقة', 'قبول', 'نعم'].includes(txt)) {
     let user = getUser(globalThis.db.data.users, proposal.proposer) || (globalThis.db.data.users[getUserKey(globalThis.db.data.users, proposal.proposer)] = {});
     let target = getUser(globalThis.db.data.users, who) || (globalThis.db.data.users[getUserKey(globalThis.db.data.users, who)] = {});
 
@@ -82,10 +82,10 @@ handler.before = async function (m, { conn }) {
       m.chat,
       {
         text:
-          `🎉💍 ¡Felicidades!\n\n` +
+          `🎉💍 مبروك!\n\n` +
           `@${proposal.proposer.split('@')[0]} y ` +
-          `@${who.split('@')[0]} acaban de unirse en matrimonio. 💐✨\n\n` +
-          `Que su amor dure para siempre. 🥹💕`,
+          `@${who.split('@')[0]} اتجوزوا دلوقتي. 💐✨\n\n` +
+          `ربنا يديم المحبة. 🥹💕`,
         contextInfo: {
           mentionedJid: [proposal.proposer, who],
           isForwarded: true
@@ -95,9 +95,7 @@ handler.before = async function (m, { conn }) {
     );
 
   } else if (
-    txt === 'rechazo' ||
-    txt === 'no' ||
-    txt === 'rechazar'
+    ['rechazo', 'no', 'rechazar', 'مرفوض', 'رفض', 'لا'].includes(txt)
   ) {
     delete marriages[who];
 
@@ -105,9 +103,9 @@ handler.before = async function (m, { conn }) {
       m.chat,
       {
         text:
-          `💔 @${who.split('@')[0]} ha rechazado la propuesta de matrimonio de ` +
+          `💔 @${who.split('@')[0]} رفض عرض الجواز من` +
           `@${proposal.proposer.split('@')[0]}.\n\n` +
-          `Qué triste historia... 🥀`,
+          `قصة حزينة... 🥀`,
         contextInfo: {
           mentionedJid: [who, proposal.proposer],
           isForwarded: true
@@ -118,9 +116,9 @@ handler.before = async function (m, { conn }) {
   }
 };
 
-handler.help = ['marry']
+handler.help = ['زواج']
 handler.tags = ['perfil']
-handler.command = ['marry', 'casarse', 'matrimonio'];
+handler.command = ['marry', 'casarse', 'matrimonio', 'زواج', 'اتجوز', 'جوز'];
 handler.group = true;
 
 export default handler;

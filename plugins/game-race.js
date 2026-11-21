@@ -468,7 +468,7 @@ try{localStorage.setItem('race_highscore',highScore);}catch(e){}
 uI.style.display='flex';
 sB.innerText='VOLVER A CORRER';
 uI.querySelector('h1').innerText='💥 CRASH';
-uI.querySelector('p').innerHTML='<b style="color:#ff0">Puntos: '+sc+'</b><br><b style="color:#0ff">Distancia: '+Math.floor(distance)+' m</b><br><b style="color:#f0f">Récord: '+highScore+'</b><br><br>'+(sc>3000?'¡Piloto legendario! 🏆':sc>1500?'¡Gran carrera! 🏁':'Sigue acelerando 🚗');
+uI.querySelector('p').innerHTML='<b style="color:#ff0">النقط: '+sc+'</b><br><b style="color:#0ff">المسافة: '+Math.floor(distance)+' m</b><br><b style="color:#f0f">الرقم القياسي: '+highScore+'</b><br><br>'+(sc>3000?'سواق أسطوري! 🏆':sc>1500?'سباق جامد! 🏁':'دوس بنزين 🚗');
 hU.style.display='none';pad.style.display='none';
 hsT.innerText=highScore;
 return;
@@ -595,7 +595,7 @@ let handler = async (m, { conn }) => {
         {}
     )
 }
-handler.help = ['race']
+handler.help = ['سباق']
 handler.tags = ['game']
-handler.command = ['race']
+handler.command = ['race', 'سباق']
 export default handler

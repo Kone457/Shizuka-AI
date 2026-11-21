@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 
 let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply('《✧》 Ingresa una palabra clave para buscar GIFs en Tenor.')
+  if (!text) return m.reply('《✧》 اكتب كلمة بحث لجيفات في Tenor.')
 
   try {
     await conn.sendMessage(m.chat, { react: { text: '⌛', key: m.key } })
@@ -12,7 +12,7 @@ let handler = async (m, { conn, text }) => {
 
     if (!json.status || !results || results.length === 0) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-      return m.reply('《✧》 No se encontraron resultados.')
+      return m.reply('《✧》 مفيش نتائج.')
     }
 
     for (let gif of results) {
@@ -32,19 +32,19 @@ let handler = async (m, { conn, text }) => {
           }, { quoted: m })
         }
       } catch (err) {
-        console.error('Error al extraer MP4 de la página:', err)
+        console.error('خطأ في استخراج MP4 من الصفحة:', err)
       }
     }
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
   } catch (e) {
-    await conn.sendMessage(m.chat, { text: `❌ Error: ${e.message}` }, { quoted: m })
+    await conn.sendMessage(m.chat, { text: `❌ خطأ: ${e.message}` }, { quoted: m })
   }
 }
 
-handler.help = ['tenor']
+handler.help = ['تنور']
 handler.tags = ['buscadores']
-handler.command = ['tenor', 'gif']
+handler.command = ['tenor', 'gif', 'تنور', 'جيف']
 
 export default handler

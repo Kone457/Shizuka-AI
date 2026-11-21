@@ -9,13 +9,13 @@ var handler = async (m, { conn, participants }) => {
     .filter(id => !isSameJid(id, conn.user.jid))
     .filter(id => !isSameJid(id, groupInfo.owner))
     .filter(id => !protectedOwners.some(owner => isSameJid(owner, id)))
-  if (!targets.length) return conn.reply(m.chat, `✧ No hay usuarios válidos para expulsar.`, m)
+  if (!targets.length) return conn.reply(m.chat, `✧ مفيش مستخدمين صالحين للطرد.`, m)
   await conn.groupParticipantsUpdate(m.chat, [...new Set(targets)], 'remove')
-  await conn.reply(m.chat, `✦ Todos los usuarios han sido expulsados del grupo...`, m)
+  await conn.reply(m.chat, `✦ كل المستخدمين اتطردوا من الجروب...`, m)
 }
-handler.help = ['kickall']
+handler.help = ['طرد الكل']
 handler.tags = ['grupo']
-handler.command = ['kickall']
+handler.command = ['kickall', 'طردالكل', 'طرد الكل']
 handler.admin = true
 handler.botAdmin = true
 export default handler

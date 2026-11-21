@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 
 let handler = async (m, { conn, text }) => {
   if (!text) {
-    return conn.reply(m.chat, "《✧》 Por favor, proporciona una URL válida.", m);
+    return conn.reply(m.chat, "《✧》 من فضلك هات URL صحيح.", m);
   }
 
   try {
@@ -13,7 +13,7 @@ let handler = async (m, { conn, text }) => {
     const json = await res.json();
 
     if (!json.status || !json.data?.download) {
-      throw new Error("No se pudo generar la captura.");
+      throw new Error("مقدرتش أعمل لقطة الشاشة.");
     }
 
     const txt = `*» URL:* ${text}`;
@@ -24,12 +24,12 @@ let handler = async (m, { conn, text }) => {
   } catch (e) {
     console.error(e);
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    m.reply(`《✧》 Error al procesar.\n\n*Detalles:* ${e.message}`);
+    m.reply(`《✧》 خطأ في المعالجة.\n\n*التفاصيل:* ${e.message}`);
   }
 };
 
-handler.help = ["ssweb"];
+handler.help = ['لقطة'];
 handler.tags = ["tools"];
-handler.command = ["ssweb", "ss"];
+handler.command = ["ssweb", "ss", 'لقطة'];
 
 export default handler;

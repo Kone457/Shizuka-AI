@@ -38,34 +38,34 @@ let handler = async (m, { conn }) => {
     const names = ['Catbox', 'Litterbox', 'Put.icu', 'Uguu', 'Qu.ax', 'Evogb']
     const successful = results.filter(r => r.status === 'fulfilled').length
 
-    if (!successful) throw new Error('Todos los servidores rechazaron la subida.')
+    if (!successful) throw new Error('كل السيرفرات رفضت الرفع.')
 
     const links = results.map((result, i) => {
       if (result.status === 'fulfilled') {
         return `✅ *${names[i]}*\n${result.value}`
       }
       console.error(`${names[i]}:`, result.reason?.message || result.reason)
-      return `❌ *${names[i]}*\nNo disponible`
+      return `❌ *${names[i]}*\nغير متاح`
     })
 
-    let txt = `*乂 T O U R L 乂*\n\n`
-    txt += `📦 *Archivo:* ${Date.now()}.${ext}\n`
-    txt += `📏 *Tamaño:* ${formatBytes(media.length)}\n`
-    txt += `🌐 *Servidores:* ${successful}/${results.length}\n\n`
+    let txt = `*乂 رفع الميديا 乂*\n\n`
+    txt += `📦 *الملف:* ${Date.now()}.${ext}\n`
+    txt += `📏 *الحجم:* ${formatBytes(media.length)}\n`
+    txt += `🌐 *السيرفرات:* ${successful}/${results.length}\n\n`
     txt += links.join('\n\n')
 
     await conn.sendMessage(m.chat, { text: txt }, { quoted: m })
   } catch (e) {
     console.error(e)
     await conn.sendMessage(m.chat, {
-      text: `❌ Error al subir el archivo.\n${e.message}`
+      text: `❌ خطأ في رفع الملف.\n${e.message}`
     }, { quoted: m })
   }
 }
 
-handler.help = ['tourl']
+handler.help = ['رفعميديا']
 handler.tags = ['tools']
-handler.command = ['tourl']
+handler.command = ['رفعميديا']
 
 export default handler
 
@@ -105,7 +105,7 @@ async function catbox(buffer, ext = 'jpg') {
   })
 
   const data = (await res.text()).trim()
-  if (!res.ok || !isURL(data)) throw new Error('Catbox: respuesta inválida')
+  if (!res.ok || !isURL(data)) throw new Error('Catbox: رد غير صحيح')
   return data
 }
 
@@ -126,7 +126,7 @@ async function litterbox(buffer, ext = 'jpg') {
   })
 
   const data = (await res.text()).trim()
-  if (!res.ok || !isURL(data)) throw new Error('Litterbox: respuesta inválida')
+  if (!res.ok || !isURL(data)) throw new Error('Litterbox: رد غير صحيح')
   return data
 }
 
@@ -143,7 +143,7 @@ async function puticu(buffer, mime = 'application/octet-stream') {
   const json = await res.json()
   const url = json?.direct_url || json?.url
 
-  if (!res.ok || !url || !isURL(url)) throw new Error('Put.icu: respuesta inválida')
+  if (!res.ok || !url || !isURL(url)) throw new Error('Put.icu: رد غير صحيح')
   return url.trim()
 }
 
@@ -164,7 +164,7 @@ async function uguu(buffer, ext = 'jpg') {
   const json = await res.json()
   const url = json?.files?.[0]?.url
 
-  if (!res.ok || !url || !isURL(url)) throw new Error('Uguu: respuesta inválida')
+  if (!res.ok || !url || !isURL(url)) throw new Error('Uguu: رد غير صحيح')
   return url.trim()
 }
 
@@ -185,7 +185,7 @@ async function quax(buffer, ext = 'jpg') {
   const json = await res.json()
   const url = json?.files?.[0]?.url
 
-  if (!res.ok || !url || !isURL(url)) throw new Error('Qu.ax: respuesta inválida')
+  if (!res.ok || !url || !isURL(url)) throw new Error('Qu.ax: رد غير صحيح')
   return url
 }
 
@@ -199,11 +199,11 @@ async function evogb(buffer, ext = 'bin', mime = 'application/octet-stream') {
     body: form
   })
 
-  if (!res.ok) throw new Error('Evogb: error HTTP')
+  if (!res.ok) throw new Error('Evogb: خطأ HTTP')
 
   const json = await res.json()
   const url = json?.url || json?.link
 
-  if (!url || !isURL(url)) throw new Error('Evogb: respuesta inválida')
+  if (!url || !isURL(url)) throw new Error('Evogb: رد غير صحيح')
   return url
 }

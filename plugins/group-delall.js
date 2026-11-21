@@ -3,7 +3,7 @@ var handler = async (m, { conn }) => {
     const msgs = await conn.fetchMessages(m.chat, 100)
 
     if (!msgs || !msgs.length) {
-      return conn.reply(m.chat, `✧ No se encontraron mensajes recientes para eliminar.`, m)
+      return conn.reply(m.chat, `✧ مفيش رسائل حديثة تتحذف.`, m)
     }
 
     for (let msg of msgs) {
@@ -17,20 +17,20 @@ var handler = async (m, { conn }) => {
           }
         })
       } catch (e) {
-        console.log(`Error al eliminar mensaje:`, e)
+        console.log(`خطأ في حذف الرسالة:`, e)
       }
     }
 
-    await conn.reply(m.chat, `✦ Los últimos 100 mensajes del grupo han sido eliminados...`, m)
+    await conn.reply(m.chat, `✦ آخر 100 رسالة في الجروب اتحذفت...`, m)
   } catch (err) {
     console.error(err)
-    conn.reply(m.chat, `✧ Hubo un error al intentar eliminar los mensajes.`, m)
+    conn.reply(m.chat, `✧ حصل خطأ وأنا بحاول أحذف الرسائل.`, m)
   }
 }
 
-handler.help = ['delall']
+handler.help = ['امسحالكل']
 handler.tags = ['grupo']
-handler.command = ['delall']
+handler.command = ['delall', 'امسحالكل']
 handler.admin = true
 handler.botAdmin = true
 

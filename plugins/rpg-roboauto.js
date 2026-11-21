@@ -3,14 +3,14 @@ import { getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, usedPrefix, command }) => {
 const currency = getBotConfig(conn, 'currency')
   if (!db.data.chats[m.chat].economy && m.isGroup) {
-    return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con:\n» *${usedPrefix}on economy*`)
+    return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بـ:\n» *${usedPrefix}on economy*`)
   }
   let user = getUser(global.db.data.users, m.sender)
   user.lastroboauto = user.lastroboauto || 0
   const cooldown = 6 * 60 * 1000
   if (Date.now() < user.lastroboauto) {
     const restante = user.lastroboauto - Date.now()
-    return conn.reply(m.chat, `✿ Debes esperar *${formatTime(restante)}* para usar *${usedPrefix + command}* de nuevo.`, m)
+    return conn.reply(m.chat, `✿ لازم تستنى *${formatTime(restante)}* عشان تستخدم *${usedPrefix + command}* تاني.`, m)
   }
   user.lastroboauto = Date.now() + cooldown
   const evento = pickRandom(roboauto)
@@ -24,9 +24,9 @@ const currency = getBotConfig(conn, 'currency')
   return conn.reply(m.chat, `✿ ${evento.mensaje} *${cantidad.toLocaleString()} ${currency}*`, m)
 }
 
-handler.help = ['roboauto']
+handler.help = ['عربية']
 handler.tags = ['rpg']
-handler.command = ['roboauto']
+handler.command = ['roboauto', 'عربية']
 handler.group = true
 
 export default handler
@@ -42,10 +42,10 @@ function pickRandom(list) {
 }
 
 const roboauto = [
-{ tipo: 'victoria', mensaje: "Te robaste un tanque de la segunda guerra mundial del museo, ganaste." },
-  { tipo: 'victoria', mensaje: "Forzaste la cerradura de un coche de lujo y escapaste, ganaste." },
-  { tipo: 'victoria', mensaje: "Hackeaste el sistema de un Tesla y lo revendiste, ganaste." },
-  { tipo: 'derrota', mensaje: "Fuiste atrapado y violado por 3 negros sin parar, perdiste." },
-  { tipo: 'derrota', mensaje: "El dueño salió justo a tiempo y te atrapó, perdiste." },
-  { tipo: 'derrota', mensaje: "La policía rastreó el GPS del auto y te detuvo, perdiste." }
+{ tipo: 'victoria', mensaje: "سرقت تانك من الحرب العالمية التانية من المتحف، كسبت." },
+  { tipo: 'victoria', mensaje: "كسرت قفل عربية فخمة وهربت، كسبت." },
+  { tipo: 'victoria', mensaje: "اخترقت نظام عربية كهربائية وبعتها تاني، كسبت." },
+  { tipo: 'derrota', mensaje: "اتقبض عليك في الآخر، خسرت." },
+  { tipo: 'derrota', mensaje: "صاحب المكان طلع في الوقت المناسب ومسكك، خسرت." },
+  { tipo: 'derrota', mensaje: "الشرطة تتبعت الـGPS ووقفتك، خسرت." }
 ]

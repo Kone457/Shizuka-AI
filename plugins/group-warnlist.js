@@ -15,7 +15,7 @@ let handler = async (m, { conn }) => {
         if (user?.warn > 0) {
             found = true
             mentions.push(jid)
-            text += `┃ @${jid.split('@')[0]} • ${user.warn} advertencia${user.warn > 1 ? 's' : ''}\n`
+            text += `┃ @${jid.split('@')[0]} • ${user.warn} إنذار\n`
         }
     }
 
@@ -24,7 +24,7 @@ let handler = async (m, { conn }) => {
     if (!found) {
         return conn.reply(
             m.chat,
-            '✅ No hay usuarios con advertencias.',
+            '✅ مفيش مستخدمين عندهم إنذارات.',
             m
         )
     }
@@ -37,9 +37,9 @@ let handler = async (m, { conn }) => {
     )
 }
 
-handler.help = ['warnlist']
+handler.help = ['قائمة الانذارات']
 handler.tags = ['grupo']
-handler.command = ['warnlist']
+handler.command = ['warnlist', 'قائمةالانذارات', 'قائمة الانذارات']
 handler.group = true
 handler.admin = true
 

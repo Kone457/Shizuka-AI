@@ -2,8 +2,8 @@ import { getUser } from '../lib/userdb.js'
 let handler = async (m, { conn }) => {
   let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
   let user = getUser(globalThis.db.data.users, who) || {}
-  let name = typeof user.name === 'string' && user.name.trim() && user.name.trim() !== '[object Promise]' ? user.name.trim() : 'Usuario'
-  if (!name || name === 'Usuario' || name === '[object Promise]') {
+  let name = typeof user.name === 'string' && user.name.trim() && user.name.trim() !== '[object Promise]' ? user.name.trim() : 'مستخدم'
+  if (!name || name === 'مستخدم' || name === '[object Promise]') {
     try {
       const n = await conn.getName(who)
       if (typeof n === 'string' && n.trim()) name = n.trim()
@@ -19,22 +19,22 @@ let handler = async (m, { conn }) => {
   try { avatarUrl = await conn.profilePictureUrl(who, 'image') } catch {}
   let txt = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🌟   *PERFIL DE USUARIO*   🌟
+🌟   *الملف الشخصي*   🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 *Nombre:* ${name}
-📈 *Nivel:* ${level}
-⭐ *Experiencia (XP):* ${exp}
+👤 *الاسم:* ${name}
+📈 *المستوى:* ${level}
+⭐ *الخبرة (XP):* ${exp}
 
-💍 *Pareja:* ${pareja}
+💍 *الشريك:* ${pareja}
 
-🍫 *Chocolates:* ${chocolates}
-🪙 *Coins:* ${coin}
-🏦 *Banco:* ${bank}
+🍫 *الشوكولاتة:* ${chocolates}
+🪙 *كوينز:* ${coin}
+🏦 *البنك:* ${bank}
   `.trim()
   await conn.sendMessage(m.chat, { image: { url: avatarUrl }, caption: txt, contextInfo: { mentionedJid: [who, ...(user.marry ? [user.marry] : [])], isForwarded: true } }, { quoted: m })
 }
-handler.help = ['perfil']
+handler.help = ['ملفي']
 handler.tags = ['perfil']
-handler.command = ['perfil', 'profile']
+handler.command = ['perfil', 'profile', 'ملفي', 'حسابي']
 export default handler

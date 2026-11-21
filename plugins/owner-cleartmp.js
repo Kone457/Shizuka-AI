@@ -4,7 +4,7 @@ import { join } from 'path'
 let handler = async (m, { conn }) => {
 let totalSize = 0
 let totalFiles = 0
-let coreStatus = 'No encontrado'
+let coreStatus = 'مش موجود'
 let coreSize = 0
 let errors = 0
 
@@ -69,11 +69,11 @@ totalSize += coreSize
 totalFiles++
 coreStatus = 'Eliminado correctamente (' + formatSize(coreSize) + ')'
 } else {
-coreStatus = 'No es un archivo normal'
+coreStatus = 'مش ملف عادي'
 }
 }
 } catch (e) {
-coreStatus = 'Error al eliminar: ' + e.message
+coreStatus = 'خطأ في الحذف:' + e.message
 errors++
 }
 
@@ -100,12 +100,12 @@ const i = Math.floor(Math.log(bytes) / Math.log(1024))
 return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i]
 }
 
-await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos/Carpetas eliminados: ' + totalFiles + '\n💾 Espacio liberado: ' + formatSize(totalSize) + '\n🗂️ Directorios revisados: 3\n💥 Archivo core: ' + coreStatus + '\n⚠️ Errores: ' + errors, m)
+await conn.reply(m.chat, '🧹 Limpieza completada\n\n📦 Archivos/Carpetas eliminados: ' + totalFiles + '\n💾 Espacio liberado: ' + formatSize(totalSize) + '\n🗂️ المجلدات اللي اتفحصت: 3\n💥 الملف الأساسي: ' + coreStatus + '\n⚠️ Errores: ' + errors, m)
 }
 
-handler.help = ['cleartmp']
+handler.help = ['تنظيف']
 handler.tags = ['owner']
-handler.command = ['cleartmp', 'limpiartmp']
+handler.command = ['cleartmp', 'limpiartmp', 'تنظيف', 'مسحمؤقت', 'مسح المؤقت']
 handler.owner = true
 
 export default handler

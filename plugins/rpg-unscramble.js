@@ -22,11 +22,11 @@ const handler = async (m, { conn }) => {
         global.db.data.chats[m.chat] = { economy: true }
 
     if (conn.unscramble[id]) {
-        return m.reply('⚠️ Ya hay una palabra pendiente en este chat.')
+        return m.reply('⚠️ فيه كلمة مستنية في الشات ده.')
     }
 
     if (m.isGroup && !global.db.data.chats[m.chat].economy) {
-        return m.reply('《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn administrador puede activarlos con:\n*.on economy*')
+        return m.reply('《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\nالمشرف يقدر يفتحها بـ:\n*.on economy*')
     }
 
     try {
@@ -34,22 +34,13 @@ const handler = async (m, { conn }) => {
         const words = JSON.parse(file)
 
         if (!Array.isArray(words) || !words.length)
-            return m.reply('❌ El archivo unscramble.json está vacío.')
+            return m.reply('❌ ملف unscramble.json فاضي.')
 
         const randomWord = words[Math.floor(Math.random() * words.length)]
 
         const currency = getBotConfig(conn, 'currency')
 
-        const text = `🧩 *JUEGO: UNSCRAMBLE* 🧩
-
-Ordena las letras:
-
-*${randomWord.scrambled.toUpperCase()}*
-
-⏳ Tiempo: ${timeout / 1000} segundos
-💰 Premio: +${reward} ${currency}
-
-_Responde con la palabra correcta._`
+        const text = `🧩 *لعبة: رتّب الحروف* 🧩\n\nرتّب الحروف:\n\n*${randomWord.scrambled.toUpperCase()}*\n\n⏳ الوقت: ${timeout / 1000} ثانية\n💰 الجايزة: +${reward}`
 
         const msg = await conn.sendMessage(m.chat, {
             text
@@ -64,7 +55,7 @@ _Responde con la palabra correcta._`
                 if (!conn.unscramble[id]) return
 
                 await conn.sendMessage(m.chat, {
-                    text: `⏳ Se acabó el tiempo.\n\n✅ Respuesta: *${randomWord.respuesta}*`
+                    text: `⏳ الوقت خلص.\n\n✅ الإجابة: *${randomWord.respuesta}*`
                 }, {
                     quoted: msg
                 })
@@ -75,7 +66,7 @@ _Responde con la palabra correcta._`
 
     } catch (e) {
         console.error(e)
-        m.reply('❌ No pude leer lib/unscramble.json')
+        m.reply('❌ مقدرتش أقرأ lib/unscramble.json')
     }
 }
 
@@ -105,8 +96,7 @@ handler.before = async function (m) {
     delete this.unscramble[m.chat]
 
     await this.sendMessage(m.chat, {
-        text: `🎉 ¡Correcto! @${m.sender.split('@')[0]}
-> Ganaste *${reward} ${currency}*`,
+        text: `🎉 صح! @${m.sender.split('@')[0]}\n> كسبت *${reward} ${currency}*`,
         mentions: [m.sender]
     }, {
         quoted: m
@@ -115,9 +105,9 @@ handler.before = async function (m) {
     return true
 }
 
-handler.help = ['unscramble']
+handler.help = ['رتب']
 handler.tags = ['rpg']
-handler.command = ['unscramble']
+handler.command = ['unscramble', 'رتب']
 handler.group = true
 
 export default handler

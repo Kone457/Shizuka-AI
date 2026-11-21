@@ -63,7 +63,7 @@ return size
 }
 
 await conn.sendMessage(m.chat, {
-text: '🔍 Analizando el almacenamiento completo del bot...'
+text: '🔍 بجرب أحسب مساحة البوت كله...'
 }, { quoted: m })
 
 const totalSize = scan(baseDir)
@@ -93,20 +93,20 @@ const fileReport = topFiles.map((item, i) =>
 ).join('\n\n')
 
 const sections = [
-'📊 ANÁLISIS COMPLETO DEL BOT\n\n' +
-'💾 Tamaño total: ' + formatSize(totalSize) + '\n' +
+'📊 تحليل كامل للبوت\n\n' +
+'💾 الحجم الكلي:' + formatSize(totalSize) + '\n' +
 '📄 Archivos: ' + totalFiles.toLocaleString() + '\n' +
 '📁 Directorios: ' + totalDirs.toLocaleString() + '\n' +
 '⚠️ Errores: ' + errors,
 
 '📦 *CARPETAS PRINCIPALES*\n\n' +
-(directoryReport || 'No se encontraron carpetas.'),
+(directoryReport || 'مفيش فولدرات.'),
 
-'🔎 *SUBCARPETAS MÁS PESADAS*\n\n' +
-(folderReport || 'No se encontraron subcarpetas.'),
+'🔎 *أكبر الفولدرات*\n\n' +
+(folderReport || 'مفيش فولدرات فرعية.'),
 
-'📄 *ARCHIVOS MÁS PESADOS*\n\n' +
-(fileReport || 'No se encontraron archivos.')
+'📄 *أكبر الملفات*\n\n' +
+(fileReport || 'مفيش ملفات.')
 
 ]
 
@@ -131,12 +131,12 @@ for (const chunk of chunks) {
 
 }
 
-await conn.reply(m.chat, '✿ Análisis finalizado.\n🔒 No se eliminó ningún archivo.', m)
+await conn.reply(m.chat, '✿ التحليل خلص.\n🔒 مفيش أي ملف اتحذف.', m)
 }
 
-handler.help = ['peso']
+handler.help = ['حجم البوت']
 handler.tags = ['owner']
-handler.command = ['peso', 'diskusage', 'tamanobot']
+handler.command = ['peso', 'diskusage', 'tamanobot', 'حجمالبوت', 'مساحة', 'حجمبوت', 'حجم البوت', 'قياس البوت']
 handler.owner = true
 
 export default handler

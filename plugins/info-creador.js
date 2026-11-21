@@ -9,11 +9,11 @@ let handler = async (m, { conn }) => {
   const thumbBuffer = await fetch(thumbUrl).then(res => res.buffer())
 
   let mensaje = `
-╭─❏ ✿ *Creador del Bot*
-┊ 👤 *Nombre:* Carlos
-┊ 🌐 *Github:* github.com/Kone457
-┊ 📱 *Telegram:* t.me/CarlosOfc_xp
-┊ 📞 *WhatsApp:* wa.me/CarlosOfc.CC
+╭─❏ ✿ *مطور البوت*
+┊ 👤 *الاسم:* Carlos
+┊ 🌐 *جيتهاب:* github.com/Kone457
+┊ 📱 *تليجرام:* t.me/CarlosOfc_xp
+┊ 📞 *واتساب:* wa.me/CarlosOfc.CC
 ╰─❏ ✿`
 
   // Preparar media
@@ -25,17 +25,17 @@ let handler = async (m, { conn }) => {
   const nativeFlowPayload = {
     header: {
       title: null,
-      subtitle: 'Información de contacto',
+      subtitle: 'معلومات التواصل',
       hasMediaAttachment: true,
       imageMessage: media.imageMessage
     },
     body: { text: mensaje.trim() },
-    footer: { text: '© Todos los derechos reservados' },
+    footer: { text: '© جميع الحقوق محفوظة' },
     nativeFlowMessage: {
       buttons: [],
       messageParamsJson: JSON.stringify({
         limited_time_offer: {
-          text: '👤 Creador',
+          text: '👤 المطور',
           url: thumbUrl,
           copy_code: null,
           expiration_time: null
@@ -72,9 +72,9 @@ let handler = async (m, { conn }) => {
   })
 }
 
-handler.help = ['creador']
+handler.help = ['مطور']
 handler.tags = ['info']
-handler.command = ['creador', 'owner']
+handler.command = ['creador', 'owner', 'مطور', 'المطور']
 handler.owner = false
 
 export default handler

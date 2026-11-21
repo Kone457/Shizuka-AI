@@ -9,7 +9,7 @@ async function pinterestDownload(url) {
   const headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/133 Safari/537.36',
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-    'accept-language': 'es-419,es;q=0.9,en;q=0.8'
+    'accept-language': 'ar,en;q=0.8'
   }
 
   const res = await fetch(url, { headers, redirect: 'follow' })
@@ -40,7 +40,7 @@ async function pinterestDownload(url) {
     return [{ url: ogImage, type: 'image' }]
   }
 
-  throw new Error('No se pudo extraer el contenido del link')
+  throw new Error('مقدرتش أستخرج محتوى اللينك')
 }
 
 async function searchPinterest(query, limit = 10) {
@@ -50,7 +50,7 @@ async function searchPinterest(query, limit = 10) {
 
   const headers = {
     'accept': 'application/json, text/javascript, */*; q=0.01',
-    'accept-language': 'es-419,es;q=0.9,en;q=0.8',
+    'accept-language': 'ar,en;q=0.8',
     'referer': 'https://id.pinterest.com/',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/133 Safari/537.36',
     'x-app-version': 'c056fb7',
@@ -63,7 +63,7 @@ async function searchPinterest(query, limit = 10) {
   const res = await fetch(url, { headers })
   const text = await res.text()
 
-  if (!text.startsWith('{')) throw new Error('Pinterest bloqueó la petición')
+  if (!text.startsWith('{')) throw new Error('بينترست رفض الطلب')
 
   const json = JSON.parse(text)
   const results = json?.resource_response?.data?.results || []
@@ -98,14 +98,14 @@ async function searchPinterest(query, limit = 10) {
 
 let handler = async (m, { conn, args, text }) => {
   const input = args.length ? args.join(' ').trim() : text?.trim()
-  if (!input) return m.reply('《✧》 Ingresa un link o palabra clave para Pinterest.')
+  if (!input) return m.reply('《✧》 اكتب لينك أو كلمة بحث لبينترست.')
 
   try {
     await conn.sendMessage(m.chat, { react: { text: '⌛', key: m.key } })
 
     if (/^https?:\/\/(www\.)?(pin\.it|pinterest\.[a-z.]+)/i.test(input)) {
       const data = await pinterestDownload(input)
-      if (!data || !data.length) throw new Error('Sin resultados válidos en el enlace.')
+      if (!data || !data.length) throw new Error('مفيش نتائج صحيحة في اللينك.')
 
       for (const item of data) {
         const url = item.url
@@ -120,7 +120,7 @@ let handler = async (m, { conn, args, text }) => {
       }
     } else {
       const results = await searchPinterest(input, 10)
-      if (!results || !results.length) throw new Error('No se encontraron resultados para tu búsqueda.')
+      if (!results || !results.length) throw new Error('مفيش نتائج لبحثك.')
 
       const medias = []
       for (let i = 0; i < results.length; i++) {
@@ -135,7 +135,7 @@ let handler = async (m, { conn, args, text }) => {
         }
       }
 
-      if (!medias.length) throw new Error('Fallo al descargar los archivos de la búsqueda.')
+      if (!medias.length) throw new Error('فشل تحميل ملفات البحث.')
 
       const album = generateWAMessageFromContent(m.chat, {
         albumMessage: { expectedImageCount: medias.length }
@@ -150,8 +150,8 @@ let handler = async (m, { conn, args, text }) => {
           { upload: conn.waUploadToServer }
         )
         const content = media.type === 'video'
-          ? { videoMessage: msg.videoMessage, caption: i === 0 ? `✧ Álbum de Pinterest para *${input}*` : undefined }
-          : { imageMessage: msg.imageMessage, caption: i === 0 ? `✧ Álbum de Pinterest para *${input}*` : undefined }
+          ? { videoMessage: msg.videoMessage, caption: i === 0 ? `✧ ألبوم بينترست لـ *${input}*` : undefined }
+          : { imageMessage: msg.imageMessage, caption: i === 0 ? `✧ ألبوم بينترست لـ *${input}*` : undefined }
 
         const message = generateWAMessageFromContent(m.chat, content, {})
         message.message.messageContextInfo = {
@@ -165,13 +165,13 @@ let handler = async (m, { conn, args, text }) => {
   } catch (e) {
     console.error(e)
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    await conn.sendMessage(m.chat, { text: `✿ Error [${e.message || e}]` }, { quoted: m })
+    await conn.sendMessage(m.chat, { text: `✿ خطأ [${e.message || e}]` }, { quoted: m })
   }
 }
 
-handler.help = ['pinterest']
+handler.help = ['بينترست']
 handler.tags = ['buscadores']
-handler.command = ['pinterest', 'pin']
+handler.command = ['pinterest', 'pin', 'بينترست', 'تثبيت']
 handler.group = true
 
 export default handler

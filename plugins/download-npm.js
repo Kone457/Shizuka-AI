@@ -4,7 +4,7 @@ let handler = async (m, { conn, text }) => {
   if (!text) {
     return conn.sendMessage(
       m.chat,
-      { text: '《✧》 Ingresa el nombre de un paquete.\n\nEjemplo:\n.npm axios' },
+      { text: '《✧》 اكتب اسم باكدج.\n\nمثال:\n.npm axios' },
       { quoted: m }
     );
   }
@@ -16,7 +16,7 @@ let handler = async (m, { conn, text }) => {
 
     const res = await fetch(`https://registry.npmjs.org/${encodeURIComponent(text.trim())}`);
 
-    if (!res.ok) throw new Error('Paquete no encontrado.');
+    if (!res.ok) throw new Error('الباكدج مش موجود.');
 
     const data = await res.json();
 
@@ -24,7 +24,7 @@ let handler = async (m, { conn, text }) => {
     const tarball = data.versions[version].dist.tarball;
 
     const file = await fetch(tarball);
-    if (!file.ok) throw new Error('No se pudo descargar el paquete.');
+    if (!file.ok) throw new Error('مقدرتش أحمّل الباكدج.');
 
     const buffer = await file.buffer();
 
@@ -34,7 +34,7 @@ let handler = async (m, { conn, text }) => {
         document: buffer,
         fileName: `${data.name}-${version}.tgz`,
         mimetype: 'application/gzip',
-        caption: `*✿ Aquí tienes ${data.name} v${version}*`
+        caption: `*✿ اتفضل ${data.name} v${version}*`
       },
       { quoted: m }
     );
@@ -49,7 +49,7 @@ let handler = async (m, { conn, text }) => {
     await conn.sendMessage(
       m.chat,
       {
-        text: `❏ Error al procesar la solicitud.\n❏ Detalles: ${err.message}`
+        text: `❏ خطأ في معالجة الطلب.\n❏ التفاصيل: ${err.message}`
       },
       { quoted: m }
     );
@@ -60,9 +60,9 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.help = ['npm'];
+handler.help = ['باكدج'];
 handler.tags = ['descargas'];
-handler.command = ['npm'];
+handler.command = ['npm', 'باكدج'];
 handler.group = true;
 
 export default handler;

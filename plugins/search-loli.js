@@ -8,7 +8,7 @@ let handler = async (m, { conn, text }) => {
 
     const imageUrl = `${api.url}/random/loli?apikey=${api.key}`;
 
-    const caption = `✿ Aquí tienes ${senderName} `;
+    const caption = `✿ اتفضل ${senderName}`;
 
     await conn.sendMessage(
       m.chat,
@@ -22,12 +22,12 @@ let handler = async (m, { conn, text }) => {
 
   } catch (error) {
     console.error(error);
-    m.reply('❏ *Error al obtener la imagen.* Intenta nuevamente más tarde.');
+    m.reply('❏ *خطأ في جلب الصورة.* جرّب تاني بعد شوية.');
   }
 };
 
-handler.help = ['loli'];
+handler.help = ['لولي'];
 handler.tags = ['buscadores'];
-handler.command = ['loli'];
+handler.command = ['loli', 'لولي'];
 
 export default handler;

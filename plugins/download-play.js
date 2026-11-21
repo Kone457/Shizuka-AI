@@ -27,11 +27,11 @@ async function buildContact(m, conn) {
     },
     message: {
       contactMessage: {
-        displayName: m.pushName || 'Usuario',
+        displayName: m.pushName || 'مستخدم',
         vcard: `BEGIN:VCARD
 VERSION:3.0
-N:;${m.pushName || 'Usuario'};;;
-FN:${m.pushName || 'Usuario'}
+N:;${m.pushName || 'مستخدم'};;;
+FN:${m.pushName || 'مستخدم'}
 item1.TEL;waid=${(m.sender || '').replace(/[^0-9]/g, '')}:${m.sender || ''}
 item1.X-ABLabel:Cel
 END:VCARD`,
@@ -71,7 +71,7 @@ async function getSize(url) {
   }
 }
 function formatSize(bytes) {
-  if (!bytes || bytes <= 0) return 'Desconocido'
+  if (!bytes || bytes <= 0) return 'غير معروف'
   const mb = bytes / (1024 * 1024)
   if (mb >= 1024) {
     const gb = mb / 1024
@@ -161,7 +161,7 @@ const handler = async (m, { conn, command, text }) => {
     return conn.sendMessage(
       m.chat,
       {
-        text: 'Ingresa el nombre o link de YouTube.'
+        text: 'اكتب اسم أو لينك يوتيوب.'
       },
       {
         quoted: fkontak
@@ -189,7 +189,7 @@ const handler = async (m, { conn, command, text }) => {
         return conn.sendMessage(
           m.chat,
           {
-            text: 'No se encontró coincidencia, intenta otro nombre.'
+            text: 'مفيش نتائج، جرّب اسم تاني.'
           },
           {
             quoted: fkontak
@@ -210,7 +210,7 @@ const handler = async (m, { conn, command, text }) => {
         return conn.sendMessage(
           m.chat,
           {
-            text: 'El archivo supera el límite establecido.'
+            text: 'الملف عدّى الحد المسموح.'
           },
           {
             quoted: fkontak
@@ -221,9 +221,9 @@ const handler = async (m, { conn, command, text }) => {
       const caption = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
-├ׁ̟̇❍✎ ❖ ${selectedItem.title || 'YouTube Content'}
-├ׁ̟̇❍✎ ✿ Canal: ${selectedItem.author?.name || 'Desconocido'}
-├ׁ̟̇❍✎ ⏱️ Duración: ${selectedItem.timestamp || 'Desconocido'}
+├ׁ̟̇❍✎ ❖ ${selectedItem.title || 'محتوى يوتيوب'}
+├ׁ̟̇❍✎ ✿ القناة: ${selectedItem.author?.name || 'غير معروف'}
+├ׁ̟̇❍✎ ⏱️ المدة: ${selectedItem.timestamp || 'غير معروف'}
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
@@ -278,7 +278,7 @@ const handler = async (m, { conn, command, text }) => {
           return conn.sendMessage(
             m.chat,
             {
-              text: 'El archivo supera el límite establecido.'
+              text: 'الملف عدّى الحد المسموح.'
             },
             {
               quoted: fkontak
@@ -296,7 +296,7 @@ const handler = async (m, { conn, command, text }) => {
           return conn.sendMessage(
             m.chat,
             {
-              text: 'El archivo supera el límite establecido.'
+              text: 'الملف عدّى الحد المسموح.'
             },
             {
               quoted: fkontak
@@ -314,7 +314,7 @@ const handler = async (m, { conn, command, text }) => {
         return conn.sendMessage(
           m.chat,
           {
-            text: 'El archivo supera el límite establecido.'
+            text: 'الملف عدّى الحد المسموح.'
           },
           {
             quoted: fkontak
@@ -341,7 +341,7 @@ const handler = async (m, { conn, command, text }) => {
       return conn.sendMessage(
         m.chat,
         {
-          text: 'El archivo supera el límite establecido.'
+          text: 'الملف عدّى الحد المسموح.'
         },
         {
           quoted: fkontak
@@ -359,7 +359,7 @@ const handler = async (m, { conn, command, text }) => {
       return conn.sendMessage(
         m.chat,
         {
-          text: `El archivo supera el límite establecido (${formatSize(size)}).`
+          text: `الملف عدّى الحد المسموح (${formatSize(size)}).`
         },
         {
           quoted: fkontak
@@ -413,7 +413,7 @@ const handler = async (m, { conn, command, text }) => {
     return conn.sendMessage(
       m.chat,
       {
-        text: 'Error inesperado, intenta nuevamente.'
+        text: 'خطأ غير متوقع، جرّب تاني.'
       },
       {
         quoted: fkontak
@@ -421,8 +421,8 @@ const handler = async (m, { conn, command, text }) => {
     )
   }
 }
-handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4']
+handler.command = ['play', 'play2', 'mp3', 'mp4', 'ytmp3', 'ytmp4', 'يوتيوب', 'يوتيوب2', 'صوت', 'فيديو', 'يوتصوت', 'يوتفيديو', 'صوت يوتيوب', 'فيديو يوتيوب']
 handler.tags = ['descargas']
-handler.help = ['play']
+handler.help = ['يوتيوب']
 handler.group = true
 export default handler

@@ -14,10 +14,10 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
     const isNewsletterJid = m.chat?.includes('@newsletter') || m.sender?.includes('@newsletter');
 
     if (isChannelForward || isNewsletterJid) {
-        await conn.sendMessage(m.chat, { text: `*「 CANAL DETECTADO 」*\n\n《✧》${user} Está prohibido enviar mensajes de canales en este grupo, serás eliminado...`, mentions: [m.sender] }, { quoted: m });
+        await conn.sendMessage(m.chat, { text: `*「 تم رصد لينك 」*\n\n《✧》${user} خالفت قوانين الجروب وتم طردك...`, mentions: [m.sender] }, { quoted: m });
 
         if (!isBotAdmin) {
-            return conn.sendMessage(m.chat, { text: `《✧》 El antichannel está activo pero no puedo eliminarte porque no soy admin.`, mentions: groupAdmins.map(v => v.id) }, { quoted: m });
+            return conn.sendMessage(m.chat, { text: `《✧》 مكافحة القنوات مفعّلة لكني مش مشرف فمش قادر أطردك.`, mentions: groupAdmins.map(v => v.id) }, { quoted: m });
         }
 
         if (isBotAdmin) {

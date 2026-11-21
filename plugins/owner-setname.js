@@ -3,14 +3,14 @@ import { setBotConfig, getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, text }) => {
   if (!text) {
     return m.reply(
-      `✿ *Configurar Nombre del Bot*\n\n` +
-      `📌 *Uso:* .setname <nuevo nombre>\n\n` +
-      `📋 *Valores actuales de este bot:*\n` +
-      `› Nombre corto: *${getBotConfig(conn, 'botname')}*\n` +
-      `› Nombre completo: *${getBotConfig(conn, 'namebot')}*\n\n` +
+      `✿ *إعداد اسم البوت*\n\n` +
+      `📌 *الاستخدام:* .setname <الاسم الجديد>\n\n` +
+      `📋 *القيم الحالية للبوت ده:*\n` +
+      `› الاسم القصير: *${getBotConfig(conn, 'botname')}*\n` +
+      `› الاسم الكامل: *${getBotConfig(conn, 'namebot')}*\n\n` +
       `💡 *Ejemplos:*\n` +
       `› .setname MiBot\n` +
-      `› .setname2 MiBot-AI _(para el nombre completo)_`
+      `› .setname2 MyBot-AI _(للاسم الكامل)_`
     )
   }
 
@@ -21,16 +21,16 @@ let handler = async (m, { conn, text }) => {
   setBotConfig(conn, 'namebot', nuevoNombre)
 
   await m.reply(
-    `✅ *Nombre actualizado para este bot*\n\n` +
-    `› Anterior: *${anterior}*\n` +
-    `› Nuevo: *${nuevoNombre}*\n\n` +
-    `> Solo afecta a este bot (${conn.user.jid.split('@')[0]})`
+    `✅ *الاسم اتحدّث للبوت ده*\n\n` +
+    `› السابق: *${anterior}*\n` +
+    `› الجديد: *${nuevoNombre}*\n\n` +
+    `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )
 }
 
-handler.help = ['setname']
+handler.help = ['اسم البوت']
 handler.tags = ['owner']
-handler.command = ['setname', 'setnombre']
+handler.command = ['setname', 'setnombre', 'اسمالبوت', 'اسم2', 'اسم البوت']
 handler.owner = true
 
 export default handler

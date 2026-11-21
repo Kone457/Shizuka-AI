@@ -9,31 +9,31 @@ let handler = async (m, { conn, args }) => {
   const isSocketOwner = propietarios.includes(m.sender);
 
   if (!isSocketOwner) {
-    return m.reply('❏ Solo el propietario del bot puede usar este comando.');
+    return m.reply('❏ صاحب البوت بس اللي يقدر يستخدم الأمر ده.');
   }
 
   const settings = global.db.data.settings[conn.user.jid] || {};
   const estado = settings.self ?? false;
 
   if (args[0] === 'enable' || args[0] === 'on') {
-    if (estado) return m.reply('✰ El modo *Self* ya estaba activado.');
+    if (estado) return m.reply('✰ وضع *Self* كان مفعّل بالفعل.');
     settings.self = true;
-    return m.reply('✰ Has *Activado* el modo *Self*.');
+    return m.reply('✰ فعّلت وضع *Self*.');
   }
 
   if (args[0] === 'disable' || args[0] === 'off') {
-    if (!estado) return m.reply('✰ El modo *Self* ya estaba desactivado.');
+    if (!estado) return m.reply('✰ وضع *Self* كان متوقف بالفعل.');
     settings.self = false;
-    return m.reply('✰ Has *Desactivado* el modo *Self*.');
+    return m.reply('✰ وقفت وضع *Self*.');
   }
 
   return m.reply(
-    `> *Self*\n> *Estado ›* ${estado ? '✓ Activado' : '✗ Desactivado'}\n\n> Puedes cambiarlo con:\n> ● _Activar ›_ *self on*\n> ● _Desactivar ›_ *self off*`
+    `> *Self*\n> *الحالة ›* ${estado ? '✓ مفعّل' : '✗ متوقف'}\n\n> تقدر تغيّره بـ:\n> ● _تشغيل ›_ *self on*\n> ● _إيقاف ›_ *self off*`
   );
 };
 
-handler.help = ['self'];
+handler.help = ['سيلف'];
 handler.tags = ['serbot'];
-handler.command = ['self'];
+handler.command = ['self', 'سيلف'];
 
 export default handler;

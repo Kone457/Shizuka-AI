@@ -8,7 +8,7 @@ let handler = async (m, { conn, text }) => {
 
     const imageUrl = `${api.url}/random/waifu?apikey=${api.key}`;
 
-    const caption = `✿ _¡Tu waifu ha llegado! ${senderName} (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧_  `;
+    const caption = `✿ _الويفو بتاعتك وصلت! ${senderName} (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧_`;
 
     await conn.sendMessage(
       m.chat,
@@ -22,12 +22,12 @@ let handler = async (m, { conn, text }) => {
 
   } catch (error) {
     console.error(error);
-    m.reply('❏ *Error al obtener la imagen.* Intenta nuevamente más tarde.');
+    m.reply('❏ *خطأ في جلب الصورة.* جرّب تاني بعد شوية.');
   }
 };
 
-handler.help = ['waifu'];
+handler.help = ['ويفو'];
 handler.tags = ['buscadores'];
-handler.command = ['waifu'];
+handler.command = ['waifu', 'ويفو'];
 
 export default handler;

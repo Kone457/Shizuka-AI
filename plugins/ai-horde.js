@@ -15,7 +15,7 @@ let handler = async (m, { conn, args }) => {
   const prompt = args.join(' ').trim();
 
   if (!prompt) {
-    return m.reply('《✧》 Ingresa un *prompt* para generar tu imagen.');
+    return m.reply('《✧》 اكتب *وصف* عشان تتولد صورتك.');
   }
 
   try {
@@ -45,7 +45,7 @@ let handler = async (m, { conn, args }) => {
     const data = await response.json();
 
     if (!response.ok || !data.id) {
-      throw new Error(data.message || data.detail || 'No se pudo enviar la solicitud.');
+      throw new Error(data.message || data.detail || 'مقدرتش أبعت الطلب.');
     }
 
     const id = data.id;
@@ -61,7 +61,7 @@ let handler = async (m, { conn, args }) => {
       const check = await checkResponse.json();
 
       if (!checkResponse.ok) {
-        throw new Error(check.message || 'Error consultando la cola.');
+        throw new Error(check.message || 'خطأ في الاستعلام عن الطابور.');
       }
 
       if (check.done) {
@@ -71,7 +71,7 @@ let handler = async (m, { conn, args }) => {
     }
 
     if (!completed) {
-      throw new Error('La generación está tardando demasiado.\n> Inténtalo nuevamente.');
+      throw new Error('التوليد بياخد وقت كبير.\n> جرّب تاني.');
     }
 
     const resultResponse = await fetch(`${API}/generate/status/${id}`, {
@@ -81,13 +81,13 @@ let handler = async (m, { conn, args }) => {
     const result = await resultResponse.json();
 
     if (!resultResponse.ok) {
-      throw new Error(result.message || 'No se pudo recuperar la imagen.');
+      throw new Error(result.message || 'مقدرتش أرجّع الصورة.');
     }
 
     const image = result.generations?.[0]?.img;
 
     if (!image) {
-      throw new Error('Solicitud terminada, no se devolvió ninguna imagen.');
+      throw new Error('الطلب خلص من غير ما ترجع صورة.');
     }
 
     await conn.sendMessage(
@@ -110,12 +110,12 @@ let handler = async (m, { conn, args }) => {
       react: { text: '❌', key: m.key }
     });
 
-    await m.reply(`❏ *Error*\n\n${error.message || 'Ocurrió un error al generar tu imagen.'}`);
+    await m.reply(`❏ *خطأ*\n\n${error.message || 'حصل خطأ وأنا بجهّز صورتك.'}`);
   }
 };
 
-handler.help = ['horde'];
+handler.help = ['هورد'];
 handler.tags = ['ia'];
-handler.command = ['horde'];
+handler.command = ['horde', 'هورد'];
 
 export default handler;

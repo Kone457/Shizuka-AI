@@ -3,7 +3,7 @@ import { getBotConfig } from '../lib/botconfig.js'
 let handler = async (m, { conn, usedPrefix, command }) => {
 const currency = getBotConfig(conn, 'currency')
 if (!db.data.chats[m.chat].economy && m.isGroup) {
-return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 }
 let user = getUser(global.db.data.users, m.sender)
 user.lastslut = user.lastslut || 0
@@ -11,7 +11,7 @@ const cooldown = 5 * 60 * 1000
 if (Date.now() < user.lastslut) {
 const restante = user.lastslut - Date.now()
 const tiempoRestante = formatTime(restante)
-return conn.reply(m.chat, `✿ Debes esperar *${tiempoRestante}* para usar *${usedPrefix + command}* de nuevo.`, m)
+return conn.reply(m.chat, `✿ لازم تستنى *${tiempoRestante}* عشان تستخدم *${usedPrefix + command}* تاني.`, m)
 }
 user.lastslut = Date.now() + cooldown
 const evento = pickRandom(slut)
@@ -28,9 +28,9 @@ const mensaje = `✿ ${evento.mensaje} *${cantidad.toLocaleString()} ${currency}
 await conn.reply(m.chat, mensaje, m)
 }
 
-handler.help = ['slut']
+handler.help = ['شغل اضافي']
 handler.tags = ['rpg']
-handler.command = ['slut', 'protituirse']
+handler.command = ['slut', 'protituirse', 'شغلاضافي', 'شحاته', 'شغل اضافي']
 handler.group = true
 
 export default handler
@@ -48,31 +48,31 @@ function pickRandom(list) {
 return list[Math.floor(Math.random() * list.length)]
 }
 const slut = [
-{ tipo: 'victoria', mensaje: "Le acaricias el pene a un cliente habitual y ganaste." },
-{ tipo: 'victoria', mensaje: "El admin se viene en tu boca, ganaste." },
-{ tipo: 'victoria', mensaje: "El admin te manosea las tetas, ganaste." },
-{ tipo: 'victoria', mensaje: "Te vistieron de neko kwai en publico, ganaste." },
-{ tipo: 'victoria', mensaje: "Te haces la Loli del admin por un día, ganaste." },
-{ tipo: 'victoria', mensaje: "Te dejas manosear por un extraño por dinero, ganaste." },
-{ tipo: 'victoria', mensaje: "Eres la maid del admin por un día, ganaste." },
-{ tipo: 'victoria', mensaje: "Un gay te paga para que lo hagas con el, ganaste." },
-{ tipo: 'victoria', mensaje: "Tu SuggarMommy muere, ganaste." },
-{ tipo: 'victoria', mensaje: "Tu SuggarDaddy muere, ganaste." },
-{ tipo: 'victoria', mensaje: "Dejaste que un extraño te toque el culo por dinero, ganaste." },
-{ tipo: 'victoria', mensaje: "Dejaste que un extraño te toque el culo por dinero, ganaste." },
-{ tipo: 'victoria', mensaje: "Alguien te pone una correa y eres su mascota sexual por una hora, ganaste." },
-{ tipo: 'victoria', mensaje: "Te vistieron de colegiala en público, ganaste." },
-{ tipo: 'victoria', mensaje: "Te vistieron de una milf en público, ganaste." },
-{ tipo: 'victoria', mensaje: "Los integrantes del grupo te usaron como saco de cum, ganaste." },
-{ tipo: 'victoria', mensaje: "Eres la perra de los admins por un día, ganaste." },
-{ tipo: 'victoria', mensaje: "Unos Aliens te secuestraron y te usaron cómo objeto sexual, ganaste." },
-{ tipo: 'victoria', mensaje: "Un enano se culio tu pierna, ganaste." },
-{ tipo: 'derrota', mensaje: "Intentaste cobrarle al cliente equivocado y te denunciaron, perdiste." },
-{ tipo: 'derrota', mensaje: "El admin te bloqueó después del servicio, perdiste." },
-{ tipo: 'derrota', mensaje: "Te disfrazaste sin que nadie te pagara, perdiste." },
-{ tipo: 'derrota', mensaje: "La SuggarMommy te dejó por una waifu nueva, perdiste." },
-{ tipo: 'derrota', mensaje: "Un extraño te robó el cosplay antes del evento, perdiste." },
-{ tipo: 'derrota', mensaje: "Te manosearon sin pagar nada, perdiste." },
-{ tipo: 'derrota', mensaje: "El gay se arrepintió en el último segundo, perdiste." },
-{ tipo: 'derrota', mensaje: "Los Aliens te devolvieron con trauma, perdiste." }
+{ tipo: 'victoria', mensaje: "خلّصت الشغلانة وطلعت منها مكسب، كسبت." },
+{ tipo: 'victoria', mensaje: "الشغلانة مشيت على أحسن وجه، كسبت." },
+{ tipo: 'victoria', mensaje: "قبضت حقها كامل، كسبت." },
+{ tipo: 'victoria', mensaje: "اشتغلت يوم كامل واتدفعتلك، كسبت." },
+{ tipo: 'victoria', mensaje: "خدت اليومية كاملة، كسبت." },
+{ tipo: 'victoria', mensaje: "خلصت الطلب واستلمت حقك، كسبت." },
+{ tipo: 'victoria', mensaje: "اشتغلت الشيفت وخلص على خير، كسبت." },
+{ tipo: 'victoria', mensaje: "اتفقتم على السعر واستلمت فلوسك، كسبت." },
+{ tipo: 'victoria', mensaje: "جالك مبلغ محترم على الشغلانة، كسبت." },
+{ tipo: 'victoria', mensaje: "الحساب اتظبط وجالك اللي ليك، كسبت." },
+{ tipo: 'victoria', mensaje: "خدت حق تعبك، كسبت." },
+{ tipo: 'victoria', mensaje: "خدت حق تعبك، كسبت." },
+{ tipo: 'victoria', mensaje: "الشغلانة كانت مربحة، كسبت." },
+{ tipo: 'victoria', mensaje: "خلصت اليوم وانت كسبان، كسبت." },
+{ tipo: 'victoria', mensaje: "الطلب عجب الزبون ودفعلك زيادة، كسبت." },
+{ tipo: 'victoria', mensaje: "الكل راضي عن شغلك، كسبت." },
+{ tipo: 'victoria', mensaje: "اشتغلت بجد واستلمت حقك، كسبت." },
+{ tipo: 'victoria', mensaje: "خلصت الاتفاق وجالك المبلغ، كسبت." },
+{ tipo: 'victoria', mensaje: "جالك مبلغ حلو على الشغلانة، كسبت." },
+{ tipo: 'derrota', mensaje: "حسبت الزبون الغلط وحد بلّغ عليك، خسرت." },
+{ tipo: 'derrota', mensaje: "الزبون مشي من غير ما يدفع، خسرت." },
+{ tipo: 'derrota', mensaje: "اشتغلت ببلاش ومحدش دفعلك، خسرت." },
+{ tipo: 'derrota', mensaje: "الشغلانة ضاعت من إيدك، خسرت." },
+{ tipo: 'derrota', mensaje: "حد خد حاجتك قبل الموعد، خسرت." },
+{ tipo: 'derrota', mensaje: "اشتغلت ومحدش دفعلك حاجة، خسرت." },
+{ tipo: 'derrota', mensaje: "الزبون رجع في كلامه في آخر لحظة، خسرت." },
+{ tipo: 'derrota', mensaje: "رجعت من الشغلانة بخفي حنين، خسرت." }
 ]

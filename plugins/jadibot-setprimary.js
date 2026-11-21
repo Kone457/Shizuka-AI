@@ -98,7 +98,7 @@ let handler = async (m, { conn, args }) => {
         if (!bots.length) {
             return conn.reply(
                 m.chat,
-                '《✧》 No hay bots conectados actualmente.',
+                '《✧》 مفيش بوتات متصلة دلوقتي.',
                 m
             )
         }
@@ -115,7 +115,7 @@ let handler = async (m, { conn, args }) => {
         if (!target) {
             return conn.reply(
                 m.chat,
-                '《✧》 Menciona al bot o responde a su mensaje.\n\nEjemplo:\n#setprimary @Bot',
+                '《✧》 اعمل منشن للبوت أو رد على رسالته.\n\nمثال:\n#setprimary @Bot',
                 m
             )
         }
@@ -151,7 +151,7 @@ let handler = async (m, { conn, args }) => {
             const shown = jidNumber(target) || cleanJid(target)?.split('@')[0] || 'usuario'
             return conn.reply(
                 m.chat,
-                `《✧》 @${shown} no es un bot conectado en esta sesión.\n\nVerifica los bots conectados usando *#bots*.`,
+                `《✧》 @${shown} مش بوت متصل في الجلسة دي.\n\nشوف البوتات المتصلة بـ*#bots*.`,
                 m,
                 {
                     mentions: [`${shown}@s.whatsapp.net`]
@@ -166,7 +166,7 @@ let handler = async (m, { conn, args }) => {
         if (!selectedJid) {
             return conn.reply(
                 m.chat,
-                '《✧》 No se pudo obtener el identificador del bot seleccionado.',
+                '《✧》 مقدرتش أجيب معرّف البوت المختار.',
                 m
             )
         }
@@ -180,7 +180,7 @@ let handler = async (m, { conn, args }) => {
             const num = jidNumber(selectedJid)
             return conn.reply(
                 m.chat,
-                `《✧》 @${num || selectedJid.split('@')[0]} ya es el bot primario en este grupo.`,
+                `《✧》 @${num || selectedJid.split('@')[0]} هو البوت الأساسي بالفعل في الجروب ده.`,
                 m,
                 {
                     mentions: [selectedJid]
@@ -206,7 +206,7 @@ let handler = async (m, { conn, args }) => {
         return await conn.sendMessage(
             m.chat,
             {
-                text: `《✧》 El bot *${botName}* ha sido establecido como primario en este grupo.\n\n> Los demás bots no responderán aquí.`,
+                text: `《✧》 البوت *${botName}* بقى الأساسي في الجروب ده.\n\n> باقي البوتات مش هترد هنا.`,
                 mentions: [selectedJid]
             },
             {
@@ -214,15 +214,15 @@ let handler = async (m, { conn, args }) => {
             }
         )
     } catch (error) {
-        console.error('❏ Error en .setprimary:', error)
+        console.error('❏ خطأ في .setprimary:', error)
         return m.reply(
-            '❏ Ocurrió un error al establecer el bot primario. Inténtalo nuevamente.'
+            '❏ حصل خطأ وأنا بحدد البوت الأساسي. جرّب تاني.'
         )
     }
 }
 handler.help = ['setprimary <@tag>']
 handler.tags = ['jadibot']
-handler.command = ['setprimary']
+handler.command = ['setprimary', 'اساسي']
 handler.group = true
 handler.admin = true
 export default handler

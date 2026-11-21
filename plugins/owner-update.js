@@ -7,9 +7,9 @@ try {
 const stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''));
 let messager = stdout.toString()
 
-if (messager.includes('《✧》 Ya estoy actualizada.')) messager = '《✧》 Ya estoy actualizada a la última versión.'
+if (messager.includes('《✧》 أنا محدّث بالفعل.')) messager = '《✧》 أنا محدّث لآخر إصدار بالفعل.'
 
-if (messager.includes('ⴵ Actualizando.')) messager = 'ⴵ Procesando, espere un momento mientras me actualizo.\n\n' + stdout.toString()
+if (messager.includes('ⴵ Actualizando.')) messager = 'ⴵ بجهّز، استنى لحظة وأنا بتحدّث.\n\n' + stdout.toString()
 conn.reply(m.chat, messager, m)
 
 } catch { 
@@ -24,15 +24,15 @@ return null
 }
 return '*→ ' + line.slice(3) + '*'}).filter(Boolean)
 if (conflictedFiles.length > 0) {
-const errorMessage = `❏ No se puede actualizar.`
+const errorMessage = `❏ مش ممكن التحديث.`
 await conn.reply(m.chat, errorMessage, m)
 }
 }
 } catch (error) {
 console.error(error)
-let errorMessage2 = '❏ Ocurrió un error inesperado.'
+let errorMessage2 = '❏ حصل خطأ غير متوقع.'
 if (error.message) {
-errorMessage2 += '\n❏ Mensaje de error: ' + error.message;
+errorMessage2 += '\n❏ رسالة الخطأ:' + error.message;
 }
 await conn.reply(m.chat, errorMessage2, m)
 }
@@ -40,9 +40,9 @@ await conn.reply(m.chat, errorMessage2, m)
 
 }
 
-handler.help = ['update'];
+handler.help = ['تحديثالبوت'];
 handler.tags = ['owner'];
-handler.command = ['update', 'actualizar', 'up']
+handler.command = ['update', 'actualizar', 'up', 'تحديثالبوت', 'تحديث']
 handler.owner = true
 
 export default handler

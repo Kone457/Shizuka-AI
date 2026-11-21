@@ -7,7 +7,7 @@ async function loadCharacters() {
         const data = await fs.readFile(charactersFilePath, 'utf-8')
         return JSON.parse(data)
     } catch {
-        throw new Error('❏ No se pudo cargar el archivo characters.json.')
+        throw new Error('❏ مقدرتش أحمّل ملف characters.json.')
     }
 }
 
@@ -19,7 +19,7 @@ async function saveCharacters(characters) {
             'utf-8'
         )
     } catch {
-        throw new Error('❏ No se pudo guardar el archivo characters.json.')
+        throw new Error('❏ مقدرتش أحفظ ملف characters.json.')
     }
 }
 
@@ -32,7 +32,7 @@ let handler = async (m, { conn }) => {
         if (!claimedCharacters.length) {
             return await conn.reply(
                 m.chat,
-                '❏ No hay personajes reclamados para liberar.',
+                '❏ مفيش شخصيات مطالب بيها عشان تتحرر.',
                 m
             )
         }
@@ -46,22 +46,22 @@ let handler = async (m, { conn }) => {
 
         await conn.reply(
             m.chat,
-            `✦ Se han liberado *${claimedCharacters.length}* personajes correctamente.\n\n> Ahora todos están disponibles nuevamente.`,
+            `✦ اتحرر *${claimedCharacters.length}* شخصية بنجاح.\n\n> دلوقتي كلهم متاحين تاني.`,
             m
         )
 
     } catch (error) {
         await conn.reply(
             m.chat,
-            `✘ Error al liberar los personajes: ${error.message}`,
+            `✘ خطأ في تحرير الشخصيات: ${error.message}`,
             m
         )
     }
 }
 
-handler.help = ['lwaifus']
+handler.help = ['ويفوهات']
 handler.tags = ['gacha']
-handler.command = ['lwaifus', 'freewaifus']
+handler.command = ['lwaifus', 'freewaifus', 'ويفوهات', 'متاحين']
 handler.group = true
 handler.gacha = true
 handler.owner = true

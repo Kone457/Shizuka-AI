@@ -3,7 +3,7 @@ const MINESWEEPER_HTML = `
 <div style="width:100%;height:600px;background:#02040a;position:relative;overflow:hidden;font-family:'Segoe UI',sans-serif;user-select:none;color:#fff;">
 <canvas id="msC" width="360" height="600" style="width:100%;height:100%;display:block;touch-action:none;"></canvas>
 <div id="msMenu" style="position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;box-sizing:border-box;background:radial-gradient(circle at 50% 40%,rgba(0,40,65,.97),rgba(1,3,10,.99) 70%);">
-<h1 style="margin:0;color:#fff;font-size:34px;letter-spacing:3px;text-shadow:0 0 10px #00eaff,0 0 35px #008cff;white-space:nowrap;">BUSCAMINAS</h1>
+<h1 style="margin:0;color:#fff;font-size:34px;letter-spacing:3px;text-shadow:0 0 10px #00eaff,0 0 35px #008cff;white-space:nowrap;">كانز فاينر</h1>
 <div style="color:#7195b5;font-size:12px;margin:10px 0 28px;text-align:center;line-height:1.7;">Encuentra todas las minas.<br>Primer clic siempre seguro.</div>
 <div style="width:100%;max-width:290px;display:flex;gap:8px;margin-bottom:18px;">
 <button class="msDiff" data-d="easy" style="flex:1;padding:12px 4px;border:1px solid #00eaff;background:rgba(0,234,255,.15);color:#00eaff;border-radius:10px;font-weight:800;">FÁCIL</button>
@@ -14,14 +14,14 @@ const MINESWEEPER_HTML = `
 </div>
 <div id="msHUD" style="position:absolute;top:0;left:0;width:100%;z-index:5;display:none;pointer-events:none;">
 <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:linear-gradient(180deg,rgba(1,12,25,.97),rgba(1,8,16,.7));border-bottom:1px solid rgba(0,220,255,.18);">
-<div style="text-align:center;min-width:75px;"><div style="font-size:8px;color:#60809d;letter-spacing:2px;">MINAS</div><div id="msMines" style="font:900 20px monospace;color:#ff405d;text-shadow:0 0 12px #ff1744;">000</div></div>
+<div style="text-align:center;min-width:75px;"><div style="font-size:8px;color:#60809d;letter-spacing:2px;">الالغام</div><div id="msMines" style="font:900 20px monospace;color:#ff405d;text-shadow:0 0 12px #ff1744;">000</div></div>
 <div style="text-align:center;"><div id="msLevel" style="font-size:9px;color:#00eaff;letter-spacing:2px;">NORMAL</div><div id="msStatus" style="font-size:11px;color:#8aa5bd;margin-top:3px;">BUSCANDO...</div></div>
 <div style="text-align:center;min-width:75px;"><div style="font-size:8px;color:#60809d;letter-spacing:2px;">TIEMPO</div><div id="msTime" style="font:900 20px monospace;color:#fff;">000</div></div>
 </div>
 </div>
 <div id="msControls" style="position:absolute;bottom:0;left:0;width:100%;z-index:8;display:none;justify-content:center;gap:10px;padding:12px;box-sizing:border-box;background:linear-gradient(0deg,rgba(1,5,12,.98),rgba(1,5,12,.65));">
 <button id="msFlag" style="width:135px;padding:11px;border:1px solid #ffb000;background:rgba(255,176,0,.1);border-radius:20px;color:#ffb000;font-weight:900;font-size:11px;">⚑ BANDERA</button>
-<button id="msReset" style="width:135px;padding:11px;border:1px solid #00eaff;background:rgba(0,234,255,.1);border-radius:20px;color:#00eaff;font-weight:900;font-size:11px;">↻ REINICIAR</button>
+<button id="msReset" style="width:135px;padding:11px;border:1px solid #00eaff;background:rgba(0,234,255,.1);border-radius:20px;color:#00eaff;font-weight:900;font-size:11px;">↻ من جديد</button>
 </div>
 <div id="msResult" style="position:absolute;inset:0;z-index:15;display:none;align-items:center;justify-content:center;background:rgba(0,4,12,.76);backdrop-filter:blur(5px);">
 <div style="width:285px;padding:28px 20px;text-align:center;background:linear-gradient(145deg,rgba(8,25,43,.98),rgba(2,7,17,.99));border:1px solid rgba(0,234,255,.4);border-radius:22px;box-shadow:0 0 50px rgba(0,180,255,.25);">
@@ -155,7 +155,7 @@ result.style.display='none';
 menu.style.display='none';
 hud.style.display='block';
 controls.style.display='flex';
-statusEl.textContent='HAZ TU PRIMER MOVIMIENTO';
+statusEl.textContent='ابدأ أول حركة';
 updateHUD();
 stopTimer();
 }
@@ -166,7 +166,7 @@ if(firstClick){
 generateMines(i);
 firstClick=false;
 startTimer();
-statusEl.textContent='LOCALIZA LAS MINAS';
+statusEl.textContent='حدد مكان الالغام';
 }
 if(c.mine){
 c.revealed=true;
@@ -471,7 +471,7 @@ let handler = async (m, { conn }) => {
                         submessages: [
                             {
                                 messageType: 2,
-                                messageText: '💣 BUSCAMINAS'
+                                messageText: '💣 كانز فاينر'
                             }
                         ],
                         unifiedResponse: {
@@ -505,7 +505,7 @@ let handler = async (m, { conn }) => {
         {}
     )
 }
-handler.help = ['buscaminas']
+handler.help = ['الغام']
 handler.tags = ['game']
-handler.command = ['buscaminas']
+handler.command = ['buscaminas', 'الغام']
 export default handler

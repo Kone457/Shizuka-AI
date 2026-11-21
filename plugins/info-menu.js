@@ -7,26 +7,27 @@ import { getBotConfig } from '../lib/botconfig.js'
 import { createCanvas, loadImage } from '@napi-rs/canvas'
 
 const CATEGORY_META = {
-  main: '⊹ Main ⊹',
-  rg: '⊹ Registro ⊹',
-  info: '⊹ Información ⊹',
-  ia: '⊹ Inteligencia AI ⊹',
-  nable: '⊹ Funciones ⊹',
-  buscadores: '⊹ Buscadores ⊹',
-  descargas: '⊹ Descargas ⊹',
-  imagen: '⊹ Imágenes ⊹',
-  fun: '⊹ Diversión ⊹',
-  game: '⊹ Juegos ⊹',
-  anime: '⊹ Anime ⊹',
-  grupo: '⊹ Admins ⊹',
-  gacha: '⊹ Gacha ⊹',
-  text: '⊹ Efectos ⊹',
-  rpg: '⊹ Economía ⊹',
-  perfil: '⊹ Perfil ⊹',
-  sticker: '⊹ Stickers ⊹',
-  tools: '⊹ Útilidades ⊹',
+  main: '⊹ الرئيسية ⊹',
+  rg: '⊹ التسجيل ⊹',
+  info: '⊹ معلومات ⊹',
+  ia: '⊹ ذكاء اصطناعي ⊹',
+  nable: '⊹ وظائف ⊹',
+  buscadores: '⊹ البحث ⊹',
+  descargas: '⊹ التحميل ⊹',
+  imagen: '⊹ صور ⊹',
+  fun: '⊹ ترفيه ⊹',
+  game: '⊹ ألعاب ⊹',
+  anime: '⊹ أنمي ⊹',
+  grupo: '⊹ المشرفين ⊹',
+  gacha: '⊹ جاتشا ⊹',
+  text: '⊹ تأثيرات ⊹',
+  rpg: '⊹ الاقتصاد ⊹',
+  economy: '⊹ الاقتصاد ⊹',
+  perfil: '⊹ الملف الشخصي ⊹',
+  sticker: '⊹ ستيكرز ⊹',
+  tools: '⊹ أدوات ⊹',
   nsfw: '⊹ NSFW ⊹',
-  serbot: '⊹ Sub-bots ⊹'
+  serbot: '⊹ بوتات فرعية ⊹'
 }
 
 const CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O'
@@ -37,7 +38,7 @@ let cachedBannerUrl = null
 
 async function fetchBuffer(url) {
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`Error descargando imagen: ${res.status}`)
+  if (!res.ok) throw new Error(`خطأ في تحميل الصورة: ${res.status}`)
   return Buffer.from(await res.arrayBuffer())
 }
 
@@ -148,20 +149,20 @@ let handler = async (m, { conn }) => {
       }
     }
 
-    const userName = m.pushName || 'Usuario'
+    const userName = m.pushName || 'مستخدم'
     const botnameConfig = getBotConfig(conn, 'botname') || 'Bot'
 
     const mainBotJid = global.conn?.user?.jid?.split(':')[0]
     const currentBotJid = conn.user?.jid?.split(':')[0]
     const isMainBot = mainBotJid && currentBotJid && mainBotJid === currentBotJid
-    const botType = isMainBot ? ' 𝐏𝐫𝐞𝐦-𝐁𝐨𝐭' : '𝐒𝐮𝐛-𝐁𝐨𝐭'
+    const botType = isMainBot ? ' البوت الرئيسي' : ' بوت فرعي'
 
     let menuTexto = ''
-    menuTexto += `Hola *${userName}* soy *${botnameConfig}* (${botType})\n`
-    menuTexto += `ᴀǫᴜɪ ᴛɪᴇɴᴇs ʟᴀ ʟɪsᴛᴀ ᴅᴇ ᴄᴏᴍᴀɴᴅᴏs\n`
+    menuTexto += `أهلاً *${userName}* أنا *${botnameConfig}* (${botType})\n`
+    menuTexto += `دي قايمة الأوامر بتاعتك\n`
     menuTexto += `╭┈ ↷\n`
     menuTexto += `│ ✐ 𝓓𝓮𝔀𝓮𝓵𝓸𝓹𝓮𝓭 𝓫𝔂 𝓒𝓪𝓻𝓵𝓸𝓼 💙\n`
-    menuTexto += `│ ✐ ꒷ꕤ💎ദ ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ ෴\n`
+    menuTexto += `│ ✐ ꒷ꕤ💎ദ القناة الرسمية ෴\n`
     menuTexto += `│${CHANNEL_URL}\n`
     menuTexto += `╰─────────────────\n\n`
 
@@ -215,7 +216,7 @@ let handler = async (m, { conn }) => {
 
       finalBuffer = await canvas.encode('png')
     } catch (e) {
-      console.error('Canvas error:', e)
+      console.error('خطأ في الرسم:', e)
     }
 
     const media = await prepareWAMessageMedia(
@@ -272,12 +273,12 @@ let handler = async (m, { conn }) => {
     return await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
 
   } catch (e) {
-    await conn.sendMessage(m.chat, { text: `✿ Error: ${e.message || e}` }, { quoted: m })
+    await conn.sendMessage(m.chat, { text: `✿ خطأ: ${e.message || e}` }, { quoted: m })
   }
 }
 
-handler.help = ['menu']
+handler.help = ['قائمة']
 handler.tags = ['info']
-handler.command = ['menu', 'help']
+handler.command = ['menu', 'help', 'قائمة', 'مساعدة']
 
 export default handler

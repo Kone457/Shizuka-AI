@@ -233,7 +233,7 @@ if(gt>60){
 uI.style.display='flex';uI.style.opacity=1;
 sB.innerText='VOLVER A JUGAR';
 uI.querySelector('h1').innerText='GAME OVER';
-uI.querySelector('p').innerHTML='<b style="color:#0ff">Puntos: '+sc+'</b> · <b style="color:#0ff">Nivel: '+lv+'</b> · <b style="color:#fa0">Líneas: '+ln+'</b><br><br>La gravedad te ha vencido.';
+uI.querySelector('p').innerHTML='<b style="color:#0ff">النقط: '+sc+'</b> · <b style="color:#0ff">المستوى: '+lv+'</b> · <b style="color:#fa0">الخطوط: '+ln+'</b><br><br>الجاذبية غلبتك.';
 hU.style.display='none';pad.style.display='none';
 return;
 }
@@ -323,7 +323,7 @@ let handler = async (m, { conn }) => {
         {}
     )
 }
-handler.help = ['tetris']
+handler.help = ['تترس']
 handler.tags = ['game']
-handler.command = ['tetris']
+handler.command = ['tetris', 'تترس']
 export default handler

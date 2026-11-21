@@ -8,25 +8,25 @@ let handler = async (m, { conn }) => {
     const enlaceCompleto = 'https://chat.whatsapp.com/' + nuevoEnlace
 
     await conn.reply(m.sender, 
-`✿ *Operación ejecutada con éxito, señor.*
+`✿ *العملية تمت بنجاح يا فندم.*
 
-❖ *Enlace de invitación anterior revocado.*
-✰ *Nuevo canal de acceso generado:*\n${enlaceCompleto}
+❖ *لينك الدعوة القديم اتلغى.*
+✰ *لينك دخول جديد اتولد:*\n${enlaceCompleto}
 
-✦ *Sistema listo para nuevas instrucciones.*`, 
+✦ *النظام جاهز لأوامر جديدة.*`, 
       m)
   } catch (error) {
     console.error(error)
-    await m.reply(`️❏ *Error en la operación de restablecimiento del enlace.*
+    await m.reply(`️❏ *خطأ في عملية تجديد اللينك.*
 
-❏ Detalles técnicos: ${error.message}
-⌦ Asegúrate de que tenga privilegios administrativos para completar esta orden.`)
+❏ تفاصيل تقنية: ${error.message}
+⌦ اتأكد إن عندي صلاحيات إدارية عشان أكمّل العملية.`)
   }
 }
 
-handler.help = ['revoke']
+handler.help = ['الغاء']
 handler.tags = ['group']
-handler.command = ['revoke', 'restablecer']
+handler.command = ['revoke', 'restablecer', 'الغاء', 'تجديد']
 handler.group = true
 handler.admin = true
 handler.botAdmin = true

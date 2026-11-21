@@ -2,7 +2,7 @@ import { getUser } from '../lib/userdb.js'
 import { getBotConfig } from '../lib/botconfig.js'
 var handler = async (m, { conn, usedPrefix }) => {
 const currency = getBotConfig(conn, 'currency')
-if (!db.data.chats[m.chat].economy && m.isGroup) return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+if (!db.data.chats[m.chat].economy && m.isGroup) return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 let user = getUser(global.db.data.users, m.sender)
 const gap = 2592000000
 const now = Date.now()
@@ -13,7 +13,7 @@ user.exp = user.exp || 0
 user.lastmonthly = user.lastmonthly || 0
 if (now < user.lastmonthly) {
 const wait = formatTime(Math.floor((user.lastmonthly - now) / 1000))
-return conn.reply(m.chat, `✿ Ya has reclamado tu recompensa mensual.\n> Puedes reclamarlo de nuevo en *${wait}*`, m)
+return conn.reply(m.chat, `✿ استلمت مكافأتك الشهرية.\n> تقدر تستلمها تاني بعد *${wait}*`, m)
 }
 const lost = user.monthlyStreak >= 1 && now - user.lastMonthlyGlobal > gap * 1.5
 if (lost) user.monthlyStreak = 0
@@ -29,13 +29,13 @@ user.exp += expRandom
 user.lastmonthly = now + gap
 let next = Math.min(60000 + user.monthlyStreak * 5000, 95000).toLocaleString()
 let msg = `> Mes *${user.monthlyStreak + 1}* » *+${next}*`
-if (lost) msg += `\n> ☆ ¡Has perdido tu racha de meses!`
-conn.reply(m.chat, `✿ Has reclamado tu recompensa mensual de *+${coins.toLocaleString()} ${currency}* (Mes *${user.monthlyStreak}*)\n${msg}`, m)
+if (lost) msg += `\n> ☆ خسرت سلسلة الشهور بتاعتك!`
+conn.reply(m.chat, `✿ استلمت مكافأتك الشهرية *+${coins.toLocaleString()} ${currency}* (الشهر *${user.monthlyStreak}*)\n${msg}`, m)
 }
 
-handler.help = ['monthly', 'mensual']
+handler.help = ['الشهري', 'شهري']
 handler.tags = ['rpg']
-handler.command = ['monthly', 'mensual']
+handler.command = ['monthly', 'mensual', 'الشهري', 'شهري']
 handler.group = true
 
 export default handler
@@ -45,7 +45,7 @@ const d = Math.floor(t / 86400)
 const h = Math.floor((t % 86400) / 3600)
 const m = Math.floor((t % 3600) / 60)
 const s = t % 60
-if (d) return `${d} día${d !== 1 ? 's' : ''} ${h} hora${h !== 1 ? 's' : ''} ${m} minuto${m !== 1 ? 's' : ''}`
+if (d) return `${d} يوم ${h} ساعة ${m} دقيقة`
 if (h) return `${h} hora${h !== 1 ? 's' : ''} ${m} minuto${m !== 1 ? 's' : ''} ${s} segundo${s !== 1 ? 's' : ''}`
 if (m) return `${m} minuto${m !== 1 ? 's' : ''} ${s} segundo${s !== 1 ? 's' : ''}`
 return `${s} segundo${s !== 1 ? 's' : ''}`

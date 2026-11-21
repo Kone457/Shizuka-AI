@@ -4,13 +4,13 @@ let handler = async (m, { conn, args }) => {
   const prompt = args.join(' ').trim();
 
   if (!prompt) {
-    return m.reply('《✧》 Ingresa un *prompt* para que *Flux* genere tu imagen.');
+    return m.reply('《✧》 اكتب *وصف* عشان *Flux* يعمل صورتك.');
   }
 
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: 'ⴵ *Flux* está creando tu imagen...' },
+      { text: 'ⴵ *Flux* بيعمل صورتك...' },
       { quoted: m }
     );
 
@@ -26,12 +26,12 @@ let handler = async (m, { conn, args }) => {
     );
   } catch (error) {
     console.error(error);
-    await m.reply('❏ Ocurrió un error al procesar tu solicitud.');
+    await m.reply('❏ حصل خطأ وأنا بجهّز طلبك.');
   }
 };
 
-handler.help = ['flux'];
+handler.help = ['فلوكس'];
 handler.tags = ['ia'];
-handler.command = ['flux'];
+handler.command = ['flux', 'فلوكس'];
 
 export default handler;

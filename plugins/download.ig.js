@@ -4,7 +4,7 @@ const handler = async (m, { args, conn }) => {
   if (!args[0]) {
     return conn.sendMessage(
       m.chat,
-      { text: '《✧》 Ingresa un enlace válido de Instagram.' },
+      { text: '《✧》 هات لينك إنستجرام صحيح.' },
       { quoted: m }
     );
   }
@@ -36,13 +36,13 @@ const handler = async (m, { args, conn }) => {
       }
     }
 
-    if (!mediaUrl) throw new Error('No se pudo descargar el video de Instagram.');
+    if (!mediaUrl) throw new Error('مقدرتش أحمّل فيديو إنستجرام.');
 
     await conn.sendFile(
       m.chat,
       mediaUrl,
       'instagram.mp4',
-      '✿ Aquí tienes.',
+      '✿ اتفضل.',
       m
     );
 
@@ -51,16 +51,16 @@ const handler = async (m, { args, conn }) => {
   } catch (e) {
     await conn.sendMessage(
       m.chat,
-      { text: `❏ Error.\n❏ Detalles: ${e.message}` },
+      { text: `❏ خطأ.\n❏ التفاصيل: ${e.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
   }
 };
 
-handler.command = ['instagram', 'ig'];
+handler.command = ['instagram', 'ig', 'انستقرام'];
 handler.tags = ['descargas'];
-handler.help = ['instagram', 'ig'];
+handler.help = ['انستقرام', 'ig'];
 handler.group = true;
 
 export default handler;

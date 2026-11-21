@@ -22,21 +22,21 @@ let handler = async (m, { conn, text, args }) => {
 
   if (!text && !m.quoted) {
     return m.reply(
-      `✿ *Configurar Banner del Bot*\n\n` +
-      `📌 *Uso:*\n` +
+      `✿ *إعداد بانر البوت*\n\n` +
+      `📌 *الاستخدام:*\n` +
       `› .setbanner 1 <url> — Banner principal\n` +
-      `› .setbanner 2 <url> — Banner secundario (menú)\n` +
-      `› También puedes responder a una imagen con .setbanner 1 o .setbanner 2\n\n` +
-      `📋 *Valores actuales de este bot:*\n` +
+      `› .setbanner 2 <url> — بانر ثانوي (القائمة)\n` +
+      `› كمان تقدر ترد على صورة بـ .setbanner 1 أو .setbanner 2\n\n` +
+      `📋 *القيم الحالية للبوت ده:*\n` +
       `› Banner 1: ${getBotConfig(conn, 'banner')}\n` +
       `› Banner 2: ${getBotConfig(conn, 'banner2')}\n\n` +
-      `💡 *Ejemplo:*\n` +
+      `💡 *مثال:*\n` +
       `› .setbanner 1 https://i.imgur.com/ejemplo.jpg`
     )
   }
 
   if (cual !== '1' && cual !== '2') {
-    return m.reply(`❌ Indica qué banner cambiar: *.setbanner 1* o *.setbanner 2*`)
+    return m.reply(`❌ حدد البانر: *.setbanner 1* أو *.setbanner 2*`)
   }
 
   let url = args.slice(1).join(' ').trim()
@@ -44,18 +44,18 @@ let handler = async (m, { conn, text, args }) => {
   if (!url || (!url.startsWith('http://') && !url.startsWith('https://'))) {
     const quoted = m.quoted
     if (!quoted) {
-      return m.reply(`❌ Debes proporcionar una URL válida o responder a una imagen.`)
+      return m.reply(`❌ لازم تدّي URL صحيح أو ترد على صورة.`)
     }
     const mime = (quoted.msg || quoted).mimetype || quoted.mediaType || ''
     if (!/image/.test(mime)) {
-      return m.reply(`❌ El mensaje citado no es una imagen.`)
+      return m.reply(`❌ الرسالة المردود عليها مش صورة.`)
     }
-    await m.reply(`⏳ Subiendo imagen, espera un momento...`)
+    await m.reply(`⏳ برفع الصورة، استنى لحظة...`)
     try {
       const img = await quoted.download()
       url = await uploadImage(img)
     } catch (e) {
-      return m.reply(`❌ Error al subir la imagen: ${e.message}`)
+      return m.reply(`❌ خطأ في رفع الصورة: ${e.message}`)
     }
   }
 
@@ -65,10 +65,10 @@ let handler = async (m, { conn, text, args }) => {
     await conn.sendMessage(m.chat, {
       image: { url },
       caption:
-        `✅ *Banner 1 actualizado para este bot*\n\n` +
-        `› Anterior: ${anterior}\n` +
-        `› Nuevo: ${url}\n\n` +
-        `> Solo afecta a este bot (${conn.user.jid.split('@')[0]})`
+        `✅ *البانر 1 اتحدّث للبوت ده*\n\n` +
+        `› السابق: ${anterior}\n` +
+        `› الجديد: ${url}\n\n` +
+        `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
     }, { quoted: m })
   } else {
     const anterior = getBotConfig(conn, 'banner2')
@@ -76,17 +76,17 @@ let handler = async (m, { conn, text, args }) => {
     await conn.sendMessage(m.chat, {
       image: { url },
       caption:
-        `✅ *Banner 2 actualizado para este bot*\n\n` +
-        `› Anterior: ${anterior}\n` +
-        `› Nuevo: ${url}\n\n` +
-        `> Solo afecta a este bot (${conn.user.jid.split('@')[0]})`
+        `✅ *البانر 2 اتحدّث للبوت ده*\n\n` +
+        `› السابق: ${anterior}\n` +
+        `› الجديد: ${url}\n\n` +
+        `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
     }, { quoted: m })
   }
 }
 
-handler.help = ['setbanner']
+handler.help = ['بانر البوت']
 handler.tags = ['owner']
-handler.command = ['setbanner', 'banner']
+handler.command = ['setbanner', 'banner', 'بانرالبوت', 'بانر', 'بانر البوت']
 handler.owner = true
 
 export default handler

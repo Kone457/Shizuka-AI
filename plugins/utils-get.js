@@ -5,11 +5,11 @@ let handler = async (m, { conn, args }) => {
   const argsText = args.join(' ').trim();
 
   if (!argsText) {
-    return m.reply('《✧》 Ingresa un enlace para realizar la solicitud.');
+    return m.reply('《✧》 اكتب لينك عشان تعمل الطلب.');
   }
 
   if (!/^https?:\/\//.test(argsText)) {
-    return m.reply('《✧》 Ingresa un enlace válido que comience en *https://* o *http://*');
+    return m.reply('《✧》 اكتب لينك صحيح يبدأ بـ *https://* أو *http://*');
   }
 
   try {
@@ -32,18 +32,18 @@ let handler = async (m, { conn, args }) => {
     }
 
     const preview = content.length > 65536
-      ? content.slice(0, 65536) + '《✧》 *Muy largo el html, quedó truncado el texto.*'
+      ? content.slice(0, 65536) + '《✧》 *الـhtml طويل جدًا، النص اتقص.*'
       : content;
 
     await m.reply(preview);
   } catch (error) {
     console.error(error);
-    await m.reply('《✧》 *No se pudo completar la solicitud.* Verifica el enlace o intenta más tarde.');
+    await m.reply('《✧》 *مقدرتش أكمّل الطلب.* اتأكد من اللينك أو جرّب بعد شوية.');
   }
 };
 
-handler.help = ['get'];
+handler.help = ['هات'];
 handler.tags = ['tools'];
-handler.command = ['get'];
+handler.command = ['get', 'هات'];
 
 export default handler;

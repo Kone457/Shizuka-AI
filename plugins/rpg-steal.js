@@ -3,30 +3,30 @@ import { getBotConfig } from '../lib/botconfig.js'
 const handler = async (m, { conn, usedPrefix, command }) => {
 const currency = getBotConfig(conn, 'currency')
 if (!db.data.chats[m.chat].economy && m.isGroup) {
-return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 }
 const user = getUser(global.db.data.users, m.sender)
 user.lastrob = user.lastrob || 0
 if (Date.now() < user.lastrob) {
 const restante = user.lastrob - Date.now()
-return conn.reply(m.chat, `✿ Debes esperar *${formatTime(restante)}* para usar *${usedPrefix + command}* de nuevo.`, m)
+return conn.reply(m.chat, `✿ لازم تستنى *${formatTime(restante)}* عشان تستخدم *${usedPrefix + command}* تاني.`, m)
 }
 let mentionedJid = await m.mentionedJid
 let who = mentionedJid && mentionedJid.length ? mentionedJid[0] : m.quoted && await m.quoted.sender ? await m.quoted.sender : null
-if (!who) return conn.reply(m.chat, `✿ Debes mencionar a alguien para intentar robarle.`, m)
+if (!who) return conn.reply(m.chat, `✿ لازم تعمل منشن لحد عشان تحاول تسرقه.`, m)
 const target = getUser(global.db.data.users, who)
 if (!target) {
-return conn.reply(m.chat, `✿ El usuario no se encuentra en mi base de datos.`, m)
+return conn.reply(m.chat, `✿ المستخدم مش موجود في قاعدة البيانات.`, m)
 }
 let name = typeof target.name === 'string' && target.name.trim() && target.name.trim() !== '[object Promise]' ? target.name.trim() : ''
 if (!name) { try { const n = await conn.getName(who); name = typeof n === 'string' && n.trim() ? n.trim() : who.split('@')[0] } catch { name = who.split('@')[0] } }
 const tiempoInactivo = Date.now() - (target.lastwork || 0)
 if (tiempoInactivo < 3600000) {
-return conn.reply(m.chat, `✿ Solo puedes robarle *${currency}* a un usuario si estuvo más de 1 hora inactivo.`, m)
+return conn.reply(m.chat, `✿ تقدر تسرق *${currency}* من مستخدم بس لو كان غايب أكتر من ساعة.`, m)
 }
 const rob = Math.floor(Math.random() * 1001) + 2000
 if (target.coin < rob) {
-return conn.reply(m.chat, `✿ *${name}* no tiene suficientes *${currency}* fuera del banco como para que valga la pena intentar robar.`, m, { mentions: [who] })
+return conn.reply(m.chat, `✿ *${name}* معندوش *${currency}* كفاية برا البنك عشان يستاهل تحاول تسرقه.`, m, { mentions: [who] })
 }
 user.coin += rob
 target.coin -= rob
@@ -34,9 +34,9 @@ user.lastrob = Date.now() + 7200000
 conn.reply(m.chat, `✿ Le robaste *${rob.toLocaleString()} ${currency}* a *${name}*`, m, { mentions: [who] })
 }
 
-handler.help = ['rob']
+handler.help = ['سرق']
 handler.tags = ['rpg']
-handler.command = ['robar', 'steal', 'rob']
+handler.command = ['robar', 'steal', 'rob', 'اسرق', 'اسرقستيكر', 'سرق', 'اسرق ستيكر']
 handler.group = true
 
 export default handler

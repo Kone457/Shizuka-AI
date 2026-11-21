@@ -4,7 +4,7 @@ const handler = async (m, { args, conn }) => {
   if (!args[0]) {
     return conn.sendMessage(
       m.chat,
-      { text: '《✧》 Ingresa un enlace válido de Twitter.' },
+      { text: '《✧》 هات لينك تويتر صحيح.' },
       { quoted: m }
     );
   }
@@ -19,7 +19,7 @@ const handler = async (m, { args, conn }) => {
     const json = await res.json();
 
     if (!json.status || (!json.result?.HD && !json.result?.SD)) {
-      throw new Error('Respuesta inválida de la API.');
+      throw new Error('رد غير صحيح من الـAPI.');
     }
 
     const videoUrl = json.result.HD || json.result.SD;
@@ -28,7 +28,7 @@ const handler = async (m, { args, conn }) => {
       m.chat,
       videoUrl,
       'twitter.mp4',
-      '✿ Aquí tienes.',
+      '✿ اتفضل.',
       m
     );
 
@@ -37,16 +37,16 @@ const handler = async (m, { args, conn }) => {
   } catch (e) {
     await conn.sendMessage(
       m.chat,
-      { text: `❏ Error.\n❏ Detalles: ${e.message}` },
+      { text: `❏ خطأ.\n❏ التفاصيل: ${e.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });
   }
 };
 
-handler.command = ['twitter', 'tw', 'x'];
+handler.command = ['twitter', 'tw', 'x', 'تويتر'];
 handler.tags = ['descargas'];
-handler.help = ['twitter', 'tw', 'x'];
+handler.help = ['تويتر', 'tw', 'x'];
 handler.group = true;
 
 export default handler;

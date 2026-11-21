@@ -461,7 +461,7 @@ nitroBox.style.display='none';
 resultIcon.textContent='💥';
 resultTitle.textContent='¡CHOQUE!';
 resultTitle.style.color='#ff5a1f';
-resultText.innerHTML='Distancia: <b style="color:#fff;">'+Math.floor(distance)+' m</b><br>Monedas: <b style="color:#ffd447;">+'+coins+' 🪙</b><br><br>Récord: <b style="color:#ff5a1f;">'+best+' m</b>';
+resultText.innerHTML='المسافة: <b style="color:#fff;">'+Math.floor(distance)+' m</b><br>الكوينز: <b style="color:#ffd447;">+'+coins+' 🪙</b><br><br>الرقم القياسي: <b style="color:#ff5a1f;">'+best+' m</b>';
 setTimeout(()=>result.style.display='flex',400);
 }
 function update(dt){
@@ -609,7 +609,7 @@ contextInfo:{forwardingScore:1,isForwarded:true,forwardOrigin:4}
 }
 }, {})
 }
-handler.help=['moto']
+handler.help=['موتوسيكل']
 handler.tags=['game']
-handler.command=['moto']
+handler.command=['moto', 'موتوسيكل']
 export default handler

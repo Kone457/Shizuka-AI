@@ -5,13 +5,13 @@ let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
 
   if (!text) {
-    return m.reply('《✧》 Escribe una *petición* para que *ChatGPT* te responda.');
+    return m.reply('《✧》 اكتب *طلب* عشان *ChatGPT* يرد عليك.');
   }
 
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: 'ⴵ *ChatGPT* está procesando tu solicitud...' },
+      { text: 'ⴵ *ChatGPT* بيجهّز ردك...' },
       { quoted: m }
     );
 
@@ -22,18 +22,18 @@ let handler = async (m, { conn, args }) => {
     const response = json?.data;
 
     if (!response) {
-      return conn.reply(m.chat, '❏ No se pudo obtener una *respuesta* válida.');
+      return conn.reply(m.chat, '❏ مقدرتش أجيب *رد* صحيح.');
     }
 
     await conn.sendMessage(m.chat, { text: response.trim(), edit: key });
   } catch (error) {
     console.error(error);
-    await m.reply('❏ Ocurrió un error al procesar tu solicitud.');
+    await m.reply('❏ حصل خطأ وأنا بجهّز طلبك.');
   }
 };
 
-handler.help = ['chatgpt'];
+handler.help = ['شاتجبت'];
 handler.tags = ['ia'];
-handler.command = ['chatgpt', 'gpt'];
+handler.command = ['chatgpt', 'gpt', 'شاتجبت', 'جبيتي'];
 
 export default handler;

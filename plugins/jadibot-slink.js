@@ -8,9 +8,9 @@ let handler = async (m, { conn }) => {
       const meta = await c.groupMetadata(jid)
       const code = await c.groupInviteCode(jid)
       return {
-        name: meta.subject || 'Sin nombre',
+        name: meta.subject || 'بدون اسم',
         members: meta.participants?.length || 0,
-        desc: meta.desc || 'Sin descripción',
+        desc: meta.desc || 'بدون وصف',
         link: `https://chat.whatsapp.com/${code}`,
         jid: jid,
         bot: c.user?.id || 'Bot'
@@ -37,7 +37,7 @@ let handler = async (m, { conn }) => {
     }
   }
 
-  if (!results.length) return m.reply('⚠️ No se encontraron grupos.')
+  if (!results.length) return m.reply('⚠️ مفيش جروبات.')
 
   let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 🌐 GRUPOS 🌐
@@ -46,9 +46,9 @@ Total: *${results.length}*
 
   for (const g of results) {
     txt += `\n📌 *${g.name}*
-👥 Miembros: ${g.members}
-📝 Descripción: ${g.desc.slice(0, 100)}${g.desc.length > 100 ? '...' : ''}
-🔗 Link: ${g.link}
+👥 الأعضاء: ${g.members}
+📝 الوصف: ${g.desc.slice(0, 100)}${g.desc.length > 100 ? '...' : ''}
+🔗 اللينك: ${g.link}
 🤖 Bot: ${g.bot}\n`
   }
 
@@ -56,6 +56,6 @@ Total: *${results.length}*
 }
 
 handler.tags = ['serbot']
-handler.command = ['slink']
+handler.command = ['slink', 'لينكالجروب', 'لينك الجروب']
 
 export default handler

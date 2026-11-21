@@ -8,7 +8,7 @@ let handler = async (m, { conn, text }) => {
   if (!text || !/(github\.com\/[^\/]+\/[^\/]+)/.test(text)) {
     return await conn.sendMessage(
       m.chat,
-      { text: `《✧》 Proporciona un enlace válido de GitHub.` },
+      { text: `《✧》 هات لينك جيتهاب صحيح.` },
       { quoted: m }
     );
   }
@@ -29,7 +29,7 @@ let handler = async (m, { conn, text }) => {
       }
     });
 
-    if (!response.ok) throw new Error(`GitHub API respondió con ${response.status}`);
+    if (!response.ok) throw new Error(`GitHub API رجّع ${response.status}`);
 
     const buffer = await response.buffer();
 
@@ -39,7 +39,7 @@ let handler = async (m, { conn, text }) => {
         document: buffer,
         fileName: `${repo}-main.zip`,
         mimetype: 'application/zip',
-        caption: `*✿ Aquí tienes...*`
+        caption: `*✿ اتفضل...*`
       },
       { quoted: m }
     );
@@ -47,19 +47,19 @@ let handler = async (m, { conn, text }) => {
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
   } catch (err) {
-    console.error('❏ Error en el plugin de GitHub:', err);
+    console.error('❏ خطأ في بلوجن جيتهاب:', err);
     await conn.sendMessage(
       m.chat,
-      { text: `❏ Error al procesar la solicitud.\n❏ Detalles: ${err.message}` },
+      { text: `❏ خطأ في معالجة الطلب.\n❏ التفاصيل: ${err.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
   }
 };
 
-handler.help = ['gitclone'];
+handler.help = ['نسخ'];
 handler.tags = ['descargas'];
-handler.command = ['gitclone'];
+handler.command = ['gitclone', 'نسخ'];
 handler.group = true;
 
 export default handler;

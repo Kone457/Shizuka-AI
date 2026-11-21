@@ -7,13 +7,13 @@ let handler = async (m, { conn, args }) => {
   const text = args.join(' ').trim();
 
   if (!text) {
-    return m.reply('《✧》 Escribe una *petición* para que *Gemma* te responda.');
+    return m.reply('《✧》 اكتب *طلب* عشان *Gemma* يرد عليك.');
   }
 
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: 'ⴵ *Gemma* está procesando tu solicitud...' },
+      { text: 'ⴵ *Gemma* بيجهّز ردك...' },
       { quoted: m }
     );
 
@@ -37,7 +37,7 @@ let handler = async (m, { conn, args }) => {
         data?.detail ||
         data?.error ||
         data?.message ||
-        '❏ Error en Gemma.',
+        '❏ خطأ في Gemma.',
         m
       );
     }
@@ -45,7 +45,7 @@ let handler = async (m, { conn, args }) => {
     if (!data?.response) {
       return conn.reply(
         m.chat,
-        '❏ Gemma no devolvió una respuesta válida.',
+        '❏ Gemma مرجّعش رد صحيح.',
         m
       );
     }
@@ -63,14 +63,14 @@ let handler = async (m, { conn, args }) => {
 
     await conn.reply(
       m.chat,
-      '❏ No se pudo conectar con Gemma.',
+      '❏ مقدرتش أتصل بـGemma.',
       m
     );
   }
 };
 
-handler.help = ['gemma'];
+handler.help = ['جيما'];
 handler.tags = ['ia'];
-handler.command = ['gemma'];
+handler.command = ['gemma', 'جيما'];
 
 export default handler;

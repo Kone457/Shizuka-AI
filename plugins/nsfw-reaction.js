@@ -20,7 +20,7 @@ let handler = async (m, { conn, command }) => {
         reactions = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'))
     } catch (e) {
         console.error(e)
-        return m.reply('❌ Error al leer el archivo `lib/reaction.json`. Asegúrate de que exista y esté bien estructurado.')
+        return m.reply('❌ خطأ في قراءة ملف `lib/reaction.json`. اتأكد إنه موجود ومظبوط.')
     }
 
     const aliasMap = {
@@ -42,7 +42,21 @@ let handler = async (m, { conn, command }) => {
         chupar: 'suckboobs',
         desvestir: 'undress',
         lésbico: 'yuri',
-        lesbianas: 'yuri'
+        lesbianas: 'yuri',
+        حمل: 'preg',
+        مؤخرة: 'anal',
+        مص: 'blowjob',
+        صدر: 'boobjob',
+        قذف: 'cum',
+        عادة: 'fap',
+        قدم: 'footjob',
+        نيك: 'fuck',
+        لمس: 'grabboobs',
+        لحسpussy: 'lickpussy',
+        ضرب: 'spank',
+        مصصدر: 'suckboobs',
+        تعري: 'undress',
+        يوري: 'yuri'
     }
 
     let cmd = command.toLowerCase()
@@ -52,7 +66,7 @@ let handler = async (m, { conn, command }) => {
     let texts = reactions[`text-${cmd}`]
 
     if (!videos || !texts) {
-        return m.reply(`❌ No se encontraron datos para la reacción NSFW: ${cmd}`)
+        return m.reply(`❌ مفيش بيانات لتفاعل NSFW: ${cmd}`)
     }
 
     let str = (isMention || m.quoted)
@@ -75,15 +89,18 @@ let handler = async (m, { conn, command }) => {
     )
 }
 
+const nsfwArabic = [
+    'حمل','مؤخرة','مص','صدر','قذف','عادة','قدم','نيك','لمس','لحسpussy','ضرب',
+    'مصصدر','تعري','يوري'
+]
+
 const nsfwCommands = [
     'preg','69','anal','blowjob','boobjob','cum','fap','footjob','fuck',
     'grabboobs','lickpussy','spank','suckboobs','undress','yuri',
-    'embarazo','sesenta','mamada','sexooral','bj','pechos','correrse','masturbar',
-    'pies','follar','coger','agarrar','lamerpussy','nalgada','chupar',
-    'desvestir','lésbico','lesbianas'
+    ...nsfwArabic
 ]
 
-handler.help = nsfwCommands
+handler.help = nsfwArabic
 handler.tags = ['nsfw']
 handler.command = new RegExp(`^(${nsfwCommands.join('|')})$`, 'i')
 handler.group = true

@@ -5,7 +5,7 @@ let handler = async (m, { conn }) => {
   let isSticker = q.mtype === 'stickerMessage' || (q.mimetype || '').includes('webp')
 
   if (!isSticker) {
-    return m.reply('✿ Responde a un sticker para convertirlo en imagen.')
+    return m.reply('✿ رد على ستيكر عشان تحوله صورة.')
   }
 
   try {
@@ -17,7 +17,7 @@ let handler = async (m, { conn }) => {
       m.chat,
       {
         image: media,
-        caption: '✿ Sticker convertido a imagen'
+        caption: '✿ الستيكر اتحوّل صورة'
       },
       { quoted: m }
     )
@@ -26,13 +26,13 @@ let handler = async (m, { conn }) => {
 
   } catch (e) {
     console.error(e)
-    m.reply('✿ No pude convertir el sticker.')
+    m.reply('✿ مقدرتش أحوّل الستيكر.')
   }
 
 }
 
-handler.help = ['toimg']
+handler.help = ['صورة ستيكر']
 handler.tags = ['tools']
-handler.command = ['toimg','stickerimg','simg']
+handler.command = ['toimg','stickerimg','simg', 'صورةستيكر', 'ستيكرصورة', 'سيمج', 'صورة ستيكر', 'ستيكر صورة']
 
 export default handler

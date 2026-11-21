@@ -1,61 +1,61 @@
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!m.isGroup) {
-    return m.reply('❌ Este comando solo se puede utilizar dentro de un grupo.');
+    return m.reply('❌ الأمر ده للجروبات بس.');
   }
 
   const chat = globalThis.db.data.chats[m.chat] ||= {};
 
-  if (command === 'setwelcome') {
+  if (['setwelcome', 'ترحيب'].includes(command)) {
     if (!text) {
       return m.reply(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🌟  **CONFIGURAR BIENVENIDA**  🌟
+🌟  **إعداد رسالة الترحيب**  🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-Por favor, escribe el mensaje que deseas establecer.
+من فضلك اكتب الرسالة اللي عايز تحطها.
 
-📌 **Variables disponibles:**
-• @user (Mencionar al usuario)
-• @group (Nombre del grupo)
-• @desc (Descripción del grupo)
-• @action (Acción de entrada)
-• %users (Total de miembros)
+📌 **المتغيرات المتاحة:**
+• @user (منشن المستخدم)
+• @group (اسم الجروب)
+• @desc (وصف الجروب)
+• @action (سبب الدخول)
+• %users (إجمالي الأعضاء)
 
-💡 **Ejemplo de uso:**
-${usedPrefix + command} 🌟 ¡Hola @user! Bienvenido a @group. Lee las reglas.
+💡 **مثال للاستخدام:**
+🌟  **إعداد رسالة الترحيب**  🌟
       `.trim());
     }
 
     chat.sWelcome = text;
-    return m.reply('✅ ¡El mensaje de bienvenida se ha actualizado!');
+    return m.reply('✅ رسالة الترحيب اتحدثت!');
   }
 
-  if (command === 'setbye') {
+  if (['setbye', 'وداع'].includes(command)) {
     if (!text) {
       return m.reply(`
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-💔  **CONFIGURAR DESPEDIDA**  💔
+💔  **إعداد رسالة الوداع**  💔
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-Por favor, escribe el mensaje personalizado que deseas establecer.
+من فضلك اكتب الرسالة المخصصة اللي عايز تحطها.
 
-📌 **Variables disponibles:**
-• @user (Mencionar al usuario)
-• @group (Nombre del grupo)
-• @action (Acción de salida/eliminación)
-• %users (Total de miembros actual)
+📌 **المتغيرات المتاحة:**
+• @user (منشن المستخدم)
+• @group (اسم الجروب)
+• @action (سبب الخروج/الطرد)
+• %users (إجمالي الأعضاء حالياً)
 
-💡 **Ejemplo de uso:**
-${usedPrefix + command} 💔 Adiós @user, esperamos que vuelvas pronto a @group.
+💡 **مثال للاستخدام:**
+💔  **إعداد رسالة الوداع**  💔
       `.trim());
     }
 
     chat.sBye = text;
-    return m.reply('✅ ¡El mensaje de despedida se ha actualizado!');
+    return m.reply('✅ رسالة الوداع اتحدثت!');
   }
 };
 
-handler.command = ['setwelcome', 'setbye'];
+handler.command = ['setwelcome', 'setbye', 'ترحيب', 'وداع'];
 handler.group = true;
 handler.admin = true;
 

@@ -44,7 +44,7 @@ async function ttp(text, tcolor = "30F4EF") {
 }
 
 const handler = async (m, { conn, args }) => {
-  if (!args[0]) return conn.reply(m.chat, '《✧》 Ingresa el texto.', m)
+  if (!args[0]) return conn.reply(m.chat, '《✧》 اكتب النص.', m)
 
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
@@ -52,20 +52,20 @@ const handler = async (m, { conn, args }) => {
     const res = await ttp(query)
 
     if (!res || !res.result) {
-      return conn.reply(m.chat, '❏ No se pudo generar la imagen.', m)
+      return conn.reply(m.chat, '❏ مقدرتش أعمل الصورة.', m)
     }
 
     await conn.sendFile(m.chat, res.result, 'text.png', `✿ Texto generado: ${query}`, m)
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
   } catch (e) {
-    await conn.reply(m.chat, `❏ Error al generar.\n❏ Detalles: ${e.message}`, m)
+    await conn.reply(m.chat, `❏ خطأ في التوليد.\n❏ التفاصيل: ${e.message}`, m)
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
   }
 }
 
-handler.command = ['ttp']
+handler.command = ['ttp', 'تتب']
 handler.tags = ['tools']
-handler.help = ['ttp']
+handler.help = ['تتب']
 handler.group = true
 
 export default handler

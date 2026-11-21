@@ -1,5 +1,8 @@
 let handler = async (m, { conn, args, command, isOwner }) => {
-  const setting = args[0]?.toLowerCase();
+  const words = (args || []).map(a => String(a).toLowerCase());
+  const setting = words.length > 1 && ['بدون بادئة'].includes(words.slice(0, 2).join(' '))
+    ? words.slice(0, 2).join(' ')
+    : words[0];
 
   const chatData = global.db.data.chats[m.chat];
   const botSettings = global.db.data.settings[conn.user.jid];
@@ -8,25 +11,25 @@ let handler = async (m, { conn, args, command, isOwner }) => {
 
   const configList = `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐂𝐎𝐍𝐅𝐈𝐆𝐔𝐑𝐀𝐂𝐈𝐎́𝐍 ⚙️╮
+╭╼⚙️ الإعدادات ⚙️╮
 ┃֪࣪
-├ׁ̟̇❍✎ welcome ${statusIcon(chatData.welcome)}
-├ׁ̟̇❍✎ antilink ${statusIcon(chatData.antiLink)}
-├ׁ̟̇❍✎ antichannel ${statusIcon(chatData.antichannel)}
-├ׁ̟̇❍✎ antiprivado ${statusIcon(chatData.antiprivado ?? true)}
-├ׁ̟̇❍✎ economia ${statusIcon(chatData.economy)}
-├ׁ̟̇❍✎ gacha ${statusIcon(chatData.gacha)}
-├ׁ̟̇❍✎ level ${statusIcon(chatData.level ?? true)}
-├ׁ̟̇❍✎ modoadmin ${statusIcon(chatData.adminonly)}
-├ׁ̟̇❍✎ reaccion ${statusIcon(chatData.reaction)}
-├ׁ̟̇❍✎ nsfw ${statusIcon(chatData.nsfw)}
-├ׁ̟̇❍✎ alertas ${statusIcon(chatData.alerts)}
-├ׁ̟̇❍✎ notprefix ${statusIcon(chatData.notprefix)}
-├ׁ̟̇❍✎ serbot ${statusIcon(botSettings?.jadibotmd)}
+├ׁ̟̇❍✎ ترحيب ${statusIcon(chatData.welcome)}
+├ׁ̟̇❍✎ اللينكات ${statusIcon(chatData.antiLink)}
+├ׁ̟̇❍✎ القنوات ${statusIcon(chatData.antichannel)}
+├ׁ̟̇❍✎ الخاص ${statusIcon(chatData.antiprivado ?? true)}
+├ׁ̟̇❍✎ الاقتصاد ${statusIcon(chatData.economy)}
+├ׁ̟̇❍✎ جاتشا ${statusIcon(chatData.gacha)}
+├ׁ̟̇❍✎ المستويات ${statusIcon(chatData.level ?? true)}
+├ׁ̟̇❍✎ المشرفين ${statusIcon(chatData.adminonly)}
+├ׁ̟̇❍✎ التفاعل ${statusIcon(chatData.reaction)}
+├ׁ̟̇❍✎ اباحي ${statusIcon(chatData.nsfw)}
+├ׁ̟̇❍✎ التنبيهات ${statusIcon(chatData.alerts)}
+├ׁ̟̇❍✎ بدونبادئة ${statusIcon(chatData.notprefix)}
+├ׁ̟̇❍✎ الفرعية ${statusIcon(botSettings?.jadibotmd)}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
-✎ Ejemplo:
-${command} welcome
+✎ مثال:
+${command} ترحيب
 `.trim();
 
   if (!setting) {
@@ -38,15 +41,16 @@ ${command} welcome
   const reply = (name) =>
     m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐅𝐔𝐍𝐂𝐈Ó𝐍 ⚙️╮
+╭╼⚙️ الحالة ⚙️╮
 ┃֪࣪
 ├ׁ̟̇❍✎ ${name}
-├ׁ̟̇❍✎ ${status ? '🟢 ACTIVADA' : '🔴 DESACTIVADA'}
+├ׁ̟̇❍✎ ${status ? '🟢 مفعّلة' : '🔴 مقفولة'}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim());
 
   switch (setting) {
 
+    case 'اللينكات':
     case 'antilink':
     case 'antilinks':
     case 'antienlaces':
@@ -54,6 +58,7 @@ ${command} welcome
       reply('Anti Enlaces');
       break;
 
+    case 'القنوات':
     case 'antichannel':
     case 'anticanales':
     case 'anticanal':
@@ -61,6 +66,7 @@ ${command} welcome
       reply('Anti Canales');
       break;
 
+    case 'الخاص':
     case 'antiprivado':
     case 'antiprivados':
     case 'private':
@@ -69,18 +75,21 @@ ${command} welcome
       reply('Anti Privado');
       break;
 
+    case 'الاقتصاد':
     case 'rpg':
     case 'economia':
       chatData.rpg = status;
       chatData.economy = status;
-      reply('Economía');
+      reply('الاقتصاد');
       break;
 
+    case 'جاتشا':
     case 'gacha':
       chatData.gacha = status;
       reply('Gacha');
       break;
 
+    case 'المستويات':
     case 'level':
     case 'niveles':
     case 'nivel':
@@ -88,53 +97,61 @@ ${command} welcome
       reply('Niveles');
       break;
 
+    case 'المشرفين':
     case 'modoadmin':
     case 'adminonly':
     case 'onlyadmin':
       chatData.adminonly = status;
-      reply('Modo Admin');
+      reply('وضع المشرفين');
       break;
 
+    case 'اباحي':
     case 'nsfw':
       chatData.nsfw = status;
       reply('NSFW');
       break;
 
+    case 'ترحيب':
     case 'bienvenida':
     case 'welcome':
       chatData.welcome = status;
       reply('Bienvenida');
       break;
 
+    case 'التفاعل':
     case 'reaccion':
     case 'reaction':
       chatData.reaction = status;
       reply('Reacciones');
       break;
 
+    case 'التنبيهات':
     case 'alerts':
     case 'alertas':
       chatData.alerts = status;
       reply('Alertas');
       break;
 
+    case 'بدون بادئة':
+    case 'بدونبادئة':
     case 'notprefix':
     case 'noprefix':
     case 'sinprefijo':
       chatData.notprefix = status;
-      reply('Sin Prefijo (NotPrefix)');
+      reply('بدون بادئة (NotPrefix)');
       break;
 
+    case 'الفرعية':
     case 'serbot':
     case 'jadibot':
     case 'subbots':
       if (!isOwner) {
         return m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐀𝐂𝐂𝐄𝐒𝐎 𝐃𝐄𝐍𝐄𝐆𝐀𝐃𝐎 ⛔╮
+╭╼⛔ ممنوع ⛔╮
 ┃֪࣪
-├ׁ̟̇❍✎ Solo el creador puede modificar
-├ׁ̟̇❍✎ esta función del sistema
+├ׁ̟̇❍✎ المطور بس اللي يقدر يعدّل
+├ׁ̟̇❍✎ الخاصية دي في النظام
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim());
       }
@@ -148,9 +165,9 @@ ${command} welcome
     default:
       m.reply(`
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⚙️ 𝐎𝐏𝐂𝐈Ó𝐍 𝐍𝐎 𝐕𝐀́𝐋𝐈𝐃𝐀 ⚙️╮
+╭╼⚙️ اختيار غير صحيح ⚙️╮
 ┃֪࣪
-├ׁ̟̇❍✎ Usa una opción válida
+├ׁ̟̇❍✎ استخدم اختيار صحيح
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 
 ${configList}
@@ -159,9 +176,9 @@ ${configList}
   }
 };
 
-handler.help = ['on', 'off'];
+handler.help = ['تشغيل', 'ايقاف'];
 handler.tags = ['grupo'];
-handler.command = ['on', 'off'];
+handler.command = ['on', 'off', 'تشغيل', 'ايقاف'];
 handler.admin = true;
 handler.botAdmin = false;
 

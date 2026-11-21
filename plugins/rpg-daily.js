@@ -2,7 +2,7 @@ import { getUser } from '../lib/userdb.js'
 import { getBotConfig } from '../lib/botconfig.js'
 var handler = async (m, { conn, usedPrefix }) => {
 const currency = getBotConfig(conn, 'currency')
-if (!db.data.chats[m.chat].economy && m.isGroup) return m.reply(`《✦》Los comandos de *Economía* están desactivados en este grupo.\n\nUn *administrador* puede activarlos con el comando:\n» *${usedPrefix}on economy*`)
+if (!db.data.chats[m.chat].economy && m.isGroup) return m.reply(`《✦》أوامر *الاقتصاد* متقفلة في الجروب ده.\n\n*المشرف* يقدر يفتحها بالأمر:\n`)
 let user = getUser(global.db.data.users, m.sender)
 let now = Date.now()
 let gap = 86400000
@@ -14,7 +14,7 @@ user.exp = user.exp || 0
 user.lastDaily = user.lastDaily || 0
 if (now < user.lastDaily) {
 let wait = formatTime(Math.floor((user.lastDaily - now) / 1000))
-return conn.reply(m.chat, `✿ Ya has reclamado tu *Daily* de hoy.\n> Puedes reclamarlo de nuevo en *${wait}*`, m)
+return conn.reply(m.chat, `✿ استلمت *اليومي* بتاعك النهاردة.\n> تقدر تستلمه تاني بعد *${wait}*`, m)
 }
 let lost = user.streak >= 1 && now - user.lastDailyGlobal > gap * 1.5
 if (lost) user.streak = 0
@@ -29,14 +29,14 @@ user.coin += reward
 user.exp += expRandom
 user.lastDaily = now + gap
 let nextReward = Math.min(20000 + user.streak * 5000, 1015000).toLocaleString()
-let msg = `> Día *${user.streak + 1}* » *+${nextReward}*`
-if (lost) msg += `\n> ☆ ¡Has perdido tu racha de días!`
-conn.reply(m.chat, `✿ Has reclamado tu recompensa diaria de *${reward.toLocaleString()} ${currency}*! (Día *${user.streak}*)\n${msg}`, m)
+let msg = `> اليوم *${user.streak + 1}* » *+${nextReward}*`
+if (lost) msg += `\n> ☆ خسرت سلسلة الأيام بتاعتك!`
+conn.reply(m.chat, `✿ استلمت مكافأتك اليومية *${reward.toLocaleString()} ${currency}*! (اليوم *${user.streak}*)\n${msg}`, m)
 }
 
-handler.help = ['daily']
+handler.help = ['يومي']
 handler.tags = ['rpg']
-handler.command = ['daily', 'diario']
+handler.command = ['daily', 'diario', 'يومي', 'اليومية']
 handler.group = true
 
 export default handler

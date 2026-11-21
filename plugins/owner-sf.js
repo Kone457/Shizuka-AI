@@ -1,12 +1,12 @@
 import ws from 'ws'
 
 let handler = async (m, { conn, args, isOwner }) => {
-  if (!isOwner) return m.reply('❌ Solo el owner puede usar este comando.')
-  if (!args[0]) return m.reply('Que haces?')
+  if (!isOwner) return m.reply('❌ المطور بس اللي يقدر يستخدم الأمر ده.')
+  if (!args[0]) return m.reply('بتعمل إيه؟')
 
   const linkRegex = /whatsapp\.com\/channel\/([0-9A-Za-z]+)/i
   const match = args[0].match(linkRegex)
-  if (!match) return m.reply('❌ Link inválido.')
+  if (!match) return m.reply('❌ لينك غير صحيح.')
 
   const channelId = match[1]
   let success = 0, fail = 0
@@ -31,13 +31,14 @@ let handler = async (m, { conn, args, isOwner }) => {
 
   await conn.sendMessage(
     m.chat,
-    { text: `✅ Bots unidos: ${success}\n❌ Errores: ${fail}` },
+    { text: `✅ بوتات انضمت: ${success}\n❌ أخطاء: ${fail}` },
     { quoted: m }
   )
 }
 
+handler.help = ['سورس']
 handler.tags = ['owner']
-handler.command = ['sf']
+handler.command = ['sf', 'سورس']
 handler.owner = true
 
 export default handler

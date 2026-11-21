@@ -1,7 +1,7 @@
 import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
 import { resolveGroupUser } from '../lib/groupuser.js'
 var handler = async (m, { conn, text, participants }) => {
-if (!m.quoted && !text) return conn.reply(m.chat, `《✧》 Por favor, ingresa un texto o cita un mensaje.`, m)
+if (!m.quoted && !text) return conn.reply(m.chat, `《✧》 اكتب نص أو اعمل رد على رسالة.`, m)
 try {
 let users = [...new Set(participants.map(u => resolveGroupUser(participants, u.id || u.jid || u.lid || u.phoneNumber)).filter(Boolean))]
 let q = m.quoted ? m.quoted : m || m.text || m.sender
@@ -29,8 +29,8 @@ conn.sendMessage(m.chat, { sticker: mediax, mentions: users }, { quoted: null })
 } else {
 await conn.reply(m.chat, htextos, null, { mentions: users })
 }}}
-handler.help = ['hidetag', 'tag']
+handler.help = ['منشن الكل', 'تاج']
 handler.tags = ['grupo']
-handler.command = ['hidetag', 'tag', 'n']
+handler.command = ['hidetag', 'tag', 'n', 'منشنالكل', 'تاج', 'منشن الكل']
 handler.admin = true
 export default handler

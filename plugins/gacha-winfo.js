@@ -8,7 +8,7 @@ async function loadCharacters() {
         const data = await fs.readFile(charactersFilePath, 'utf-8');
         return JSON.parse(data);
     } catch (error) {
-        throw new Error('❏ No se pudo cargar el archivo characters.json.');
+        throw new Error('❏ مقدرتش أحمّل ملف characters.json.');
     }
 }
 
@@ -23,7 +23,7 @@ async function loadHarem() {
 
 let handler = async (m, { conn, args }) => {
     if (args.length === 0) {
-        await conn.reply(m.chat, '《✧》Debes especificar un personaje para ver su información.\n> Ejemplo » *#winfo Aika Sano*', m);
+        await conn.reply(m.chat, '《✧》لازم تحدد شخصية عشان تشوف معلوماتها.\n> مثال » *#winfo Aika Sano*', m);
         return;
     }
 
@@ -34,27 +34,27 @@ let handler = async (m, { conn, args }) => {
         const character = characters.find(c => c.name.toLowerCase() === characterName);
 
         if (!character) {
-            await conn.reply(m.chat, `《✧》No se encontró el personaje *${characterName}*.`, m);
+            await conn.reply(m.chat, `《✧》مقدرتش ألاقي الشخصية *${characterName}*.`, m);
             return;
         }
 
         const harem = await loadHarem();
         const userEntry = harem.find(entry => entry.characterId === character.id);
         const statusMessage = userEntry 
-            ? `Reclamado por @${userEntry.userId.split('@')[0]}` 
+            ? `مطالب بيها @${userEntry.userId.split('@')[0]}` 
             : 'Libre';
         
-        const message = `❀ Nombre » *${character.name}*\n⚥ Género » *${character.gender}*\n✰ Valor » *${character.value}*\n♡ Estado » ${statusMessage}\n❖ Fuente » *${character.source}*`;
+        const message = `❀ الاسم » *${character.name}*\n⚥ النوع » *${character.gender}*\n✰ القيمة » *${character.value}*\n♡ الحالة » ${statusMessage}\n❖ المصدر » *${character.source}*`;
 
         await conn.reply(m.chat, message, m, { mentions: [userEntry ? userEntry.userId : null] });
     } catch (error) {
-        await conn.reply(m.chat, `✘ Error al cargar la información del personaje: ${error.message}`, m);
+        await conn.reply(m.chat, `✘ خطأ في تحميل معلومات الشخصية: ${error.message}`, m);
     }
 };
 
-handler.help = ['winfo'];
+handler.help = ['ويفومعلومة'];
 handler.tags = ['gacha'];
-handler.command = ['charinfo', 'winfo', 'waifuinfo'];
+handler.command = ['charinfo', 'winfo', 'waifuinfo', 'شخصية', 'ويفومعلومة', 'معلوماتويفو', 'معلومات ويفو'];
 handler.group = true;
 handler.gacha = true;
 

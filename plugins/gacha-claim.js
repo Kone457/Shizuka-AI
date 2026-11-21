@@ -10,7 +10,7 @@ async function loadCharacters() {
         const data = await fs.readFile(charactersFilePath, 'utf-8')
         return JSON.parse(data)
     } catch {
-        throw new Error('❏ No se pudo cargar el archivo characters.json.')
+        throw new Error('❏ مقدرتش أحمّل ملف characters.json.')
     }
 }
 
@@ -22,7 +22,7 @@ async function saveCharacters(characters) {
             'utf-8'
         )
     } catch {
-        throw new Error('❏ No se pudo guardar el archivo characters.json.')
+        throw new Error('❏ مقدرتش أحفظ ملف characters.json.')
     }
 }
 
@@ -37,7 +37,7 @@ let handler = async (m, { conn }) => {
 
         return await conn.reply(
             m.chat,
-            `《✧》Debes esperar *${minutes} minutos y ${seconds} segundos* para usar *#c* de nuevo.`,
+            `《✧》لازم تستنى *${minutes} دقيقة و${seconds} ثانية* عشان تستخدم *#c* تاني.`,
             m
         )
     }
@@ -45,7 +45,7 @@ let handler = async (m, { conn }) => {
     if (!m.quoted?.text) {
         return await conn.reply(
             m.chat,
-            '《✧》Debes citar un personaje válido para reclamar.',
+            '《✧》لازم ترد على شخصية صحيحة عشان تطالب بيها.',
             m
         )
     }
@@ -60,7 +60,7 @@ let handler = async (m, { conn }) => {
         if (!characterIdMatch) {
             return await conn.reply(
                 m.chat,
-                '《✧》No se pudo encontrar el ID del personaje en el mensaje citado.',
+                '《✧》مقدرتش ألاقي ID الشخصية في الرسالة المردود عليها.',
                 m
             )
         }
@@ -74,7 +74,7 @@ let handler = async (m, { conn }) => {
         if (!character) {
             return await conn.reply(
                 m.chat,
-                '《✧》El mensaje citado no es un personaje válido.',
+                '《✧》الرسالة المردود عليها مش شخصية صحيحة.',
                 m
             )
         }
@@ -82,7 +82,7 @@ let handler = async (m, { conn }) => {
         if (character.user && character.user !== userId) {
             return await conn.reply(
                 m.chat,
-                `《✧》El personaje ya ha sido reclamado por @${character.user.split('@')[0]}, inténtalo a la próxima :v.`,
+                `《✧》الشخصية دي اطالب بيها @${character.user.split('@')[0]}، جرّب المرة الجاية :v.`,
                 m,
                 { mentions: [character.user] }
             )
@@ -103,7 +103,7 @@ let handler = async (m, { conn }) => {
 
         await conn.reply(
             m.chat,
-            `✦ Has reclamado a *${character.name}* con éxito.`,
+            `✦ طالبت بـ *${character.name}* بنجاح.`,
             m
         )
 
@@ -112,15 +112,15 @@ let handler = async (m, { conn }) => {
     } catch (error) {
         await conn.reply(
             m.chat,
-            `✘ Error al reclamar el personaje: ${error.message}`,
+            `✘ خطأ في المطالبة بالشخصية: ${error.message}`,
             m
         )
     }
 }
 
-handler.help = ['claim']
+handler.help = ['استلم']
 handler.tags = ['gacha']
-handler.command = ['c', 'claim', 'reclamar']
+handler.command = ['c', 'claim', 'reclamar', 'استلم', 'استلام']
 handler.group = true
 handler.gacha = true
 

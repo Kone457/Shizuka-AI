@@ -100,7 +100,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   const participant = findParticipant(targetIds)
   const realJid = await resolveJid(targetIds, participant)
   if (!realJid) return true
-  const userNumber = getNumber(realJid) || getNumber(rawTarget) || 'Usuario'
+  const userNumber = getNumber(realJid) || getNumber(rawTarget) || 'مستخدم'
   const userKeys = [
     rawTarget,
     targetData.id,
@@ -179,60 +179,60 @@ export async function before(m, { conn, participants, groupMetadata }) {
   const actionText = {
     [WAMessageStubType.GROUP_PARTICIPANT_ADD]:
       actorJid
-        ? `Agregado por @${getNumber(actorJid)}`
-        : 'Se unió al grupo',
+        ? `أضافه @${getNumber(actorJid)}`
+        : 'انضم للجروب',
     [WAMessageStubType.GROUP_PARTICIPANT_REMOVE]:
       actorJid
-        ? `Eliminado por @${getNumber(actorJid)}`
-        : 'Eliminado del grupo',
+        ? `طرده @${getNumber(actorJid)}`
+        : 'تم طرده من الجروب',
     [WAMessageStubType.GROUP_PARTICIPANT_LEAVE]:
-      'Salió del grupo'
+      'خرج من الجروب'
   }
   const format = text => {
     return String(text)
       .replace(/@user/g, `@${userNumber}`)
       .replace(/@name/g, targetName)
       .replace(/@group/g, groupMetadata?.subject || m.chat)
-      .replace(/@desc/g, groupMetadata?.desc?.toString() || 'Sin descripción')
+      .replace(/@desc/g, groupMetadata?.desc?.toString() || 'بدون وصف')
       .replace(/%users/g, String(memberCount))
       .replace(/@action/g, actionText[m.messageStubType] || '')
       .replace(/@date/g, new Date().toLocaleString())
   }
   const defaultWelcome = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🌟 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 🌟
+🌟 أهلاً وسهلاً 🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 Usuario: @user
-🏷️ Grupo: @group
+👤 المستخدم: @user
+🏷️ الجروب: @group
 
 📌 @action
 
-📜 Descripción del grupo:
+📜 وصف الجروب:
 @desc
 
-👥 Miembro # %users
-⚠️ Lee las reglas para evitar BAN.
+👥 العضو رقم %users
+⚠️ اقرأ القوانين عشان متتعرضش للحظر.
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-✦ 𝐃𝐈𝐒𝐅𝐑𝐔𝐓𝐀 𝐓𝐔 𝐄𝐒𝐓𝐀𝐍𝐂𝐈𝐀 ✦
+✦ استمتع بوقتك ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim()
   const defaultBye = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-💔 𝐇𝐀𝐒𝐓𝐀 𝐏𝐑𝐎𝐍𝐓𝐎 💔
+💔 إلى اللقاء قريباً 💔
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 Usuario: @user
-🏷️ Grupo: @group
+👤 المستخدم: @user
+🏷️ الجروب: @group
 
 📌 @action
 
-😢 Esperamos que vuelvas pronto...
-👥 Miembros ahora: %users
+😢 مستنيين رجوعك قريب...
+👥 الأعضاء دلوقتي: %users
 
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-✦ 𝐕𝐔𝐄𝐋𝐕𝐄 𝐂𝐔𝐀𝐍𝐃𝐎 𝐐𝐔𝐈𝐄𝐑𝐀𝐒 ✦
+✦ ارجع وقت ما تحب ✦
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 `.trim()
   let avatarUrl = 'https://files.evogb.win/AGCG2d.jpg'

@@ -8,7 +8,7 @@ const handler = async (m, { conn, command, participants }) => {
     const participant = findParticipant(groupParticipants, who)
     if (!participant) return conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
     who = resolveGroupUser(groupParticipants, who)
-    const isPromote = command === 'promote'
+    const isPromote = ['promote', 'ترقية'].includes(command)
     const protectedOwners = ownerJids()
     if (isPromote) {
       if (participant.admin) return conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
@@ -25,9 +25,9 @@ const handler = async (m, { conn, command, participants }) => {
     conn.sendMessage(m.chat, { react: { text: '⛔', key: m.key } })
   }
 }
-handler.help = ['promote', 'demote']
+handler.help = ['ترقية', 'تنزيل']
 handler.tags = ['grupo']
-handler.command = ['promote', 'demote']
+handler.command = ['promote', 'demote', 'ترقية', 'تنزيل']
 handler.admin = true
 handler.botAdmin = true
 export default handler
