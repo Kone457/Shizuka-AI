@@ -4,7 +4,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text || !/(facebook\.com|fb\.watch|fb\.gg)/.test(text)) {
     return await conn.sendMessage(
       m.chat,
-      { text: `《✧》 Proporciona un enlace válido de Facebook.` },
+      { text: `《✧》 هات لينك فيسبوك صحيح.` },
       { quoted: m }
     );
   }
@@ -48,13 +48,13 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
     if (!media) {
-      throw new Error(data?.message || data?.mensaje || 'No se pudo descargar el contenido de Facebook.')
+      throw new Error(data?.message || data?.mensaje || 'مقدرتش أحمّل محتوى فيسبوك.')
     }
 
     let dlUrl = media.video || media.video_sd || media.video_hd || media.hd || media.sd
 
     if (!dlUrl) {
-      throw new Error('No se encontró un enlace de video válido.')
+      throw new Error('مفيش لينك فيديو صحيح.')
     }
 
     if (dlUrl.startsWith('/')) {
@@ -72,7 +72,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       m.chat,
       {
         video: { url: dlUrl },
-        caption: `*✿ Aquí tienes...*\n\n📌 ${title || 'Video de Facebook'}${duration ? `\n⏱️ Duración: ${duration}s` : ''}`,
+        caption: `*✿ اتفضل...*\n\n📌 ${title || 'فيديو فيسبوك'}${duration ? `\n⏱️ Duración: ${duration}s` : ''}`,
         ...(thumbnail ? { jpegThumbnail: undefined, thumbnail: undefined } : {})
       },
       { quoted: m }
@@ -81,10 +81,10 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
   } catch (err) {
-    console.error('❏ Error:', err);
+    console.error('❏ خطأ:', err);
     await conn.sendMessage(
       m.chat,
-      { text: `❏ Error al procesar la solicitud.\n❏ Detalles: ${err.message}` },
+      { text: `❏ خطأ في معالجة الطلب.\n❏ التفاصيل: ${err.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });

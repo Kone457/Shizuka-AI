@@ -37,7 +37,7 @@ let handler = async (m, { conn }) => {
     }
   }
 
-  if (!results.length) return m.reply('⚠️ No se encontraron grupos.')
+  if (!results.length) return m.reply('⚠️ مفيش جروبات.')
 
   let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 🌐 GRUPOS 🌐
@@ -46,9 +46,9 @@ Total: *${results.length}*
 
   for (const g of results) {
     txt += `\n📌 *${g.name}*
-👥 Miembros: ${g.members}
-📝 Descripción: ${g.desc.slice(0, 100)}${g.desc.length > 100 ? '...' : ''}
-🔗 Link: ${g.link}
+👥 الأعضاء: ${g.members}
+📝 الوصف: ${g.desc.slice(0, 100)}${g.desc.length > 100 ? '...' : ''}
+🔗 اللينك: ${g.link}
 🤖 Bot: ${g.bot}\n`
   }
 

@@ -42,7 +42,7 @@ const handler = async (m, { args, conn }) => {
       m.chat,
       mediaUrl,
       'instagram.mp4',
-      '✿ Aquí tienes.',
+      '✿ اتفضل.',
       m
     );
 
@@ -51,7 +51,7 @@ const handler = async (m, { args, conn }) => {
   } catch (e) {
     await conn.sendMessage(
       m.chat,
-      { text: `❏ Error.\n❏ Detalles: ${e.message}` },
+      { text: `❏ خطأ.\n❏ التفاصيل: ${e.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } });

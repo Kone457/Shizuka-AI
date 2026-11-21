@@ -1,11 +1,11 @@
 import ws from 'ws'
 
 let handler = async (m, { conn, args }) => {
-  if (!args[0]) return m.reply('✿ Ingresa el enlace del grupo.\nEjemplo: *.sjoin https://chat.whatsapp.com/XXXXXXX*')
+  if (!args[0]) return m.reply('✿ اكتب لينك الجروب.\nمثال: *.sjoin https://chat.whatsapp.com/XXXXXXX*')
 
   const linkRegex = /chat\.whatsapp\.com\/([0-9A-Za-z]+)/i
   const match = args[0].match(linkRegex)
-  if (!match) return m.reply('✿ Enlace inválido.')
+  if (!match) return m.reply('✿ لينك غير صحيح.')
 
   const inviteCode = match[1]
   let joined = []
@@ -31,9 +31,9 @@ let handler = async (m, { conn, args }) => {
   }
 
   let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-🌐 RESULTADO 🌐
-Unidos correctamente: *${joined.length}*
-Fallidos: *${failed.length}*
+🌐 النتيجة 🌐
+اتضافوا: *${joined.length}*
+فشلوا: *${failed.length}*
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯`
 
   if (joined.length) txt += `\n✅ ${joined.join('\n✅ ')}`

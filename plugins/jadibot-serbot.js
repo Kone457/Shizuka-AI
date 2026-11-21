@@ -14,21 +14,21 @@ import { fileURLToPath } from 'url'
 import { getBotConfig } from '../lib/botconfig.js'
 
 let rtx = `
-> 𝗩𝗶𝗻𝗰𝘂𝗹𝗮𝗰𝗶𝗼́𝗻 vía 𝗤𝗥
-> ✿ *Escaneá este QR* con otro celular o PC para ser un *Sub-Bot temporal.*
+> الربط عن طريق QR
+> ✿ *امسح الـQR ده* con otro celular o PC para ser un *بوت فرعي مؤقت.*
 
-> ✿ *Pasos:*
-> ✿ Abre los *tres puntos* arriba a la derecha  
+> ✿ *الخطوات:*
+> ✿ افتح *tres puntos* arriba a la derecha  
 > ✿ Toca *Dispositivos vinculados*  
 > ✿ Escanea el *código QR* para iniciar sesión
 
 `.trim()
 let rtx2 = `
-> 𝗩𝗶𝗻𝗰𝘂𝗹𝗮𝗰𝗶𝗼́𝗻 vía 𝗖𝗼𝗱𝗲
-> ✿ Usa este *código* para ser un *Sub-Bot temporal.*
+> الربط عن طريق الكود
+> ✿ استخدم *الكود* ده para ser un *بوت فرعي مؤقت.*
 
-> ✿ *Pasos:*
-> ✿ Abre los *tres puntos* arriba a la derecha  
+> ✿ *الخطوات:*
+> ✿ افتح *tres puntos* arriba a la derecha  
 > ✿ Toca *Dispositivos vinculados*  
 > ✿ Selecciona *Vincular con número de teléfono*  
 > ✿ Ingresa el *código* de vinculación.
@@ -56,12 +56,12 @@ loadSubbots().catch(console.error)
 
 let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
   if (!global.db.data.settings[conn.user.jid].jadibotmd) {
-    return m.reply(`✿ *Este comando esta deshabilitado.*`)
+    return m.reply(`✿ *الأمر ده متوقف.*`)
   }
 
   const activeConns = global.conns.filter(c => c.user && c.ws.socket && c.ws.socket.readyState !== ws.CLOSED)
   if (activeConns.length >= MAX_SUBBOTS) {
-    return m.reply(`✿ *Lo siento, se ha alcanzado el límite de ${MAX_SUBBOTS} subbots.*`)
+    return m.reply(`✿ *معلش، وصلنا للحد الأقصى ${MAX_SUBBOTS} بوت فرعي.*`)
   }
 
   let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
@@ -83,7 +83,7 @@ async function downloadImage(url) {
     const buffer = await response.arrayBuffer()
     return Buffer.from(buffer)
   } catch (error) {
-    console.error('Error descargando imagen:', error)
+    console.error('خطأ في تحميل الصورة:', error)
     return null
   }
 }
@@ -135,7 +135,7 @@ export async function skyJadiBot(options) {
 
         await conn.sendMessage(m.chat, {
           image: await qrcode.toBuffer(qr, { scale: 8 }),
-          caption: "📱 *Escanea este código QR:*"
+          caption: "📱 *امسح الـQR ده:*"
         }, { quoted: m })
       } else {
         await conn.sendMessage(m.chat, {
@@ -166,8 +166,8 @@ export async function skyJadiBot(options) {
         }
         isSent = true
       } catch (error) {
-        console.error('Error generando código:', error)
-        await conn.reply(m.chat, "❌ Error generando código de vinculación", m)
+        console.error('خطأ في توليد الكود:', error)
+        await conn.reply(m.chat, "❌ خطأ في توليد كود الربط", m)
       }
     }
 
@@ -181,7 +181,7 @@ export async function skyJadiBot(options) {
 
       if (!global.conns.includes(sock)) global.conns.push(sock)
 
-      console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 Conectado: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
+      console.log(chalk.cyanBright(`\n❒⸺⸺⸺⸺【• SKY-BOT •】⸺⸺⸺⸺❒\n│ 🟢 متصل: ${sock.user.id}\n❒⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺❒`))
 
       if (fromCommand) {
         options.fromCommand = false
@@ -196,7 +196,7 @@ export async function skyJadiBot(options) {
           skyJadiBot({ ...options, fromCommand: false })
         }, 5000)
       } else {
-        console.log(chalk.red(`\n❌ Sesión cerrada: ${path.basename(pathSkyJadiBot)}`))
+        console.log(chalk.red(`\n❌ الجلسة اتقفلت: ${path.basename(pathSkyJadiBot)}`))
         try {
           if (fs.existsSync(pathSkyJadiBot)) {
             fs.rmSync(pathSkyJadiBot, { recursive: true, force: true })

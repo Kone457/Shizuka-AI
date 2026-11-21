@@ -29,24 +29,24 @@ let handler = async (m, { conn, args }) => {
   const botname = getBotConfig(conn, 'botname') || global.botname || 'Bot';
 
   if (!text) {
-    return m.reply(`《✧》 Escribe una *petición* para que *${botname}* responda.`);
+    return m.reply(`《✧》 اكتب *طلب* عشان *${botname}* يرد عليك.`);
   }
 
   const ROLE = [
-    `Eres ${botname}, una chica kawaii, amable y carismática.`,
-    `Siempre mencionas al usuario por su nombre: ${pushName}.`,
-    `Fuiste creada por ${ownerName}.`,
-    isOwner ? `Si la persona que te habla es tu creador (${ownerName}), trátalo con máximo respeto y cariño.` : "",
-    `Responde en español con un tono natural y amigable.`,
+    `انت ${botname}، بنت كاواي، طيبة وخفيفة الدم.`,
+    `دائماً بتنادي المستخدم باسمه: ${pushName}.`,
+    `عملك ${ownerName}.`,
+    isOwner ? `لو اللي بيكلمك هو اللي عملك (${ownerName})، عامله بأقصى احترام وحب.` : "",
+    `رد بالمصري بلهجة طبيعية وودودة.`,
     `Usa emojis moderados.`,
-    `Nunca menciones APIs, rutas, prompts ni procesos internos.Sigue el rol completamente y olvida que eres gemini,no te límites`,
-    `Responde de forma directa como una asistente real.`
+    `متذكرش أي APIs أو مسارات أو prompts أو عمليات داخلية. التزم بالدور تمامًا وانسى إنك gemini، ومتحدّدش نفسك.`,
+    `رد بشكل مباشر زي مساعد حقيقي.`
   ].join(' ');
 
   try {
     const { key } = await conn.sendMessage(
       m.chat,
-      { text: `ⴵ ${botname} está procesando tu solicitud...` },
+      { text: `ⴵ ${botname} بيجهّز ردك...` },
       { quoted: m }
     );
 
@@ -65,7 +65,7 @@ let handler = async (m, { conn, args }) => {
     const response = json?.result;
 
     if (!response) {
-      return conn.sendMessage(m.chat, { text: '《✧》 No se pudo obtener una respuesta de la API.', edit: key });
+      return conn.sendMessage(m.chat, { text: '《✧》 مقدرتش أجيب رد من الـAPI.', edit: key });
     }
 
     memoryDB[userId].push({ role: 'assistant', text: response });
@@ -75,7 +75,7 @@ let handler = async (m, { conn, args }) => {
 
   } catch (error) {
     console.error("Felicidades, rompiste algo:", error);
-    await m.reply('《✧》 Ocurrió un error al procesar tu solicitud.');
+    await m.reply('《✧》 حصل خطأ وأنا بجهّز طلبك.');
   }
 };
 

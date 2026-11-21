@@ -8,7 +8,7 @@ let handler = async (m, { conn, args }) => {
   ].includes(m.sender);
 
   if (!isSocketOwner) {
-    return m.reply('✿ Solo el propietario del bot puede usar este comando.');
+    return m.reply('✿ صاحب البوت بس اللي يقدر يستخدم الأمر ده.');
   }
 
   const groupId = args[0] || m.chat;
@@ -18,7 +18,7 @@ let handler = async (m, { conn, args }) => {
     await conn.groupLeave(groupId);
   } catch (error) {
     console.error(error);
-    m.reply('✿ No se pude abandonar el grupo.\n> Intenta nuevamente.');
+    m.reply('✿ مقدرتش أسيب الجروب.\n> جرّب تاني.');
   }
 };
 

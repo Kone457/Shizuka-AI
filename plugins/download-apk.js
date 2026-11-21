@@ -72,22 +72,22 @@ async function apkdl(pkgOrUrl) {
 }
 
 const handler = async (m, { conn, args }) => {
-  if (!args[0]) return conn.reply(m.chat, '《✧》 Ingresa el nombre de la aplicación.', m)
+  if (!args[0]) return conn.reply(m.chat, '《✧》 اكتب اسم التطبيق.', m)
   try {
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
     const query = args.join(' ')
     const results = await apks(query, 1)
     const app = results[0]
-    if (!app) return conn.reply(m.chat, '❏ No se encontró la aplicación.', m)
+    if (!app) return conn.reply(m.chat, '❏ مقدرتش ألاقي التطبيق.', m)
     const detail = await apkdl(app.pkg)
     await conn.sendMessage(m.chat, {
       image: { url: detail.icon },
-      caption: `✿ *${detail.name}*\n📦 Paquete: ${detail.pkg}\n📝 Versión: ${detail.version}\n📂 Tamaño: ${detail.size}\n👤 Desarrollador: ${detail.developer}`
+      caption: `✿ *${detail.name}*\n📦 الحزمة: ${detail.pkg}\n📝 الإصدار: ${detail.version}\n📂 الحجم: ${detail.size}\n👤 المطور: ${detail.developer}`
     }, { quoted: m })
     await conn.sendFile(m.chat, detail.download, `${detail.pkg}.apk`, '', m)
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
   } catch (e) {
-    await conn.reply(m.chat, `❏ Error al descargar.\n❏ Detalles: ${e.message}`, m)
+    await conn.reply(m.chat, `❏ خطأ في التحميل.\n❏ التفاصيل: ${e.message}`, m)
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
   }
 }

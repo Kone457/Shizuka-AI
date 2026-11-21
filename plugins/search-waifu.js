@@ -22,7 +22,7 @@ let handler = async (m, { conn, text }) => {
 
   } catch (error) {
     console.error(error);
-    m.reply('❏ *Error al obtener la imagen.* Intenta nuevamente más tarde.');
+    m.reply('❏ *خطأ في جلب الصورة.* جرّب تاني بعد شوية.');
   }
 };
 

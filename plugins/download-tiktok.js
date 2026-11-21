@@ -84,27 +84,27 @@ async function downloadTikTok(url) {
   try {
     const res = await fetch(`${api.url}/download/tiktok?url=${encodeURIComponent(url)}&apikey=${api.key}`)
     const json = await res.json()
-    if (!res.ok || !json.status || !json.result?.data) throw new Error('API principal no disponible.')
+    if (!res.ok || !json.status || !json.result?.data) throw new Error('الـAPI الأساسي مش متاح.')
     const data = json.result.data
     const video = data.hdplay || data.play || data.wmplay
-    if (!video) throw new Error('Sin video en API principal.')
-    return { video, title: data.title || 'Sin título' }
+    if (!video) throw new Error('مفيش فيديو في الـAPI الأساسي.')
+    return { video, title: data.title || 'بدون عنوان' }
   } catch {
     const res = await fetch(`https://aquire-api.vercel.app/download/tiktok?url=${encodeURIComponent(url)}`)
     const json = await res.json()
     if (!res.ok || !json.status || !json.result?.data) {
-      throw new Error(json?.result?.msg || json?.message || 'Fallaron las APIs de descarga.')
+      throw new Error(json?.result?.msg || json?.message || 'APIs التحميل فشلت.')
     }
     const data = json.result.data
     const video = data.hdplay || data.play || data.wmplay
-    if (!video) throw new Error('La API de reserva no devolvió un video.')
-    return { video, title: data.title || 'Sin título' }
+    if (!video) throw new Error('الـAPI الاحتياطي مرجّعش فيديو.')
+    return { video, title: data.title || 'بدون عنوان' }
   }
 }
 
 const handler = async (m, { conn, args }) => {
   if (!args.length) {
-    return conn.reply(m.chat, '《✧》 Ingresa un enlace o una búsqueda.', m)
+    return conn.reply(m.chat, '《✧》 اكتب لينك أو كلمة بحث.', m)
   }
 
   await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
@@ -135,11 +135,11 @@ const handler = async (m, { conn, args }) => {
 
   try {
     let video
-    let text = '✿ Aquí tienes.'
+    let text = '✿ اتفضل.'
     const query = args.join(' ')
 
     if (isUrl(query)) {
-      if (!isTikTokUrl(query)) throw new Error('El enlace no pertenece a TikTok.')
+      if (!isTikTokUrl(query)) throw new Error('اللينك مش بتاع تيك توك.')
       let url = query
       if (url.includes('vt.tiktok.com') || url.includes('vm.tiktok.com')) {
         url = await resolveTikTokUrl(url)
@@ -150,7 +150,7 @@ const handler = async (m, { conn, args }) => {
     } else {
       const res = await fetch(`${api.url}/search/tiktok?q=${encodeURIComponent(query)}&apikey=${api.key}`)
       const json = await res.json()
-      if (!json.status || !json.result?.length) throw new Error('No se encontró ningún video.')
+      if (!json.status || !json.result?.length) throw new Error('مفيش أي فيديو.')
       const first = json.result[0]
       const url = `https://www.tiktok.com/@${first.author.unique_id}/video/${first.video_id}`
       const result = await downloadTikTok(url)
@@ -158,13 +158,13 @@ const handler = async (m, { conn, args }) => {
       text += `\n\n📝 ${result.title}`
     }
 
-    if (!video) throw new Error('No se pudo obtener el archivo de video.')
+    if (!video) throw new Error('مقدرتش أجيب ملف الفيديو.')
 
     await conn.sendFile(m.chat, video, 'tiktok.mp4', text, m)
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
     await tryRandomSticker(conn, m.chat, successStickers, fkontak)
   } catch (e) {
-    await conn.reply(m.chat, `❏ Error.\n❏ Detalles: ${e.message || 'Error desconocido.'}`, m)
+    await conn.reply(m.chat, `❏ خطأ.\n❏ التفاصيل: ${e.message || 'خطأ غير معروف.'}`, m)
     await conn.sendMessage(m.chat, { react: { text: '⚠️', key: m.key } })
     await tryRandomSticker(conn, m.chat, errorStickers, fkontak)
   }

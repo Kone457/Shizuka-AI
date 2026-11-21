@@ -58,7 +58,7 @@ let handler = async (m, { conn, text }) => {
     console.error(err);
     await conn.sendMessage(
       m.chat,
-      { text: `❏ Error al procesar la solicitud.\n❏ Detalles: ${err.message}` },
+      { text: `❏ خطأ في معالجة الطلب.\n❏ التفاصيل: ${err.message}` },
       { quoted: m }
     );
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });

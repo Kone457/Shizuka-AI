@@ -20,7 +20,7 @@ let handler = async (m, { conn, command }) => {
         reactions = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'))
     } catch (e) {
         console.error(e)
-        return m.reply('❌ Error al leer el archivo `lib/reaction.json`. Asegúrate de que exista y esté bien estructurado.')
+        return m.reply('❌ خطأ في قراءة ملف `lib/reaction.json`. اتأكد إنه موجود ومظبوط.')
     }
 
     const aliasMap = {
@@ -52,7 +52,7 @@ let handler = async (m, { conn, command }) => {
     let texts = reactions[`text-${cmd}`]
 
     if (!videos || !texts) {
-        return m.reply(`❌ No se encontraron datos para la reacción NSFW: ${cmd}`)
+        return m.reply(`❌ مفيش بيانات لتفاعل NSFW: ${cmd}`)
     }
 
     let str = (isMention || m.quoted)

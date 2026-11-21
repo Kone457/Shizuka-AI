@@ -5,24 +5,24 @@ let handler = async (m, { conn }) => {
     const chat = global.db?.data?.chats?.[m.chat];
 
     if (!chat) {
-      return conn.reply(m.chat, "《✧》 No se pudo acceder a la base de datos del grupo.", m);
+      return conn.reply(m.chat, "《✧》 مقدرتش أدخل على بيانات الجروب.", m);
     }
 
     if (!chat.primaryBot) {
-      return conn.reply(m.chat, "《✧》 Este grupo no tiene un bot primario establecido.", m);
+      return conn.reply(m.chat, "《✧》 الجروب ده مفيش فيه بوت أساسي.", m);
     }
 
     const oldPrimary = chat.primaryBot;
     delete chat.primaryBot;
 
     conn.sendMessage(m.chat, {
-      text: `《✧》 El bot primario @${oldPrimary.split("@")[0]} ha sido eliminado de este grupo. Ahora todos los bots pueden responder.`,
+      text: `《✧》 البوت الأساسي @${oldPrimary.split("@")[0]} اتشال من الجروب. دلوقتي كل البوتات ترد.`,
       mentions: [oldPrimary]
     }, { quoted: m });
 
   } catch (error) {
-    console.error("❏ Error en .delprimary:", error);
-    m.reply("❏ Ocurrió un error al borrar el bot primario. Inténtalo nuevamente.");
+    console.error("❏ خطأ في .delprimary:", error);
+    m.reply("❏ حصل خطأ وأنا بمسح البوت الأساسي. جرّب تاني.");
   }
 };
 

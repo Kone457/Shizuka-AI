@@ -153,13 +153,13 @@ let handler = async (m, { conn }) => {
     }
 
     let txt = `╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-🌐 SUB-BOTS EN ESTE GRUPO 🌐
-Subs › *${subbotsInfo.length}*
-Total activos › *${totalActive}*
+🌐 البوتات الفرعية في الجروب ده 🌐
+الفرعية › *${subbotsInfo.length}*
+إجمالي الشغّال › *${totalActive}*
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯\n`
 
     if (subbotsInfo.length === 0) {
-      txt += `\n⚠️ No hay subbots activos en este grupo.\nUsa .qr o .code`
+      txt += `\n⚠️ مفيش بوتات فرعية شغالة في الجروب ده.\nاستخدم .qr أو .code`
     } else {
       subbotsInfo.forEach((subbot, i) => {
         txt += `\n${i + 1}) ${subbot.number}`
@@ -216,7 +216,7 @@ Total activos › *${totalActive}*
         buttons: [],
         messageParamsJson: JSON.stringify({
           limited_time_offer: {
-            text: '🌐 Sub-Bots',
+            text: '🌐 البوتات الفرعية',
             url: BANNER_URL,
             copy_code: null,
             expiration_time: null

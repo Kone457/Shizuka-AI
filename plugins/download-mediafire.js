@@ -27,16 +27,16 @@ async function mediafire(url) {
     })
     data = r.data
   } catch (e) {
-    throw new Error(`No se pudo conectar a MediaFire: ${e.message}`)
+    throw new Error(`مقدرتش أتصل بـMediaFire: ${e.message}`)
   }
 
-  if (!data || typeof data !== 'string') throw new Error('MediaFire no devolvió HTML válido')
+  if (!data || typeof data !== 'string') throw new Error('MediaFire مرجّعش HTML صحيح')
 
   const $ = cheerio.load(data)
   const link1 = ($('#downloadButton').attr('href') || '').trim()
   const link2 = ($('#download_link > a.retry').attr('href') || '').trim()
 
-  if (!link1 && !link2) throw new Error('No se encontró link de descarga')
+  if (!link1 && !link2) throw new Error('مفيش لينك تحميل')
 
   const $intro = $('div.dl-info > div.intro')
   const filenameRaw = $intro.find('div.filename').text() || ''
@@ -54,7 +54,7 @@ async function mediafire(url) {
   return {
     filename,
     url: link1 || link2,
-    type: String(filetypeRaw).trim() || 'Archivo',
+    type: String(filetypeRaw).trim() || 'ملف',
     ext,
     aploud,
     size,
@@ -76,8 +76,8 @@ const handler = async (m, { conn, args }) => {
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼📥 𝐌𝐄𝐃𝐈𝐀𝐅𝐈𝐑𝐄 📥╮
 ┃֪࣪
-├ׁ̟̇❍✎ Ingresa un link de MediaFire
-├ׁ̟̇❍✎ para descargar el archivo
+├ׁ̟̇❍✎ اكتب لينك MediaFire
+├ׁ̟̇❍✎ عشان تحمّل الملف
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(), m)
   }
@@ -93,7 +93,7 @@ const handler = async (m, { conn, args }) => {
       await conn.sendMessage(m.chat, {
         react: { text: '⚠️', key: m.key }
       })
-      return conn.reply(m.chat, `✿ El archivo pesa *${res.size}* y supera el límite de *1 GB*.`, m)
+      return conn.reply(m.chat, `✿ الملف حجمه *${res.size}* وعدّى حد *1 GB*.`, m)
     }
 
     const finalName = nombreFinal(res.filename, res.ext)
@@ -105,8 +105,8 @@ const handler = async (m, { conn, args }) => {
 ╭╼📦 𝐀𝐑𝐂𝐇𝐈𝐕𝐎 📦╮
 ┃֪࣪
 ├ׁ̟̇❍✎ ${finalName}
-├ׁ̟̇❍✎ Tipo » ${res.type}
-├ׁ̟̇❍✎ Tamaño » ${res.size}
+├ׁ̟̇❍✎ النوع » ${res.type}
+├ׁ̟̇❍✎ الحجم » ${res.size}
 ├ׁ̟̇❍✎ Subido » ${res.aploud}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim()
@@ -129,9 +129,9 @@ const handler = async (m, { conn, args }) => {
   } catch (e) {
     await conn.reply(m.chat, `
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
-╭╼⛔ 𝐄𝐑𝐑𝐎𝐑 ⛔╮
+╭╼⛔ خطأ ⛔╮
 ┃֪࣪
-├ׁ̟̇❍✎ No se pudo descargar el archivo
+├ׁ̟̇❍✎ مقدرتش أحمّل الملف
 ├ׁ̟̇❍✎ ${e.message}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(), m)
