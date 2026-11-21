@@ -6,6 +6,13 @@ import { fileURLToPath } from 'url'
 import { resolveCommand, matchesResolved, acceptsCommand } from '../lib/command-resolver.js'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+const hasDeps = fs.existsSync(path.join(root, 'node_modules'))
+
+const skipNoDeps = (t) => {
+  if (hasDeps) return false
+  t.skip('محتاج npm install الأول (اختبار على الـplugins الحقيقية)')
+  return true
+}
 
 const loadRealPlugins = async () => {
   const plugins = {}
@@ -41,28 +48,31 @@ test('matchesResolved: الأوامر اللي فيها مسافة', () => {
   assert.equal(matchesResolved({ command: ['kick', 'طرد'] }, resolved), false)
 })
 
-test('رسالة واحدة = plugin واحد بالكتير (plugins حقيقية)', async () => {
+test('الأوامر اللي ليها customPrefix (زي $) لسه شغالة', () => {
+  assert.equal(acceptsCommand(/(?:)/, 'ls', { allowCatchAll: true }), true)
+  assert.equal(acceptsCommand(/(?:)/, 'ls'), false)
+  assert.equal(acceptsCommand(/^\$ /, '$ ls', { allowCatchAll: true }), true)
+})
+
+test('رسالة واحدة = plugin واحد بالكتير (plugins حقيقية)', async (t) => {
+  if (skipNoDeps(t)) return
   const plugins = await loadRealPlugins()
   assert.ok(Object.keys(plugins).length > 100, 'المفروض يتحمّل أكتر من ١٠٠ plugin')
   const texts = ['قائمة', 'بينج', 'طرد', 'طرد الكل', 'ترتيب المستويات', 'كتم', 'تشغيل', 'يومي', 'ستيكر', 'غضب', 'معلومات الجروب']
-  for (const t of texts) {
-    const n = dispatchCount(plugins, t)
-    assert.equal(n, 1, `"${t}" شغّلت ${n} plugin بدل ١`)
+  for (const text of texts) {
+    const n = dispatchCount(plugins, text)
+    assert.equal(n, 1, `"${text}" شغّلت ${n} plugin بدل ١`)
   }
 })
 
-test('رسالة مش أمر = صفر تنفيذ', async () => {
+test('رسالة مش أمر = صفر تنفيذ', async (t) => {
+  if (skipNoDeps(t)) return
   const plugins = await loadRealPlugins()
   assert.equal(dispatchCount(plugins, 'كلام عشوائي خالص'), 0)
 })
 
-test('handler.js لازم يفلتر كل plugin على حدة (حماية من رجوع الباج)', () => {
-  const src = fs.readFileSync(path.join(root, 'handler.js'), 'utf8')
-  assert.match(src, /if \(!matchesResolved\(plugin, resolved\) \|\| name !== resolved\.plugin\) continue/, 'الفحص لكل plugin مش موجود في handler.js')
-  assert.match(src, /if \(!acceptsCommand\(plugin\.command, command, \{ allowCatchAll: true \}\)\) continue/, 'فحص الأوامر اللي ليها customPrefix مش موجود')
-})
-
-test('مفيش أسماء أوامر متكررة بين الـplugins', async () => {
+test('مفيش أسماء أوامر متكررة بين الـplugins', async (t) => {
+  if (skipNoDeps(t)) return
   const plugins = await loadRealPlugins()
   const owner = new Map()
   const dup = []
@@ -78,8 +88,8 @@ test('مفيش أسماء أوامر متكررة بين الـplugins', async (
   assert.deepEqual(dup, [], 'أوامر متكررة هتشغّل أكتر من plugin')
 })
 
-test('الأوامر اللي ليها customPrefix (زي $) لسه شغالة', () => {
-  assert.equal(acceptsCommand(/(?:)/, 'ls', { allowCatchAll: true }), true)
-  assert.equal(acceptsCommand(/(?:)/, 'ls'), false)
-  assert.equal(acceptsCommand(/^\$ /, '$ ls', { allowCatchAll: true }), true)
+test('handler.js لازم يفلتر كل plugin على حدة (حماية من رجوع الباج)', () => {
+  const src = fs.readFileSync(path.join(root, 'handler.js'), 'utf8')
+  assert.match(src, /if \(!matchesResolved\(plugin, resolved\) \|\| name !== resolved\.plugin\) continue/, 'الفحص لكل plugin مش موجود في handler.js')
+  assert.match(src, /if \(!acceptsCommand\(plugin\.command, command, \{ allowCatchAll: true \}\)\) continue/, 'فحص الأوامر اللي ليها customPrefix مش موجود')
 })
