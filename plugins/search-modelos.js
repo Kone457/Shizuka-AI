@@ -18,11 +18,11 @@ let handler = async (m, { conn, text }) => {
 
     const formatModel = (model, index) => {
       const modelId = model.id;
-      const author = model.author || 'Desconocido';
+      const author = model.author || 'غير معروف';
       const downloads = model.downloads ? model.downloads.toLocaleString() : '0';
       const likes = model.likes ? model.likes.toLocaleString() : '0';
       const lastMod = model.lastModified
-        ? new Date(model.lastModified).toLocaleDateString('es-ES', {
+        ? new Date(model.lastModified).toLocaleDateString('ar-EG', {
             year: 'numeric', month: 'short', day: 'numeric'
           })
         : 'N/A';
@@ -30,7 +30,7 @@ let handler = async (m, { conn, text }) => {
 
       return (
         `*${index + 1}. ${modelId}*\n` +
-        `   ◦ *Autor:* ${author}\n` +
+        `   ◦ *المؤلف:* ${author}\n` +
         `   ◦ *Descargas:* ${downloads}\n` +
         `   ◦ *Likes:* ${likes}\n` +
         `   ◦ *Actualizado:* ${lastMod}\n` +

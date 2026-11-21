@@ -257,13 +257,13 @@ wins++;
 resultIcon.textContent='♠️';
 resultTitle.textContent='BLACKJACK';
 resultTitle.style.color='#00ff88';
-resultText.innerHTML='¡21 con tus dos primeras cartas!<br><br>Ganaste <b style="color:#00ff88;">+'+(payout-bet)+' fichas</b>.';
+resultText.innerHTML='٢١ بأول كرتين!<br><br>كسبت <b style="color:#00ff88;">+'+(payout-bet)+' شيبس</b>.';
 }else if(type==='bust'){
 losses++;
 resultIcon.textContent='💥';
 resultTitle.textContent='TE PASASTE';
 resultTitle.style.color='#ff405d';
-resultText.innerHTML='Tu mano llegó a <b style="color:#ff405d;">'+cardValue(player)+'</b>.<br><br>Perdiste <b style="color:#ff405d;">'+bet+' fichas</b>.';
+resultText.innerHTML='ورقتك وصلت <b style="color:#ff405d;">'+cardValue(player)+'</b>.<br><br>خسرت <b style="color:#ff405d;">'+bet+' شيبس</b>.';
 }else{
 const pv=cardValue(player);
 const dv=cardValue(dealer);

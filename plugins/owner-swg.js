@@ -18,7 +18,7 @@ let handler = async (m, { conn, text }) => {
     if (!buffer) return m.reply("✿ خطأ في جلب الصورة.");
 
     await conn.sendMessage(jid, { image: buffer, caption });
-    return m.reply("✿ Estado subido correctamente.");
+    return m.reply("✿ الحالة اترفعت بنجاح.");
   }
 
   else if (/video/.test(mime)) {
@@ -26,7 +26,7 @@ let handler = async (m, { conn, text }) => {
     if (!buffer) return m.reply("✿ خطأ في جلب الفيديو.");
 
     await conn.sendMessage(jid, { video: buffer, caption });
-    return m.reply("✿ Estado subido correctamente.");
+    return m.reply("✿ الحالة اترفعت بنجاح.");
   }
 
   else if (/audio/.test(mime)) {
@@ -43,7 +43,7 @@ let handler = async (m, { conn, text }) => {
       waveform: formaOnda
     });
 
-    return m.reply("✿ Estado subido correctamente.");
+    return m.reply("✿ الحالة اترفعت بنجاح.");
   }
 
   else if (colorTexto) {
@@ -75,7 +75,7 @@ let handler = async (m, { conn, text }) => {
     if (!color) return m.reply("✿ مفيش لون صحيح.");
 
     await conn.sendMessage(jid, { text: caption, backgroundColor: color });
-    return m.reply("✿ Estado publicado correctamente.");
+    return m.reply("✿ الحالة اتنشرت بنجاح.");
   }
 
   else {

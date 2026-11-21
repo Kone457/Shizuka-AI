@@ -44,7 +44,7 @@ let handler = async (m, { conn, args }) => {
             ? `مطالب بيها @${userEntry.userId.split('@')[0]}` 
             : 'Libre';
         
-        const message = `❀ الاسم » *${character.name}*\n⚥ النوع » *${character.gender}*\n✰ القيمة » *${character.value}*\n♡ الحالة » ${statusMessage}\n❖ Fuente » *${character.source}*`;
+        const message = `❀ الاسم » *${character.name}*\n⚥ النوع » *${character.gender}*\n✰ القيمة » *${character.value}*\n♡ الحالة » ${statusMessage}\n❖ المصدر » *${character.source}*`;
 
         await conn.reply(m.chat, message, m, { mentions: [userEntry ? userEntry.userId : null] });
     } catch (error) {

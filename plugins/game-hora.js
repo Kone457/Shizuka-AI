@@ -28,7 +28,7 @@ const CLOCK_HTML = `
 
 <div id="clock-digital" style="text-align:center;font-size:34px;font-weight:900;margin-top:22px;letter-spacing:3px;font-family:'Courier New',monospace;text-shadow:0 0 20px #60a5fa;">00:00:00</div>
 <div id="clock-ampm" style="text-align:center;font-size:12px;font-weight:bold;color:#93c5fd;letter-spacing:4px;margin-top:2px;">AM</div>
-<div id="clock-date" style="text-align:center;font-size:13px;margin-top:8px;opacity:.85;text-transform:capitalize;letter-spacing:1px;">Cargando...</div>
+<div id="clock-date" style="text-align:center;font-size:13px;margin-top:8px;opacity:.85;text-transform:capitalize;letter-spacing:1px;">جاري التحميل...</div>
 <div id="clock-week" style="text-align:center;font-size:11px;margin-top:12px;opacity:.6;letter-spacing:2px;">DÍA 0 DEL AÑO</div>
 
 <script>
@@ -58,7 +58,7 @@ const ampm=document.getElementById("clock-ampm");
 if(ampm)ampm.textContent=hours>=12?"PM":"AM";
 const date=document.getElementById("clock-date");
 if(date){
-date.textContent=now.toLocaleDateString("es-ES",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+date.textContent=now.toLocaleDateString("ar-EG",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
 }
 const week=document.getElementById("clock-week");
 if(week){

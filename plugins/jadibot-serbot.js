@@ -177,7 +177,7 @@ export async function skyJadiBot(options) {
 
       // ✔ asegurar que tenga plataforma visible
       sock.user = sock.user || {}
-      sock.user.platform = browserInfo[1] || 'Desconocido'
+      sock.user.platform = browserInfo[1] || 'غير معروف'
 
       if (!global.conns.includes(sock)) global.conns.push(sock)
 

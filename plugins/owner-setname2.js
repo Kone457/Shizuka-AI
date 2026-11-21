@@ -6,7 +6,7 @@ let handler = async (m, { conn, text }) => {
       `✿ *إعداد الاسم الكامل للبوت*\n\n` +
       `📌 *الاستخدام:* .setname2 <الاسم الكامل>\n\n` +
       `📋 *القيمة الحالية للبوت ده:*\n` +
-      `› Nombre completo: *${getBotConfig(conn, 'namebot')}*\n\n` +
+      `› الاسم الكامل: *${getBotConfig(conn, 'namebot')}*\n\n` +
       `💡 *مثال:* .setname2 Shizuka-AI`
     )
   }
@@ -18,7 +18,7 @@ let handler = async (m, { conn, text }) => {
 
   await m.reply(
     `✅ *الاسم الكامل اتحدّث للبوت ده*\n\n` +
-    `› Anterior: *${anterior}*\n` +
+    `› السابق: *${anterior}*\n` +
     `› الجديد: *${nuevoNombre}*\n\n` +
     `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )

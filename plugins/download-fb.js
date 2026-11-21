@@ -72,7 +72,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       m.chat,
       {
         video: { url: dlUrl },
-        caption: `*✿ اتفضل...*\n\n📌 ${title || 'فيديو فيسبوك'}${duration ? `\n⏱️ Duración: ${duration}s` : ''}`,
+        caption: `*✿ اتفضل...*\n\n📌 ${title || 'فيديو فيسبوك'}${duration ? `\n⏱️ المدة: ${duration}s` : ''}`,
         ...(thumbnail ? { jpegThumbnail: undefined, thumbnail: undefined } : {})
       },
       { quoted: m }

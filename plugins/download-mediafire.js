@@ -48,8 +48,8 @@ async function mediafire(url) {
   const filename = String(filenameRaw).trim() || `mediafire_${Date.now()}`
 
   const $li = $('div.dl-info > ul.details > li')
-  const aploud = String($li.eq(1).find('span').text() || '').trim() || 'Desconocido'
-  const size = String($li.eq(0).find('span').text() || '').trim() || 'Desconocido'
+  const aploud = String($li.eq(1).find('span').text() || '').trim() || 'غير معروف'
+  const size = String($li.eq(0).find('span').text() || '').trim() || 'غير معروف'
 
   return {
     filename,

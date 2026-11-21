@@ -17,13 +17,13 @@ let handler = async (m, { conn, text }) => {
     const p = json.data;
 
     const txt = `*乂 ب و ك ي د ي ك س 乂*\n\n`
-      + `*» Nombre:* ${p.name}\n`
+      + `*» الاسم:* ${p.name}\n`
       + `*» ID:* ${p.id}\n`
       + `*» الوصف:* ${p.description}\n`
       + `*» Tipos:* ${p.types.join(", ")}\n`
       + `*» Habilidades:* ${p.abilities.join(", ")}\n`
-      + `*» Altura:* ${p.height}\n`
-      + `*» Peso:* ${p.weight}\n`
+      + `*» الطول:* ${p.height}\n`
+      + `*» الوزن:* ${p.weight}\n`
       + `*» Experiencia Base:* ${p.base_experience}\n`
       + `*» النوع:* ${p.gender}\n`
       + `*» مجموعات البيض:* ${p.egg_groups.join(", ")}\n`

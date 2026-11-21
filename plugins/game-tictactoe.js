@@ -94,7 +94,7 @@ lastHover=-1;
 aiThinking=false;
 cellAnim.fill(1);
 dirty=true;
-stT.textContent='TU TURNO';
+stT.textContent='دورك';
 stT.style.color='#0ff';
 }
 function roundRect(x,y,w,h,r){
@@ -371,7 +371,7 @@ stT.style.color='#f0f';
 setTimeout(aiMove,280);
 }else{
 aiThinking=false;
-stT.textContent='TU TURNO';
+stT.textContent='دورك';
 stT.style.color='#0ff';
 }
 }

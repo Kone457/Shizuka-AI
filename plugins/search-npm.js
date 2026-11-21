@@ -28,14 +28,14 @@ let handler = async (m, { conn, text }) => {
     for (let i = 0; i < data.objects.length; i++) {
       const pkg = data.objects[i].package;
       const version = pkg.version;
-      const fecha = new Date(pkg.date).toLocaleDateString('es-ES');
+      const fecha = new Date(pkg.date).toLocaleDateString('ar-EG');
       const desc = pkg.description? pkg.description.substring(0, 120) + '...' : 'بدون وصف';
       const keywords = pkg.keywords? pkg.keywords.slice(0, 3).join(', ') : 'N/A';
       const links = pkg.links;
 
       resultado += `《${i + 1}》 *${pkg.name}* v${version}\n`;
       resultado += `📝 ${desc}\n`;
-      resultado += `👤 Autor: ${pkg.author?.name || 'Desconocido'}\n`;
+      resultado += `👤 المؤلف: ${pkg.author?.name || 'غير معروف'}\n`;
       resultado += `⭐ Descargas: ${pkg.searchScore? Math.floor(pkg.searchScore * 1000000) : 'N/A'}\n`;
       resultado += `🏷️ Tags: ${keywords}\n`;
       resultado += `📅 Actualizado: ${fecha}\n`;

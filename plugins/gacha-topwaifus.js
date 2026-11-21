@@ -28,7 +28,7 @@ let handler = async (m, { conn, args }) => {
         let message = '✿ *أعلى الشخصيات قيمة:*\n';
         charactersToShow.forEach((character, index) => {
             message += `✰ ${startIndex + index + 1} » *${character.name}*\n`;
-            message += `\t\t→ Valor: *${character.value}*\n`;
+            message += `\t\t→ القيمة: *${character.value}*\n`;
         });
 
         message += `⌦ • صفحة *${page}* من *${totalPages}*.`;

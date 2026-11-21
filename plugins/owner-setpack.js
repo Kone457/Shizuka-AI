@@ -19,7 +19,7 @@ let handler = async (m, { conn, text }) => {
 
   await m.reply(
     `✅ *باكج الستيكرز اتحدّث للبوت ده*\n\n` +
-    `› Anterior: *${anterior}*\n` +
+    `› السابق: *${anterior}*\n` +
     `› الجديد: *${nuevoPack}*\n\n` +
     `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )

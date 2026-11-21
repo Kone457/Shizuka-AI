@@ -5,7 +5,7 @@ const TANK_HTML = `
 <canvas id="tankC" width="400" height="600" style="width:100%;height:100%;display:block;"></canvas>
 <div id="tankUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,0.92);z-index:10;transition:opacity 0.3s;padding:20px;box-sizing:border-box;">
 <h1 style="color:#f60;text-shadow:0 0 20px #f60,0 0 40px #f30;font-size:32px;margin:0 0 10px;letter-spacing:5px;text-transform:uppercase;font-weight:900;text-align:center;">TANK WAR</h1>
-<p style="color:#fa8;margin:0 0 20px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.8;">Destruye todos los tanques enemigos.<br>Toca la pantalla para disparar.<br>Usa los botones para moverte.</p>
+<p style="color:#fa8;margin:0 0 20px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.8;">دمّر كل التانكات المعادية.<br>دوس على الشاشة عشان تضرب.<br>استخدم الزراير عشان تتحرك.</p>
 <button id="tankSB" style="padding:14px 42px;background:linear-gradient(45deg,#f60,#f30);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:3px;box-shadow:0 0 25px rgba(255,100,0,0.6);">COMENZAR</button>
 </div>
 <div id="tankHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;">
@@ -324,7 +324,7 @@ setTimeout(()=>{
 uI.style.display='flex';uI.style.opacity=1;
 sB.innerText='REINTENTAR';
 uI.querySelector('h1').innerText='DESTRUIDO';
-uI.querySelector('p').innerHTML='<b style="color:#f60">Puntos: '+sc+'</b> · <b style="color:#f60">Oleada: '+wave+'</b><br><br>Tu tanque ha sido destruido en combate.';
+uI.querySelector('p').innerHTML='<b style="color:#f60">النقط: '+sc+'</b> · <b style="color:#f60">الموجة: '+wave+'</b><br><br>التانك بتاعك اتدمّر في المعركة.';
 hU.style.display='none';pad.style.display='none';
 },800);
 }

@@ -1,7 +1,7 @@
 import ws from 'ws'
 
 let handler = async (m, { conn, args }) => {
-  if (!args[0]) return m.reply('✿ *Escribe algo*')
+  if (!args[0]) return m.reply('✿ *اكتب حاجة*')
 
   const text = args.join(' ')
   let enviados = [], fallidos = []

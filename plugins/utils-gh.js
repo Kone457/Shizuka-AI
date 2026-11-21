@@ -14,7 +14,7 @@ let handler = async (m, { conn }) => {
 
     let txt = `*乂 G I T H U B - U P L O A D E R 乂*\n\n`
     txt += `*» اللينك* : ${link.enlace}\n`
-    txt += `*» Nombre* : ${link.nombre}\n`
+    txt += `*» الاسم* : ${link.nombre}\n`
   
     await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m)
   } catch (e) {

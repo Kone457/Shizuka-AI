@@ -7,7 +7,7 @@ let handler = async (m, { conn, text, args }) => {
     const estado = global.db.data.chats[m.chat]?.bannedGrupo ?? false;
     const estadoTexto = estado ? '✗ متوقف' : '✓ Activado';
     const info = `✿ *حالة ${botname}*\n` +
-                 `✰ *Actual ›* ${estadoTexto}\n\n` +
+                 `✰ *الحالي ›* ${estadoTexto}\n\n` +
                  `> تقدر تغيّرها بـ:\n` +
                  `> ● _تشغيل ›_ *bot on*\n` +
                  `> ● _إيقاف ›_ *bot off*`;

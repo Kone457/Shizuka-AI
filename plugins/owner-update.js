@@ -7,7 +7,7 @@ try {
 const stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''));
 let messager = stdout.toString()
 
-if (messager.includes('《✧》 Ya estoy actualizada.')) messager = '《✧》 أنا محدّث لآخر إصدار بالفعل.'
+if (messager.includes('《✧》 أنا محدّث بالفعل.')) messager = '《✧》 أنا محدّث لآخر إصدار بالفعل.'
 
 if (messager.includes('ⴵ Actualizando.')) messager = 'ⴵ بجهّز، استنى لحظة وأنا بتحدّث.\n\n' + stdout.toString()
 conn.reply(m.chat, messager, m)

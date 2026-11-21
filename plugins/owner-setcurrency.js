@@ -16,7 +16,7 @@ let handler = async (m, { conn, text }) => {
 
   await m.reply(
     `✅ *العملة اتحدّثت للبوت ده*\n\n` +
-    `› Anterior: *${anterior}*\n` +
+    `› السابق: *${anterior}*\n` +
     `› Nueva: *${nuevaMoneda}*\n\n` +
     `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )

@@ -16,7 +16,7 @@ let handler = async (m, { conn, isOwner }) => {
     }
   }
 
-  await m.reply('✿ *Listo, ya soy libre* 😎')
+  await m.reply('✿ *تمام، بقيت حر* 😎')
 }
 
 handler.help = ['غادرالكل']

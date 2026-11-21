@@ -54,8 +54,8 @@ let handler = async (m, { conn }) => {
 ✿ الاسم » *${randomCharacter.name}*
 ⚥ النوع » *${randomCharacter.gender}*
 ✰ القيمة » *${randomCharacter.value}*
-♡ Estado » *Libre*
-❖ Fuente » *${randomCharacter.source}*
+♡ الحالة » *متاحة*
+❖ المصدر » *${randomCharacter.source}*
 ✦ ID » *${randomCharacter.id}*
 `.trim()
 

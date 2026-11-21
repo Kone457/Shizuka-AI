@@ -6,8 +6,8 @@ let handler = async (m, { conn, text }) => {
       `✿ *إعداد اسم البوت*\n\n` +
       `📌 *الاستخدام:* .setname <الاسم الجديد>\n\n` +
       `📋 *القيم الحالية للبوت ده:*\n` +
-      `› Nombre corto: *${getBotConfig(conn, 'botname')}*\n` +
-      `› Nombre completo: *${getBotConfig(conn, 'namebot')}*\n\n` +
+      `› الاسم القصير: *${getBotConfig(conn, 'botname')}*\n` +
+      `› الاسم الكامل: *${getBotConfig(conn, 'namebot')}*\n\n` +
       `💡 *Ejemplos:*\n` +
       `› .setname MiBot\n` +
       `› .setname2 MyBot-AI _(للاسم الكامل)_`
@@ -22,7 +22,7 @@ let handler = async (m, { conn, text }) => {
 
   await m.reply(
     `✅ *الاسم اتحدّث للبوت ده*\n\n` +
-    `› Anterior: *${anterior}*\n` +
+    `› السابق: *${anterior}*\n` +
     `› الجديد: *${nuevoNombre}*\n\n` +
     `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )

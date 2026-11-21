@@ -84,7 +84,7 @@ const aventuras = [
 { tipo: 'derrota', mensaje: 'بازيليسك خبطك وهربت مصاب من غير غنيمة،' },
 { tipo: 'derrota', mensaje: 'فشلت محاولتك تدخل برج التلج لما وقعت في فخ سحري،' },
 { tipo: 'derrota', mensaje: 'ضعت بين بوابات غابة المرايا وخلصت من غير مكافأة،' },
-{ tipo: 'neutro', mensaje: 'Exploras ruinas antiguas y aprendes secretos ocultos sin hallar tesoros.' },
+{ tipo: 'neutro', mensaje: 'بتستكشف أطلال قديمة وتتعلم أسرار مخفية من غير ما تلاقي كنوز.' },
 { tipo: 'neutro', mensaje: 'تتبعت أثر شبح بس اختفى في الضباب.' },
 { tipo: 'neutro', mensaje: 'رافقت أميرة في صحاري ثالوريا من غير مشاكل.' }
 ]

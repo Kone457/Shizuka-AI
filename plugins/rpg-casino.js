@@ -59,7 +59,7 @@ function formatNumber(number) {
 return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }
 function formatTime(ms) {
-if (ms <= 0 || isNaN(ms)) return 'Ahora'
+if (ms <= 0 || isNaN(ms)) return 'الآن'
 const totalSec = Math.ceil(ms / 1000)
 const min = Math.floor(totalSec / 60)
 const sec = totalSec % 60

@@ -66,7 +66,7 @@ let handler = async (m, { conn, text, args }) => {
       image: { url },
       caption:
         `✅ *البانر 1 اتحدّث للبوت ده*\n\n` +
-        `› Anterior: ${anterior}\n` +
+        `› السابق: ${anterior}\n` +
         `› الجديد: ${url}\n\n` +
         `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
     }, { quoted: m })
@@ -77,7 +77,7 @@ let handler = async (m, { conn, text, args }) => {
       image: { url },
       caption:
         `✅ *البانر 2 اتحدّث للبوت ده*\n\n` +
-        `› Anterior: ${anterior}\n` +
+        `› السابق: ${anterior}\n` +
         `› الجديد: ${url}\n\n` +
         `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
     }, { quoted: m })

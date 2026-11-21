@@ -43,7 +43,7 @@ let handler = async (m, { conn, text }) => {
     image: { url },
     caption:
       `✅ *الأيقونة اتحدّثت للبوت ده*\n\n` +
-      `› Anterior: ${anterior}\n` +
+      `› السابق: ${anterior}\n` +
       `› الجديد: ${url}\n\n` +
       `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   }, { quoted: m })

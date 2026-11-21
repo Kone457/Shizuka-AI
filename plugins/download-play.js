@@ -71,7 +71,7 @@ async function getSize(url) {
   }
 }
 function formatSize(bytes) {
-  if (!bytes || bytes <= 0) return 'Desconocido'
+  if (!bytes || bytes <= 0) return 'غير معروف'
   const mb = bytes / (1024 * 1024)
   if (mb >= 1024) {
     const gb = mb / 1024
@@ -222,8 +222,8 @@ const handler = async (m, { conn, command, text }) => {
 ╭─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╮
 ╭╼☁️ 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 ☁️╮
 ├ׁ̟̇❍✎ ❖ ${selectedItem.title || 'محتوى يوتيوب'}
-├ׁ̟̇❍✎ ✿ القناة: ${selectedItem.author?.name || 'Desconocido'}
-├ׁ̟̇❍✎ ⏱️ Duración: ${selectedItem.timestamp || 'Desconocido'}
+├ׁ̟̇❍✎ ✿ القناة: ${selectedItem.author?.name || 'غير معروف'}
+├ׁ̟̇❍✎ ⏱️ المدة: ${selectedItem.timestamp || 'غير معروف'}
 ├ׁ̟̇❍✎ 🔗 Link:
 ├ׁ̟̇❍✎ ${link}
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯

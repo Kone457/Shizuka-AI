@@ -17,7 +17,7 @@ const handler = async (m, { conn }) => {
 
     const titulo = $('meta[property="og:title"]').attr('content') || 'حالة الكهرباء'
     const fecha = $('meta[property="og:updated_time"]').attr('content') || $('meta[property="article:modified_time"]').attr('content')
-    const fechaFormateada = fecha ? new Date(fecha).toLocaleString('es-CU', {timeZone: 'America/Havana'}) : 'Hoy'
+    const fechaFormateada = fecha ? new Date(fecha).toLocaleString('ar-EG', {timeZone: 'America/Havana'}) : 'Hoy'
 
     let texto = ''
     $('.entry-content p, .entry-content li').each((i, el) => {

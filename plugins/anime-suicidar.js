@@ -20,8 +20,8 @@ let handler = async (m, { conn }) => {
     ]
 
     let texts = [
-        'se suicidó por',
-        'se ha suicidado ◑﹏◐'
+        'عملها في نفسه بسبب',
+        'عملها في نفسه ◑﹏◐'
     ]
 
     let str

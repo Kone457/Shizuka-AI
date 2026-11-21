@@ -167,7 +167,7 @@ if(gt>60){
 uI.style.display='flex';uI.style.opacity=1;
 sB.innerText='VOLVER A JUGAR';
 uI.querySelector('h1').innerText='GAME OVER';
-uI.querySelector('p').innerHTML='<b style="color:#0ff">Puntos: '+sc+'</b> · <b style="color:#0ff">Nivel: '+lv+'</b><br><br>Los ladrillos ganaron esta vez.';
+uI.querySelector('p').innerHTML='<b style="color:#0ff">النقط: '+sc+'</b> · <b style="color:#0ff">المستوى: '+lv+'</b><br><br>الطوب كسب المرة دي.';
 hU.style.display='none';pad.style.display='none';
 return;
 }

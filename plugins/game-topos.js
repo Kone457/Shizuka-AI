@@ -495,7 +495,7 @@ const rate=total>0?Math.round(hitCount/total*100):0;
 uI.style.display='flex';
 sB.innerText='VOLVER A JUGAR';
 uI.querySelector('h1').innerText='¡TIEMPO!';
-uI.querySelector('p').innerHTML='<b style="color:#ffd700">Puntos: '+sc+'</b><br><b style="color:#ffaa00">Mejor racha: x'+maxCombo+'</b><br><b style="color:#00ddff">Precisión: '+rate+'%</b><br><br>'+(sc>800?'¡Maestro del mazo! 🔨':sc>400?'¡Buen trabajo! 💪':'Sigue practicando 🐹');
+uI.querySelector('p').innerHTML='<b style="color:#ffd700">النقط: '+sc+'</b><br><b style="color:#ffaa00">أطول سلسلة: x'+maxCombo+'</b><br><b style="color:#00ddff">الدقة: '+rate+'%</b><br><br>'+(sc>800?'أسطورة الشدة! 🔨':sc>400?'شغل عالي! 💪':'كمّل تدريب 🐹');
 hU.style.display='none';
 }
 function start(){

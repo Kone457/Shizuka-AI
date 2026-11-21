@@ -453,7 +453,7 @@ setTimeout(()=>{
 uI.style.display='flex';uI.style.opacity=1;
 sB.innerText='REINTENTAR';
 uI.querySelector('h1').innerText='ELIMINADO';
-uI.querySelector('p').innerHTML='<b style="color:#0f0">Longitud: '+Math.floor(player.length)+'</b> · <b style="color:#ff0">Puntos: '+sc+'</b><br><br>Otra serpiente fue más astuta.';
+uI.querySelector('p').innerHTML='<b style="color:#0f0">الطول: '+Math.floor(player.length)+'</b> · <b style="color:#ff0">النقط: '+sc+'</b><br><br>تعبان تاني كان أشطر.';
 hU.style.display='none';pad.style.display='none';
 },600);
 }

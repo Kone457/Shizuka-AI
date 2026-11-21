@@ -12,7 +12,7 @@ let handler = async (m, { conn, text }) => {
       let info = await getGroupInfoFromLink(conn, text)
 
       let caption = `✎ *معلومات الجروب*\n\n` +
-        `️✿ Nombre: ${info.subject}\n` +
+        `️✿ الاسم: ${info.subject}\n` +
         `✰ الوصف: ${info.desc || 'بدون وصف'}\n` +
         `❖ ID: ${info.id}\n`
 

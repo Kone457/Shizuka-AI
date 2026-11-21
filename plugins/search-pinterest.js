@@ -9,7 +9,7 @@ async function pinterestDownload(url) {
   const headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/133 Safari/537.36',
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-    'accept-language': 'es-419,es;q=0.9,en;q=0.8'
+    'accept-language': 'ar,en;q=0.8'
   }
 
   const res = await fetch(url, { headers, redirect: 'follow' })
@@ -50,7 +50,7 @@ async function searchPinterest(query, limit = 10) {
 
   const headers = {
     'accept': 'application/json, text/javascript, */*; q=0.01',
-    'accept-language': 'es-419,es;q=0.9,en;q=0.8',
+    'accept-language': 'ar,en;q=0.8',
     'referer': 'https://id.pinterest.com/',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/133 Safari/537.36',
     'x-app-version': 'c056fb7',

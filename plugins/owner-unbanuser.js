@@ -78,7 +78,7 @@ let handler = async (m, { conn, text }) => {
 ┃֪࣪
 ├ׁ̟̇❍✎ 👤 المستخدم: ${name}
 ├ׁ̟̇❍✎ 📱 الرقم: +${realJid.split('@')[0]}
-├ׁ̟̇❍✎ 🔓 Estado: Desbloqueado
+├ׁ̟̇❍✎ 🔓 الحالة: مفكوك الحظر
 ╰─ׅ─ׅ┈ ─๋︩︪─❖─๋︩︪─┈─ׅ─ׅ╯
 `.trim(),
       contextInfo: {

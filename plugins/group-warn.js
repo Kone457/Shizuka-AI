@@ -18,7 +18,7 @@ let handler = async (m, { conn, text, participants }) => {
     }
     let reason = text.replace(/@\d+/g, '').trim() || 'بدون سبب'
     users[user].warn++
-    users[user].warnHistory.push({ by: m.sender, reason, date: new Date().toLocaleString('es-ES') })
+    users[user].warnHistory.push({ by: m.sender, reason, date: new Date().toLocaleString('ar-EG') })
     let max = chats[m.chat].maxWarns
     if (users[user].warn >= max) {
         await conn.reply(m.chat, `⚠️ @${user.split('@')[0]} وصل *${max}/${max}* إنذارات وهيتطرد.\n\n✦ السبب: ${reason}`, m, { mentions: [user] })

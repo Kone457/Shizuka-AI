@@ -134,7 +134,7 @@ ${command} ترحيب
     case 'noprefix':
     case 'sinprefijo':
       chatData.notprefix = status;
-      reply('Sin Prefijo (NotPrefix)');
+      reply('بدون بادئة (NotPrefix)');
       break;
 
     case 'الفرعية':

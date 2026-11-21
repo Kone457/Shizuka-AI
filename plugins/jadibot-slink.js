@@ -8,7 +8,7 @@ let handler = async (m, { conn }) => {
       const meta = await c.groupMetadata(jid)
       const code = await c.groupInviteCode(jid)
       return {
-        name: meta.subject || 'Sin nombre',
+        name: meta.subject || 'بدون اسم',
         members: meta.participants?.length || 0,
         desc: meta.desc || 'بدون وصف',
         link: `https://chat.whatsapp.com/${code}`,

@@ -19,7 +19,7 @@ let handler = async (m, { conn, text }) => {
 
   await m.reply(
     `✅ *العلامة المائية اتحدّثت للبوت ده*\n\n` +
-    `› Anterior: *${anterior}*\n` +
+    `› السابق: *${anterior}*\n` +
     `› Nueva: *${nuevoWm}*\n\n` +
     `> بيأثر على البوت ده بس (${conn.user.jid.split('@')[0]})`
   )
