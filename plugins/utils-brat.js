@@ -8,7 +8,7 @@ let handler = async (m, { conn, args }) => {
   let stiker = false
   const hora = moment.tz('America/Havana').locale('es').format('hh:mm A')
   const fecha = moment.tz('America/Havana').locale('es').format('dddd, DD [de] MMMM [de] YYYY')
-  const wm = `Bot: ${getBotConfig(conn, 'packname')}\nUsuario: ${m.pushName || 'Usuario'}\nHora: ${hora}\nFecha: ${fecha}\nDueño: ${global.author}\n${global.dev}`
+  const wm = `البوت: ${getBotConfig(conn, 'packname')}\nالمستخدم: ${m.pushName || 'Usuario'}\nالوقت: ${hora}\nالتاريخ: ${fecha}\nالمطور: ${global.author}\n${global.dev}`
 
   let thumb = null
   try {
@@ -39,7 +39,7 @@ let handler = async (m, { conn, args }) => {
 
   try {
     if (!args[0]) {
-      return conn.reply(m.chat, "《✧》 Ingresa el texto para el vídeo.", m, { quoted: fkontak })
+      return conn.reply(m.chat, "《✧》 اكتب النص للفيديو.", m, { quoted: fkontak })
     }
 
     const apiUrl = `${global.api.url2}/canvas/bratvideo?text=${encodeURIComponent(args.join(" "))}`
@@ -59,11 +59,11 @@ let handler = async (m, { conn, args }) => {
         isForwarded: false
       }, { quoted: fkontak })
     } else {
-      return conn.reply(m.chat, '《✧》 No se pudo convertir el vídeo en sticker.', m, { quoted: fkontak })
+      return conn.reply(m.chat, '《✧》 مقدرتش أحوّل الفيديو لستيكر.', m, { quoted: fkontak })
     }
   } catch (e) {
     console.error(e)
-    return conn.reply(m.chat, '《✧》 Error al generar el vídeo.', m, { quoted: fkontak })
+    return conn.reply(m.chat, '《✧》 خطأ في توليد الفيديو.', m, { quoted: fkontak })
   }
 }
 

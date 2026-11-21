@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 
 let handler = async (m, { conn, text }) => {
   if (!text) {
-    return conn.reply(m.chat, "《✧》 Por favor, indica el nombre o ID de un Pokémon.", m);
+    return conn.reply(m.chat, "《✧》 من فضلك اكتب اسم أو ID بوكيمون.", m);
   }
 
   try {
@@ -12,27 +12,27 @@ let handler = async (m, { conn, text }) => {
     const res = await fetch(apiUrl);
     const json = await res.json();
 
-    if (!json.status || !json.data) throw new Error("No se encontró el Pokémon.");
+    if (!json.status || !json.data) throw new Error("مقدرتش ألاقي البوكيمون.");
 
     const p = json.data;
 
-    const txt = `*乂 P O K É D E X 乂*\n\n`
+    const txt = `*乂 ب و ك ي د ي ك س 乂*\n\n`
       + `*» Nombre:* ${p.name}\n`
       + `*» ID:* ${p.id}\n`
-      + `*» Descripción:* ${p.description}\n`
+      + `*» الوصف:* ${p.description}\n`
       + `*» Tipos:* ${p.types.join(", ")}\n`
       + `*» Habilidades:* ${p.abilities.join(", ")}\n`
       + `*» Altura:* ${p.height}\n`
       + `*» Peso:* ${p.weight}\n`
       + `*» Experiencia Base:* ${p.base_experience}\n`
-      + `*» Género:* ${p.gender}\n`
-      + `*» Grupos de huevo:* ${p.egg_groups.join(", ")}\n`
+      + `*» النوع:* ${p.gender}\n`
+      + `*» مجموعات البيض:* ${p.egg_groups.join(", ")}\n`
       + `*» Color:* ${p.color}\n`
       + `*» Forma:* ${p.shape}\n`
-      + `*» Hábitat:* ${p.habitat}\n`
-      + `*» Tasa de captura:* ${p.capture_rate}\n`
+      + `*» الموطن:* ${p.habitat}\n`
+      + `*» نسبة الصيد:* ${p.capture_rate}\n`
       + `*» Felicidad base:* ${p.base_happiness}\n\n`
-      + `*» Estadísticas:*\n`
+      + `*» الإحصائيات:*\n`
       + `   HP: ${p.stats.hp}\n`
       + `   Ataque: ${p.stats.attack}\n`
       + `   Defensa: ${p.stats.defense}\n`
@@ -41,9 +41,9 @@ let handler = async (m, { conn, text }) => {
       + `   Velocidad: ${p.stats.speed}\n\n`
       + `*» Objetos:* ${p.held_items.join(", ")}\n`
       + `*» Formas:* ${p.forms.join(", ")}\n`
-      + `*» Juegos:* ${p.game_indices.slice(0, 10).join(", ")}... (+${p.game_indices.length - 10} más)\n\n`
+      + `*» الألعاب:* ${p.game_indices.slice(0, 10).join(", ")}... (+${p.game_indices.length - 10} أكتر)\n\n`
       + `*» Cry:* ${p.cry}\n`
-      + `*» Imagen:* ${p.image}\n`
+      + `*» الصورة:* ${p.image}\n`
       + `*» Sprite animado:* ${p.sprite}`;
 
     await conn.sendFile(m.chat, p.image, "pokemon.png", txt, m);
@@ -52,7 +52,7 @@ let handler = async (m, { conn, text }) => {
   } catch (e) {
     console.error(e);
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    m.reply(`《✧》 Error al consultar el Pokémon.\n\n*Detalles:* ${e.message}`);
+    m.reply(`《✧》 خطأ في جلب البوكيمون.\n\n*التفاصيل:* ${e.message}`);
   }
 };
 

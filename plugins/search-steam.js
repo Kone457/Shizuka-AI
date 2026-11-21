@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 let handler = async (m, { conn, text }) => {
   try {
     if (!text?.trim()) {
-      return m.reply('🔎 Especifica tu búsqueda.');
+      return m.reply('🔎 حدد بحثك.');
     }
 
     const consulta = text.trim();
@@ -19,20 +19,20 @@ let handler = async (m, { conn, text }) => {
     const data = await response.json();
 
     if (!data?.estado || !Array.isArray(data.resultados) || !data.resultados.length) {
-      return m.reply(`🔎 Sin resultados para *${consulta}*.`);
+      return m.reply(`🔎 مفيش نتائج لـ *${consulta}*.`);
     }
 
     const resultados = data.resultados.slice(0, 3);
 
-    let caption = `🔎 *Steam*\n\nResultados para *${consulta}*:\n\n`;
+    let caption = `🔎 *ستيم*\n\nنتائج *${consulta}*:\n\n`;
 
     for (const juego of resultados) {
       caption +=
         `🎮 *${juego.name || 'N/A'}*\n` +
         `🆔 ID: ${juego.id ?? 'N/A'}\n` +
-        `💰 Precio: ${juego.price || 'N/A'}\n` +
-        `⭐ Score: ${juego.score || 'N/A'}\n` +
-        `🖥️ Plataforma: ${juego.platform || 'N/A'}\n` +
+        `💰 السعر: ${juego.price || 'N/A'}\n` +
+        `⭐ التقييم: ${juego.score || 'N/A'}\n` +
+        `🖥️ المنصة: ${juego.platform || 'N/A'}\n` +
         `🔗 https://store.steampowered.com/app/${juego.id}/\n\n`;
     }
 
@@ -57,8 +57,8 @@ let handler = async (m, { conn, text }) => {
     await conn.sendMessage(m.chat, { text: caption }, { quoted: m });
 
   } catch (error) {
-    console.error('STEAM ERROR:', error);
-    await m.reply('No fue posible realizar la búsqueda.');
+    console.error('خطأ ستيم:', error);
+    await m.reply('مقدرتش أنفّذ البحث.');
   }
 };
 

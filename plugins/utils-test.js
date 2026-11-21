@@ -6,21 +6,21 @@ import { fileTypeFromBuffer } from "file-type"
 let handler = async (m, { conn }) => {
   let q = m.quoted ? m.quoted : m
   let mime = (q.msg || q).mimetype || ''
-  if (!mime) return conn.reply(m.chat, '📦 Por favor, responde a un archivo válido (imagen, video, etc.).', m)
+  if (!mime) return conn.reply(m.chat, '📦 من فضلك رد على ملف صحيح (صورة، فيديو، إلخ).', m)
 
   try {
     let media = await q.download()
     let link = await myCloud(media)
 
     let txt = `*乂 M I N I - N U B E 乂*\n\n`
-    txt += `*» Enlace* : ${link.enlace}\n`
+    txt += `*» اللينك* : ${link.enlace}\n`
     txt += `*» Nombre* : ${link.nombre}\n`
-    txt += `*» Tamaño* : ${formatBytes(link.tamaño)}\n`
+    txt += `*» الحجم* : ${formatBytes(link.tamaño)}\n`
 
     await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m)
   } catch (e) {
     console.error(e)
-    await m.reply('❌ Error al subir el archivo.')
+    await m.reply('❌ خطأ في رفع الملف.')
   }
 }
 

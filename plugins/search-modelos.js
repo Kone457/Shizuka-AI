@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text }) => {
   if (!text) {
-    return m.reply(`✿ *Ingresa el nombre del modelo a buscar.*`);
+    return m.reply(`✿ *اكتب اسم الموديل اللي عايز تدور عليه.*`);
   }
 
   try {
@@ -13,7 +13,7 @@ let handler = async (m, { conn, text }) => {
     const models = await response.json();
 
     if (!models || models.length === 0) {
-      return m.reply(`❏ *No se encontraron modelos de IA para:* "${text}"`);
+      return m.reply(`❏ *مفيش موديلات AI لـ:* "${text}"`);
     }
 
     const formatModel = (model, index) => {
@@ -38,24 +38,24 @@ let handler = async (m, { conn, text }) => {
       );
     };
 
-    let message = `✿ *Resultados para:* "${text}"\n` +
+    let message = `✿ *نتائج:* "${text}"\n` +
                   `✿ *Total encontrados:* ${models.length}\n\n`;
 
     for (let i = 0; i < models.length; i++) {
       message += formatModel(models[i], i);
     }
 
-    message += `_El enlace de descarga te llevará a la lista de archivos del modelo._`;
+    message += `_لينك التحميل هيوديك لقايمة ملفات الموديل._`;
 
     await conn.sendMessage(m.chat, { text: message }, { quoted: m });
 
   } catch (error) {
     console.error(error);
-    m.reply('❏ *Error al buscar modelos.* Intenta nuevamente más tarde.');
+    m.reply('❏ *خطأ في البحث عن الموديلات.* جرّب تاني بعد شوية.');
   }
 };
 
-handler.help = ['modelos <término>'];
+handler.help = ['modelos <كلمة>'];
 handler.tags = ['buscadores'];
 handler.command = ['modelos', 'ai', 'hf'];
 

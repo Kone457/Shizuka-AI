@@ -4,7 +4,7 @@ let handler = async (m, { conn, text }) => {
   if (!text) {
     return conn.sendMessage(
       m.chat,
-      { text: '《✧》 Ingresa lo que quieres buscar.\n\nEjemplo:\n.npmsearch express' },
+      { text: '《✧》 اكتب اللي عايز تدور عليه.\n\nمثال:\n.npmsearch express' },
       { quoted: m }
     );
   }
@@ -15,14 +15,14 @@ let handler = async (m, { conn, text }) => {
     const query = encodeURIComponent(text.trim());
     const res = await fetch(`https://registry.npmjs.org/-/v1/search?text=${query}&size=10`);
 
-    if (!res.ok) throw new Error('Error al buscar en NPM');
+    if (!res.ok) throw new Error('خطأ في البحث في NPM');
     const data = await res.json();
 
     if (!data.objects || data.objects.length === 0) {
-      return conn.sendMessage(m.chat, { text: `❏ No se encontraron paquetes para: *${text}*` }, { quoted: m });
+      return conn.sendMessage(m.chat, { text: `❏ مفيش باكدجات لـ: *${text}*` }, { quoted: m });
     }
 
-    let resultado = `📦 *Resultados NPM para:* ${text}\n`;
+    let resultado = `📦 *نتائج NPM لـ:* ${text}\n`;
     resultado += `Se encontraron ${data.total} paquetes\n`;
 
     for (let i = 0; i < data.objects.length; i++) {
@@ -44,7 +44,7 @@ let handler = async (m, { conn, text }) => {
       resultado += `\n`;
     }
 
-    resultado += `> Usa *.npm <nombre>* para descargar el.tgz del paquete`;
+    resultado += `> استخدم *.npm <الاسم>* عشان تحمّل الـ.tgz بتاع الباكدج`;
 
     await conn.sendMessage(
       m.chat,

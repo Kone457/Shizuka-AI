@@ -41,7 +41,7 @@ async function wallpaper(title, page = 1) {
 }
 
 const handler = async (m, { conn, args }) => {
-  if (!args[0]) return m.reply('《✧》 Ingresa el título del wallpaper.')
+  if (!args[0]) return m.reply('《✧》 اكتب عنوان الخلفية.')
 
   try {
     await conn.sendMessage(m.chat, { react: { text: '⌛', key: m.key } })
@@ -50,7 +50,7 @@ const handler = async (m, { conn, args }) => {
 
     if (!res || res.length === 0) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-      return m.reply('《✧》 No se encontraron resultados.')
+      return m.reply('《✧》 مفيش نتائج.')
     }
 
     const medias = []
@@ -78,7 +78,7 @@ const handler = async (m, { conn, args }) => {
       const message = generateWAMessageFromContent(m.chat, {
         imageMessage: msg.imageMessage,
         caption: i === 0
-          ? `✧ Álbum de Wallpapers para *${query}*`
+          ? `✧ ألبوم خلفيات لـ *${query}*`
           : undefined
       }, {})
 
@@ -98,7 +98,7 @@ const handler = async (m, { conn, args }) => {
   } catch (e) {
     await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
     await conn.sendMessage(m.chat, {
-      text: `✿ Error [${e.message || e}]`
+      text: `✿ خطأ [${e.message || e}]`
     }, { quoted: m })
   }
 }

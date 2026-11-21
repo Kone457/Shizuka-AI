@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 let handler = async (m, { conn, text }) => {
   try {
     if (!text?.trim()) {
-      return m.reply('🔎 Especifica tu búsqueda.');
+      return m.reply('🔎 حدد بحثك.');
     }
 
     const consulta = text.trim();
@@ -19,18 +19,18 @@ let handler = async (m, { conn, text }) => {
     const data = await response.json();
 
     if (!data?.estado || !Array.isArray(data.resultados) || !data.resultados.length) {
-      return m.reply(`🔎 Sin resultados para *${consulta}*.`);
+      return m.reply(`🔎 مفيش نتائج لـ *${consulta}*.`);
     }
 
     const resultados = data.resultados.slice(0, 3);
 
-    let caption = `🔎 *Play Store*\n\nResultados para *${consulta}*:\n\n`;
+    let caption = `🔎 *بلاي ستور*\n\nنتائج *${consulta}*:\n\n`;
 
     for (const app of resultados) {
       caption +=
         `📱 *${app.titulo || 'N/A'}*\n` +
         `👨‍💻 Desarrollador: ${app.desarrollador || 'N/A'}\n` +
-        `⭐ Valoración: ${app.rating ?? 'N/A'}\n` +
+        `⭐ التقييم: ${app.rating ?? 'N/A'}\n` +
         `📦 Package: ${app.package || 'N/A'}\n` +
         `🔗 ${app.link || 'N/A'}\n\n`;
     }
@@ -57,8 +57,8 @@ let handler = async (m, { conn, text }) => {
     await conn.sendMessage(m.chat, { text: caption }, { quoted: m });
 
   } catch (error) {
-    console.error('PLAYSTORE ERROR:', error);
-    await m.reply('No fue posible realizar la búsqueda.');
+    console.error('خطأ بلاي ستور:', error);
+    await m.reply('مقدرتش أنفّذ البحث.');
   }
 };
 

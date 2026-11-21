@@ -19,11 +19,11 @@ let handler = async (m, { conn }) => {
   try { avatarUrl = await conn.profilePictureUrl(who, 'image') } catch {}
   let txt = `
 ╔═══❖•°•°•°❖•°•°•°❖═══╗
-🌟   *PERFIL DE USUARIO*   🌟
+🌟   *الملف الشخصي*   🌟
 ╚═══❖•°•°•°❖•°•°•°❖═══╝
 
-👤 *Nombre:* ${name}
-📈 *Nivel:* ${level}
+👤 *الاسم:* ${name}
+📈 *المستوى:* ${level}
 ⭐ *Experiencia (XP):* ${exp}
 
 💍 *Pareja:* ${pareja}

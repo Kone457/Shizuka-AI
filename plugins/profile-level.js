@@ -1,6 +1,6 @@
 let handler = async (m, { conn, usedPrefix, command }) => {
   let users = globalThis.db.data.users;
-  if (!users) return m.reply('❌ No hay datos de usuarios registrados todavía.');
+  if (!users) return m.reply('❌ مفيش بيانات مستخدمين مسجلين لسه.');
 
   let sortedLevel = Object.entries(users)
     .sort((a, b) => (b[1].level || 0) - (a[1].level || 0))
@@ -15,11 +15,11 @@ let handler = async (m, { conn, usedPrefix, command }) => {
   let mentions = [];
   sortedLevel.forEach(([jid, data], index) => {
     let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '📌';
-    text += `\n${medal} *#${index + 1}* • @${jid.split('@')[0]}\n   📈 Nivel: *${data.level || 0}* | ⭐ XP: *${data.exp || 0}*`;
+    text += `\n${medal} *#${index + 1}* • @${jid.split('@')[0]}\n   📈 المستوى: *${data.level || 0}* | ⭐ XP: *${data.exp || 0}*`;
     mentions.push(jid);
   });
 
-  text += `\n\n╔═══❖•°•°•°❖•°•°•°❖═══╗\n✦  *¡Sigue subiendo de nivel!*  ✦\n╚═══❖•°•°•°❖•°•°•°❖═══╝`;
+  text += `✦  *كمّل عشان تطلع مستوى أعلى!*  ✦`;
 
   await conn.sendMessage(m.chat, {
     text,

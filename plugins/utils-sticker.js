@@ -44,7 +44,7 @@ async function searchPinterest(query, limit = 5) {
     const { data: response } = await axios.get(url, { headers, responseType: 'text', transformResponse: [(data) => data], timeout: 30000 })
 
     if (!response || !response.trim().startsWith('{')) {
-        throw new Error('Pinterest bloqueó la petición')
+        throw new Error('بينترست رفض الطلب')
     }
 
     const json = JSON.parse(response)
@@ -67,7 +67,7 @@ let handler = async (m, { conn, args }) => {
 
     const hora = moment.tz('America/Havana').locale('es').format('hh:mm A')
     const fecha = moment.tz('America/Havana').locale('es').format('dddd, DD [de] MMMM [de] YYYY')
-    const wm = `Bot: ${getBotConfig(conn, 'packname')}\nUsuario: ${m.pushName || 'Usuario'}\nHora: ${hora}\nFecha: ${fecha}\nDueño: ${global.author}\n${global.dev}`
+    const wm = `البوت: ${getBotConfig(conn, 'packname')}\nالمستخدم: ${m.pushName || 'Usuario'}\nالوقت: ${hora}\nالتاريخ: ${fecha}\nالمطور: ${global.author}\n${global.dev}`
     const pack = ''
 
     let thumb = null
@@ -107,10 +107,10 @@ let handler = async (m, { conn, args }) => {
 
         if (/webp|image|video/g.test(mime)) {
             if (/video/g.test(mime) && (q.msg || q).seconds > 10) {
-                return m.reply(`《✧》 *¡El video no puede durar mas de 10 segundos!*`, m, { quoted: fkontak })
+                return m.reply(`《✧》 *الفيديو مينفعش يعدّي 10 ثواني!*`, m, { quoted: fkontak })
             }
             let img = await q.download?.()
-            if (!img) return conn.reply(m.chat, `> *_La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando._*`, m, { quoted: fkontak })
+            if (!img) return conn.reply(m.chat, `> *_التحويل فشل، ابعت صورة/فيديو/جيف الأول وبعدها رد بالأمر._*`, m, { quoted: fkontak })
             let out
             try {
                 stiker = await sticker(img, false, pack, wm)
@@ -161,7 +161,7 @@ let handler = async (m, { conn, args }) => {
         if (stiker) {
             await conn.sendMessage(m.chat, { sticker: stiker, forwardingScore: 0, isForwarded: false }, { quoted: fkontak })
         } else if (!searchMode || !searchSent) {
-            return conn.reply(m.chat, '> La conversión ha fallado, intenta enviar primero imagen/video/gif y luego responde con el comando.', m, { quoted: fkontak })
+            return conn.reply(m.chat, '> التحويل فشل، ابعت صورة/فيديو/جيف الأول وبعدها رد بالأمر.', m, { quoted: fkontak })
         }
     }
 }

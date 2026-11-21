@@ -1,7 +1,7 @@
 let handler = async (m, { conn, usedPrefix, command }) => {
-  if (!m.quoted) return m.reply("✿ Responde a un mensaje que contenga un comando.")
+  if (!m.quoted) return m.reply("✿ رد على رسالة فيها أمر.")
   let texto = m.quoted.text || ""
-  if (!texto.startsWith(usedPrefix)) return m.reply("✿ El mensaje citado no parece ser un comando.")
+  if (!texto.startsWith(usedPrefix)) return m.reply("✿ الرسالة المردود عليها مش أمر.")
   let fakeMsg = { ...m, text: texto }
   conn.handler(fakeMsg, fakeMsg)
 }

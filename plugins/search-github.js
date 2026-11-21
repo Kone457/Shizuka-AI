@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply('❏ *Ingresa un término de búsqueda.*');
+  if (!text) return m.reply('❏ *اكتب كلمة للبحث.*');
 
   try {
     const res = await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(text)}&sort=stars&order=desc&per_page=10`, {
@@ -14,29 +14,29 @@ let handler = async (m, { conn, text }) => {
     const data = await res.json();
 
     if (!data.items || data.items.length === 0) {
-      return m.reply('❏ *No se encontraron resultados en GitHub.*');
+      return m.reply('❏ *مفيش نتائج في جيتهاب.*');
     }
 
-    let caption = `*⌬ GITHUB SEARCH ⌬*\n*Resultados para:* ${text}\n\n`;
+    let caption = `*⌬ بحث جيتهاب ⌬*\n*نتائج:* ${text}\n\n`;
 
     data.items.forEach((repo, i) => {
       caption += `*${i + 1}. ${repo.name}*\n`;
       caption += `✦ *Owner:* ${repo.owner.login}\n`;
       caption += `✦ *URL:* ${repo.html_url}\n`;
-      caption += `✦ *Descripción:* ${repo.description || 'Sin descripción'}\n`;
-      caption += `✦ *Lenguaje:* ${repo.language || 'No especificado'}\n`;
+      caption += `✦ *الوصف:* ${repo.description || 'بدون وصف'}\n`;
+      caption += `✦ *اللغة:* ${repo.language || 'غير محدد'}\n`;
       caption += `✦ *Estrellas:* ⭐ ${repo.stargazers_count}\n`;
       caption += `✦ *Forks:* 🍴 ${repo.forks_count}\n`;
       caption += `✦ *Watchers:* 👁️ ${repo.watchers_count}\n`;
       caption += `✦ *Issues abiertos:* 🐛 ${repo.open_issues_count}\n`;
-      caption += `✦ *Tamaño:* ${(repo.size / 1024).toFixed(2)} MB\n`;
+      caption += `✦ *الحجم:* ${(repo.size / 1024).toFixed(2)} MB\n`;
       caption += `✦ *Licencia:* ${repo.license ? repo.license.name : 'Sin licencia'}\n`;
       caption += `✦ *Creado:* ${new Date(repo.created_at).toLocaleDateString()}\n`;
       caption += `✦ *Actualizado:* ${new Date(repo.updated_at).toLocaleDateString()}\n`;
       caption += `✦ *Topics:* ${repo.topics && repo.topics.length ? repo.topics.join(', ') : 'Ninguno'}\n`;
       caption += `✦ *Visibilidad:* ${repo.visibility}\n`;
       caption += `✦ *Default branch:* ${repo.default_branch}\n`;
-      caption += `✦ *Homepage:* ${repo.homepage || 'No definida'}\n\n`;
+      caption += `✦ *الصفحة:* ${repo.homepage || 'غير محددة'}\n\n`;
     });
 
     await conn.sendMessage(
@@ -50,7 +50,7 @@ let handler = async (m, { conn, text }) => {
 
   } catch (error) {
     console.error(error);
-    m.reply('❏ *Error al buscar en GitHub.* Intenta nuevamente más tarde.');
+    m.reply('❏ *خطأ في البحث في جيتهاب.* جرّب تاني بعد شوية.');
   }
 };
 

@@ -8,7 +8,7 @@ let handler = async (m, { conn }) => {
   let mime = (q.msg || q).mimetype || "";
 
   if (!mime) {
-    return conn.reply(m.chat, "《✧》 Por favor, responde a un archivo válido.", m);
+    return conn.reply(m.chat, "《✧》 من فضلك رد على ملف صحيح.", m);
   }
 
   try {
@@ -20,7 +20,7 @@ let handler = async (m, { conn }) => {
     const upscaleUrl = `${global.api.url2}/ia/upscale?image=${encodeURIComponent(link)}`;
 
     const txt = `*乂 H D - U P S C A L E R 乂*\n\n`
-      + `*» Tamaño:* ${formatBytes(media.length)}`;
+      + `*» الحجم:* ${formatBytes(media.length)}`;
 
     await conn.sendFile(m.chat, upscaleUrl, "upscaled.jpg", txt, m);
 
@@ -28,7 +28,7 @@ let handler = async (m, { conn }) => {
   } catch (e) {
     console.error(e);
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    m.reply(`《✧》 Error al procesar el archivo.\n\n*Detalles:* ${e.message}`);
+    m.reply(`《✧》 خطأ في معالجة الملف.\n\n*التفاصيل:* ${e.message}`);
   }
 };
 
@@ -48,7 +48,7 @@ function formatBytes(bytes) {
 async function uploadUguu(buffer) {
   const type = await fileTypeFromBuffer(buffer);
 
-  if (!type) throw new Error("No se pudo detectar el tipo de archivo.");
+  if (!type) throw new Error("مقدرتش أحدد نوع الملف.");
 
   const form = new FormData();
   form.set(
@@ -68,8 +68,8 @@ async function uploadUguu(buffer) {
 
   const json = await res.json();
 
-  if (!res.ok) throw new Error(json.message || "Error al subir el archivo.");
-  if (!json.success || !json.files?.length) throw new Error("La subida falló.");
+  if (!res.ok) throw new Error(json.message || "خطأ في رفع الملف.");
+  if (!json.success || !json.files?.length) throw new Error("الرفع فشل.");
 
   return json.files[0].url;
 }
