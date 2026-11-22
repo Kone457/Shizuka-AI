@@ -42,7 +42,10 @@ global.api = {
   key: 'NEX-Shizuka'
 }
 
-global.my = {}
+global.my = {
+  ch: '120363410090342500@newsletter',
+  name: 'ᯓ★ Hina ᯓ★'
+}
 
 const file = fileURLToPath(import.meta.url)
 watchFile(file, () => {
