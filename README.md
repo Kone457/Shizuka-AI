@@ -98,6 +98,10 @@ npm start
 
 <div dir="rtl" align="center">
 
+## 📢 قناة البوت
+
+[whatsapp.com/channel/0029Vb8QIpSJ3juu0VHRyU0v](https://whatsapp.com/channel/0029Vb8QIpSJ3juu0VHRyU0v)
+
 <img src="https://put.icu/s/lv8w4tjh.jpg" height="140px">
 
 **© 𝐡𝐚𝐢𝐭𝐡𝐚𝐦 - ᯓ★ Hina ᯓ★**

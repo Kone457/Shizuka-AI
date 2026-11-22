@@ -166,7 +166,7 @@ export function buildIndexText({ categories, userName, botname, botType, channel
   }
   l.push('')
   l.push('✎ اكتب *.ق1* أو *.اوامر 1* عشان تشوف أوامر القسم')
-  if (channelUrl) l.push(`│${channelUrl}`)
+  if (channelUrl) l.push(`📢 *قناة البوت*\n│${channelUrl}`)
   return l.join('\n')
 }
 

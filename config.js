@@ -30,7 +30,7 @@ global.social = {
   telegram: 'https://t.me/haitham_hina26',
   whatsapp: 'https://wa.me/201125166486'
 }
-global.channel = ''
+global.channel = 'https://whatsapp.com/channel/0029Vb8QIpSJ3juu0VHRyU0v'
 global.currency = 'كوينز'
 global.sessions = 'sessions/session-bot'
 global.jadi = 'sessions/session-sub'
