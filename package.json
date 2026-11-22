@@ -45,5 +45,13 @@
     "yargs": "^18.0.0",
     "yt-search": "^2.13.1",
     "hispamemes": "^1.0.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hhgdwh40-maker.git"
+  },
+  "homepage": "https://github.com/hhgdwh40-maker",
+  "bugs": {
+    "url": "https://github.com/hhgdwh40-maker/issues"
   }
 }
