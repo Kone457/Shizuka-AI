@@ -1,21 +1,12 @@
 <div dir="rtl" align="center">
 
-<table>
-  <tr>
-    <td>
-      <a href="https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v">
-        <img src="https://files.evogb.win/Rzaj1O.jpg" height="250px">
-      </a>
-    </td>
-    <td>
-      <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=40&pause=500&color=FF69B4&center=true&vCenter=true&width=500&lines=🌟+Shizuka+AI+🌟" alt="Typing SVG">
-    </td>
-  </tr>
-</table>
+<img src="https://put.icu/s/yr4vvffa.jpg" height="230px">
 
-# شيزوكا AI 🌟
+# ᯓ★ Hina ᯓ★
 
 **بوت واتساب عربي بالكامل** — أوامر مصرية، منيو بالعربي، أزرار حقيقية، وردود باللهجة المصرية.
+
+<img src="https://put.icu/s/qoqrh1yb.jpg" height="150px"> <img src="https://put.icu/s/ukv29dwj.jpg" height="150px"> <img src="https://put.icu/s/pco6yj6k.jpg" height="150px">
 
 </div>
 
@@ -45,8 +36,6 @@
 ## 🚀 التشغيل
 
 ```bash
-git clone https://github.com/Kone457/Shizuka-AI
-cd Shizuka-AI
 npm install
 npm start
 ```
@@ -84,7 +73,7 @@ npm start
 ```
 1️⃣ المشرفين        6️⃣ أنمي
 2️⃣ ذكاء اصطناعي    7️⃣ الاقتصاد
-3️⃣ البحث           8️⃣ أدوات
+3️⃣ البحث           8️⃣ الأدوات
 4️⃣ التحميل         9️⃣ المطور
 5️⃣ ألعاب           🔟 بوتات فرعية
 ```
@@ -97,30 +86,11 @@ npm start
 
 ## 👑 المطور
 
-<a href="https://discord.com/users/1289351917889257476"><img src="https://files.evogb.win/bIBv0J.jpg" height="125px"></a>
+<img src="https://put.icu/s/ufps0dct.jpg" height="150px">
 
-> 𝙏𝙤𝙘𝙖𝙧 𝙡𝙖 𝙞𝙢𝙖𝙜𝙚𝙣
+**𝐡𝐚𝐢𝐭𝐡𝐚𝐦**
 
-</div>
-
----
-
-<div dir="rtl">
-
-## ☁️ النشر على BoxMineWorld
-
-<a href="https://boxmineworld.com"><img src="https://boxmineworld.com/images/Logo.png" height="150px"></a>
-
-<details>
-  <summary><b>📎 روابط مهمة</b></summary>
-
-- **الموقع:** [https://boxmineworld.com](https://boxmineworld.com)
-- **لوحة العملاء:** [https://dash.boxmineworld.com](https://dash.boxmineworld.com)
-- **لوحة التحكم:** [https://panel.boxmineworld.com](https://panel.boxmineworld.com)
-- **الدوكيومنتيشن:** [https://docs.boxmineworld.com](https://docs.boxmineworld.com)
-- **سيرفر الديسكورد:** [اتفضل هنا](https://discord.gg/84qsr4v)
-
-</details>
+🌐 [github.com/hhgdwh40-maker](https://github.com/hhgdwh40-maker) · 📱 [t.me/haitham_hina26](https://t.me/haitham_hina26) · 📞 [wa.me/201125166486](https://wa.me/201125166486)
 
 </div>
 
@@ -128,18 +98,8 @@ npm start
 
 <div dir="rtl" align="center">
 
-## 📢 القناة
+<img src="https://put.icu/s/lv8w4tjh.jpg" height="140px">
 
-[whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O](https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O)
-
-</div>
-
----
-
-<div align="center">
-
-## Github Stats
-
-<img src="https://count.getloli.com/@ztrdiamond?name=ztrdiamond&theme=booru-lewd&padding=7&offset=0&align=center&scale=2&pixelated=1&darkmode=0">
+**© 𝐡𝐚𝐢𝐭𝐡𝐚𝐦 - ᯓ★ Hina ᯓ★**
 
 </div>

@@ -2,14 +2,12 @@ import { getBotConfig } from '../lib/botconfig.js'
 
 export async function before(m, { conn }) {
 
-var canal = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
-var canal2 = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
-var canal3 = 'https://whatsapp.com/channel/0029VbAVMtj2f3EFmXmrzt0v'
-var api = 'xvideos.com'
-var git = 'https://github.com/Kone457'
-var md = 'https://github.com/Kone457Shizuka-AI'
-
-const redes = [canal, canal2, canal3, api, git, md]
+const redes = [
+  global.social?.whatsapp,
+  global.social?.telegram,
+  global.social?.github,
+  global.channel
+].filter(Boolean)
 globalThis.redes = redes[Math.floor(Math.random() * redes.length)]
 
   const canales = Object.entries(global.my)
@@ -25,6 +23,7 @@ globalThis.redes = redes[Math.floor(Math.random() * redes.length)]
   }, [])
 
 const channelRD = canales[Math.floor(Math.random() * canales.length)]
+if (!channelRD) return
 
 global.fake = { contextInfo: { isForwarded: true, forwardedNewsletterMessageInfo: { newsletterJid: channelRD.id, serverMessageId: '0', newsletterName: channelRD.nombre, }, externalAdReply: { showAdAttribution: true, title: getBotConfig(conn, 'packname'), body: global.dev, mediaUrl: null, description: null, previewType: "PHOTO", thumbnailUrl: getBotConfig(conn, 'icon'), sourceUrl: redes, mediaType: 1, renderLargerThumbnail: false }}}
 

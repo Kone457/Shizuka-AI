@@ -36,7 +36,7 @@ const CATEGORY_EMOJI = {
   '⊹ بوتات فرعية ⊹': '🧩'
 }
 
-const CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb7h1qC65yDEhghegc2O'
+const CHANNEL_URL = global.channel || ''
 const DEFAULT_AVATAR = 'https://project-sxl.vercel.app/files/0b1ac71e42ed.jpg'
 
 let cachedBannerBuffer = null
@@ -166,7 +166,7 @@ export function buildIndexText({ categories, userName, botname, botType, channel
   }
   l.push('')
   l.push('✎ اكتب *.ق1* أو *.اوامر 1* عشان تشوف أوامر القسم')
-  l.push(`│${channelUrl}`)
+  if (channelUrl) l.push(`│${channelUrl}`)
   return l.join('\n')
 }
 

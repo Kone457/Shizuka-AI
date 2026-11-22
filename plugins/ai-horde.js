@@ -6,7 +6,7 @@ const API_KEY = '0000000000';
 const HEADERS = {
   'Content-Type': 'application/json',
   'apikey': API_KEY,
-  'Client-Agent': 'Shizuka-AI:1.0:WhatsApp'
+  'Client-Agent': 'Hina-AI:1.0:WhatsApp'
 };
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));

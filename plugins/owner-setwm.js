@@ -8,7 +8,7 @@ let handler = async (m, { conn, text }) => {
       `📋 *القيمة الحالية للبوت ده:* *${getBotConfig(conn, 'wm')}*\n\n` +
       `💡 *Ejemplos:*\n` +
       `› .setwm MiBot\n` +
-      `› .setwm © Shizuka-AI`
+      `› .setwm © Hina`
     )
   }
 

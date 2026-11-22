@@ -7,7 +7,7 @@ let handler = async (m, { conn, text }) => {
       `📌 *الاستخدام:* .setname2 <الاسم الكامل>\n\n` +
       `📋 *القيمة الحالية للبوت ده:*\n` +
       `› الاسم الكامل: *${getBotConfig(conn, 'namebot')}*\n\n` +
-      `💡 *مثال:* .setname2 Shizuka-AI`
+      `💡 *مثال:* .setname2 Hina`
     )
   }
 

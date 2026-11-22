@@ -5,15 +5,15 @@ import {
 } from '@whiskeysockets/baileys'
 
 let handler = async (m, { conn }) => {
-  const thumbUrl = `https://files.evogb.win/O5jgc6.jpg`
+  const thumbUrl = `https://put.icu/s/ufps0dct.jpg`
   const thumbBuffer = await fetch(thumbUrl).then(res => res.buffer())
 
   let mensaje = `
 ╭─❏ ✿ *مطور البوت*
-┊ 👤 *الاسم:* Carlos
-┊ 🌐 *جيتهاب:* github.com/Kone457
-┊ 📱 *تليجرام:* t.me/CarlosOfc_xp
-┊ 📞 *واتساب:* wa.me/CarlosOfc.CC
+┊ 👤 *الاسم:* 𝐡𝐚𝐢𝐭𝐡𝐚𝐦
+┊ 🌐 *جيتهاب:* ${(global.social?.github || '').replace(/^https?:\/\//, '')}
+┊ 📱 *تليجرام:* ${(global.social?.telegram || '').replace(/^https?:\/\//, '')}
+┊ 📞 *واتساب:* ${(global.social?.whatsapp || '').replace(/^https?:\/\//, '')}
 ╰─❏ ✿`
 
   // Preparar media
@@ -30,7 +30,7 @@ let handler = async (m, { conn }) => {
       imageMessage: media.imageMessage
     },
     body: { text: mensaje.trim() },
-    footer: { text: '© جميع الحقوق محفوظة' },
+    footer: { text: global.dev },
     nativeFlowMessage: {
       buttons: [],
       messageParamsJson: JSON.stringify({

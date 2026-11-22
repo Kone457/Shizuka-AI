@@ -1,7 +1,7 @@
 {
-  "name": "Shizuka-AI",
+  "name": "hina-ai",
   "version": "3.7.0",
-  "description": "Super Bot WhatsApp",
+  "description": "بوت واتساب عربي — Hina",
   "main": "index.js",
   "type": "module",
   "directories": {
@@ -12,15 +12,7 @@
     "start": "node index.js",
     "test": "node --test --test-force-exit \"test/**/*.test.mjs\""
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Kone457/Shizuka-AI.git"
-  },
-  "author": "Carlos",
-  "bugs": {
-    "url": "https://github.com/Kone457/Shizuka-AI/issues"
-  },
-  "homepage": "https://github.com/Kone457/Shizuka-AI",
+  "author": "𝐡𝐚𝐢𝐭𝐡𝐚𝐦",
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc.14",
     "awesome-phonenumber": "^7.8.0",

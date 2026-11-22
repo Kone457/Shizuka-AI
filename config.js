@@ -5,22 +5,32 @@ import { fileURLToPath } from "url"
 global.botNumber = ""
 
 global.owner = [
-  ["5363870693", "Carlos 👑", true],
-  ["17054102764", "Canada", true],
-  ["37405524500701", "", true],
-  ["595987301197", "otro", true]
+  ["201125166486", "𝐡𝐚𝐢𝐭𝐡𝐚𝐦 👑", true]
 ]
 
-global.botname = '𝚂𝚑𝚒𝚣𝚞𝚔𝚊'
-global.namebot = '𝚂𝚑𝚒𝚣𝚞𝚔𝚊-𝙰𝙸'
-global.packname = 'ѕнιzυкα-αι'
-global.wm = '𝓢𝓱𝓲𝔃𝓾𝓴𝓪-𝓐𝓘'
-global.author = '𝙲𝚊𝚛𝚕𝚘𝚜'
-global.dev = '© 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 𝙲𝚊𝚛𝚕𝚘𝚜.'
+global.botname = 'Hina'
+global.namebot = 'ᯓ★ Hina ᯓ★'
+global.packname = 'ᯓ★ Hina ᯓ★'
+global.wm = '𝐡𝐚𝐢𝐭𝐡𝐚𝐦'
+global.author = '𝐡𝐚𝐢𝐭𝐡𝐚𝐦'
+global.dev = '© 𝐡𝐚𝐢𝐭𝐡𝐚𝐦 - ᯓ★ Hina ᯓ★'
 
-global.banner = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Anime/99eec236ee.jpg'
-global.banner2 = 'https://raw.githubusercontent.com/Kone457/Nexus/main/Datos/75fbe587ad51.jpg'
-global.icon = 'https://i.postimg.cc/ZR6tbmdF/a6b0b4c96c1ecc0258de9a6678434f65.jpg'
+global.banner = 'https://put.icu/s/yr4vvffa.jpg'
+global.banner2 = 'https://put.icu/s/qoqrh1yb.jpg'
+global.icon = 'https://put.icu/s/ukv29dwj.jpg'
+global.botImages = [
+  'https://put.icu/s/yr4vvffa.jpg',
+  'https://put.icu/s/qoqrh1yb.jpg',
+  'https://put.icu/s/ukv29dwj.jpg',
+  'https://put.icu/s/pco6yj6k.jpg',
+  'https://put.icu/s/lv8w4tjh.jpg'
+]
+global.social = {
+  github: 'https://github.com/hhgdwh40-maker',
+  telegram: 'https://t.me/haitham_hina26',
+  whatsapp: 'https://wa.me/201125166486'
+}
+global.channel = ''
 global.currency = 'كوينز'
 global.sessions = 'sessions/session-bot'
 global.jadi = 'sessions/session-sub'
@@ -32,10 +42,7 @@ global.api = {
   key: 'NEX-Shizuka'
 }
 
-global.my = {
-  ch: '120363424754823499@newsletter',
-  name: '꒰ ✨ 𝚂𝚑𝚒𝚣𝚞𝚔𝚊-𝙰𝙸 ꒱'
-}
+global.my = {}
 
 const file = fileURLToPath(import.meta.url)
 watchFile(file, () => {
