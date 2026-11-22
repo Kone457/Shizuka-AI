@@ -59,9 +59,9 @@ const BLACKJACK_HTML = `
 <div id="bjResult" style="position:absolute;inset:0;z-index:15;display:none;align-items:center;justify-content:center;background:rgba(0,7,4,.78);backdrop-filter:blur(5px);">
 <div style="width:285px;padding:27px 20px;text-align:center;background:linear-gradient(145deg,rgba(5,35,23,.98),rgba(2,9,6,.99));border:1px solid rgba(0,255,136,.4);border-radius:22px;box-shadow:0 0 50px rgba(0,255,136,.18);">
 <div id="bjResultIcon" style="font-size:48px;">🏆</div>
-<div id="bjResultTitle" style="font-size:25px;font-weight:900;letter-spacing:3px;margin:8px 0;color:#00ff88;">VICTORIA</div>
+<div id="bjResultTitle" style="font-size:25px;font-weight:900;letter-spacing:3px;margin:8px 0;color:#00ff88;">فوز</div>
 <div id="bjResultText" style="font-size:12px;color:#789b8b;line-height:1.7;"></div>
-<button id="bjAgain" style="margin-top:20px;width:100%;padding:13px;border:0;border-radius:25px;background:linear-gradient(135deg,#00ff88,#00a85a);color:#02150c;font-weight:900;letter-spacing:2px;">JUGAR DE NUEVO</button>
+<button id="bjAgain" style="margin-top:20px;width:100%;padding:13px;border:0;border-radius:25px;background:linear-gradient(135deg,#00ff88,#00a85a);color:#02150c;font-weight:900;letter-spacing:2px;">العب DE NUEVO</button>
 </div>
 </div>
 <script>
@@ -271,20 +271,20 @@ if(dv>21||pv>dv){
 balance+=bet*2;
 wins++;
 resultIcon.textContent='🏆';
-resultTitle.textContent='¡GANASTE!';
+resultTitle.textContent='كسبت!';
 resultTitle.style.color='#00ff88';
 resultText.innerHTML='Tú: <b style="color:#00ff88;">'+pv+'</b> · Dealer: <b>'+dv+'</b><br><br>Ganaste <b style="color:#00ff88;">+'+bet+' fichas</b>.';
 }else if(pv===dv){
 balance+=bet;
 draws++;
 resultIcon.textContent='🤝';
-resultTitle.textContent='EMPATE';
+resultTitle.textContent='تعادل';
 resultTitle.style.color='#ffbd38';
 resultText.innerHTML='Ambos tienen <b style="color:#ffbd38;">'+pv+'</b>.<br><br>Tu apuesta fue devuelta.';
 }else{
 losses++;
 resultIcon.textContent='💀';
-resultTitle.textContent='DERROTA';
+resultTitle.textContent='خسارة';
 resultTitle.style.color='#ff405d';
 resultText.innerHTML='Tú: <b>'+pv+'</b> · Dealer: <b style="color:#ff405d;">'+dv+'</b><br><br>Perdiste <b style="color:#ff405d;">'+bet+' fichas</b>.';
 }

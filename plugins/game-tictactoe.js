@@ -7,12 +7,12 @@ const TICTACTOE_HTML = `
 <div id="tttUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:radial-gradient(ellipse at center,rgba(10,10,30,0.96) 0%,rgba(0,0,0,0.99) 100%);z-index:10;transition:opacity .25s;padding:20px;box-sizing:border-box;">
 <h1 style="color:#0ff;text-shadow:0 0 10px #0ff,0 0 30px #08f,0 0 60px #08f;font-size:38px;margin:0 0 8px;letter-spacing:8px;text-transform:uppercase;font-weight:900;text-align:center;">TRES EN LÍNEA</h1>
 <p style="color:#8af;margin:0 0 26px;font-size:13px;text-align:center;letter-spacing:1.5px;line-height:1.8;">Consigue 3 en línea.<br>Tú eres <b style="color:#0ff;text-shadow:0 0 10px #0ff">X</b> · La IA es <b style="color:#f0f;text-shadow:0 0 10px #f0f">O</b></p>
-<button id="tttSB" style="padding:16px 46px;background:linear-gradient(135deg,#0ff 0%,#08f 50%,#05f 100%);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:3px;box-shadow:0 0 30px rgba(0,200,255,.6),0 0 60px rgba(0,200,255,.3),inset 0 1px 0 rgba(255,255,255,.4);">JUGAR</button>
+<button id="tttSB" style="padding:16px 46px;background:linear-gradient(135deg,#0ff 0%,#08f 50%,#05f 100%);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:3px;box-shadow:0 0 30px rgba(0,200,255,.6),0 0 60px rgba(0,200,255,.3),inset 0 1px 0 rgba(255,255,255,.4);">العب</button>
 </div>
 <div id="tttHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;">
 <div style="display:flex;justify-content:space-around;padding:12px 15px;align-items:center;font-family:monospace;background:linear-gradient(180deg,rgba(0,20,40,.6),rgba(0,0,0,0));">
 <div style="text-align:center;"><div style="font-size:10px;color:#8af;letter-spacing:2px;">GANADAS</div><div id="tttW" style="font-size:22px;font-weight:900;color:#0f0;text-shadow:0 0 12px #0f0;">0</div></div>
-<div style="text-align:center;"><div style="font-size:10px;color:#8af;letter-spacing:2px;">EMPATES</div><div id="tttD" style="font-size:22px;font-weight:900;color:#ff0;text-shadow:0 0 12px #ff0;">0</div></div>
+<div style="text-align:center;"><div style="font-size:10px;color:#8af;letter-spacing:2px;">تعادلS</div><div id="tttD" style="font-size:22px;font-weight:900;color:#ff0;text-shadow:0 0 12px #ff0;">0</div></div>
 <div style="text-align:center;"><div style="font-size:10px;color:#8af;letter-spacing:2px;">PERDIDAS</div><div id="tttL" style="font-size:22px;font-weight:900;color:#f00;text-shadow:0 0 12px #f00;">0</div></div>
 </div>
 </div>
@@ -338,26 +338,26 @@ winner=result;
 if(result.player==='X'){
 wins++;
 wT.textContent=wins;
-stT.textContent='¡GANASTE!';
+stT.textContent='كسبت!';
 stT.style.color='#0f0';
 spawnParticles(W/2,H/2,'#0f0',24);
 }else if(result.player==='O'){
 losses++;
 lT.textContent=losses;
-stT.textContent='PERDISTE';
+stT.textContent='خسرت';
 stT.style.color='#f00';
 spawnParticles(W/2,H/2,'#f00',24);
 }else{
 draws++;
 dT.textContent=draws;
-stT.textContent='EMPATE';
+stT.textContent='تعادل';
 stT.style.color='#ff0';
 spawnParticles(W/2,H/2,'#ff0',20);
 }
 clearTimeout(gameEndTimer);
 gameEndTimer=setTimeout(()=>{
-uI.querySelector('h1').textContent=result.player==='X'?'¡VICTORIA!':result.player==='O'?'DERROTA':'EMPATE';
-sB.textContent='JUGAR OTRA VEZ';
+uI.querySelector('h1').textContent=result.player==='X'?'فوز!':result.player==='O'?'خسارة':'تعادل';
+sB.textContent='العب OTRA VEZ';
 uI.style.display='flex';
 requestAnimationFrame(()=>uI.style.opacity='1');
 },1000);

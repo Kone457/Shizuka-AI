@@ -40,7 +40,7 @@ experiencia = Math.floor(Math.random() * 61) + 30
 user.exp += experiencia
 }
 if (user.health < 0) user.health = 0
-const resultado = `✿ ${evento.mensaje} ${evento.tipo === 'trampa' ? '' : evento.tipo === 'victoria' ? `ganaste. *${monedas.toLocaleString()} ${currency}*` : `perdiste. *${monedas.toLocaleString()} ${currency}*`}`
+const resultado = `✿ ${evento.mensaje} ${evento.tipo === 'trampa' ? '' : evento.tipo === 'victoria' ? `كسبت. *${monedas.toLocaleString()} ${currency}*` : `خسرت. *${monedas.toLocaleString()} ${currency}*`}`
 await conn.reply(m.chat, resultado.trim(), m)
 await global.db.write()
 }

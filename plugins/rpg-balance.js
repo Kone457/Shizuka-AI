@@ -19,9 +19,9 @@ const texto = `ᥫ᭡ المعلومات - الرصيد ✿
 ᰔᩚ المستخدم » *${name}*   
 ⛀ المحفظة » *${coin.toLocaleString()} ${currency}*
 ⚿ البنك » *${bank.toLocaleString()} ${currency}*
-⛁ Total » *${total.toLocaleString()} ${currency}*
+⛁ الإجمالي » *${total.toLocaleString()} ${currency}*
 
-> *Para proteger tu dinero, ¡depósitalo en el banco usando #deposit!*`
+> *عشان تحمي فلوسك، حطها في البنك بالأمر: .اودع*`
 await conn.reply(m.chat, texto, m)
 }
 

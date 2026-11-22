@@ -5,12 +5,12 @@ const RACE_HTML = `
 <canvas id="rC" width="360" height="600" style="width:100%;height:100%;display:block;"></canvas>
 <div id="rUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,0.92);z-index:10;padding:20px;box-sizing:border-box;">
 <h1 style="color:#ff0;text-shadow:0 0 20px #ff0,0 0 40px #f80,0 4px 0 #f00;font-size:38px;margin:0 0 10px;letter-spacing:4px;font-weight:900;text-align:center;font-family:Impact,sans-serif;">RACE</h1>
-<p style="color:#8af;margin:0 0 24px;font-size:13px;text-align:center;line-height:1.8;">Esquiva el tráfico a toda velocidad<br>Recoge monedas 🪙 y nitro ⚡<br>¡Llega lo más lejos posible!</p>
+<p style="color:#8af;margin:0 0 24px;font-size:13px;text-align:center;line-height:1.8;">اتجنّب العربيات بسرعة<br>اجمع كوينز 🪙 ونِترو ⚡<br>وصل لأبعد مسافة!</p>
 <button id="rSB" style="padding:16px 44px;background:linear-gradient(180deg,#ff0,#f80);border:3px solid #a00;border-radius:14px;color:#3a0000;font-size:16px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:3px;box-shadow:0 5px 0 #a00,0 8px 20px rgba(255,200,0,0.4);text-shadow:0 1px 0 rgba(255,255,255,0.5);">CONDUCIR</button>
 </div>
 <div id="rHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;font-family:monospace;">
 <div style="display:flex;justify-content:space-between;padding:10px 15px;background:linear-gradient(180deg,rgba(0,0,30,0.9),rgba(0,0,30,0));">
-<div><div style="font-size:9px;color:#ff0;letter-spacing:2px;text-shadow:1px 1px 2px #000;">PUNTOS</div><div id="rSc" style="font-size:22px;font-weight:900;color:#fff;text-shadow:2px 2px 0 #000,0 0 10px #ff0;">0</div></div>
+<div><div style="font-size:9px;color:#ff0;letter-spacing:2px;text-shadow:1px 1px 2px #000;">نقط</div><div id="rSc" style="font-size:22px;font-weight:900;color:#fff;text-shadow:2px 2px 0 #000,0 0 10px #ff0;">0</div></div>
 <div style="text-align:center;"><div style="font-size:9px;color:#0ff;letter-spacing:2px;text-shadow:1px 1px 2px #000;">VELOCIDAD</div><div id="rSp" style="font-size:22px;font-weight:900;color:#0ff;text-shadow:2px 2px 0 #000;">0 km/h</div></div>
 <div style="text-align:right;"><div style="font-size:9px;color:#f0f;letter-spacing:2px;text-shadow:1px 1px 2px #000;">RÉCORD</div><div id="rHs" style="font-size:22px;font-weight:900;color:#f0f;text-shadow:2px 2px 0 #000;">0</div></div>
 </div>

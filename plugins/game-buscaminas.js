@@ -16,7 +16,7 @@ const MINESWEEPER_HTML = `
 <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:linear-gradient(180deg,rgba(1,12,25,.97),rgba(1,8,16,.7));border-bottom:1px solid rgba(0,220,255,.18);">
 <div style="text-align:center;min-width:75px;"><div style="font-size:8px;color:#60809d;letter-spacing:2px;">الالغام</div><div id="msMines" style="font:900 20px monospace;color:#ff405d;text-shadow:0 0 12px #ff1744;">000</div></div>
 <div style="text-align:center;"><div id="msLevel" style="font-size:9px;color:#00eaff;letter-spacing:2px;">NORMAL</div><div id="msStatus" style="font-size:11px;color:#8aa5bd;margin-top:3px;">BUSCANDO...</div></div>
-<div style="text-align:center;min-width:75px;"><div style="font-size:8px;color:#60809d;letter-spacing:2px;">TIEMPO</div><div id="msTime" style="font:900 20px monospace;color:#fff;">000</div></div>
+<div style="text-align:center;min-width:75px;"><div style="font-size:8px;color:#60809d;letter-spacing:2px;">الوقت</div><div id="msTime" style="font:900 20px monospace;color:#fff;">000</div></div>
 </div>
 </div>
 <div id="msControls" style="position:absolute;bottom:0;left:0;width:100%;z-index:8;display:none;justify-content:center;gap:10px;padding:12px;box-sizing:border-box;background:linear-gradient(0deg,rgba(1,5,12,.98),rgba(1,5,12,.65));">
@@ -28,7 +28,7 @@ const MINESWEEPER_HTML = `
 <div id="msResultIcon" style="font-size:48px;">💥</div>
 <div id="msResultTitle" style="font-size:26px;font-weight:900;letter-spacing:3px;margin:8px 0;">GAME OVER</div>
 <div id="msResultText" style="font-size:12px;color:#7895ad;line-height:1.7;"></div>
-<button id="msAgain" style="margin-top:20px;width:100%;padding:13px;border:0;border-radius:25px;background:linear-gradient(135deg,#00eaff,#0077ff);color:#fff;font-weight:900;letter-spacing:2px;">JUGAR DE NUEVO</button>
+<button id="msAgain" style="margin-top:20px;width:100%;padding:13px;border:0;border-radius:25px;background:linear-gradient(135deg,#00eaff,#0077ff);color:#fff;font-weight:900;letter-spacing:2px;">العب DE NUEVO</button>
 </div>
 </div>
 <script>
@@ -233,7 +233,7 @@ for(const c of board)if(c.mine)c.flag=true;
 flags=cfg.mines;
 statusEl.textContent='CAMPO ASEGURADO';
 resultIcon.textContent='🏆';
-resultTitle.textContent='¡VICTORIA!';
+resultTitle.textContent='فوز!';
 resultTitle.style.color='#00ff88';
 resultText.innerHTML='Todas las minas fueron localizadas.<br><br>Tiempo: <b style="color:#00eaff;">'+timer+'s</b>';
 }else{

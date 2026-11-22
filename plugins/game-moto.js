@@ -29,7 +29,7 @@ const MOTO_RACING_HTML = `
 <div id="mrResult" style="position:absolute;inset:0;z-index:15;display:none;align-items:center;justify-content:center;background:rgba(2,4,8,.8);backdrop-filter:blur(5px);">
 <div style="width:285px;padding:27px 20px;text-align:center;background:linear-gradient(145deg,rgba(30,15,8,.98),rgba(4,6,10,.99));border:1px solid rgba(255,77,0,.4);border-radius:22px;box-shadow:0 0 50px rgba(255,69,0,.18);">
 <div id="mrResultIcon" style="font-size:48px;">💥</div>
-<div id="mrResultTitle" style="font-size:25px;font-weight:900;letter-spacing:3px;margin:8px 0;color:#ff5a1f;">¡CHOQUE!</div>
+<div id="mrResultTitle" style="font-size:25px;font-weight:900;letter-spacing:3px;margin:8px 0;color:#ff5a1f;">خبطة!</div>
 <div id="mrResultText" style="font-size:12px;color:#9c8075;line-height:1.7;"></div>
 <button id="mrAgain" type="button" style="margin-top:20px;width:100%;padding:13px;border:0;border-radius:25px;background:linear-gradient(135deg,#ff5a1f,#ff1e00);color:#fff;font-weight:900;letter-spacing:2px;">VOLVER A CORRER</button>
 </div>
@@ -459,7 +459,7 @@ coinsEl.textContent=totalCoins+' 🪙';
 controls.style.display='none';
 nitroBox.style.display='none';
 resultIcon.textContent='💥';
-resultTitle.textContent='¡CHOQUE!';
+resultTitle.textContent='خبطة!';
 resultTitle.style.color='#ff5a1f';
 resultText.innerHTML='المسافة: <b style="color:#fff;">'+Math.floor(distance)+' m</b><br>الكوينز: <b style="color:#ffd447;">+'+coins+' 🪙</b><br><br>الرقم القياسي: <b style="color:#ff5a1f;">'+best+' m</b>';
 setTimeout(()=>result.style.display='flex',400);

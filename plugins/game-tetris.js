@@ -4,17 +4,17 @@ const TETRIS_HTML = `
 <canvas id="tC" width="360" height="600" style="width:100%;height:100%;display:block;"></canvas>
 <div id="tUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,0.9);z-index:10;transition:opacity 0.3s;padding:20px;box-sizing:border-box;">
 <h1 style="color:#0ff;text-shadow:0 0 20px #0ff,0 0 40px #08f;font-size:34px;margin:0 0 8px;letter-spacing:4px;text-transform:uppercase;font-weight:900;text-align:center;">TETRIS</h1>
-<p style="color:#8af;margin:0 0 22px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.7;">Usa los botones para mover, rotar<br>y acelerar la caída de las piezas.<br>¡Completa líneas para puntuar!</p>
-<button id="tSB" style="padding:14px 40px;background:linear-gradient(45deg,#0ff,#08f);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 0 25px rgba(0,200,255,0.5);">JUGAR</button>
+<p style="color:#8af;margin:0 0 22px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.7;">استخدم الأزرار تحرّك وتلف<br>وتسرّع نزول القطع.<br>كمّل صفوف عشان تجيب نقط!</p>
+<button id="tSB" style="padding:14px 40px;background:linear-gradient(45deg,#0ff,#08f);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 0 25px rgba(0,200,255,0.5);">العب</button>
 </div>
 <div id="tHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;">
 <div style="display:flex;justify-content:space-between;padding:10px 15px;align-items:center;">
 <div>
-<div style="font-size:9px;color:#8af;letter-spacing:2px;">PUNTOS</div>
+<div style="font-size:9px;color:#8af;letter-spacing:2px;">نقط</div>
 <div id="tSc" style="font-size:20px;font-weight:900;font-family:monospace;text-shadow:0 0 8px #0ff;">0</div>
 </div>
 <div style="text-align:center;">
-<div style="font-size:9px;color:#8af;letter-spacing:2px;">NIVEL</div>
+<div style="font-size:9px;color:#8af;letter-spacing:2px;">مستوى</div>
 <div id="tLv" style="font-size:20px;font-weight:900;font-family:monospace;color:#0ff;text-shadow:0 0 8px #0ff;">1</div>
 </div>
 <div style="text-align:right;">
@@ -231,7 +231,7 @@ function fade(){
 gt++;draw();
 if(gt>60){
 uI.style.display='flex';uI.style.opacity=1;
-sB.innerText='VOLVER A JUGAR';
+sB.innerText='VOLVER A العب';
 uI.querySelector('h1').innerText='GAME OVER';
 uI.querySelector('p').innerHTML='<b style="color:#0ff">النقط: '+sc+'</b> · <b style="color:#0ff">المستوى: '+lv+'</b> · <b style="color:#fa0">الخطوط: '+ln+'</b><br><br>الجاذبية غلبتك.';
 hU.style.display='none';pad.style.display='none';

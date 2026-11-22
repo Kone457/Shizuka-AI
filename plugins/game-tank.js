@@ -11,7 +11,7 @@ const TANK_HTML = `
 <div id="tankHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;">
 <div style="display:flex;justify-content:space-between;padding:8px 14px;align-items:center;">
 <div>
-<div style="font-size:9px;color:#fa8;letter-spacing:2px;">PUNTOS</div>
+<div style="font-size:9px;color:#fa8;letter-spacing:2px;">نقط</div>
 <div id="tankSc" style="font-size:20px;font-weight:900;font-family:monospace;text-shadow:0 0 8px #f60;">0</div>
 </div>
 <div style="text-align:center;">

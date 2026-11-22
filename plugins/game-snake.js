@@ -5,8 +5,8 @@ const SNAKE_HTML = `
 <canvas id="snkC" width="800" height="800" style="width:100%;height:100%;display:block;"></canvas>
 <div id="snkUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,0.9);z-index:10;transition:opacity 0.3s;padding:20px;box-sizing:border-box;">
 <h1 style="color:#0f0;text-shadow:0 0 20px #0f0,0 0 40px #0a0;font-size:32px;margin:0 0 10px;letter-spacing:5px;text-transform:uppercase;font-weight:900;text-align:center;">SNAKE IO</h1>
-<p style="color:#8f8;margin:0 0 20px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.8;">Devora puntos y serpientes más pequeñas.<br>Evita chocar contra las más grandes.<br>¡Crece y domina la arena!</p>
-<button id="snkSB" style="padding:14px 42px;background:linear-gradient(45deg,#0f0,#0a0);border:none;border-radius:30px;color:#000;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:3px;box-shadow:0 0 25px rgba(0,255,0,0.6);">JUGAR</button>
+<p style="color:#8f8;margin:0 0 20px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.8;">اكل النقط والحيّات الصغيرة.<br>اتجنّب تخبط في الكبيرة.<br>كبر وسيطر على الساحة!</p>
+<button id="snkSB" style="padding:14px 42px;background:linear-gradient(45deg,#0f0,#0a0);border:none;border-radius:30px;color:#000;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:3px;box-shadow:0 0 25px rgba(0,255,0,0.6);">العب</button>
 </div>
 <div id="snkHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;">
 <div style="display:flex;justify-content:space-between;padding:8px 14px;align-items:center;">
@@ -19,7 +19,7 @@ const SNAKE_HTML = `
 <div id="snkRk" style="font-size:20px;font-weight:900;font-family:monospace;color:#0f0;text-shadow:0 0 8px #0f0;">1/8</div>
 </div>
 <div style="text-align:right;">
-<div style="font-size:9px;color:#8f8;letter-spacing:2px;">PUNTOS</div>
+<div style="font-size:9px;color:#8f8;letter-spacing:2px;">نقط</div>
 <div id="snkSc" style="font-size:20px;font-weight:900;font-family:monospace;color:#ff0;text-shadow:0 0 8px #ff0;">0</div>
 </div>
 </div>

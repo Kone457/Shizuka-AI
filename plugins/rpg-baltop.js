@@ -23,7 +23,7 @@ let handler = async (m, { conn, args }) => {
       name = jid.split('@')[0]
     }
     text += `✰ ${startIndex + i + 1} » *${name}:*\n`
-    text += `\t\t Total→ *${total.toLocaleString()} Coins*\n`
+    text += `\t\t الإجمالي← *${total.toLocaleString()} كوينز*\n`
   }
 
   text += `\n> • صفحة *${page}* من *${totalPages}*`

@@ -5,17 +5,17 @@ const ARKANOID_HTML = `
 <canvas id="aC" width="360" height="600" style="width:100%;height:100%;display:block;"></canvas>
 <div id="aUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,0.92);z-index:10;transition:opacity 0.3s;padding:20px;box-sizing:border-box;">
 <h1 style="color:#0ff;text-shadow:0 0 20px #0ff,0 0 40px #08f;font-size:32px;margin:0 0 8px;letter-spacing:4px;text-transform:uppercase;font-weight:900;text-align:center;">ARKANOID</h1>
-<p style="color:#8af;margin:0 0 22px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.7;">Mueve la nave y rebota la pelota.<br>Rompe todos los ladrillos.<br>¡Atrapa los power-ups!</p>
-<button id="aSB" style="padding:14px 40px;background:linear-gradient(45deg,#0ff,#08f);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 0 25px rgba(0,200,255,0.5);">JUGAR</button>
+<p style="color:#8af;margin:0 0 22px;font-size:12px;text-align:center;letter-spacing:1px;line-height:1.7;">حرّك السفينة والكورة ترتد.<br>اكسر كل الطوب.<br>واجمع الـpower-ups!</p>
+<button id="aSB" style="padding:14px 40px;background:linear-gradient(45deg,#0ff,#08f);border:none;border-radius:30px;color:#fff;font-size:15px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 0 25px rgba(0,200,255,0.5);">العب</button>
 </div>
 <div id="aHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;">
 <div style="display:flex;justify-content:space-between;padding:8px 15px;align-items:center;font-family:monospace;">
 <div>
-<div style="font-size:9px;color:#8af;letter-spacing:2px;">PUNTOS</div>
+<div style="font-size:9px;color:#8af;letter-spacing:2px;">نقط</div>
 <div id="aSc" style="font-size:18px;font-weight:900;text-shadow:0 0 8px #0ff;">0</div>
 </div>
 <div style="text-align:center;">
-<div style="font-size:9px;color:#8af;letter-spacing:2px;">NIVEL</div>
+<div style="font-size:9px;color:#8af;letter-spacing:2px;">مستوى</div>
 <div id="aLv" style="font-size:18px;font-weight:900;color:#0ff;text-shadow:0 0 8px #0ff;">1</div>
 </div>
 <div style="text-align:center;">
@@ -165,7 +165,7 @@ gt++;
 draw();
 if(gt>60){
 uI.style.display='flex';uI.style.opacity=1;
-sB.innerText='VOLVER A JUGAR';
+sB.innerText='VOLVER A العب';
 uI.querySelector('h1').innerText='GAME OVER';
 uI.querySelector('p').innerHTML='<b style="color:#0ff">النقط: '+sc+'</b> · <b style="color:#0ff">المستوى: '+lv+'</b><br><br>الطوب كسب المرة دي.';
 hU.style.display='none';pad.style.display='none';
@@ -275,7 +275,7 @@ ctx.fillStyle='rgba(0,0,16,0.8)';ctx.fillRect(0,0,W,H);
 ctx.fillStyle='#0ff';ctx.font='bold 32px sans-serif';
 ctx.textAlign='center';ctx.textBaseline='middle';
 ctx.shadowBlur=20;ctx.shadowColor='#0ff';
-ctx.fillText('NIVEL '+lv,W/2,H/2);
+ctx.fillText('مستوى '+lv,W/2,H/2);
 ctx.shadowBlur=0;
 }
 ctx.setTransform(1,0,0,1,0,0);

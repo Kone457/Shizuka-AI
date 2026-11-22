@@ -5,14 +5,14 @@ const WHACK_HTML = `
 <canvas id="wC" width="360" height="600" style="width:100%;height:100%;display:block;"></canvas>
 <div id="wUI" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:rgba(30,15,5,0.94);z-index:10;padding:20px;box-sizing:border-box;">
 <h1 style="color:#ffd700;text-shadow:0 4px 0 #8b4513,0 0 30px #ffd700;font-size:34px;margin:0 0 10px;letter-spacing:3px;font-weight:900;text-align:center;font-family:Impact,sans-serif;">WHACK-A-MOLE</h1>
-<p style="color:#ffe8b0;margin:0 0 24px;font-size:13px;text-align:center;line-height:1.8;text-shadow:1px 1px 2px #000;">¡Aplasta a los topos con el mazo!<br>Evita las bombas 💣<br>60 segundos de furia</p>
-<button id="wSB" style="padding:16px 44px;background:linear-gradient(180deg,#ffcc00,#cc8800);border:3px solid #5a2a00;border-radius:14px;color:#3a1a00;font-size:16px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 5px 0 #5a2a00,0 8px 20px rgba(0,0,0,0.5);text-shadow:0 1px 0 rgba(255,255,255,0.4);">JUGAR</button>
+<p style="color:#ffe8b0;margin:0 0 24px;font-size:13px;text-align:center;line-height:1.8;text-shadow:1px 1px 2px #000;">اطرق الخلد بالمطرقة!<br>اتجنّب القنابل 💣<br>٦٠ ثانية بس</p>
+<button id="wSB" style="padding:16px 44px;background:linear-gradient(180deg,#ffcc00,#cc8800);border:3px solid #5a2a00;border-radius:14px;color:#3a1a00;font-size:16px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 5px 0 #5a2a00,0 8px 20px rgba(0,0,0,0.5);text-shadow:0 1px 0 rgba(255,255,255,0.4);">العب</button>
 </div>
 <div id="wHU" style="position:absolute;top:0;left:0;width:100%;box-sizing:border-box;color:#fff;display:none;pointer-events:none;z-index:5;font-family:monospace;">
 <div style="display:flex;justify-content:space-between;padding:10px 15px;background:linear-gradient(180deg,rgba(60,30,10,0.9),rgba(60,30,10,0));">
-<div><div style="font-size:9px;color:#ffd700;letter-spacing:2px;text-shadow:1px 1px 2px #000;">PUNTOS</div><div id="wSc" style="font-size:22px;font-weight:900;color:#fff;text-shadow:2px 2px 0 #000,0 0 10px #ffd700;">0</div></div>
+<div><div style="font-size:9px;color:#ffd700;letter-spacing:2px;text-shadow:1px 1px 2px #000;">نقط</div><div id="wSc" style="font-size:22px;font-weight:900;color:#fff;text-shadow:2px 2px 0 #000,0 0 10px #ffd700;">0</div></div>
 <div style="text-align:center;"><div style="font-size:9px;color:#ffd700;letter-spacing:2px;text-shadow:1px 1px 2px #000;">RACHA</div><div id="wCb" style="font-size:22px;font-weight:900;color:#fa0;text-shadow:2px 2px 0 #000;">x1</div></div>
-<div style="text-align:right;"><div style="font-size:9px;color:#ffd700;letter-spacing:2px;text-shadow:1px 1px 2px #000;">TIEMPO</div><div id="wTm" style="font-size:22px;font-weight:900;color:#ff4444;text-shadow:2px 2px 0 #000;">60s</div></div>
+<div style="text-align:right;"><div style="font-size:9px;color:#ffd700;letter-spacing:2px;text-shadow:1px 1px 2px #000;">الوقت</div><div id="wTm" style="font-size:22px;font-weight:900;color:#ff4444;text-shadow:2px 2px 0 #000;">60s</div></div>
 </div>
 <div style="padding:0 15px;"><div style="width:100%;height:10px;background:#1a0a00;border:2px solid #5a2a00;border-radius:5px;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,0.8);"><div id="wBr" style="width:100%;height:100%;background:linear-gradient(90deg,#ff0000,#ffaa00,#00ff00);"></div></div></div>
 </div>
@@ -493,8 +493,8 @@ running=false;cancelAnimationFrame(anim);
 const total=hitCount+missCount;
 const rate=total>0?Math.round(hitCount/total*100):0;
 uI.style.display='flex';
-sB.innerText='VOLVER A JUGAR';
-uI.querySelector('h1').innerText='¡TIEMPO!';
+sB.innerText='VOLVER A العب';
+uI.querySelector('h1').innerText='الوقت خلص!';
 uI.querySelector('p').innerHTML='<b style="color:#ffd700">النقط: '+sc+'</b><br><b style="color:#ffaa00">أطول سلسلة: x'+maxCombo+'</b><br><b style="color:#00ddff">الدقة: '+rate+'%</b><br><br>'+(sc>800?'أسطورة الشدة! 🔨':sc>400?'شغل عالي! 💪':'كمّل تدريب 🐹');
 hU.style.display='none';
 }

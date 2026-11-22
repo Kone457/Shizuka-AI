@@ -81,7 +81,7 @@ i=false;cancelAnimationFrame(l);cP(p.x,p.y,'#0af',20,1.5);cP(p.x,p.y,'#fff',10,1
 let gF=0;
 function rO(){
 if(gF>50){
-uI.style.display='flex';uI.style.opacity=1;sB.innerText='VOLVER A JUGAR';uI.querySelector('h1').innerText='GAME OVER';uI.querySelector('p').innerHTML='<b>Puntuación: '+sc+'</b> | <b>Oleada: '+wv+'</b><br>Los pollos han dominado.';
+uI.style.display='flex';uI.style.opacity=1;sB.innerText='VOLVER A العب';uI.querySelector('h1').innerText='GAME OVER';uI.querySelector('p').innerHTML='<b>Puntuación: '+sc+'</b> | <b>Oleada: '+wv+'</b><br>Los pollos han dominado.';
 return;
 }
 ctx.fillStyle='rgba(5,5,16,0.2)';ctx.fillRect(0,0,c.width,c.height);

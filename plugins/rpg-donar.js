@@ -15,7 +15,7 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
   if (user.coin < cantidad) return m.reply("✿ معندكش كوينز كفاية للتبرع بالمبلغ ده.")
   user.coin -= cantidad
   receptor.coin += cantidad
-  conn.reply(m.chat, `✿ Has donado *${cantidad.toLocaleString()} Coins* a @${target.split("@")[0]}`, m, { mentions: [target] })
+  conn.reply(m.chat, `✿ حوّلت *${cantidad.toLocaleString()} كوينز* لـ @${target.split("@")[0]}`, m, { mentions: [target] })
 }
 
 handler.help = ['تبرع']
