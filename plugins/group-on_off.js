@@ -1,11 +1,18 @@
+const ON_CMDS = new Set(['on', 'تشغيل', 'تفعيل', 'فعل'])
+const OFF_CMDS = new Set(['off', 'ايقاف', 'إيقاف', 'اطفاء', 'إطفاء'])
+
+const save = async () => {
+  try { await global.db?.write?.() } catch {}
+}
+
 let handler = async (m, { conn, args, command, isOwner }) => {
   const words = (args || []).map(a => String(a).toLowerCase());
   const setting = words.length > 1 && ['بدون بادئة'].includes(words.slice(0, 2).join(' '))
     ? words.slice(0, 2).join(' ')
     : words[0];
 
-  const chatData = global.db.data.chats[m.chat];
-  const botSettings = global.db.data.settings[conn.user.jid];
+  const chatData = (global.db.data.chats[m.chat] ||= {});
+  const botSettings = global.db.data.settings?.[conn.user.jid];
 
   const statusIcon = (conf) => conf ? '🟢' : '🔴';
 
@@ -34,7 +41,9 @@ ${command} ترحيب
     return m.reply(configList);
   }
 
-  const status = command.toLowerCase() === 'on';
+  const cmd = String(command || '').toLowerCase();
+  const status = ON_CMDS.has(cmd) ? true : OFF_CMDS.has(cmd) ? false : null;
+  if (status === null) return m.reply(`✿ *استخدم .تشغيل أو .ايقاف*\nمثال: .تشغيل ترحيب`);
 
   const reply = (name) =>
     m.reply(`
@@ -53,7 +62,7 @@ ${command} ترحيب
     case 'antilinks':
     case 'antienlaces':
       chatData.antiLink = status;
-      reply('Anti Enlaces');
+      reply('منع اللينكات');
       break;
 
     case 'القنوات':
@@ -61,7 +70,7 @@ ${command} ترحيب
     case 'anticanales':
     case 'anticanal':
       chatData.antichannel = status;
-      reply('Anti Canales');
+      reply('منع القنوات');
       break;
 
     case 'الخاص':
@@ -70,7 +79,7 @@ ${command} ترحيب
     case 'private':
     case 'privado':
       chatData.antiprivado = status;
-      reply('Anti Privado');
+      reply('منع الخاص');
       break;
 
     case 'الاقتصاد':
@@ -86,7 +95,7 @@ ${command} ترحيب
     case 'niveles':
     case 'nivel':
       chatData.level = status;
-      reply('Niveles');
+      reply('المستويات');
       break;
 
     case 'المشرفين':
@@ -101,21 +110,21 @@ ${command} ترحيب
     case 'bienvenida':
     case 'welcome':
       chatData.welcome = status;
-      reply('Bienvenida');
+      reply('الترحيب');
       break;
 
     case 'التفاعل':
     case 'reaccion':
     case 'reaction':
       chatData.reaction = status;
-      reply('Reacciones');
+      reply('التفاعل');
       break;
 
     case 'التنبيهات':
     case 'alerts':
     case 'alertas':
       chatData.alerts = status;
-      reply('Alertas');
+      reply('التنبيهات');
       break;
 
     case 'بدون بادئة':
@@ -144,7 +153,7 @@ ${command} ترحيب
 
       if (botSettings) {
         botSettings.jadibotmd = status;
-        reply('Subbots (JadiBot)');
+        reply('البوتات الفرعية');
       }
       break;
 
@@ -160,6 +169,7 @@ ${configList}
 `.trim());
       break;
   }
+  await save();
 };
 
 handler.help = ['تشغيل', 'ايقاف'];
