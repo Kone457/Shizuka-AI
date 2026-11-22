@@ -55,7 +55,8 @@ async function loadSubbots() {
 loadSubbots().catch(console.error)
 
 let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
-  if (!global.db.data.settings[conn.user.jid].jadibotmd) {
+  const settings = (global.db.data.settings[conn.user.jid] ||= {})
+  if (settings.jadibotmd === false) {
     return m.reply(`✿ *الأمر ده متوقف.*`)
   }
 
@@ -66,7 +67,7 @@ let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
 
   let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
   let id = `${who.split`@`[0]}`
-  let pathSkyJadiBot = path.join(`./${jadi}/`, id)
+  let pathSkyJadiBot = path.join(`./${global.jadi}/`, id)
 
   skyJadiBot({ pathSkyJadiBot, m, conn, args, usedPrefix, command, fromCommand: true })
 } 

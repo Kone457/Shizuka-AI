@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test --test-force-exit \"test/**/*.test.mjs\""
   },
   "repository": {
     "type": "git",

@@ -9,7 +9,8 @@ var api = 'xvideos.com'
 var git = 'https://github.com/Kone457'
 var md = 'https://github.com/Kone457Shizuka-AI'
 
-globalThis.redes = [canal, canal2, canal3, api, git, md].getRandom()
+const redes = [canal, canal2, canal3, api, git, md]
+globalThis.redes = redes[Math.floor(Math.random() * redes.length)]
 
   const canales = Object.entries(global.my)
   .reduce((acc, [key, value]) => {

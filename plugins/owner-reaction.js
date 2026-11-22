@@ -51,6 +51,7 @@ let handler = async (m, { conn, text, command }) => {
 }
 
 
+handler.help = ['تفاعل']
 handler.tags = ['owner']
 handler.command = ['react', 'تفاعل']
 handler.owner = true

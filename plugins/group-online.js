@@ -41,7 +41,7 @@ let handler = async (m, { conn, args }) => {
   }
 }
 handler.help = ['المتصلين']
-handler.tags = ["group"]
+handler.tags = ["grupo"]
 handler.command = ['listonline', 'online', 'linea', 'enlinea', 'المتصلين', 'اونلاين']
 handler.group = true
 export default handler

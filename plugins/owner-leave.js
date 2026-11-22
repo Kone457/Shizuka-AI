@@ -26,6 +26,8 @@ let handler = async (m, { conn, text, command }) => {
   }
 }
 
+handler.help = ['اخرج']
+handler.tags = ['grupo']
 handler.command = ['salir', 'leavegc', 'salirdelgrupo', 'leave', 'اخرج', 'خروج', 'اطلع', 'غادر']
 handler.group = true
 handler.owner = true

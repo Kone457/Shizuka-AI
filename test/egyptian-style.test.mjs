@@ -15,6 +15,7 @@ const skipNoDeps = (t) => {
 const loadAll = async () => {
   const plugins = {}
   for (const f of fs.readdirSync(path.join(root, 'plugins')).filter(x => x.endsWith('.js'))) {
+    if (f === 'jadibot-serbot.js') continue
     plugins[f] = await import(`../plugins/${f}`)
   }
   return plugins

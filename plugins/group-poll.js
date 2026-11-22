@@ -1,4 +1,4 @@
-var handler = async (m, { conn, text }) => {
+var handler = async (m, { conn, text, usedPrefix }) => {
   if (!text) return conn.reply(m.chat, `《✧》 اكتب العنوان والاختيارات مفصولة بـ |.\nمثال: ${usedPrefix}poll إيه أنمي المفضل عندك؟ | Naruto | One Piece | Bleach`, m)
 
   let [title, ...options] = text.split('|').map(v => v.trim())

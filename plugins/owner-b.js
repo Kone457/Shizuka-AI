@@ -29,6 +29,7 @@ let handler = async (m, { conn, args }) => {
   await conn.sendMessage(m.chat, { text: txt }, { quoted: m })
 }
 
+handler.help = ['اعداد']
 handler.tags = ['serbot']
 handler.command = ['sbc', 'اعداد']
 

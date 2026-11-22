@@ -18,6 +18,7 @@ const loadPlugins = async () => {
   const plugins = {}
   const dir = path.join(root, 'plugins')
   for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.js')).sort()) {
+    if (f === 'jadibot-serbot.js') continue
     try {
       const h = (await import(path.join(dir, f))).default
       if (h) plugins[f] = h

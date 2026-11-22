@@ -55,6 +55,7 @@ Total: *${results.length}*
   await conn.sendMessage(m.chat, { text: txt.trim() }, { quoted: m })
 }
 
+handler.help = ['لينك_الجروب']
 handler.tags = ['serbot']
 handler.command = ['slink', 'لينك_الجروب']
 

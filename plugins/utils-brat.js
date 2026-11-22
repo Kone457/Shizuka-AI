@@ -32,7 +32,7 @@ let handler = async (m, { conn, args }) => {
       contactMessage: {
         displayName: m.pushName || 'مستخدم',
         vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;${m.pushName};;;\nFN:${m.pushName}\nitem1.TEL;waid=${m.sender.replace(/[^0-9]/g,'')}:${m.sender}\nitem1.X-ABLabel:Cel\nEND:VCARD`,
-        jpegThumbnail: thumb || fs.readFileSync('./src/logo.jpg')
+        jpegThumbnail: thumb || (fs.existsSync('./src/logo.jpg') ? fs.readFileSync('./src/logo.jpg') : undefined)
       }
     }
   }
