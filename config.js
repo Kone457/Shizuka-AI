@@ -31,6 +31,18 @@ global.social = {
   whatsapp: 'https://wa.me/201125166486'
 }
 global.channel = 'https://whatsapp.com/channel/0029Vb8QIpSJ3juu0VHRyU0v'
+
+global.autoReply = {
+  on: true,
+  mode: 'contains',
+  rules: [
+    { k: 'بوت', r: ['اسمي *هينا* 🌸', 'أيوة؟ أنا *هينا* — اكتب *.منيو* تشوف الأوامر 🌸'] },
+    { k: 'شغال', r: ['أرحب 🌸'] },
+    { k: 'السلام عليكم', r: ['وعليكم السلام ورحمة الله 🌸'] },
+    { k: 'هلا', r: ['هلا بيك 🌸'] },
+    { k: 'اهلا', r: ['أهلاً بيك 🌸'] }
+  ]
+}
 global.currency = 'كوينز'
 global.sessions = 'sessions/session-bot'
 global.jadi = 'sessions/session-sub'
