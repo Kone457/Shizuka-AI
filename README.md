@@ -1,3 +1,6 @@
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:a970ff,100:ff69b4&height=210&section=header&text=Shizuka%20AI&fontSize=50&fontColor=ffffff&animation=fadeIn&fontAlignY=36&desc=WhatsApp%20Multi-Device%20Bot&descSize=18&descAlignY=58"/>
 
 <table>
   <tr>
