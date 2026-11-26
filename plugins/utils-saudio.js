@@ -4,7 +4,7 @@ import { spawn } from 'child_process'
 import { promises as fsp } from 'fs'
 import os from 'os'
 import path from 'path'
-import { sticker as crearSticker } from '../../lib/sticker.js'
+import { sticker as crearSticker } from '../lib/sticker.js'
 
 const MAX_SEG = 8
 const MIME_AUDIO = 'audio/ogg; codecs=opus'
