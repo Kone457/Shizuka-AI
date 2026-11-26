@@ -1,4 +1,4 @@
-
+/*
 import { downloadContentFromMessage, prepareWAMessageMedia, generateWAMessageFromContent } from '@whiskeysockets/baileys'
 import { spawn } from 'child_process'
 import { promises as fsp } from 'fs'
@@ -337,3 +337,4 @@ handler.tags = ['sticker']
 handler.help = ['sa']
 
 export default handler
+*/
